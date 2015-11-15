@@ -1,0 +1,9 @@
+#Gitignore file for GeoCat
+
+#Eclipse project files
+.project
+.buildpath
+.settings/
+
+#Custom GeoCat configuration file
+src/config/config.php

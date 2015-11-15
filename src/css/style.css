@@ -1,0 +1,16 @@
+/*
+	Increase hight of navigation bar
+*/
+div[role="navigation"] ul li a {
+	height: 24px;
+	line-height: 24px;
+
+}
+
+/*
+	Overwrite the default background
+*/
+#MainPageBody, #MainPageBody .ui-page-theme-b {
+	background-color: white !important;
+	background-image: linear-gradient(#FFF 0%, #A4A4A4 100%) !important;
+}

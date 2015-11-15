@@ -7,3 +7,9 @@
 
 #Custom GeoCat configuration file
 src/config/config.php
+
+# NodeJS modules
+node_modules
+
+# NodeJS modules
+node_modules/

@@ -1,0 +1,21 @@
+{
+  "name": "geocat",
+  "version": "0.0.1",
+  "description": "Geolocation caching and tracking platform",
+  "main": "index.js",
+  "dependencies": {
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-properties-to-json": "^0.5.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.thm.de:bkrm56/GeoCat.git"
+  },
+  "author": "",
+  "license": "GPL-3.0"
+}

@@ -14,3 +14,16 @@ div[role="navigation"] ul li a {
 	background-color: white !important;
 	background-image: linear-gradient(#FFF 0%, #A4A4A4 100%) !important;
 }
+
+/* ==============================================================================
+	GPS Navigator
+============================================================================== */
+
+#NavigatorCanvas {
+	width: 100%;
+	height: 100%;
+}
+
+#CanvasFrame{
+	margin: 0px auto;
+}

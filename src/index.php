@@ -44,34 +44,17 @@
 	<script src="./js/jquery.mobile-1.4.5.js"></script>
 	<script src="./js/gpsnavigator.js"></script>
 	<script src="./js/geotools.js"></script>
+	<script src="./js/gpsnavigator/GPSNavigationController.js"></script>
 	<script type="text/javascript">
-		var gpsnav = null;
+
+		// Global variales
+		var pages = new Object();
 
 		//Workaround: The function "getPageHeight" will return different results after the first page chage
 		var pageHeightOffset = 0;
 		var isFirstCreatedPage = true;
-		$(document).on("pagecreate",function(event){
-			if(isFirstCreatedPage){
-				isFirstCreatedPage = false;
-				if(window.location.hash != "#gpsnavigator"){
-					pageHeightOffset = 80; // Change the pageHeightOffset, so the height will be calculated correctly
-				}
-			}
-		});
 
-		// When page "gpsnavigator" is opened
-		$(document).on("pageshow","#gpsnavigator", function(){
-			gpsnav = new GPSNavigator($("#gpsnavigator_content")[0]);
-		});
-
-		// When page "gpsnavigator" is closed
-		$(document).on("pagebeforehide","#gpsnavigator", function(){
-			if(gpsnav != null){
-				gpsnav.destroy();
-				gpsnav = null;
-				pageHeightOffset = 80;
-			}
-		});
+		// Some useful (public) methods
 
 		function getPageHeight(){
 			var screen = $.mobile.getScreenHeight();
@@ -81,6 +64,25 @@
 			var content = screen - header - footer - pageHeightOffset;
 			return content;
 		}
+
+		$(document).on("pagecreate",function(event){
+			if(isFirstCreatedPage){
+				isFirstCreatedPage = false;
+				if(window.location.hash != "#gpsnavigator"){
+					pageHeightOffset = 80; // Change the pageHeightOffset, so the height will be calculated correctly
+				}
+			}
+		});
+
+		/* ====================================================================
+			 GPS Navigator Eventhandling
+		 ==================================================================== */
+
+		// When page "gpsnavigator" is opened
+		$(document).on("pageshow","#gpsnavigator", GPSNavigationController.onPageOpened);
+
+		// When page "gpsnavigator" is closed
+		$(document).on("pagebeforehide","#gpsnavigator", GPSNavigationController.onPageClosed);
 	</script>
 
 </head>
@@ -155,9 +157,34 @@
 			<div data-role="navbar" class="navigationbar">
 			<ul>
 					<li><a href="#home" data-transition="none">Zurück</a></li>
-					<li><a href="#" data-transition="none">Ort hinzufügen</a></li>
-					<li><a href="#" data-transition="none">Ziele anzeigen</a></li>
+					<li><a id="GPSNavigator_AddCoordinate" >Ort hinzufügen</a></li>
+					<li><a href="#CurrentDesitionListPanel" data-transition="none">Ziele anzeigen</a></li>
 				</ul>
+			</div>
+		</div>
+
+		<!-- Side panel to show destination list -->
+		<div data-role="panel" id="CurrentDesitionListPanel" data-position="right" data-display="overlay">
+			<ul id="CurrentDestinationList" data-role="listview" data-filter="true" data-filter-placeholder="Suchen..." data-inset="true">
+			</ul>
+		</div>
+
+		<!-- Popup to add/edit a destination -->
+		<div id="GPSNavDestListPopup" data-role="popup" data-theme="a" class="ui-corner-all" style="width: 80%;">
+			<div style="padding:10px 20px;">
+				<h3>GPS Navigator</h3>
+				<label for="GPSNavDestListPopup_Name" class="ui-hidden-accessible">Name:</label>
+				<input id="GPSNavDestListPopup_Name" name="Destination_Name" placeholder="Name" data-theme="a" type="text">
+
+				<label for="GPSNavDestListPopup_Desc">Description:</label>
+				<textarea id="GPSNavDestListPopup_Desc" name="Destination_Description" placeholder="Description" ></textarea>
+
+				<label for="GPSNavDestListPopup_Lat">Latitude:</label>
+				<input id="GPSNavDestListPopup_Lat" name="Destination_Latitude" placeholder="50.0000">
+
+				<label for="GPSNavDestListPopup_Lon">Longitude:</label>
+				<input id="GPSNavDestListPopup_Lon" name="Destination_Longitude" placeholder="8.0000">
+				<a id="GPSNavDestListPopup_Save" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Save</a>
 			</div>
 		</div>
 	</div>

@@ -17,8 +17,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function Coordinate(identifier, latitude, longitude, name, description){
-	this.id = identifier;
+function Coordinate(name, latitude, longitude, description){
 	this.lat = latitude;
 	this.lon = longitude;
 	this.name = name;
@@ -30,14 +29,13 @@ function Coordinate(identifier, latitude, longitude, name, description){
  * - Load/Store destination list in session/database via ajax
  * - Improve error handling
  * - Append a "buffer zone" between canvas and its border to prevent cut text
- * - List all destinations
- * - Add and remove items from destination list
+ * - Cancel button in edit dialog
  */
 
 function GPSNavigator(navigator_htmlelement){
 
 	var active = true;
-	var coords = new Array(); /* Array of "Coordinates" */
+	var coords = new Object(); /* Map of "Coordinates" */
 	var maxDisplayedDistance = 1000; //distance between window border and center (in meters)
 	var container = navigator_htmlelement;
 	var canvas = $("#NavigatorCanvas")[0];
@@ -54,19 +52,26 @@ function GPSNavigator(navigator_htmlelement){
 	drawGridInitial();
 
 	/* Append some coordinates */
-	//addDestination(new Coordinate("#1", <latitude>, <longitude> , "<Name>", "<Description>"));
-
+	//addDestination(<id>, new Coordinate("<Name>", <latitude>, <longitude>, "<Description>"));
 	start();
 
-	function addDestination(dest){
-		coords.push(dest);
+	function addDestination(id, dest){
+		coords[id] = dest;
 	}
 
 	this.addDestination = addDestination;
 
+	this.getDestinationById = function(id){
+		return coords[id];
+	}
+
 	this.getDestinationList = function(){
 		return coords;
 	};
+
+	this.getLastGPSPosition = function(){
+		return lastGPSPosition;
+	}
 
 	function start(){
 		if(gpsWatchId == -1){
@@ -149,10 +154,10 @@ function GPSNavigator(navigator_htmlelement){
 		ctx.font = "14px Arial";
 		ctx.fillStyle = 'red';
 
-		for(var i = 0; i < coords.length; i++){
-			var distanceInMeter = GeoTools.calculateDistance(lon, lat, coords[i].lon, coords[i].lat) * 1000;
+		for(var key in coords) {
+			var distanceInMeter = GeoTools.calculateDistance(lon, lat, coords[key].lon, coords[key].lat) * 1000;
 
-			var angle = GeoTools.calculateAngleTo(lon, lat, coords[i].lon, coords[i].lat);
+			var angle = GeoTools.calculateAngleTo(lon, lat, coords[key].lon, coords[key].lat);
 
 			// Apply heading to coordinates
 			angle = (angle - currentHeading) % 360;
@@ -162,7 +167,7 @@ function GPSNavigator(navigator_htmlelement){
 			var relativePosition = calculateRelativePoint(angle, distInPx);
 
 			drawPoint(ctx, relativePosition[0], relativePosition[1], 10);
-			ctx.fillText(coords[i].name, relativePosition[0] - 16, relativePosition[1] - 12);
+			ctx.fillText(coords[key].name, relativePosition[0] - 16, relativePosition[1] - 12);
 			ctx.fillText(distanceInMeter.toFixed(0) + "m", relativePosition[0], relativePosition[1] + 24);
 		}
 

@@ -49,6 +49,7 @@ function GPSNavigator(navigator_htmlelement){
 	var lastGPSPosition = null;
 	var updateTimer = null;
 
+	window.addEventListener('resize', updateCanvasSize, true);
 	updateCanvasSize();
 	drawGridInitial();
 

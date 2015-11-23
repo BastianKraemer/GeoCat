@@ -19,72 +19,58 @@
 
 var GPSNavigationController = new function(){
 
+	// Define HTML-Element IDs
+	var idList = new Object();
+	idList["list"] = "#CurrentDestinationList";
+	idList["panel"] = "#CurrentDesitionListPanel";
+	idList["popup"] = "#GPSNavDestListPopup";
+	idList["popup_save"] = "#GPSNavDestListPopup_Save";
+	idList["add_coordinate"] = "#GPSNavigator_AddCoordinate";
+	idList["field_name"] = "#GPSNavDestListPopup_Name";
+	idList["field_lat"] = "#GPSNavDestListPopup_Lat";
+	idList["field_lon"] = "#GPSNavDestListPopup_Lon";
+	idList["field_desc"] = "#GPSNavDestListPopup_Desc";
+
 	this.onPageOpened = function(){
 		pages["gpsnavigator"] = new GPSNavigator($("#gpsnavigator_content")[0]);
 
 		// Append some event handler
-		$("#CurrentDesitionListPanel").on("panelbeforeopen", function(){
-			var destList = $("#CurrentDestinationList");
-			destList.empty()
-
-			var list = pages["gpsnavigator"].getDestinationList();
-			for(var key in list){
-				destList.append("<li dest-id='" + key + "'><a href='#'>" + list[key].name + "</a></li>");
-			}
-
-			destList.listview('refresh');
+		$(idList["panel"]).on("panelbeforeopen", function(){
+			updateCurrentDestinationList();
 		});
 
-		$("#CurrentDesitionListPanel").on("panelbeforeopen", function(){
-			var destList = $("#CurrentDestinationList");
-			destList.empty()
-
-			var list = pages["gpsnavigator"].getDestinationList();
-			for(var key in list){
-				destList.append("<li dest-id='" + key + "'><a href='#'>" + list[key].name + "</a></li>");
-			}
-
-			destList.listview('refresh');
-		});
-
-		$("#CurrentDestinationList").delegate('li', 'click', function(){
-			var destID = $(this).attr("dest-id");
-			var dest = pages["gpsnavigator"].getDestinationById(destID);
-			showCoordinateEditDialog(destID, dest.name, dest.description, dest.lat, dest.lon);
-		});
-
-		$("#GPSNavigator_AddCoordinate").click(function(e){
+		$(idList["add_coordinate"]).click(function(e){
 			if(pages["gpsnavigator"] == null){return;}
 
 			var lastGPSPos = pages["gpsnavigator"].getLastGPSPosition();
 			if(lastGPSPos != null){
-				showCoordinateEditDialog(Date.now(), "Neues Ziel", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude);
+				showCoordinateEditDialog(Date.now(), "", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude);
 			}
 			else{
 				alert("Unable to get current GPS position.");
-				resetActiveButtonState("#GPSNavigator_AddCoordinate");
+				resetActiveButtonState(idList["add_coordinate"]);
 			}
 		});
 
-		$("#GPSNavDestListPopup_Save").click(function(e) {
-			var id = $("#GPSNavDestListPopup").attr("dest-id");
-			pages["gpsnavigator"].addDestination(id, new Coordinate($("#GPSNavDestListPopup_Name").val(),
-																	$("#GPSNavDestListPopup_Lat").val(),
-																	$("#GPSNavDestListPopup_Lon").val(),
-																	$("#GPSNavDestListPopup_Desc").val()));
+		$(idList["popup_save"]).click(function(e) {
+			var id = $(idList["popup"]).attr("dest-id");
+			pages["gpsnavigator"].addDestination(id, new Coordinate($(idList["field_name"]).val(),
+																	$(idList["field_lat"]).val(),
+																	$(idList["field_lon"]).val(),
+																	$(idList["field_desc"]).val()));
 
 			// Update label text
-			$("#CurrentDestinationList li[dest-id=" + id + "] a").text($("#GPSNavDestListPopup_Name").val());
+			$(idList["list"] + " li[dest-id=" + id + "] a[href='#']").text($(idList["field_name"]).val());
 
 			// Close popup
-			$("#GPSNavDestListPopup").popup("close");
+			$(idList["popup"]).popup("close");
 		});
 
-		$("#GPSNavDestListPopup").on("popupafterclose", function(event, ui){
-			resetActiveButtonState("#GPSNavigator_AddCoordinate");
+		$(idList["popup"]).on("popupafterclose", function(event, ui){
+			resetActiveButtonState(idList["add_coordinate"]);
 		});
 
-		//$("#CurrentDesitionListPanel").on("panelbeforeclose", function(){});
+		//$(idList["panel"]).on("panelbeforeclose", function(){});
 	}
 
 	function resetActiveButtonState(buttonId){
@@ -93,7 +79,7 @@ var GPSNavigationController = new function(){
 
 	this.onPageClosed = function(){
 		if(pages["gpsnavigator"] != null){
-			$("#CurrentDesitionListPanel").off() // Remove all event handler
+			$(idList["panel"]).off() // Remove all event handler
 			pages["gpsnavigator"].destroy();
 			pages["gpsnavigator"] = null;
 
@@ -101,14 +87,41 @@ var GPSNavigationController = new function(){
 		}
 	}
 
-	function showCoordinateEditDialog(id, name, description, latitude, longitude){
-		$("#GPSNavDestListPopup_Name").val(name);
-		$("#GPSNavDestListPopup_Desc").val(description);
-		$("#GPSNavDestListPopup_Lat").val(latitude);
-		$("#GPSNavDestListPopup_Lon").val(longitude);
-		$("#GPSNavDestListPopup").css("width", window.innerWidth - (window.innerWidth * 0.1) + "px");
-		$("#GPSNavDestListPopup").attr("dest-id", id);
+	this.showCoordinateEditDialogForExistingDestination = function(destID){
+		if(pages["gpsnavigator"] != null){
+			var dest = pages["gpsnavigator"].getDestinationById(destID);
+			showCoordinateEditDialog(destID, dest.name, dest.description, dest.lat, dest.lon);
+		}
+	}
 
-		$("#GPSNavDestListPopup").popup("open", {positionTo: "window", transition: "pop"});
+	function showCoordinateEditDialog(id, name, description, latitude, longitude){
+		$(idList["field_name"]).val(name);
+		$(idList["field_desc"]).val(description);
+		$(idList["field_lat"]).val(latitude);
+		$(idList["field_lon"]).val(longitude);
+		$(idList["popup"]).css("width", window.innerWidth - (window.innerWidth * 0.1) + "px");
+		$(idList["popup"]).attr("dest-id", id);
+
+		$(idList["popup"]).popup("open", {positionTo: "window", transition: "pop"});
+	}
+
+	function updateCurrentDestinationList(){
+		var destList = $(idList["list"]);
+		destList.empty()
+
+		var list = pages["gpsnavigator"].getDestinationList();
+		for(var key in list){
+			destList.append("<li dest-id=\"" + key + "\">" +
+							"<a onclick=\"GPSNavigationController.showCoordinateEditDialogForExistingDestination('" + key + "');\" href=\"#\">" + list[key].name + "</a>" +
+							"<a onclick=\"GPSNavigationController.deleteListItem('" + key + "');\" class=\"ui-icon-delete\">Remove</a>" +
+							"</li>");
+		}
+
+		destList.listview('refresh');
+	}
+
+	this.deleteListItem = function(key){
+		pages["gpsnavigator"].removeDestination(key);
+		updateCurrentDestinationList();
 	}
 }

@@ -53,6 +53,7 @@ function GPSNavigator(navigator_htmlelement){
 
 	/* Append some coordinates */
 	//addDestination(<id>, new Coordinate("<Name>", <latitude>, <longitude>, "<Description>"));
+
 	start();
 
 	function addDestination(id, dest){
@@ -60,6 +61,12 @@ function GPSNavigator(navigator_htmlelement){
 	}
 
 	this.addDestination = addDestination;
+
+	this.removeDestination = function(id){
+		if(coords.hasOwnProperty(id)){
+			delete coords[id];
+		}
+	}
 
 	this.getDestinationById = function(id){
 		return coords[id];

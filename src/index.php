@@ -149,11 +149,11 @@
 
 		<div id="gpsnavigator_content" role="main" class="ui-content my-page">
 			<div id="CanvasFrame">
-				<canvas id="NavigatorCanvas" width="1000" height="1000"></canvas>
+				<canvas id="NavigatorCanvas"></canvas>
 			</div>
 		</div>
 
-		<div data-role="footer" data-id="navbar" data-position="fixed" data-theme="b" style="overflow:hidden;">
+		<div data-role="footer" data-id="navbar" data-position="fixed" data-tap-toggle="false" data-theme="b" style="overflow:hidden;">
 			<div data-role="navbar" class="navigationbar">
 			<ul>
 					<li><a href="#home" data-transition="none">Zurück</a></li>

@@ -1,4 +1,4 @@
-<div data-role="footer" data-id="navbar" data-position="fixed" data-theme="b" style="overflow:hidden;">
+<div data-role="footer" data-id="navbar" data-position="fixed" data-tap-toggle="false" data-theme="b" style="overflow:hidden;">
     <div data-role="navbar" class="navigationbar">
         <ul>
             <li><a href="#home" data-transition="none">Startseite</a></li>

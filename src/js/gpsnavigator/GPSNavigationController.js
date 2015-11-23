@@ -53,7 +53,7 @@ var GPSNavigationController = new function(){
 			showCoordinateEditDialog(destID, dest.name, dest.description, dest.lat, dest.lon);
 		});
 
-		$("#GPSNavigator_AddCoordinate").on("tap", function(e){
+		$("#GPSNavigator_AddCoordinate").click(function(e){
 			if(pages["gpsnavigator"] == null){return;}
 
 			var lastGPSPos = pages["gpsnavigator"].getLastGPSPosition();
@@ -62,10 +62,8 @@ var GPSNavigationController = new function(){
 			}
 			else{
 				alert("Unable to get current GPS position.");
+				resetActiveButtonState("#GPSNavigator_AddCoordinate");
 			}
-
-			// Workaround, otherwise the button will stay "active" (at least in Firefox browser)
-			setTimeout(function(){$("#GPSNavigator_AddCoordinate").removeClass($.mobile.activeBtnClass);}, 250);
 		});
 
 		$("#GPSNavDestListPopup_Save").click(function(e) {
@@ -82,7 +80,15 @@ var GPSNavigationController = new function(){
 			$("#GPSNavDestListPopup").popup("close");
 		});
 
+		$("#GPSNavDestListPopup").on("popupafterclose", function(event, ui){
+			resetActiveButtonState("#GPSNavigator_AddCoordinate");
+		});
+
 		//$("#CurrentDesitionListPanel").on("panelbeforeclose", function(){});
+	}
+
+	function resetActiveButtonState(buttonId){
+		$(buttonId).removeClass($.mobile.activeBtnClass);
 	}
 
 	this.onPageClosed = function(){

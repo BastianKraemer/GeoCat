@@ -47,9 +47,9 @@ function GPSNavigator(navigator_htmlelement){
 	var lastGPSPosition = null;
 	var updateTimer = null;
 
-	window.addEventListener('resize', updateCanvasSize, true);
 	updateCanvasSize();
-	drawGridInitial();
+	prepareCanvas();
+	window.addEventListener('resize', updateCanvasSize, true);
 
 	/* Append some coordinates */
 	//addDestination(<id>, new Coordinate("<Name>", <latitude>, <longitude>, "<Description>"));
@@ -80,7 +80,10 @@ function GPSNavigator(navigator_htmlelement){
 	}
 
 	this.destroy = function(){
-		clearCanvas(canvas.getContext("2d"));
+		var ctx = canvas.getContext("2d");
+		clearCanvas(ctx);
+		ctx.restore();
+		ctx.setTransform(1, 0, 0, 1, 0, 0);
 		window.removeEventListener('resize', updateCanvasSize, false);
 		stop();
 	};
@@ -112,11 +115,6 @@ function GPSNavigator(navigator_htmlelement){
 			canvasFrame.style.height = (w - offset) + "px";
 			preferedCanvasSize = 1.25 * (w - offset);
 		}
-	}
-
-	function displayGrid(){
-		var frameWidth = container.offsetWidth;
-		var frameHeight = container.offsetHeight;
 	}
 
 	function clearCanvas(ctx){
@@ -178,14 +176,16 @@ function GPSNavigator(navigator_htmlelement){
 		ctx.fillText(timestamp, canvasAxisLength * -1, -1 * canvasAxisLength + 70);
 		ctx.fillText(accuracy + "m", canvasAxisLength * -1, -1 * canvasAxisLength + 90);
 		if(!isNaN(speed)){
-			ctx.fillText(toFixed(1) + "m/s", canvasAxisLength * -1, -1 * canvasAxisLength + 110);
+			ctx.fillText(speed.toFixed(1) + "m/s", canvasAxisLength * -1, -1 * canvasAxisLength + 110);
 		}
 	}
 
-	function drawGridInitial(){
+	function prepareCanvas(){
 		var ctx = canvas.getContext("2d");
 		ctx.font = "16px Arial";
 		ctx.save();
+		canvas.width = 2 * canvasAxisLength;
+		canvas.height = 2 * canvasAxisLength;
 		ctx.translate(canvasAxisLength, canvasAxisLength);
 		drawGrid(ctx, 0);
 	}

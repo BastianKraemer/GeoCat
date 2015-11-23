@@ -30,15 +30,31 @@ var GPSNavigationController = new function(){
 	idList["field_lat"] = "#GPSNavDestListPopup_Lat";
 	idList["field_lon"] = "#GPSNavDestListPopup_Lon";
 	idList["field_desc"] = "#GPSNavDestListPopup_Desc";
+	idList["preferences"] = "#GPSNavigatorPreferencesPanel";
+	idList["pref_rotate"] = "#GPSNavDisableRotation";
+	idList["pref_debuginfo"] = "#GPSNavShowDebugInfo";
+	idList["pref_offline_mode"] = "#GPSNavOfflineMode";
 
 	this.onPageOpened = function(){
-		pages["gpsnavigator"] = new GPSNavigator($("#gpsnavigator_content")[0]);
+		if(pages["gpsnavigator"] == null){
+			pages["gpsnavigator"] = new GPSNavigator($("#gpsnavigator_content")[0]);
+		}
+		else{
+			pages["gpsnavigator"].start();
+		}
 
 		// Append some event handler
+
+		/*
+		 * On panel opened
+		 */
 		$(idList["panel"]).on("panelbeforeopen", function(){
 			updateCurrentDestinationList();
 		});
 
+		/*
+		 * Add coordinate button
+		 */
 		$(idList["add_coordinate"]).click(function(e){
 			if(pages["gpsnavigator"] == null){return;}
 
@@ -52,6 +68,9 @@ var GPSNavigationController = new function(){
 			}
 		});
 
+		/*
+		 * Save button in popup dialog is clicked
+		 */
 		$(idList["popup_save"]).click(function(e) {
 			var id = $(idList["popup"]).attr("dest-id");
 			pages["gpsnavigator"].addDestination(id, new Coordinate($(idList["field_name"]).val(),
@@ -70,7 +89,34 @@ var GPSNavigationController = new function(){
 			resetActiveButtonState(idList["add_coordinate"]);
 		});
 
+		/*
+		 * Before Preferences panel is opened
+		 */
+		$(idList["preferences"]).on("panelafteropen", function(){
+			$(idList["pref_rotate"]).val(getPreference("rotate")).slider("refresh");
+			$(idList["pref_debuginfo"]).val(getPreference("debug_info")).slider("refresh");
+			$(idList["pref_offline_mode"]).val(getPreference("offline_mode")).slider("refresh");
+		});
+
+		bindPreferenceChangeEvent(idList["pref_rotate"], "rotate");
+		bindPreferenceChangeEvent(idList["pref_debuginfo"], "debug_info");
+		bindPreferenceChangeEvent(idList["pref_offline_mode"], "offline_mode");
+
 		//$(idList["panel"]).on("panelbeforeclose", function(){});
+	}
+
+	function getPreference(key){
+		var val = pages["gpsnavigator"].getPreference("rotate");
+		if(val != undefined){
+			return val == true ? "on" : "off";
+		}
+		return false;
+	}
+
+	function bindPreferenceChangeEvent(id, preferenceKey){
+		$(id).bind( "change", function(event, ui) {
+			pages["gpsnavigator"].setPreference(preferenceKey, $(id).is(":checked"));
+		});
 	}
 
 	function resetActiveButtonState(buttonId){
@@ -79,9 +125,17 @@ var GPSNavigationController = new function(){
 
 	this.onPageClosed = function(){
 		if(pages["gpsnavigator"] != null){
-			$(idList["panel"]).off() // Remove all event handler
-			pages["gpsnavigator"].destroy();
-			pages["gpsnavigator"] = null;
+
+			// Remove all event handler
+			$(idList["panel"]).off();
+			$(idList["popup"]).off();
+			$(idList["pref_rotate"]).unbind();
+			$(idList["pref_debuginfo"]).unbind();
+			$(idList["pref_offline_mode"]).unbind();
+			$(idList["popup_save"]).unbind();
+			$(idList["add_coordinate"]).unbind();
+
+			pages["gpsnavigator"].stop();
 
 			pageHeightOffset = 80; //global variable
 		}

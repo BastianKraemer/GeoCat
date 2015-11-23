@@ -143,6 +143,7 @@
 	================================================================================
 	-->
 	<div data-role="page" id="gpsnavigator">
+
 		<div data-role="header" data-id="page_header" data-theme="b">
 			<h1>GPS Navigator</h1>
 		</div>
@@ -159,8 +160,22 @@
 					<li><a href="#home" data-transition="none">Zurück</a></li>
 					<li><a id="GPSNavigator_AddCoordinate" >Ort hinzufügen</a></li>
 					<li><a href="#CurrentDesitionListPanel" data-transition="none">Ziele anzeigen</a></li>
+					<li><a href="#GPSNavigatorPreferencesPanel" data-rel="panel" data-transition="none">Optionen</a></li>
 				</ul>
 			</div>
+		</div>
+
+		<!-- GPS navigator preferences panel -->
+		<div data-role="panel" id="GPSNavigatorPreferencesPanel" data-position="right" data-display="overlay">
+			<h2>Optionen</h2>
+			<label for="GPSNavDisableRotation">Ansicht automatisch drehen</label>
+			<input id="GPSNavDisableRotation" data-role="flipswitch" name="GPSNavDisableRotation" type="checkbox" checked>
+
+			<label for="GPSNavShowDebugInfo">Debug Informationen anzeigen</label>
+			<input id="GPSNavShowDebugInfo" data-role="flipswitch" name="GPSNavShowDebugInfo" type="checkbox" checked>
+
+			<label for="GPSNavOfflineMode">Offline Modus verwenden</label>
+			<input id="GPSNavOfflineMode" data-role="flipswitch" name="GPSNavOfflineMode" type="checkbox">
 		</div>
 
 		<!-- Side panel to show destination list -->

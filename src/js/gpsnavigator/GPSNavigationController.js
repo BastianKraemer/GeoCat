@@ -73,16 +73,24 @@ var GPSNavigationController = new function(){
 		 */
 		$(idList["popup_save"]).click(function(e) {
 			var id = $(idList["popup"]).attr("dest-id");
-			pages["gpsnavigator"].addDestination(id, new Coordinate($(idList["field_name"]).val(),
-																	$(idList["field_lat"]).val(),
-																	$(idList["field_lon"]).val(),
-																	$(idList["field_desc"]).val()));
 
-			// Update label text
-			$(idList["list"] + " li[dest-id=" + id + "] a[href='#']").text($(idList["field_name"]).val());
+			var name = $(idList["field_name"]).val();
+			var lat = parseFloat($(idList["field_lat"]).val());
+			var lon = parseFloat($(idList["field_lon"]).val());
 
-			// Close popup
-			$(idList["popup"]).popup("close");
+			if(name == "" || isNaN(lat) || isNaN(lon)){
+				alert("Please enter a valid name and values for latitude and longitude.");
+			}
+			else{
+				// Everything ok
+				pages["gpsnavigator"].addDestination(id, new Coordinate(name, lat, lon, $(idList["field_desc"]).val()));
+
+				// Update label text
+				$(idList["list"] + " li[dest-id=" + id + "] a[href='#']").text($(idList["field_name"]).val());
+
+				// Close popup
+				$(idList["popup"]).popup("close");
+			}
 		});
 
 		$(idList["popup"]).on("popupafterclose", function(event, ui){

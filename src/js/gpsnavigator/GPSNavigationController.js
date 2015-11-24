@@ -39,9 +39,8 @@ var GPSNavigationController = new function(){
 		if(pages["gpsnavigator"] == null){
 			pages["gpsnavigator"] = new GPSNavigator($("#gpsnavigator_content")[0]);
 		}
-		else{
-			pages["gpsnavigator"].start();
-		}
+
+		pages["gpsnavigator"].startNavigator();
 
 		// Append some event handler
 
@@ -143,7 +142,7 @@ var GPSNavigationController = new function(){
 			$(idList["popup_save"]).unbind();
 			$(idList["add_coordinate"]).unbind();
 
-			pages["gpsnavigator"].stop();
+			pages["gpsnavigator"].stopNavigator();
 
 			pageHeightOffset = 80; //global variable
 		}

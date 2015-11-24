@@ -45,6 +45,7 @@
 	<script src="./js/gpsnavigator.js"></script>
 	<script src="./js/geotools.js"></script>
 	<script src="./js/gpsnavigator/GPSNavigationController.js"></script>
+	<script src="./js/gpsnavigator/GPSRadar.js"></script>
 	<script type="text/javascript">
 
 		// Global variales

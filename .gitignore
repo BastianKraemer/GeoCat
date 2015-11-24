@@ -11,5 +11,5 @@ src/config/config.php
 # NodeJS modules
 node_modules
 
-# NodeJS modules
-node_modules/
+# JavaScript Documentation (JSDoc)
+doc/

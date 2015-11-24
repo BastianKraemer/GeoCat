@@ -13,9 +13,13 @@ module.exports = function(grunt) {
 
     jsdoc: {
         dist : {
-            src: ['src/js/*.js'],
-            dest: 'doc'
-        }
+            src: ['src/js/**/*.js'],
+            dest: 'doc',
+	    options: {
+	        verbose: true,
+	        package: 'package.json'
+	    }
+       }
     }
   });
 

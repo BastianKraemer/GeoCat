@@ -17,6 +17,14 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * This class represents a location
+ * @class Coordinate
+ * @param {String} name Name of this location
+ * @param {Double} lat Latitude of this location
+ * @param {Double} lon Logitude of this location
+ * @param {String} description Description of this location
+ */
 function Coordinate(name, latitude, longitude, description){
 	this.lat = latitude;
 	this.lon = longitude;
@@ -27,6 +35,12 @@ function Coordinate(name, latitude, longitude, description){
  // TODO: Load/Store destination list in session/database via ajax
  // TODO: Improve error handling
 
+/**
+ * This class is used by the GPS Radar to handle "destination list"
+ * @class GPSNavigator
+ * @param {HTMLElement} Container of the canvas which is used to display the navigator
+ * @see GPSRadar
+ */
 function GPSNavigator(canvas_container){
 
 	var container = canvas_container;
@@ -44,46 +58,129 @@ function GPSNavigator(canvas_container){
 		coords[id] = dest;
 	}
 
+	/**
+	 * Add another destination to the navigator
+	 * @param id {String} Identifier (has to be unique)
+	 * @param {Coordinate} coordinate Coordinates of of this destination
+	 *
+	 * @function addDestination
+	 * @memberOf GPSNavigator
+	 * @instance
+	 */
 	this.addDestination = addDestination;
 
+	/**
+	 * Remove a destination from the navigator
+	 * @param id {String} Identifier of the destination
+	 *
+	 * @function removeDestination
+	 * @memberOf GPSNavigator
+	 * @instance
+	 */
 	this.removeDestination = function(id){
 		if(coords.hasOwnProperty(id)){
 			delete coords[id];
 		}
 	};
 
+	/**
+	 * Returns one location that is currently on the destination list of the navigator
+	 * @param id {String} Identifier of the destination
+	 * @returns {Coordinate} The coordinates which belongs to the identifier
+	 * @see Coordinate
+	 *
+	 * @function getDestinationById
+	 * @memberOf GPSNavigator
+	 * @instance
+	 */
 	this.getDestinationById = function(id){
 		return coords[id];
 	};
 
+	/**
+	 * Returns list of destinations that is currently used by the navigator
+	 * @returns {Object.<String, Coordinate>} A map which contains the current destinations of the navigator
+	 * @see Coordinate
+	 *
+	 * @function getDestinationList
+	 * @memberOf GPSNavigator
+	 * @instance
+	 */
 	this.getDestinationList = function(){
 		return coords;
 	};
 
-	this.getLastGPSPosition = function(){
-		return lastGPSPosition;
-	};
-
+	/**
+	 * Sets a preference of the navigator
+	 * @returns {Object.<String, Object>} Map of the current preferences
+	 *
+	 * @function setPreferences
+	 * @memberOf GPSNavigator
+	 * @instance
+	 */
 	this.setPreference = function(key, value){
 		preferences[key] = value;
 	};
 
+	/**
+	 * Returns all preferences of the navigator
+	 * @returns {Object.<String, Object>} Map of the current preferences
+	 *
+	 * @function getPreferences
+	 * @memberOf GPSNavigator
+	 * @instance
+	 */
 	this.getPreferences = function(){
 		return preferences;
 	};
 
+	/**
+	 * Gets the value of a specific preference of the navigator
+	 * @param {String} key The key that identifies the preference
+	 * @returns {Object} The value of this preference
+	 *
+	 * @function getPreference
+	 * @memberOf GPSNavigator
+	 * @instance
+	 */
 	this.getPreference = function(key){
 		return preferences[key];
 	};
 
+	/**
+	 * Returns the latest GPS position that is availabe to this class
+	 * @returns {Object} The object that is provided by the <code>navigator.geolocation.watchPosition</code> callback
+	 *
+	 * @function getGPSPos
+	 * @memberOf GPSNavigator
+	 * @instance
+	 */
 	this.getGPSPos = function(){
 		return lastGPSPosition;
 	};
 
+	/**
+	 * Returns the current heading that has been calculated by the movement of the device.
+	 * The value is based on the HTML5 geolocation heading value, but will keep the last angle if the device stops moving.
+	 * The HTML5 geolocation API ist described here: http://www.w3.org/TR/geolocation-API/#heading
+	 * The value is directly represets the number of
+	 * @returns {Number} The heading in degrees counted clockwise from north (0 <= heading < 360).
+	 *
+	 * @function getHeading
+	 * @memberOf GPSNavigator
+	 * @instance
+	 */
 	this.getHeading = function(){
 		return currentHeading;
 	}
 
+	/**
+	 * Starts the navigator. This should be called when the GPS Navigator page is opened.
+	 *
+	 * @function startNavigator
+	 * @memberOf GPSNavigator
+	 * @instance
+	 */
 	this.startNavigator = function(){
 		if(gpsDisplay != null){
 			stopTimer();
@@ -94,6 +191,13 @@ function GPSNavigator(canvas_container){
 		watchGPSPosition();
 	}
 
+	/**
+	 * Stops the navigator. This should be called when the GPS Navigator page is closed.
+	 *
+	 * @function stopNavigator
+	 * @memberOf GPSNavigator
+	 * @instance
+	 */
 	this.stopNavigator = function(){
 		if(gpsWatchId != -1){
 			navigator.geolocation.clearWatch(gpsWatchId);

@@ -17,10 +17,16 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * A collection of methods which are useful when dealing with GPS coordinates
+ * @namespace GeoTools
+ */
 var GeoTools = new function(){
 
 	/**
 	 * Convert degrees to radians
+	 * @param {Number} deg Angle in degrees
+	 * @returns {Number} Angle in radians
 	 */
 	this.toRad = function(deg){
 		return deg * (Math.PI/180);
@@ -33,7 +39,7 @@ var GeoTools = new function(){
 	 * @param {double} lon1 longitude of position 1
 	 * @param {double} lat2 latitude of position 2
 	 * @param {double} lon2 longitude of position 2
-	 * @returns The distnace between both position in kilometers
+	 * @returns The distance between both position in kilometers
 	 */
 	this.calculateDistance = function(lat1, lon1, lat2, lon2) {
 		var radius = 6371; // Earth radius

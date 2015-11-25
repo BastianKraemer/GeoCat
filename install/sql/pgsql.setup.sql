@@ -1,4 +1,4 @@
-﻿CREATE TABLE Account (
+CREATE TABLE Account (
 accountid  SERIAL NOT NULL ,
 username VARCHAR(64) NOT NULL ,
 email VARCHAR(128) NOT NULL ,

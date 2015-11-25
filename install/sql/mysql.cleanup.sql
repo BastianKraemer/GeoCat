@@ -1,4 +1,4 @@
-﻿-- ---
+-- ---
 -- MySQL Cleanup file
 -- ---
 

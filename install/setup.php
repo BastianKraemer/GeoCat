@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 //ini_set('memory_limit', '5120M');
 set_time_limit ( 0 );
 
@@ -208,6 +208,63 @@ function split_sql_file($sql, $delimiter)
  * ============================================================================
  */
 
+function createSchema($dbh, $dbtype, $schemaname){
+
+	if($dbtype == "mysql"){
+		$sql = 	"CREATE DATABASE IF NOT EXISTS `" . $schemaname . "`\n" .
+				"	DEFAULT CHARACTER SET utf8\n" .
+				"	DEFAULT COLLATE utf8_general_ci;";
+	}
+	else if($dbtype == "pgsql"){
+		$sql = "CREATE DATABASE " . $schemaname . " ENCODING 'UTF8';";
+	}
+	else{
+		die("Cannot create schema for database type '" . $dbtype . "' (not supported)");
+	}
+
+	printf("Creating schema '%s'...", $schemaname);
+
+	$query = $dbh->prepare($sql);
+	$res = $query->execute();
+	if ($res) {
+		print (" done.\n(Closing connection to database)\n\n");
+	}
+	else{
+		print("\n\nERROR - Creating schma failed:\n" .$sql . "\n");
+		print("\nPDOStatement::errorInfo():\n");
+		$arr = $query->errorInfo();
+		print_r($arr);
+	}
+}
+
+function dropSchema($dbh, $dbtype, $schemaname){
+	if($dbtype == "mysql"){
+		$sql = 	"DROP DATABASE IF EXISTS `" . $schemaname . "`\n";
+	}
+	else if($dbtype == "pgsql"){
+		$sql = "DROP DATABASE IF EXISTS " . $$schemaname;
+	}
+	else{
+		die("Cannot delete schema for database type '" . $dbtype . "' (not supported)");
+	}
+
+	printf("Deleting schema '%s'...", $schemaname);
+
+	$query = $dbh->prepare($sql);
+	$res = $query->execute();
+	if ($res) {
+		print (" done.\n");
+	}
+	else{
+		print("\n\nERROR - Deleting schma failed:\n" .$sql . "\n");
+		print("\nPDOStatement::errorInfo():\n");
+		$arr = $query->errorInfo();
+		print_r($arr);
+	}
+}
+
+// Install section
+
 function installSQL_File($filename, $dbh){
 	$sql_query = @fread(@fopen($filename, 'r'), @filesize($filename)) or die("Cannot read file '" . $filename . "'.");
 	$sql_query = remove_comments($sql_query);
@@ -222,7 +279,11 @@ function installSQL_File($filename, $dbh){
 			print (".");
 		}
 		else{
-			die("\nERROR while executing sql statement:\n" . $sql . "\n");
+			print("\n\nERROR while executing sql statement:\n" .$sql . "\n");
+			print("\nPDOStatement::errorInfo():\n");
+			$arr = $query->errorInfo();
+			print_r($arr);
+			die;
 		}
 	}
 
@@ -231,20 +292,27 @@ function installSQL_File($filename, $dbh){
 
 function connectToDatabase($dbtype, $host, $port, $dbname, $username, $password){
 	try{
-		printf("Connecting to %s://%s@%s%s (Schema name: '%s')...\n\n", $dbtype, $username, $host, ($port != "" ? ":" . $port : ""), $dbname);
-		return new PDO($dbtype . ":host=" . $host . ($port != "" ? ";port=" . $port : "") . ";dbname=" . $dbname, $username, $password);
+		printf("Connecting to %s://%s@%s%s%s...\n\n", $dbtype, $username, $host,
+				($port != "" ? ":" . $port : ""),
+				($dbname != "" ? " (Schame name: " . $dbname . ")" : ""));
+		return new PDO($dbtype . ":host=" . $host . ($port != "" ? ";port=" . $port : "") . ($dbname != "" ? ";dbname=" . $dbname : ""), $username, $password);
 
 	} catch (PDOException $e) {
 		die("Connection to database failed: " . $e->getMessage());
 	}
 }
 
+// Parse command line arguments
+
 $prefix = "";
-$dbtype = "";
+$db_type = "";
 $db_host = "localhost";
 $db_port = "";
 $db_user = "root";
 $db_paswd = "";
+$db_name = "geocat";
+$create_schema = false;
+
 for($i = 1; $i < count($argv); $i++){
 
 	switch ($argv[$i]) {
@@ -258,12 +326,31 @@ for($i = 1; $i < count($argv); $i++){
 			$prefix = "cleanup";
 			break;
 
+		case "--delete":
+		case "-d":
+			$prefix = "delete";
+			break;
+
 		case "--dbtype":
 		case "-t":
-	        $dbtype = $argv[++$i];
+	        $db_type = strtolower($argv[++$i]);
+			break;
+
+		case "--create-database":
+		case "--create-schema":
+		case "-cs":
+			$db_name = $argv[++$i];
+			$create_schema = true;
+			break;
+
+		case "--dbname":
+		case "--schema":
+		case "-s":
+			$db_name = $argv[++$i];
 			break;
 
 		case "--host":
+		case "-h":
 			$db_host = $argv[++$i];
 			break;
 
@@ -284,13 +371,15 @@ for($i = 1; $i < count($argv); $i++){
 
 		case "--help":
 		case "-?":
-			print("\nUsage: php setup.php [--install|--uninstall] [options]\n\n" .
+			print("\nUsage: php setup.php [--install|--uninstall|--delete] [options]\n\n" .
 					"Supported options:\n" .
-					"--dbtype [-t]	(possible values: 'mysql' or 'pgsql')\n" .
-					"--host		(by default this is 'localhost')\n" .
-					"--port [-p]\n" .
-					"--user [-l]\n" .
-					"--password [-pw]\n\n" .
+					"--dbtype; -t <type>	(possible values: 'mysql' or 'pgsql')\n" .
+					"--host; -h <host>	(by default this is 'localhost')\n" .
+					"--port; -p <port>\n" .
+					"--user; -l <user>\n" .
+					"--password; -pw <password>\n" .
+					"--create-schema; -cs <schema name>	(create a new schema)\n" .
+					"--schema; -s <schema name>		(by default this is 'geocat')\n\n" .
 					"It's also possible to use '-i' and '-u' instead of '--install' or '--uninstall'");
 			exit(0);
 
@@ -299,12 +388,12 @@ for($i = 1; $i < count($argv); $i++){
 	}
 }
 
-if(!(strtolower($dbtype) == "mysql" || strtolower($dbtype) == "pgsql")){
+if(!($db_type == "mysql" || $db_type == "pgsql")){
 	die("Database type is not defined. Use '--db [mysql|pgsql]' to define this.");
 }
 
-if($prefix == "" || ($prefix != "setup" && $prefix != "cleanup")){
-	die("Please use one of the following parameters '--install' or '--uninstall'.");
+if($prefix == "" || ($prefix != "setup" && $prefix != "cleanup" && $prefix != "delete")){
+	die("Please use one of the following parameters '--install', '--uninstall' or '--delete'.");
 }
 
 if($db_host == ""){
@@ -315,22 +404,35 @@ if($db_user == ""){
 	die("Error: Username cannot be empty!");
 }
 
+if($db_name == ""){
+	die("Error: database name cannot be empty!");
+}
+
+
 if($prefix == "setup"){
 
 	/* ========================================================================
 	 * Install database
 	 * ======================================================================== */
 
-	$setupFile = "./sql/" . $dbtype . ".setup.sql";
-	$cleanupFile = "./sql/" . $dbtype . ".cleanup.sql";
+	$setupFile = "./sql/" . $db_type . ".setup.sql";
+	$cleanupFile = "./sql/" . $db_type . ".cleanup.sql";
 
 	if(file_exists($setupFile) && file_exists($cleanupFile)){
 		// All sql files are available
 
-		$dbh = connectToDatabase($dbtype, $db_host, $db_port, "geocat", $db_user, $db_paswd);
+		if($create_schema){
+			$dbh = connectToDatabase($db_type, $db_host, $db_port, "", $db_user, $db_paswd);
+			createSchema($dbh, $db_type, $db_name);
+		}
 
-		print("Running 'cleanup'");
-		installSQL_File($cleanupFile, $dbh);
+		$dbh = connectToDatabase($db_type, $db_host, $db_port, $db_name, $db_user, $db_paswd);
+
+		if(!$create_schema){
+			print("Running 'cleanup'");
+			installSQL_File($cleanupFile, $dbh);
+		}
+
 		print("Creating database");
 		installSQL_File($setupFile, $dbh);
 		print("\nSetup finished successful.\n");
@@ -342,15 +444,15 @@ if($prefix == "setup"){
 else if($prefix == "cleanup"){
 
 	/* ========================================================================
-	 * Remove database
+	 * Remove alle tables
 	 * ======================================================================== */
 
-	$cleanupFile = "./sql/" . $dbtype . ".cleanup.sql";
+	$cleanupFile = "./sql/" . $db_type . ".cleanup.sql";
 
 	if(file_exists($cleanupFile)){
 		// All sql files are available
 
-		$dbh = connectToDatabase($dbtype, $db_host, $db_port, "geocat", $db_user, $db_paswd);
+		$dbh = connectToDatabase($db_type, $db_host, $db_port, $db_name, $db_user, $db_paswd);
 
 		print("Running 'cleanup'");
 		installSQL_File($cleanupFile, $dbh);
@@ -359,5 +461,15 @@ else if($prefix == "cleanup"){
 	else{
 		die("Cannot find required sql file: '" . $cleanupFile . "'.");
 	}
+}
+else if($prefix == "delete"){
+
+	/* ========================================================================
+	 * Remove database (schema)
+	 * ======================================================================== */
+
+	$dbh = connectToDatabase($db_type, $db_host, $db_port, "", $db_user, $db_paswd);
+	dropSchema($dbh, $db_type, $db_name);
+	print("\nDatabase successfully deleted.\n");
 }
 ?>

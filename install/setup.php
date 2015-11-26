@@ -239,7 +239,7 @@ function createSchema($dbh, $dbtype, $schemaname){
 
 function dropSchema($dbh, $dbtype, $schemaname){
 	if($dbtype == "mysql"){
-		$sql = 	"DROP DATABASE IF EXISTS `" . $schemaname . "`\n";
+		$sql = 	"DROP DATABASE IF EXISTS `" . $schemaname . "`";
 	}
 	else if($dbtype == "pgsql"){
 		$sql = "DROP DATABASE IF EXISTS " . $$schemaname;
@@ -294,7 +294,7 @@ function connectToDatabase($dbtype, $host, $port, $dbname, $username, $password)
 	try{
 		printf("Connecting to %s://%s@%s%s%s...\n\n", $dbtype, $username, $host,
 				($port != "" ? ":" . $port : ""),
-				($dbname != "" ? " (Schame name: " . $dbname . ")" : ""));
+				($dbname != "" ? " (database: " . $dbname . ")" : ""));
 		return new PDO($dbtype . ":host=" . $host . ($port != "" ? ";port=" . $port : "") . ($dbname != "" ? ";dbname=" . $dbname : ""), $username, $password);
 
 	} catch (PDOException $e) {
@@ -384,12 +384,12 @@ for($i = 1; $i < count($argv); $i++){
 			exit(0);
 
 		default:
-			die("Unkown command line option: " . $argv[$i]);
+			die("Unknown command line option: " . $argv[$i]);
 	}
 }
 
 if(!($db_type == "mysql" || $db_type == "pgsql")){
-	die("Database type is not defined. Use '--db [mysql|pgsql]' to define this.");
+	die("Database type is not defined. Please use the '--dbtype' switch to do this.");
 }
 
 if($prefix == "" || ($prefix != "setup" && $prefix != "cleanup" && $prefix != "delete")){
@@ -397,17 +397,16 @@ if($prefix == "" || ($prefix != "setup" && $prefix != "cleanup" && $prefix != "d
 }
 
 if($db_host == ""){
-	die("Error: Hostname cannot be empty!");
+	die("Error: Hostname is not defined.");
 }
 
 if($db_user == ""){
-	die("Error: Username cannot be empty!");
+	die("Error: Username is not defined.");
 }
 
 if($db_name == ""){
-	die("Error: database name cannot be empty!");
+	die("Error: No database name (schema) defined.");
 }
-
 
 if($prefix == "setup"){
 
@@ -433,7 +432,7 @@ if($prefix == "setup"){
 			installSQL_File($cleanupFile, $dbh);
 		}
 
-		print("Creating database");
+		print("Creating tables");
 		installSQL_File($setupFile, $dbh);
 		print("\nSetup finished successful.\n");
 	}
@@ -444,7 +443,7 @@ if($prefix == "setup"){
 else if($prefix == "cleanup"){
 
 	/* ========================================================================
-	 * Remove alle tables
+	 * Remove all tables
 	 * ======================================================================== */
 
 	$cleanupFile = "./sql/" . $db_type . ".cleanup.sql";

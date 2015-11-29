@@ -7,6 +7,7 @@
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
     "grunt-jsdoc": "^1.0.0",
+    "grunt-phpdoc": "^0.1.1",
     "grunt-properties-to-json": "^0.5.1",
     "jsdoc": "^3.4.0"
   },

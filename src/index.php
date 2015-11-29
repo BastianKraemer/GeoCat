@@ -1,8 +1,21 @@
 <?php
+	/**
+	 * index.html - Startpage of GeoCat
+	 */
+
 	$config = require("./config/config.php");
 	require_once "app/jsonlocale.php";
+
 	$locale = new JSONLocale("de", $config);
 
+	/**
+	 * Add a tile for a jQuery Mobile Listview
+	 * @param string $title Tile title
+	 * @param string $text Tile text
+	 * @param string $aside Tile description (will be displayed in the top right corner of the tile)
+	 * @param string $target Hyperlink (href) for this tile
+	 * @param string $imgsrc Path to the background image
+	 */
 	function addTile($title, $text, $aside, $target, $imgsrc){
 		global $locale;
 		print(	"<li><a href=\"" . $target . "\">" .
@@ -13,6 +26,15 @@
 				"</a></li>\n");
 	}
 
+	/**
+	 * Add a (default) tile for a jQuery Mobile Listview
+	 * Compared to "addTile()" this methods appends a prefix to the "tilename" parameters
+	 *
+	 * Prefix: "mainpage.tiles." . $tilename . ".title|text|aside"
+	 * @param string $tilename The tile name - take a look at the JSON locale file.
+	 * @param string $target Hyperlink (href) for this tile
+	 * @param string $imgsrc Path to the background image
+	 */
 	function addDefaultTile($tilename, $target, $imgsrc){
 		addTile("mainpage.tiles." . $tilename . ".title",
 				"mainpage.tiles." . $tilename . ".text",

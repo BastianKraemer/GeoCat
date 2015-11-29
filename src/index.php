@@ -1,23 +1,15 @@
 <?php
 	$config = require("./config/config.php");
-	$translations = json_decode(file_get_contents("./locale/de.json"), true);
-	
-	function getTranslation($key){
-		global $translations;
-		return array_key_exists($key, $translations) ? $translations[$key] : "Undefined key: " . $key;
-	}
-
-	function printTranslation($key){
-		global $translations;
-		print(array_key_exists($key, $translations) ? $translations[$key] : "Undefined key: " . $key);
-	}
+	require_once "app/jsonlocale.php";
+	$locale = new JSONLocale("de", $config);
 
 	function addTile($title, $text, $aside, $target, $imgsrc){
+		global $locale;
 		print(	"<li><a href=\"" . $target . "\">" .
 				"<img src=\"" . $imgsrc . "\" class=\"ui-li-thumb\">" .
-				"<h2>" . getTranslation($title) . "</h2>" .
-				"<p>" . getTranslation($text) . "</p>" .
-				"<p class=\"ui-li-aside\">" . getTranslation($aside) . "</p>" .
+				"<h2>" . $locale->get($title) . "</h2>" .
+				"<p>" . $locale->get($text) . "</p>" .
+				"<p class=\"ui-li-aside\">" . $locale->get($aside) . "</p>" .
 				"</a></li>\n");
 	}
 
@@ -97,13 +89,13 @@
  	<div data-role="page" id="home" data-theme="b">
 
 	<div data-role="header" data-id="page_header">
-		<?php print("<h1>" . $config["app.name"] . " - ". getTranslation("mainpage.title") . "</h1>"); ?>
+		<?php print("<h1>" . $config["app.name"] . " - ". $locale->get("mainpage.title") . "</h1>"); ?>
 		<a href="#" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-user">Login</a>
 	</div>
 
 		<div role="main" class="ui-content my-page">
 				<ul data-role="listview" data-inset="true">
-					<?php 
+					<?php
 						addDefaultTile("info", "#", ".");
 						addDefaultTile("map", "#", ".");
 						addDefaultTile("places", "#", ".");
@@ -127,10 +119,10 @@
 	-->
 	<div data-role="page" id="places">
 		<div data-role="header" data-id="page_header" data-theme="b">
-			<?php print("<h1>" . getTranslation("places.title") . "</h1>"); ?>
+			<?php print("<h1>" . $locale->get("places.title") . "</h1>"); ?>
 		</div>
 
-		<ul data-role="listview" data-filter="true" data-filter-placeholder="<?php printTranslation("places.find") ?>" data-inset="true">
+		<ul data-role="listview" data-filter="true" data-filter-placeholder="<?php $locale->write("places.find") ?>" data-inset="true">
 		</ul>
 
 		<?php

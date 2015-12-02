@@ -13,7 +13,7 @@
 		/**
 		 * Create a JSONLocale object to get the translations
 		 * @param string $locale The language. For example "en" or "de".
-		 * @param string[] $config Configruation from "config.php". The required parameter is "app.contextroot".
+		 * @param string[] $config Configuration from "config.php". The required parameter is "app.contextroot".
 		 * @throws InvalidArgumentException If the selected language is not available
 		 */
 		function __construct($locale, $config) {
@@ -42,6 +42,27 @@
 		 */
 		public function write($key, $default = null){
 			print(array_key_exists($key, $this->translations) ? $this->translations[$key] : ($default == null ? "Undefined key: " . $key : $default));
+		}
+
+		/**
+		 * Returns the current browser language. For example "en" or "de".
+		 * Notice: If there are no translations for the browser language, the default language will be used.
+		 *
+		 * At the moment German ("de") is the only supported language.
+		 */
+		public static function getBrowserLanguage(){
+			$lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+			if($lang == "de"){return "de";}
+			return "de"; // later this should be "en"
+		}
+
+		/**
+		 * Creates a JSONLocale object by using the browser language
+		 * @param string[] $config Configuration from "config.php".
+		 * @return JSONLocale
+		 */
+		public static function withBrowserLanguage($config){
+			return new JSONLocale(self::getBrowserLanguage(), $config);
 		}
 	}
 ?>

@@ -6,7 +6,7 @@
 	$config = require("./config/config.php");
 	require_once "app/jsonlocale.php";
 
-	$locale = new JSONLocale("de", $config);
+	$locale = JSONLocale::withBrowserLanguage($config);
 
 	/**
 	 * Add a tile for a jQuery Mobile Listview

@@ -57,7 +57,7 @@ var GPSNavigationController = new function(){
 		$(idList["add_coordinate"]).click(function(e){
 			if(pages["gpsnavigator"] == null){return;}
 
-			var lastGPSPos = pages["gpsnavigator"].getLastGPSPosition();
+			var lastGPSPos = pages["gpsnavigator"].getGPSPos();
 			if(lastGPSPos != null){
 				showCoordinateEditDialog(Date.now(), "", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude);
 			}
@@ -74,6 +74,21 @@ var GPSNavigationController = new function(){
 			var id = $(idList["popup"]).attr("dest-id");
 
 			var name = $(idList["field_name"]).val();
+			var dest = $(idList["field_desc"]).val();
+
+			var msg = "%s enthält ungültige Zeichen. Bitte verwenden Sie nur 'A-Z', '0-9' sowie einige Sonderzeichen ('!,;.#_-*')."
+			if(!stringVerify(name)){
+				alert(msg.replace("%s", "Der Name"));
+				return;
+			}
+
+			if(dest != ""){
+				if(!stringVerify(dest)){
+					alert(msg.replace("%s", "Die Beschreibung"));
+					return;
+				}
+			}
+
 			var lat = parseFloat($(idList["field_lat"]).val());
 			var lon = parseFloat($(idList["field_lon"]).val());
 
@@ -82,7 +97,7 @@ var GPSNavigationController = new function(){
 			}
 			else{
 				// Everything ok
-				pages["gpsnavigator"].addDestination(id, new Coordinate(name, lat, lon, $(idList["field_desc"]).val()));
+				pages["gpsnavigator"].addDestination(id, new Coordinate(name, lat, lon, dest));
 
 				// Update label text
 				$(idList["list"] + " li[dest-id=" + id + "] a[href='#']").text($(idList["field_name"]).val());
@@ -110,6 +125,10 @@ var GPSNavigationController = new function(){
 		bindPreferenceChangeEvent(idList["pref_offline_mode"], "offline_mode");
 
 		//$(idList["panel"]).on("panelbeforeclose", function(){});
+	}
+
+	function stringVerify(str){
+		return (str.match(/([A-Za-z0-9 _,;\.\!\#\-\*]+)/g) == str);
 	}
 
 	function getPreference(key){

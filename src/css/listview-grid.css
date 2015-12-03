@@ -14,14 +14,15 @@
 	text-shadow: none !important;
 }
 
-/* First breakpoint is 48em (768px). 3 column layout. Tiles 250x250 pixels incl. margin at the breakpoint. */
-@media ( min-width: 48em ) {
+/* First breakpoint is 20em (320px). 2 column layout. */
+
+@media ( min-width: 20em ) {
 	.my-page .ui-content {
-		padding: .5625em; /* 9px */
+		padding: .5em; /* 8px */
 	}
 	.my-page .ui-listview li {
 		float: left;
-		width: 30.9333%; /* 33.3333% incl. 2 x 1.2% margin */
+		width: 47.6%; /* 50% incl. 2 x 1.2% margin */
 		height: 14.5em; /* 232p */
 		margin: .5625em 1.2%;
 	}
@@ -123,7 +124,17 @@
 	}
 }
 
-/* Second breakpoint is 63.75em (1020px). 4 column layout. Tiles will be 250x250 pixels incl. margin again at the breakpoint. */
+/* Second breakpoint is 48em (768px). 3 column layout. Tiles 250x250 pixels incl. margin at the breakpoint. */
+@media ( min-width: 48em ) {
+	.my-page .ui-content {
+		padding: .5625em; /* 9px */
+	}
+	.my-page .ui-listview li {
+		width: 30.9333%; /* 33.3333% incl. 2 x 1.2% margin */
+	}
+}
+
+/* Third breakpoint is 63.75em (1020px). 4 column layout. Tiles will be 250x250 pixels incl. margin again at the breakpoint. */
 @media ( min-width: 63.75em ) {
 	.my-page .ui-content {
 		padding: .625em; /* 10px */
@@ -137,7 +148,7 @@
 	/* Because of the 1000px max-width the width will always be 230px (and margin left/right 10px),
 	but we stick to percentage values for demo purposes. */
 	.my-page .ui-listview li {
-		width: 23%;
+		width: 23%; /* 25% incl. 2 x 1% margin */
 		height: 230px;
 		margin: .625em 1%;
 	}

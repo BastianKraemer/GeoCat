@@ -171,14 +171,14 @@ CREATE TABLE `ChallengeTeam` (
 );
 
 -- ---
--- Table 'ChallengeTime'
+-- Table 'ChallengeCheckpoint'
 -- 
 -- ---
 
-DROP TABLE IF EXISTS `ChallengeTime`;
+DROP TABLE IF EXISTS `ChallengeCheckpoint`;
 		
-CREATE TABLE `ChallengeTime` (
-  `team_id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL,
+CREATE TABLE `ChallengeCheckpoint` (
+  `team_id` INTEGER NOT NULL,
   `coord_id` INTEGER NOT NULL,
   `time` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`team_id`, `coord_id`)
@@ -203,8 +203,8 @@ ALTER TABLE `ChallengeCoords` ADD FOREIGN KEY (captured_by) REFERENCES `Challeng
 ALTER TABLE `Friends` ADD FOREIGN KEY (account_id) REFERENCES `Account` (`account_id`);
 ALTER TABLE `Friends` ADD FOREIGN KEY (friend_id) REFERENCES `Account` (`account_id`);
 ALTER TABLE `ChallengeTeam` ADD FOREIGN KEY (challenge_id) REFERENCES `Challenge` (`challenge_id`);
-ALTER TABLE `ChallengeTime` ADD FOREIGN KEY (team_id) REFERENCES `ChallengeTeam` (`team_id`);
-ALTER TABLE `ChallengeTime` ADD FOREIGN KEY (coord_id) REFERENCES `Coordinate` (`coord_id`);
+ALTER TABLE `ChallengeCheckpoint` ADD FOREIGN KEY (team_id) REFERENCES `ChallengeTeam` (`team_id`);
+ALTER TABLE `ChallengeCheckpoint` ADD FOREIGN KEY (coord_id) REFERENCES `Coordinate` (`coord_id`);
 
 -- ---
 -- Table Properties
@@ -220,7 +220,7 @@ ALTER TABLE `ChallengeTime` ADD FOREIGN KEY (coord_id) REFERENCES `Coordinate` (
 -- ALTER TABLE `ChallengeCoords` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 -- ALTER TABLE `Friends` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 -- ALTER TABLE `ChallengeTeam` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
--- ALTER TABLE `ChallengeTime` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+-- ALTER TABLE `ChallengeCheckpoint` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ---
 -- Test Data
@@ -246,5 +246,5 @@ ALTER TABLE `ChallengeTime` ADD FOREIGN KEY (coord_id) REFERENCES `Coordinate` (
 -- ('','');
 -- INSERT INTO `ChallengeTeam` (`team_id`,`challenge_id`,`name`,`color`,`max_members`,`immutable_teamname`) VALUES
 -- ('','','','','','');
--- INSERT INTO `ChallengeTime` (`team_id`,`coord_id`,`time`) VALUES
+-- INSERT INTO `ChallengeCheckpoint` (`team_id`,`coord_id`,`time`) VALUES
 -- ('','','');

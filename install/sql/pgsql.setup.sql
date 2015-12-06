@@ -93,8 +93,8 @@ immutable_teamname SMALLINT NOT NULL DEFAULT 0 ,
 PRIMARY KEY (team_id, challenge_id)
 );
 
-CREATE TABLE ChallengeTime (
-team_id  SERIAL ,
+CREATE TABLE ChallengeCheckpoint (
+team_id INTEGER NOT NULL ,
 coord_id INTEGER NOT NULL ,
 time TIMESTAMP ,
 PRIMARY KEY (team_id, coord_id)
@@ -115,5 +115,5 @@ ALTER TABLE ChallengeCoords ADD FOREIGN KEY (captured_by) REFERENCES ChallengeTe
 ALTER TABLE Friends ADD FOREIGN KEY (account_id) REFERENCES Account (account_id);
 ALTER TABLE Friends ADD FOREIGN KEY (friend_id) REFERENCES Account (account_id);
 ALTER TABLE ChallengeTeam ADD FOREIGN KEY (challenge_id) REFERENCES Challenge (challenge_id);
-ALTER TABLE ChallengeTime ADD FOREIGN KEY (team_id) REFERENCES ChallengeTeam (team_id);
-ALTER TABLE ChallengeTime ADD FOREIGN KEY (coord_id) REFERENCES Coordinate (coord_id);
+ALTER TABLE ChallengeCheckpoint ADD FOREIGN KEY (team_id) REFERENCES ChallengeTeam (team_id);
+ALTER TABLE ChallengeCheckpoint ADD FOREIGN KEY (coord_id) REFERENCES Coordinate (coord_id);

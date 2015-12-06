@@ -5,7 +5,7 @@
 DROP TABLE IF EXISTS `Place`;
 DROP TABLE IF EXISTS `CurrentNavigation`;
 DROP TABLE IF EXISTS `AccountInformation`;
-DROP TABLE IF EXISTS `ChallengeTime`;
+DROP TABLE IF EXISTS `ChallengeCheckpoint`;
 DROP TABLE IF EXISTS `ChallengeCoords`;
 DROP TABLE IF EXISTS `Coordinate`;
 DROP TABLE IF EXISTS `Friends`;

@@ -14,17 +14,16 @@
 	text-shadow: none !important;
 }
 
-/* First breakpoint is 20em (320px). 2 column layout. */
-
+/* Breakpoint at 20em (320px). 1 column layout. */
 @media ( min-width: 20em ) {
 	.my-page .ui-content {
-		padding: .5em; /* 8px */
+		padding: .5625em; /* 9px */
 	}
 	.my-page .ui-listview li {
 		float: left;
-		width: 47.6%; /* 50% incl. 2 x 1.2% margin */
+		width: 97.6%; /* 100% incl. 2 x 1.2% margin */
 		height: 14.5em; /* 232p */
-		margin: .5625em 1.2%;
+		margin: .5625em 1.2%;	
 	}
 	.my-page .ui-listview li > .ui-btn {
 		-webkit-box-sizing: border-box; /* include padding and border in height so we can set it to 100% */
@@ -124,17 +123,21 @@
 	}
 }
 
-/* Second breakpoint is 48em (768px). 3 column layout. Tiles 250x250 pixels incl. margin at the breakpoint. */
-@media ( min-width: 48em ) {
-	.my-page .ui-content {
-		padding: .5625em; /* 9px */
+/* Breakpoint at 30em (480px). 2 column layout. */
+@media ( min-width: 30em ) {
+	.my-page .ui-listview li {
+		width: 47.6%; /* 50% incl. 2 x 1.2% margin */
 	}
+}
+
+/* Breakpoint at 48em (768px). 3 column layout. */
+@media ( min-width: 48em ) {
 	.my-page .ui-listview li {
 		width: 30.9333%; /* 33.3333% incl. 2 x 1.2% margin */
 	}
 }
 
-/* Third breakpoint is 63.75em (1020px). 4 column layout. Tiles will be 250x250 pixels incl. margin again at the breakpoint. */
+/* Breakpoint at 63.75em (1020px). 4 column layout. */
 @media ( min-width: 63.75em ) {
 	.my-page .ui-content {
 		padding: .625em; /* 10px */
@@ -153,5 +156,3 @@
 		margin: .625em 1%;
 	}
 }
-
-/* For this demo we used images with a size of 310x310 pixels. Just before the second breakpoint the images reach their max width: 1019px - 2 x 9px padding = 1001px x 30.9333% = ~310px */

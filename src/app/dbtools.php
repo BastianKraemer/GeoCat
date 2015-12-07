@@ -23,7 +23,7 @@
 		}
 
 		/**
-		 * Fetchs all data from an SQL statement
+		 * Fetchs all data from a SQL statement
 		 *
 		 * Example:<br>
 		 * <code>
@@ -48,6 +48,20 @@
 			else{
 				throw new Exception("Error while excuting SQL statement, database returned '" . $res . "'");
 			}
+		}
+
+		/**
+		 * Executes a SQL statement
+		 * @param PDO $dbh
+		 * @param string $sql
+		 * @param array $values
+		 * @throws PDOException If the SQL statement is invalid or contains at least on undefined parameter
+		 */
+		public static function query($dbh, $sql, $values = null){
+			$stmt = $dbh->prepare($sql);
+
+			$res = ($values == null ? $query->execute() : $stmt->execute($values));
+			return $res;
 		}
 	}
 ?>

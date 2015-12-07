@@ -128,6 +128,19 @@
 		}
 
 		/**
+		 * Returns the username that is assigned to the account id
+		 * @param PDO $dbh Database handler
+		 * @param string $accountId
+		 * @return integer The username
+		 * @throws InvalidArgumentException If the account id is undefined
+		 */
+		public static function getUserNameByAccountId($dbh, $accountId){
+			$result = DBTools::fetchAll($dbh, "SELECT username FROM Account WHERE account_id = :accid", array(":accid" => $accountId));
+			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
+			return $result[0]["username"];
+		}
+
+		/**
 		 * Check the password of a user
 		 *
 		 * <u>Possible return values:</u><br>

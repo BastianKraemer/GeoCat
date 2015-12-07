@@ -1,8 +1,8 @@
 <?php
-	/**	GeoCat - Geocaching and -Tracking platform
+	/*	GeoCat - Geocaching and -Tracking platform
 		Copyright (C) 2015 Bastian Kraemer
 
-		accountmanager.js
+		accountmanager.php
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -18,6 +18,13 @@
 		along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	*/
 
+	/**
+	 * File accountmanager.php
+	 */
+
+	/**
+	 * This class can be used to deal with GeoCat Accounts
+	 */
 	class AccountManager {
 
 		/**
@@ -81,8 +88,8 @@
 			$firstname = self::getOrDefault("firstname", $details, null);
 			$publicemail = self::getOrDefault("public_email", $details, 0);
 
-			if(strlen($lastname) > 63 || strlen($firstname) > 63 || !is_int($publicemail)){
-				// To many characters in first name or last name or $publicemail is not an integer
+			if(!self::isValidRealName($lastname) || !self::isValidRealName($firstname) || !is_int($publicemail)){
+				// Valid names in first name or last name or $publicemail is not an integer
 				return false;
 			}
 
@@ -177,6 +184,17 @@
 		 */
 		public static function isValidEMailAddr($email){
 			return (filter_var($email, FILTER_VALIDATE_EMAIL) && strlen($email) < 64) ? 1 : 0;
+		}
+
+		/**
+		 * Checks if a real name is valid.
+		 * Conditions therfore are: Only A-Z, a-z, " " as characters and a length less than 64.
+		 * @param string $name
+		 * @return boolean
+		 */
+		public static function isValidRealName($name){
+			if($name == null || $name == ""){return true;}
+			return preg_match("/^[A-Za-z ]{1,63}$/", $name);
 		}
 	}
 ?>

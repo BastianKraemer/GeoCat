@@ -7,7 +7,7 @@ email VARCHAR(64) NOT NULL ,
 type VARCHAR(16) NOT NULL DEFAULT 'default' ,
 is_administrator SMALLINT NOT NULL DEFAULT 0 ,
 PRIMARY KEY (account_id),
-UNIQUE (username, email)
+UNIQUE (username)
 );
 
 CREATE TABLE Place (
@@ -42,8 +42,8 @@ CREATE TABLE Coordinate (
 coord_id  SERIAL NOT NULL ,
 name VARCHAR(64) NOT NULL ,
 description VARCHAR(256) ,
-latitude DECIMAL NOT NULL ,
-logitude DECIMAL NOT NULL ,
+latitude DECIMAL(9,6) NOT NULL ,
+longitude DECIMAL(9,6) NOT NULL ,
 PRIMARY KEY (coord_id)
 );
 
@@ -58,7 +58,8 @@ max_teams INTEGER NOT NULL DEFAULT 4 ,
 starttime TIMESTAMP NOT NULL ,
 is_public SMALLINT NOT NULL DEFAULT 0 ,
 is_visible SMALLINT NOT NULL DEFAULT 0 ,
-PRIMARY KEY (challenge_id)
+PRIMARY KEY (challenge_id),
+UNIQUE (sessionkey)
 );
 
 CREATE TABLE ChallengeMember (

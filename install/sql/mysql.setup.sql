@@ -21,7 +21,7 @@ CREATE TABLE `Account` (
   `type` VARCHAR(16) NOT NULL DEFAULT 'default',
   `is_administrator` TINYINT NOT NULL DEFAULT 0,
   PRIMARY KEY (`account_id`),
-  UNIQUE KEY (`username`, `email`)
+  UNIQUE KEY (`username`)
 );
 
 -- ---
@@ -84,8 +84,8 @@ CREATE TABLE `Coordinate` (
   `coord_id` INTEGER NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(64) NOT NULL,
   `description` VARCHAR(256) NULL DEFAULT NULL,
-  `latitude` DECIMAL NOT NULL,
-  `logitude` DECIMAL NOT NULL,
+  `latitude` DECIMAL(9,6) NOT NULL,
+  `longitude` DECIMAL(9,6) NOT NULL,
   PRIMARY KEY (`coord_id`)
 );
 
@@ -107,7 +107,8 @@ CREATE TABLE `Challenge` (
   `starttime` TIMESTAMP NOT NULL,
   `is_public` TINYINT NOT NULL DEFAULT 0,
   `is_visible` TINYINT NOT NULL DEFAULT 0,
-  PRIMARY KEY (`challenge_id`)
+  PRIMARY KEY (`challenge_id`),
+  UNIQUE KEY (`sessionkey`)
 );
 
 -- ---
@@ -234,7 +235,7 @@ ALTER TABLE `ChallengeCheckpoint` ADD FOREIGN KEY (coord_id) REFERENCES `Coordin
 -- ('','');
 -- INSERT INTO `AccountInformation` (`account_id`,`lastname`,`firstname`,`avatar`,`show_email_addr`,`my_position`,`my_position_timestamp`,`last_login`,`creation_date`) VALUES
 -- ('','','','','','','','','');
--- INSERT INTO `Coordinate` (`coord_id`,`name`,`description`,`latitude`,`logitude`) VALUES
+-- INSERT INTO `Coordinate` (`coord_id`,`name`,`description`,`latitude`,`longitude`) VALUES
 -- ('','','','','');
 -- INSERT INTO `Challenge` (`challenge_id`,`owner`,`sessionkey`,`name`,`description`,`predefined_teams`,`max_teams`,`starttime`,`is_public`,`is_visible`) VALUES
 -- ('','','','','','','','','','');

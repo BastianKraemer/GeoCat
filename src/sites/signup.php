@@ -1,9 +1,17 @@
 <?php
-	$config = require("../config/config.php");
 
-	require_once "../app/jsonlocale.php";
+	/**
+	 * File signup.php
+	 */
+
+	$config = require(__DIR__ . "/../config/config.php");
+	require_once(__DIR__ . "/../app/jsonlocale.php");
+
 	$locale = JSONLocale::withBrowserLanguage($config);
 
+	/**
+	 * @ignore
+	 */
 	function printInputTextField($nameAndId, $isPasswordField, $labelTranslationKey, $isRequiredField, $maxCharacters){
 		global $locale;
 
@@ -72,12 +80,11 @@
 
 				ajaxSent = true;
 
-				$.ajax({type: "POST", url: "../app/account/account.php",
+				$.ajax({type: "POST", url: "../query/account.php",
 					data: { cmd: command, type: "json", data : json },
 					cache: false,
-					success: function(result){
+					success: function(response){
 						ajaxSent = false;
-						var response = JSON.parse(result);
 						if(response["result"] == "true"){
 							Tools.showPopup(<?php $locale->writeQuoted("signup.account_created"); ?>, <?php $locale->writeQuoted("signup.account_created_msg"); ?>, <?php $locale->writeQuoted("okay"); ?>, null);
 						}

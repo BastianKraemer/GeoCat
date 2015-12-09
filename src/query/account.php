@@ -22,19 +22,19 @@
 	 * File account.php
 	 */
 
-	$config = require("../../config/config.php");
+	$config = require(__DIR__ . "/../config/config.php");
 
-	require_once "../jsonlocale.php";
-	require_once("../dbtools.php");
-	require_once("./accountmanager.php");
+	require_once(__DIR__ . "/../app/jsonlocale.php");
+	require_once(__DIR__ . "/../app/dbtools.php");
+	require_once(__DIR__ . "/../app/AccountManager.php");
 
 	$locale = JSONLocale::withBrowserLanguage($config);
 	$dbh = DBTools::connectToDatabase($config);
 
-	$jsonAccManager = new JSONAccountManager($dbh, $locale);
+	$accountHandler = new AJAXAccountHandler($dbh, $locale);
 	header("Content-Type: text/json; charset=utf-8");
 	if(array_key_exists("cmd", $_POST) && array_key_exists("type", $_POST) && array_key_exists("data", $_POST)){
-		print($jsonAccManager->handleRequest($_POST["cmd"], $_POST["type"], $_POST["data"]));
+		print($accountHandler->handleRequest($_POST["cmd"], $_POST["type"], $_POST["data"]));
 	}
 	else{
 		print("Invalid request format.");
@@ -43,7 +43,7 @@
 	/**
 	 * This class provides an interface to create new accounts.
 	 * Therefore you have to send HTTP post requests to this file.
-	 * A valid request has to look like this:
+	 * A valid request could look like this:
 	 *
 	 * <code>account.php?cmd=check&tye=json&data={"username":"[username]","email":"[email]"}</code>
 	 *
@@ -52,14 +52,14 @@
 	 * <li><b>check</b>: Checks if a username is available.<br />
 	 * Required parameters in <b>data</b>: <i>username</i>, <i>email</i></li>
 	 * <li><b>create</b>: Creates an new account.<br />
-	 * Required parameters in <b>data</b>: <i>username</i>, <i>password</i>, <i>email</i>, <i>email</i><br />
+	 * Required parameters in <b>data</b>: <i>username</i>, <i>password</i>, <i>email</i><br />
 	 * Optional parameters in <b>data</b>: <i>firstname</i>, <i>lastname</i>, <i>public_email [default=false]</i></li>
 	 * </ul>
 	 *
 	 * You can also test this class using cURL:
-	 * <code>curl -s --data "cmd=check&type=json&data={\"username\":\"[Username]\",\"email\":\"[email]\"}" https://geocat.server/app/account/account.php</code>
+	 * <code>curl -s --data "cmd=check&type=json&data={\"username\":\"[Username]\",\"email\":\"[email]\"}" https://geocat.server/query/account.php</code>
 	 */
-	class JSONAccountManager {
+	class AJAXAccountHandler {
 
 		/**
 		 * Database handler
@@ -139,7 +139,7 @@
 		}
 
 		/**
-		 * Creates a new account using the the request data
+		 * Creates a new account using the request data
 		 * @param string $username
 		 * @param string $password
 		 * @param string $email

@@ -23,7 +23,7 @@
 	 */
 
 	/**
-	 * This class can be used to deal with GeoCat Accounts
+	 * This class can be used to deal with accounts
 	 */
 	class AccountManager {
 
@@ -34,7 +34,7 @@
 		 * Return value > 0: Username and email address are valid<br />
 		 * Return value < 0: Username or email address is invalid<br />
 		 * <ul>
-		 * <li>2 = OK: E-mail adress is already assigned to anther user</li>
+		 * <li>2 = OK: E-Mail address is already assigned to another user</li>
 		 * <li>1 = OK: Everything okay</li>
 		 * <li>0 = Username is already in use</li>
 		 * <li>-1 = Username or email address is invalid</li>
@@ -66,6 +66,12 @@
 			}
 		}
 
+		/**
+		 * Returns the value of an array or a default value
+		 * @param string $key
+		 * @param array $arr
+		 * @param mixed $default
+		 */
 		private static function getOrDefault($key, $arr, $default){
 			return array_key_exists($key, $arr) ? $arr[$key] : $default;
 		}
@@ -123,10 +129,10 @@
 		}
 
 		/**
-		 * Returns the accountid which is assigned to the username
+		 * Returns the account id which is assigned to the username
 		 * @param PDO $dbh Database handler
 		 * @param string $username
-		 * @return integer The accountid or '-1' if the username does not exist
+		 * @return integer The account id or '-1' if the username does not exist
 		 */
 		public static function getAccountIdByUserName($dbh, $username){
 			$result = DBTools::fetchAll($dbh, "SELECT account_id FROM Account WHERE username = :user", array(":user" => $username));
@@ -135,13 +141,13 @@
 		}
 
 		/**
-		 * Check the password of a user
+		 * Checks the password of an user
 		 *
 		 * <u>Possible return values:</u><br>
 		 * <ul>
 		 * <li>1 = Password is correct</li>
 		 * <li>0 = Password is not correct</li>
-		 * <li>-1 = Error: For example if the accountid does not exist</li>
+		 * <li>-1 = Error: For example if the account id does not exist</li>
 		 * </ul>
 		 * @param PDO $dbh Database handler
 		 * @param integer $accountid The user's account id
@@ -178,7 +184,7 @@
 		}
 
 		/**
-		 * Checks if a email is valid. (An email adress has to be shorter than 64 characters)
+		 * Checks if an email is valid. (An email adress has to be shorter than 64 characters)
 		 * @param string $email
 		 * @return boolean
 		 */
@@ -187,7 +193,7 @@
 		}
 
 		/**
-		 * Checks if a real name is valid.
+		 * Checks if a first- or last name is valid.
 		 * Conditions therfore are: Only A-Z, a-z, " " as characters and a length less than 64.
 		 * @param string $name
 		 * @return boolean

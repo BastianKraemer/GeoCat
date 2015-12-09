@@ -104,6 +104,9 @@
 			catch(InvalidArgumentException $e){
 				return DataConverter::encodeData($type, self::createDefaultResponse(false, "Invalid request: " . $e));
 			}
+			catch(MissingSessionException $e){
+				return DataConverter::encodeData($type, self::createDefaultResponse(false, "Access denied. Please sign in at first."));
+			}
 			catch(Exception $e){
 				return DataConverter::encodeData($type, array("status" => "error", "msg" => "Internal server error: " . $e->getMessage()));
 			}

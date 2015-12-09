@@ -18,7 +18,8 @@
 	 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	 */
 
-	require_once("./dbtools.php");
+	require_once(__DIR__ . "/dbtools.php");
+	require_once(__DIR__ . "/account/accountmanager.php");
 
 	/**
 	 * This class is an abstraction layer between the database and the real Place or Coordinate objects
@@ -35,6 +36,12 @@
 		 * @var string
 		 */
 		const TABLE_PLACE = "Place";
+
+		/**
+		 * Name of the "Account" table
+		 * @var string
+		 */
+		const TABLE_ACCOUNT = "Account";
 
 		/**
 		 * Returns a coordinate defined by its id
@@ -57,39 +64,82 @@
 		/**
 		 * Returns an array with all public places
 		 * @param PDO $dbh Database handler
+		 * @param integer $limit Maximal number of places that should be returned
+		 * @param integer $offset Number of places that should be skipped (for example an offset of 4 will skip the first four places)
 		 * @return Place[] An array of Places
+		 * @throws InvalidArgumentException If $limit or $offset are not an integer value
 		 */
-		public static function getPublicPlaces($dbh){
-
-			$res = DBTools::fetchAll($dbh, "SELECT account_id, coord_id, creation_date, modification_date FROM ". self::TABLE_PLACE . " WHERE is_public = 1");
+		public static function getPublicPlaces($dbh, $limit, $offset){
+			if(!is_int($limit) || !is_int($offset)){throw new InvalidArgumentException("The parameters 'limit' and 'offset' habe to be integer values!");}
+			$res = DBTools::fetchAll($dbh,	"SELECT Account.username, Place.coord_id, Place.creation_date, Place.modification_date " .
+											"FROM " . SELF::TABLE_ACCOUNT . ", " . SELF::TABLE_PLACE . " " .
+											"WHERE is_public = 1 AND Place.account_id = Account.account_id LIMIT " . $limit . " OFFSET " . $offset);
 
 			$ret = array();
 
 			for($i = 0; $i < count($res); $i++){
-				$coord = self::getCoordinateById($dbh, $res[0]["coord_id"]);
-				$ret[] = new Place($res[0]["account_id"], 1, $res[0]["creation_date"], $res[0]["modification_date"], $coord);
+				$coord = self::getCoordinateById($dbh, $res[$i]["coord_id"]);
+				$ret[] = new Place($res[$i]["username"], 1, $res[$i]["creation_date"], $res[$i]["modification_date"], $coord);
 			}
 
 			return $ret;
 		}
 
 		/**
+		 * Counts all public places
+		 * @param PDO $dbh Database handler
+		 */
+		public static function countPublicPlaces($dbh){
+			$res = DBTools::fetchAll($dbh, "SELECT COUNT(coord_id) FROM ". self::TABLE_PLACE . " WHERE is_public = 1");
+			if($res){
+				return $res[0][0];
+			}
+			else{
+				self::printError("ERROR: Count of public places failed (Table: '". self::TABLE_COORDINATE . "')", array("\$res" => $res));
+				return 0;
+			}
+		}
+
+		/**
 		 * Returns all places of an specific account
 		 * @param PDO $dbh Database handler
 		 * @param integer $account_id
+		 * @param integer $limit Maximal number of places that should be returned
+		 * @param integer $offset Number of places that should be skipped (for example an offset of 4 will skip the first four places)
 		 * @return Place[] An array of Places
+		 * @throws InvalidArgumentException If $limit or $offset are not an integer value or if the $account_id does not exist
 		 */
-		public static function getPlacesByAccountId($dbh, $account_id){
-			$res = DBTools::fetchAll($dbh, "SELECT coord_id, is_public, creation_date, modification_date FROM ". self::TABLE_PLACE . " WHERE account_id = :accid",
-										array("accid" => $account_id));
+		public static function getPlacesByAccountId($dbh, $account_id, $limit, $offset){
+			if(!is_int($limit) || !is_int($offset)){throw new InvalidArgumentException("The parameters 'limit' and 'offset' habe to be integer values!");}
+			$res = DBTools::fetchAll($dbh, "SELECT coord_id, is_public, creation_date, modification_date FROM ". self::TABLE_PLACE . " WHERE account_id = :accid LIMIT " . $limit . " OFFSET " . $offset,
+									 array("accid" => $account_id));
 
+			$username = AccountManager::getUserNameByAccountId($dbh, $account_id);
 			$ret = array();
-
 			for($i = 0; $i < count($res); $i++){
 				$coord = self::getCoordinateById($dbh, $res[0]["coord_id"]);
-				$ret[] = new Place($account_id, $res[0]["is_public"], $res[0]["creation_date"], $res[0]["modification_date"], $coord);
+				$ret[] = new Place($username, $res[0]["is_public"], $res[0]["creation_date"], $res[0]["modification_date"], $coord);
 			}
 			return $ret;
+		}
+
+		/**
+		 * Counts the places of a specific account
+		 * @param PDO $dbh Database handler
+		 * @param integer $account_id
+		 */
+		public static function countPlacesOfAccount($dbh, $account_id){
+			$res = DBTools::fetchAll($dbh, "SELECT COUNT(coord_id) FROM ". self::TABLE_PLACE . " WHERE account_id = :accid",
+									 array("accid" => $account_id));
+
+			if($res){
+				return $res[0][0];
+			}
+			else{
+				self::printError("ERROR: Count of public places of account (Table: '". self::TABLE_COORDINATE . "')",
+								 array("\$res" => $res, "\$account_id" => $account_id));
+				return 0;
+			}
 		}
 
 		/**
@@ -291,8 +341,8 @@
 	 * Class Place, this class can store all information that belongs to a place
 	 */
 	class Place {
-		/** @var integer The account id */
-		public $accountId;
+		/** @var string The username of the place owner */
+		public $owner;
 
 		/** @var boolean Is this place visible for everyone? */
 		public $isPublic;
@@ -314,8 +364,8 @@
 		 * @param string $modificationDate
 		 * @param Coordinate $coordinate
 		 */
-		public function __construct($accountId, $isPublic, $creationDate, $modificationDate, $coordinate){
-			$this->accountId = $accountId;
+		public function __construct($owner, $isPublic, $creationDate, $modificationDate, $coordinate){
+			$this->owner = $owner;
 			$this->isPublic = $isPublic;
 			$this->creationDate = $creationDate;
 			$this->modificationDate = $modificationDate;

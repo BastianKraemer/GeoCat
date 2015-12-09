@@ -17,7 +17,7 @@
 				throw new Exception("Unable to start session.");
 			}
 
-			require_once("./account/accountmanager.php");
+			require_once("./AccountManager.php");
 			require_once("./dbtools.php");
 		}
 

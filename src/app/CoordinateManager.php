@@ -19,7 +19,7 @@
 	 */
 
 	require_once(__DIR__ . "/dbtools.php");
-	require_once(__DIR__ . "/account/accountmanager.php");
+	require_once(__DIR__ . "/AccountManager.php");
 
 	/**
 	 * This class is an abstraction layer between the database and the real Place or Coordinate objects

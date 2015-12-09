@@ -1,5 +1,9 @@
 <?php
 	/**
+	 * File jsonlocale.php
+	 */
+
+	/**
 	 * This class can be used to localize the application. The list of all translations is stored in a JSON file.
 	 */
 	class JSONLocale {
@@ -45,13 +49,24 @@
 		}
 
 		/**
+		 * Print a translated string qutoed by '"'
+		 * @param string $key The key that idetifies the translated string
+		 * @param string $quote (optional) The character that should be used as quote
+		 * @param string $default (optional) The text that will be printed if there is no translation for this key
+		 */
+		public function writeQuoted($key, $quote = "\"", $default = null){
+			print($quote . (array_key_exists($key, $this->translations) ? $this->translations[$key] : ($default == null ? "Undefined key: " . $key : $default)) . $quote);
+		}
+
+		/**
 		 * Returns the current browser language. For example "en" or "de".
 		 * Notice: If there are no translations for the browser language, the default language will be used.
 		 *
 		 * At the moment German ("de") is the only supported language.
 		 */
 		public static function getBrowserLanguage(){
-			$lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+			$lang = array_key_exists("HTTP_ACCEPT_LANGUAGE", $_SERVER) ? substr($_SERVER["HTTP_ACCEPT_LANGUAGE"], 0, 2) : "";
+
 			if($lang == "de"){return "de";}
 			return "de"; // later this should be "en"
 		}

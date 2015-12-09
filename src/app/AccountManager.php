@@ -1,8 +1,8 @@
 <?php
-	/**	GeoCat - Geocaching and -Tracking platform
+	/*	GeoCat - Geocaching and -Tracking platform
 		Copyright (C) 2015 Bastian Kraemer
 
-		accountmanager.js
+		AccountManager.php
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -18,7 +18,26 @@
 		along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	*/
 
+	/**
+	 * File AccountManager.php
+	 */
+
+	/**
+	 * This class can be used to deal with accounts
+	 */
 	class AccountManager {
+
+		/**
+		 * Name of the "Account" table
+		 * @var string
+		 */
+		const TABLE_ACCOUNT = "Account";
+
+		/**
+		 * Name of the "Account" table
+		 * @var string
+		 */
+		const TABLE_ACCOUNTINFO = "AccountInformation";
 
 		/**
 		 * Checks if username and email address are valid and if this username is already in use.
@@ -27,7 +46,7 @@
 		 * Return value > 0: Username and email address are valid<br />
 		 * Return value < 0: Username or email address is invalid<br />
 		 * <ul>
-		 * <li>2 = OK: E-mail adress is already assigned to anther user</li>
+		 * <li>2 = OK: E-Mail address is already assigned to another user</li>
 		 * <li>1 = OK: Everything okay</li>
 		 * <li>0 = Username is already in use</li>
 		 * <li>-1 = Username or email address is invalid</li>
@@ -42,10 +61,10 @@
 			if(empty($username) || empty($email)){return -2;}
 			if(!self::isValidUsername($username) || !self::isValidEMailAddr($email)){return -1;}
 
-			$result = DBTools::fetchAll($dbh, "SELECT account_id FROM Account WHERE username = :user", array(":user" => $username));
+			$result = DBTools::fetchAll($dbh, "SELECT account_id FROM " . self::TABLE_ACCOUNT . " WHERE username = :user", array(":user" => $username));
 			$retval = false;
 			if(empty($result)){
-				$result = DBTools::fetchAll($dbh, "SELECT account_id FROM Account WHERE email = :email", array(":email" => $email));
+				$result = DBTools::fetchAll($dbh, "SELECT account_id FROM " . self::TABLE_ACCOUNT . " WHERE email = :email", array(":email" => $email));
 
 				if(empty($result)){
 					return 1;
@@ -59,6 +78,12 @@
 			}
 		}
 
+		/**
+		 * Returns the value of an array or a default value
+		 * @param string $key
+		 * @param array $arr
+		 * @param mixed $default
+		 */
 		private static function getOrDefault($key, $arr, $default){
 			return array_key_exists($key, $arr) ? $arr[$key] : $default;
 		}
@@ -81,8 +106,8 @@
 			$firstname = self::getOrDefault("firstname", $details, null);
 			$publicemail = self::getOrDefault("public_email", $details, 0);
 
-			if(strlen($lastname) > 63 || strlen($firstname) > 63 || !is_int($publicemail)){
-				// To many characters in first name or last name or $publicemail is not an integer
+			if(!self::isValidRealName($lastname) || !self::isValidRealName($firstname) || !is_int($publicemail)){
+				// Invalid first name or last name or $publicemail is not an integer
 				return false;
 			}
 
@@ -92,37 +117,37 @@
 			}
 
 			$hash = self::getPBKDF2Hash($password);
-			$result = DBTools::query($dbh, "INSERT INTO Account (account_id, username, password, salt, email, is_administrator) VALUES (NULL, :user, :pw, :salt, :email, :admin)",
+			$result = DBTools::query($dbh, "INSERT INTO " . self::TABLE_ACCOUNT . " (account_id, username, password, salt, email, is_administrator) VALUES (NULL, :user, :pw, :salt, :email, :admin)",
 									 array("user" => $username, "pw" => $hash[0], "salt" => $hash[1], "email" => $email, "admin" => $isAdmin ? 1 : 0));
 
 			if(!$result){
-				error_log("Couldn't create new Account: Insert into 'Account' failed!\nDatabase returned '" . $result . "'");
+				error_log("Couldn't create new account: Insert into '" . self::TABLE_ACCOUNT . "' failed!\nDatabase returned '" . $result . "'");
 				return false;
 			}
 			else{
 				$accId = self::getAccountIdByUserName($dbh, $username);
 				if($accId == -1){
-					error_log("Couldn't create new Account: account_id is '-1' (unable to find recently created account).");
+					error_log("Couldn't create new account: account_id is '-1' (unable to find recently created account).");
 				}
 
-				$result = DBTools::query($dbh, "INSERT INTO AccountInformation (account_id, lastname, firstname, show_email_addr) VALUES (:accid, :lastname, :firstname, :publicemail)",
+				$result = DBTools::query($dbh, "INSERT INTO " . self::TABLE_ACCOUNTINFO . "  (account_id, lastname, firstname, show_email_addr) VALUES (:accid, :lastname, :firstname, :publicemail)",
 										 array("accid" => $accId, "lastname" => $lastname, "firstname" => $firstname, "publicemail" => $publicemail));
 
 				if(!$result){
-					error_log("Couldn't create new Account: Insert into 'AccountInformation' failed!\nDatabase returned '" . $result . "'");
+					error_log("Couldn't create new account: Insert into '" . self::TABLE_ACCOUNTINFO . " ' failed!\nDatabase returned '" . $result . "'");
 				}
 				return $result ? true : false;
 			}
 		}
 
 		/**
-		 * Returns the accountid which is assigned to the username
+		 * Returns the account id which is assigned to the username
 		 * @param PDO $dbh Database handler
 		 * @param string $username
-		 * @return integer The accountid or '-1' if the username does not exist
+		 * @return integer The account id or '-1' if the username does not exist
 		 */
 		public static function getAccountIdByUserName($dbh, $username){
-			$result = DBTools::fetchAll($dbh, "SELECT account_id FROM Account WHERE username = :user", array(":user" => $username));
+			$result = DBTools::fetchAll($dbh, "SELECT account_id FROM " . self::TABLE_ACCOUNT . " WHERE username = :user", array(":user" => $username));
 			if(empty($result) || count($result) != 1){return -1;}
 			return $result[0]["account_id"];
 		}
@@ -141,13 +166,13 @@
 		}
 
 		/**
-		 * Check the password of a user
+		 * Checks the password of an user
 		 *
 		 * <u>Possible return values:</u><br>
 		 * <ul>
 		 * <li>1 = Password is correct</li>
 		 * <li>0 = Password is not correct</li>
-		 * <li>-1 = Error: For example if the accountid does not exist</li>
+		 * <li>-1 = Error: For example if the account id does not exist</li>
 		 * </ul>
 		 * @param PDO $dbh Database handler
 		 * @param integer $accountid The user's account id
@@ -155,7 +180,7 @@
 		 * @return integer
 		 */
 		public static function checkPassword($dbh, $accountid, $password){
-			$result = DBTools::fetchAll($dbh, "SELECT password, salt FROM Account WHERE account_id = :accid", array(":accid" => $accountid));
+			$result = DBTools::fetchAll($dbh, "SELECT password, salt FROM " . self::TABLE_ACCOUNT . " WHERE account_id = :accid", array(":accid" => $accountid));
 			if(empty($result) || count($result) != 1){return -1;}
 			return (self::getPBKDF2Hash($password, base64_decode($result[0]["salt"]))[0] == $result[0]["password"] ? 1 : 0);
 		}
@@ -184,12 +209,23 @@
 		}
 
 		/**
-		 * Checks if a email is valid. (An email adress has to be shorter than 64 characters)
+		 * Checks if an email is valid. (An email adress has to be shorter than 64 characters)
 		 * @param string $email
 		 * @return boolean
 		 */
 		public static function isValidEMailAddr($email){
 			return (filter_var($email, FILTER_VALIDATE_EMAIL) && strlen($email) < 64) ? 1 : 0;
+		}
+
+		/**
+		 * Checks if a first- or last name is valid.
+		 * Conditions therfore are: Only A-Z, a-z, " " as characters and a length less than 64.
+		 * @param string $name
+		 * @return boolean
+		 */
+		public static function isValidRealName($name){
+			if($name == null || $name == ""){return true;}
+			return preg_match("/^[A-Za-z ]{1,63}$/", $name);
 		}
 	}
 ?>

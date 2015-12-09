@@ -17,7 +17,7 @@
 				throw new Exception("Unable to start session.");
 			}
 
-			require_once(__DIR__ . "/account/accountmanager.php");
+			require_once(__DIR__ . "/AccountManager.php");
 			require_once(__DIR__ . "/dbtools.php");
 		}
 

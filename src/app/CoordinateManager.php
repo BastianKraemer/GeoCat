@@ -117,8 +117,8 @@
 			$username = AccountManager::getUserNameByAccountId($dbh, $account_id);
 			$ret = array();
 			for($i = 0; $i < count($res); $i++){
-				$coord = self::getCoordinateById($dbh, $res[0]["coord_id"]);
-				$ret[] = new Place($username, $res[0]["is_public"], $res[0]["creation_date"], $res[0]["modification_date"], $coord);
+				$coord = self::getCoordinateById($dbh, $res[$i]["coord_id"]);
+				$ret[] = new Place($username, $res[$i]["is_public"], $res[$i]["creation_date"], $res[$i]["modification_date"], $coord);
 			}
 			return $ret;
 		}
@@ -158,7 +158,7 @@
 		 */
 		public static function createCoordinate($dbh, $name, $latitude, $longitude, $decription){
 			if(!is_double($latitude) || !is_double($longitude) || !self::isValidCoordinateName($name) || !self::isValidCoordinateDescription($decription)){
-				throw new InvalidArgumentException();
+				throw new InvalidArgumentException("One ore more parameters have invalid values.");
 			}
 
 			$res = DBTools::query($dbh, "INSERT INTO ". self::TABLE_COORDINATE . " (coord_id, name, description, latitude, longitude) VALUES (NULL, :name, :desc, :lat, :lon)",
@@ -226,6 +226,7 @@
 		 * @param string $newLongitude
 		 * @param string $newDescription
 		 * @param boolean $isPublic
+		 * @return boolean <code>true</code> if the operation was successful, <code>false</code> if not
 		 * @throws InvalidArgumentException If $name or $descripton are not valid names or the coordinate does not exist
 		 * @see self::isValidCoordinateName()
 		 * Function isValidCoordinateName()
@@ -280,7 +281,7 @@
 		 * @param PDO $dbh Database handler
 		 * @param integer $account_id The <code>account_id</code> of the user
 		 * @param integer $coord_id The <code>coord_id</code> of the coordinate
-		 * @return The number of removed rows (this should be <code>-1</code>) or <code>-1</code> if the operation failed.
+		 * @return The number of removed rows (this should be <code>1</code>) or <code>-1</code> if the operation failed.
 		 */
 		public static function removePlace($dbh, $account_id, $coord_id){
 			$stmt = $dbh->prepare("DELETE FROM " . self::TABLE_PLACE ." WHERE account_id = :accid AND coord_id = :coordId");
@@ -304,12 +305,12 @@
 
 		/**
 		 * Checks if a coordinate name is valid.
-		 * The conditions for this are: Only "A-Z", "a-z", "0-9" or ine of the characters "_ ,;.!#-*" and a length less than 64.
+		 * The conditions for this are: Only "A-Z", "a-z", "0-9" or ine of the characters "_ ,;.!#-*()" and a length less than 64.
 		 * @param string $name
 		 * @return boolean
 		 */
 		public static function isValidCoordinateName($name){
-			return preg_match("/^[A-Za-z0-9_ ,;\.\!\#\-\*]{1,63}$/", $name);
+			return preg_match("/^[A-Za-z0-9_ ,;\.\!\#\-\*\(\)]{1,63}$/", $name);
 		}
 
 		/**

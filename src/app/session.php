@@ -17,8 +17,8 @@
 				throw new Exception("Unable to start session.");
 			}
 
-			require_once("./account/accountmanager.php");
-			require_once("./dbtools.php");
+			require_once(__DIR__ . "/account/accountmanager.php");
+			require_once(__DIR__ . "/dbtools.php");
 		}
 
 		/**
@@ -86,6 +86,17 @@
 		public function logout(){
 			unset($_SESSION["username"]);
 			unset($_SESSION["accountid"]);
+		}
+	}
+
+	class MissingSessionException extends Exception
+	{
+		public function __construct($message = "A login is required to use this feature", $code = 0, Exception $previous = null) {
+			parent::__construct($message, $code, $previous);
+		}
+
+		public function __toString() {
+			return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
 		}
 	}
 ?>

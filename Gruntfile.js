@@ -6,7 +6,7 @@ module.exports = function(grunt) {
 
 		propertiesToJSON: {
 			main: {
-				src: 'src/locale/de.properties',
+				src: 'src/locale/*',
 				dest: 'src/locale'
 			}
 		},

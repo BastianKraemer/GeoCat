@@ -48,3 +48,30 @@ div[role="navigation"] ul li a {
 #CanvasFrame{
 	margin: 0px auto;
 }
+
+/* ==============================================================================
+	Places page
+============================================================================== */
+
+#Page_Places .ui-content {
+	padding-top: 0;
+}
+
+.places_header{
+	margin-top: 0;
+}
+
+#PlacesInformation {
+	position: absolute;
+	text-align: center;
+	width: 100%;
+}
+
+.place-name {
+	float: left;
+}
+
+.place-owner {
+	float: right;
+	font-style: italic;
+}

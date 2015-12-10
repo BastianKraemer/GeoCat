@@ -5,6 +5,7 @@
 
 	$config = require("./config/config.php");
 	require_once "app/jsonlocale.php";
+	require_once "app/content/header.php";
 
 	$locale = JSONLocale::withBrowserLanguage($config);
 
@@ -59,12 +60,15 @@
 	<script src="./js/gpsnavigator.js"></script>
 	<script src="./js/geotools.js"></script>
 	<script src="./js/gpsnavigator/GPSNavigationController.js"></script>
+	<script src="./js/places/PlacesController.js"></script>
 	<script src="./js/gpsnavigator/GPSRadar.js"></script>
+	<script src="./js/tools.js"></script>
+	<script src="./js/locale.js"></script>
 	<script type="text/javascript">
 
 		// Global variales
 		var pages = new Object();
-
+		var locale = new JSONLocale("de", "./");
 		//Workaround: The function "getPageHeight" will return different results after the first page chage
 		var pageHeightOffset = 0;
 		var isFirstCreatedPage = true;
@@ -98,6 +102,13 @@
 
 		// When page "gpsnavigator" is closed
 		$(document).on("pagebeforehide","#gpsnavigator", GPSNavigationController.onPageClosed);
+
+		/* ====================================================================
+			Places Eventhandling
+		==================================================================== */
+
+		// When page "gpsnavigator" is opened
+		$(document).on("pageshow","#Page_Places", PlacesController.onPageOpened);
 	</script>
 
 </head>
@@ -110,17 +121,14 @@
 	-->
  	<div data-role="page" id="home" data-theme="b">
 
-	<div data-role="header" data-id="page_header">
-		<?php print("<h1>" . $config["app.name"] . " - ". $locale->get("mainpage.title") . "</h1>"); ?>
-		<a href="#" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-user">Login</a>
-	</div>
+		<?php printHeader($config["app.name"] . " - ". $locale->get("mainpage.title"), false, false, $config); ?>
 
 		<div role="main" class="ui-content my-page">
 				<ul data-role="listview" data-inset="true">
 					<?php
 						addDefaultTile("info", "#", ".");
 						addDefaultTile("map", "#", ".");
-						addDefaultTile("places", "#", ".");
+						addDefaultTile("places", "#Page_Places", ".");
 						addDefaultTile("challenges", "#", ".");
 						addDefaultTile("social", "#", ".");
 						addDefaultTile("navigator", "#gpsnavigator", ".");
@@ -128,10 +136,6 @@
 					?>
 				</ul>
 		</div><!-- /content -->
-
-		<?php
-			require("./app/main/navigation.php");
-		?>
 	</div>
 
 	<!--
@@ -139,17 +143,31 @@
 	Places page
 	================================================================================
 	-->
-	<div data-role="page" id="places">
-		<div data-role="header" data-id="page_header" data-theme="b">
-			<?php print("<h1>" . $locale->get("places.title") . "</h1>"); ?>
+	<div data-role="page" id="Page_Places">
+		<?php printHeader($config["app.name"] . " - ". $locale->get("places.title"), true, false, $config); ?>
+
+		<div role="main" class="ui-content">
+			<div class="ui-field-contain places_header">
+			<p id="PlacesInformation"></p>
+				<button id="Places_Prev" class="ui-btn ui-btn-inline ui-icon-arrow-l ui-btn-icon-left"><?php $locale->write("places.prev_page") ?></button >
+				<button id="Places_Next" class="ui-btn ui-btn-inline ui-icon-arrow-r ui-btn-icon-right" style="float:right"><?php $locale->write("places.next_page") ?></button >
+			</div>
+
+			<ul id="PlacesListView" data-role="listview" data-inset="true">
+				<li><span><?php $locale->write("places.empty_list") ?></span></li>
+			</ul>
 		</div>
 
-		<ul data-role="listview" data-filter="true" data-filter-placeholder="<?php $locale->write("places.find") ?>" data-inset="true">
-		</ul>
-
-		<?php
-			require("./app/main/navigation.php");
-		?>
+		<div data-role="footer" data-id="navbar" data-position="fixed" data-tap-toggle="false" data-theme="b" style="overflow:hidden;">
+			<div data-role="navbar" class="navigationbar">
+			<ul>
+					<li><a id="Places_Find"><?php $locale->write("places.find") ?></a></li>
+					<li><a id="Places_ShowMyPlaces"><?php $locale->write("places.private_places") ?></a></li>
+					<li><a id="Places_ShowPublicPlaces" data-transition="none"><?php $locale->write("places.public_places") ?></a></li>
+					<li><a id="Places_NextToMe"><?php $locale->write("places.next_to_me") ?></a></li>
+				</ul>
+			</div>
+		</div>
 	</div>
 
 	<!--

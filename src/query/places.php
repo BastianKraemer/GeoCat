@@ -8,22 +8,19 @@
 	require_once(__DIR__ . "/../app/session.php");
 	require_once(__DIR__ . "/../app/jsonlocale.php");
 	require_once(__DIR__ . "/../app/dbtools.php");
-	require_once(__DIR__ . "/../app/DataConverter.php");
+	require_once(__DIR__ . "/../app/DefaultRequestHandler.php");
 	$config = require(__DIR__ . "/../config/config.php");
 
-	$dbh = DBTools::connectToDatabase($config);
-	$locale = JSONLocale::withBrowserLanguage($config);
+	try{
+		$dbh = DBTools::connectToDatabase($config);
+		$locale = JSONLocale::withBrowserLanguage($config);
 
-	$session = new SessionController();
+		$session = new SessionController();
+		$placeHandler = new AJAXPlaceHandler($dbh, $session, $locale);
 
-	$placeHandler = new AJAXPlaceHandler($dbh, $session, $locale);
-
-	if(array_key_exists("cmd", $_POST)){
-		print($placeHandler->handleRequest(	$_POST["cmd"],
-											array_key_exists("type", $_POST) ? $_POST["type"] : null,
-											array_key_exists("data", $_POST) ? $_POST["data"] : null));
+		print($placeHandler->handleRequest($_POST));
 	}
-	else{
+	catch(Exception $e){
 		print("Invalid request format.");
 	}
 
@@ -59,18 +56,27 @@
 			$this->locale = $translations;
 		}
 
-		public function handleRequest($cmd, $type, $data){
+		public function handleRequest($requestParameters){
+
+			$req = new DefaultRequestHandler($requestParameters);
+
 			try{
+				if(!array_key_exists("cmd", $req->data)){
+					throw new InvalidArgumentException("Parameter 'cmd' is not defined.");
+				}
+
+				$cmd = $req->data["cmd"];
 				$ret;
+
 				if($cmd == "add"){
 
 					if(!$this->session->isSignedIn()){throw new MissingSessionException();}
-					$ret = $this->appendPlace(DataConverter::decodeData($type, $data));
+					$ret = $this->appendPlace($req->data);
 				}
 				else if($cmd == "get"){
 
 					if(!$this->session->isSignedIn()){throw new MissingSessionException();}
-					$ret = $this->getPlaces(DataConverter::decodeData($type, $data));
+					$ret = $this->getPlaces($req->data);
 				}
 				else if($cmd == "count"){
 
@@ -80,16 +86,16 @@
 				else if($cmd == "set" || $cmd == "update"){
 
 					if(!$this->session->isSignedIn()){throw new MissingSessionException();}
-					$ret = $this->updatePlace(DataConverter::decodeData($type, $data));
+					$ret = $this->updatePlace($req->data);
 				}
 				else if($cmd == "remove"){
 
 					if(!$this->session->isSignedIn()){throw new MissingSessionException();}
-					$ret = $this->removePlace(DataConverter::decodeData($type, $data));
+					$ret = $this->removePlace($req->data);
 				}
 				else if($cmd == "get_public"){
 
-					$ret = $this->getPublicPlaces(DataConverter::decodeData($type, $data));
+					$ret = $this->getPublicPlaces($req->data);
 				}
 				else if($cmd == "count_public"){
 
@@ -99,16 +105,16 @@
 					return "Unsupported command.";
 				}
 
-				return DataConverter::encodeData($type, $ret);
+				return $req->prepareResponse($ret);
 			}
 			catch(InvalidArgumentException $e){
-				return DataConverter::encodeData($type, self::createDefaultResponse(false, "Invalid request: " . $e));
+				return $req->prepareResponse(self::createDefaultResponse(false, "Invalid request: " . $e));
 			}
 			catch(MissingSessionException $e){
-				return DataConverter::encodeData($type, self::createDefaultResponse(false, "Access denied. Please sign in at first."));
+				return $req->prepareResponse(self::createDefaultResponse(false, "Access denied. Please sign in at first."));
 			}
 			catch(Exception $e){
-				return DataConverter::encodeData($type, array("status" => "error", "msg" => "Internal server error: " . $e->getMessage()));
+				return $req->prepareResponse(array("status" => "error", "msg" => "Internal server error: " . $e->getMessage()));
 			}
 		}
 

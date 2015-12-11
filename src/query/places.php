@@ -81,7 +81,7 @@
 				else if($cmd == "count"){
 
 					if(!$this->session->isSignedIn()){throw new MissingSessionException();}
-					$ret = array("count" => CoordinateManager::countPlacesOfAccount($this->dbh, $this->session->getAccountId()));
+					$ret = array("count" => CoordinateManager::countPlacesOfAccount($this->dbh, $this->session->getAccountId(), self::getFilter($req->data)));
 				}
 				else if($cmd == "set" || $cmd == "update"){
 
@@ -98,8 +98,7 @@
 					$ret = $this->getPublicPlaces($req->data);
 				}
 				else if($cmd == "count_public"){
-
-					$ret = array("count" => CoordinateManager::countPublicPlaces($this->dbh));
+					$ret = array("count" => CoordinateManager::countPublicPlaces($this->dbh, self::getFilter($req->data)));
 				}
 				else{
 					return "Unsupported command.";
@@ -108,7 +107,7 @@
 				return $req->prepareResponse($ret);
 			}
 			catch(InvalidArgumentException $e){
-				return $req->prepareResponse(self::createDefaultResponse(false, "Invalid request: " . $e));
+				return $req->prepareResponse(self::createDefaultResponse(false, "Invalid request: " . $e->getMessage()));
 			}
 			catch(MissingSessionException $e){
 				return $req->prepareResponse(self::createDefaultResponse(false, "Access denied. Please sign in at first."));
@@ -169,7 +168,7 @@
 		private function getPlaces($data){
 			if(self::requireValues($data, array(self::KEY_LIMIT, self::KEY_OFFSET))){
 				$accId = $this->session->getAccountId();
-				return CoordinateManager::getPlacesByAccountId($this->dbh, $accId, intval($data[self::KEY_LIMIT]), intval($data[self::KEY_OFFSET]));
+				return CoordinateManager::getPlacesByAccountId($this->dbh, $accId, intval($data[self::KEY_LIMIT]), intval($data[self::KEY_OFFSET]), self::getFilter($data));
 			}
 			else{
 				throw new InvalidArgumentException("Required parameter '" . self::KEY_LIMIT . "' or '" . self::KEY_OFFSET . "' is undefined.");
@@ -178,7 +177,7 @@
 
 		private function getPublicPlaces($data){
 			if(self::requireValues($data, array(self::KEY_LIMIT, self::KEY_OFFSET))){
-				return CoordinateManager::getPublicPlaces($this->dbh, intval($data[self::KEY_LIMIT]), intval($data[self::KEY_OFFSET]));
+				return CoordinateManager::getPublicPlaces($this->dbh, intval($data[self::KEY_LIMIT]), intval($data[self::KEY_OFFSET]), self::getFilter($data));
 			}
 			else{
 				throw new InvalidArgumentException("Required parameter '" . self::KEY_LIMIT . "' or '" . self::KEY_OFFSET . "' is undefined.");
@@ -195,6 +194,11 @@
 			else{
 				throw new InvalidArgumentException("Required parameter '" . self::KEY_COORD_ID . "' is undefined.");
 			}
+		}
+
+
+		private static function getFilter($data){
+			return array_key_exists("filter", $data) ? "%" . $data["filter"] . "%" : null;
 		}
 
 		private static function requireValues($arr, $values){

@@ -66,19 +66,24 @@
 		 * @param PDO $dbh Database handler
 		 * @param integer $limit Maximal number of places that should be returned
 		 * @param integer $offset Number of places that should be skipped (for example an offset of 4 will skip the first four places)
+		 * @param string $filter (optional) Filter to exclude entries that doesn't match the string
+		 * 						 (use % to match any characters; the filter will be applied to name and description)
 		 * @return Place[] An array of Places
 		 * @throws InvalidArgumentException If $limit or $offset are not an integer value
 		 */
-		public static function getPublicPlaces($dbh, $limit, $offset){
+		public static function getPublicPlaces($dbh, $limit, $offset, $filter = null){
 			if(!is_int($limit) || !is_int($offset)){throw new InvalidArgumentException("The parameters 'limit' and 'offset' habe to be integer values!");}
-			$res = DBTools::fetchAll($dbh,	"SELECT Account.username, Place.coord_id, Place.creation_date, Place.modification_date " .
-											"FROM " . SELF::TABLE_ACCOUNT . ", " . SELF::TABLE_PLACE . " " .
-											"WHERE is_public = 1 AND Place.account_id = Account.account_id LIMIT " . $limit . " OFFSET " . $offset);
+			$res = DBTools::fetchAll($dbh,	"SELECT Account.username, Place.coord_id, Place.creation_date, Place.modification_date, " .
+													"Coordinate.name, Coordinate.description, Coordinate.latitude, Coordinate.longitude " .
+											"FROM " . SELF::TABLE_ACCOUNT . ", " . SELF::TABLE_PLACE . ", " . SELF::TABLE_COORDINATE . " " .
+											"WHERE Place.is_public = 1 AND Place.account_id = Account.account_id AND Place.coord_id = Coordinate.coord_id " .
+													($filter == null ? "" : "AND (Coordinate.name LIKE :filter OR Coordinate.description LIKE :filter) ") .
+											"LIMIT " . $limit . " OFFSET " . $offset, ($filter != null ? array("filter" => $filter) : null));
 
 			$ret = array();
 
 			for($i = 0; $i < count($res); $i++){
-				$coord = self::getCoordinateById($dbh, $res[$i]["coord_id"]);
+				$coord = new Coordinate($res[$i]["coord_id"], $res[$i]["name"], $res[$i]["latitude"], $res[$i]["longitude"], $res[$i]["description"]);
 				$ret[] = new Place($res[$i]["username"], 1, $res[$i]["creation_date"], $res[$i]["modification_date"], $coord);
 			}
 
@@ -88,9 +93,23 @@
 		/**
 		 * Counts all public places
 		 * @param PDO $dbh Database handler
+		 * @param string $filter (optional) Filter to exclude entries that doesn't match the string
+		 * 						 (use % to match any characters; the filter will be applied to name and description)
 		 */
-		public static function countPublicPlaces($dbh){
-			$res = DBTools::fetchAll($dbh, "SELECT COUNT(coord_id) FROM ". self::TABLE_PLACE . " WHERE is_public = 1");
+		public static function countPublicPlaces($dbh, $filter = null){
+			$res;
+
+			if($filter == null){
+				$res = DBTools::fetchAll($dbh, "SELECT COUNT(coord_id) FROM ". SELF::TABLE_PLACE . " WHERE is_public = 1");
+			}
+			else{
+				$res = DBTools::fetchAll($dbh,	"SELECT COUNT(Place.coord_id) " .
+												"FROM " . SELF::TABLE_PLACE . ", " . SELF::TABLE_COORDINATE . " " .
+												"WHERE is_public = 1 AND Place.coord_id = Coordinate.coord_id AND " .
+													"(Coordinate.name LIKE :filter OR Coordinate.description LIKE :filter)",
+												array("filter" => $filter));
+			}
+
 			if($res){
 				return $res[0][0];
 			}
@@ -106,19 +125,29 @@
 		 * @param integer $account_id
 		 * @param integer $limit Maximal number of places that should be returned
 		 * @param integer $offset Number of places that should be skipped (for example an offset of 4 will skip the first four places)
+		 * @param string $filter (optional) Filter to exclude entries that doesn't match the string
+		 * 						 (use % to match any characters; the filter will be applied to name and description)
 		 * @return Place[] An array of Places
 		 * @throws InvalidArgumentException If $limit or $offset are not an integer value or if the $account_id does not exist
 		 */
-		public static function getPlacesByAccountId($dbh, $account_id, $limit, $offset){
+		public static function getPlacesByAccountId($dbh, $account_id, $limit, $offset, $filter = null){
 			if(!is_int($limit) || !is_int($offset)){throw new InvalidArgumentException("The parameters 'limit' and 'offset' habe to be integer values!");}
-			$res = DBTools::fetchAll($dbh, "SELECT coord_id, is_public, creation_date, modification_date FROM ". self::TABLE_PLACE . " WHERE account_id = :accid LIMIT " . $limit . " OFFSET " . $offset,
-									 array("accid" => $account_id));
+
+			$arr = $filter != null ? array("accid" => $account_id, "filter" => $filter) : array("accid" => $account_id);
+
+			$res = DBTools::fetchAll($dbh, "SELECT Place.coord_id, Place.is_public, Place.creation_date, Place.modification_date, " .
+												  "Coordinate.name, Coordinate.description, Coordinate.latitude, Coordinate.longitude " .
+											"FROM ". self::TABLE_PLACE . ", " . self::TABLE_COORDINATE . " "  .
+											"WHERE account_id = :accid AND Place.coord_id = Coordinate.coord_id " .
+												($filter == null ? "" : "AND (Coordinate.name LIKE :filter OR Coordinate.description LIKE :filter) ") .
+											"LIMIT " . $limit . " OFFSET " . $offset, $arr);
 
 			$username = AccountManager::getUserNameByAccountId($dbh, $account_id);
+
 			$ret = array();
 			for($i = 0; $i < count($res); $i++){
-				$coord = self::getCoordinateById($dbh, $res[$i]["coord_id"]);
-				$ret[] = new Place($username, $res[$i]["is_public"], $res[$i]["creation_date"], $res[$i]["modification_date"], $coord);
+				$coord = new Coordinate($res[$i]["coord_id"], $res[$i]["name"], $res[$i]["latitude"], $res[$i]["longitude"], $res[$i]["description"]);
+				$ret[] = new Place($username, 1, $res[$i]["creation_date"], $res[$i]["modification_date"], $coord);
 			}
 			return $ret;
 		}
@@ -127,16 +156,29 @@
 		 * Counts the places of a specific account
 		 * @param PDO $dbh Database handler
 		 * @param integer $account_id
+		 * @param string $filter (optional) Filter to exclude entries that doesn't match the string
+		 * 						 (use % to match any characters; the filter will be applied to name and description)
 		 */
-		public static function countPlacesOfAccount($dbh, $account_id){
-			$res = DBTools::fetchAll($dbh, "SELECT COUNT(coord_id) FROM ". self::TABLE_PLACE . " WHERE account_id = :accid",
-									 array("accid" => $account_id));
+		public static function countPlacesOfAccount($dbh, $account_id, $filter = null){
+
+			$res;
+			if($filter == null){
+				$res = DBTools::fetchAll($dbh, "SELECT COUNT(coord_id) FROM ". self::TABLE_PLACE . " WHERE account_id = :accid",
+												array("accid" => $account_id));
+			}
+			else{
+				$res = DBTools::fetchAll($dbh,	"SELECT COUNT(Place.coord_id) " .
+												"FROM " . SELF::TABLE_PLACE . ", " . SELF::TABLE_COORDINATE . " " .
+												"WHERE account_id = :accid AND Place.coord_id = Coordinate.coord_id AND " .
+													"(Coordinate.name LIKE :filter OR Coordinate.description LIKE :filter)",
+												array("accid" => $account_id, "filter" => $filter));
+			}
 
 			if($res){
 				return $res[0][0];
 			}
 			else{
-				self::printError("ERROR: Count of public places of account (Table: '". self::TABLE_COORDINATE . "')",
+				self::printError("ERROR: Count of private account places faied (Table: '". self::TABLE_COORDINATE . "').",
 								 array("\$res" => $res, "\$account_id" => $account_id));
 				return 0;
 			}

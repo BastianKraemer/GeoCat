@@ -401,7 +401,7 @@
 
 		/**
 		 * Creates a new Place object
-		 * @param integer $accountId
+		 * @param integer $owner
 		 * @param boolean $isPublic
 		 * @param string $creationDate
 		 * @param string $modificationDate
@@ -421,7 +421,7 @@
 	 */
 	class Coordinate{
 		/** @var integer coordinate id (coord_id)*/
-		public $id;
+		public $coord_id;
 
 		/** @var string Name of this coordinate */
 		public $name;
@@ -437,14 +437,14 @@
 
 		/**
 		 * Creates a new Coordinate object
-		 * @param integer $coordinteId
+		 * @param integer $coord_id
 		 * @param string $coordinateName
 		 * @param double $latitude
 		 * @param double $longitude
 		 * @param string $description
 		 */
 		public function __construct($coordinteId, $coordinateName, $latitude, $longitude, $description){
-			$this->id = $coordinteId;
+			$this->coord_id = $coordinteId;
 			$this->name = $coordinateName;
 			$this->desc = $description;
 			$this->lat = $latitude;

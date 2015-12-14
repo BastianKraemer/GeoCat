@@ -20,6 +20,10 @@ div[role="navigation"] ul li a {
 	-webkit-overflow-scrolling: touch;
 }
 
+.ui-btn-inline {
+	margin-right: 0 !important;
+}
+
 /*
 	Overwrite the default background
 */
@@ -54,7 +58,7 @@ div[role="navigation"] ul li a {
 ============================================================================== */
 
 #Page_Places .ui-content {
-	padding-top: 0;
+	padding: 0 4px;
 }
 
 .places_header{
@@ -74,4 +78,24 @@ div[role="navigation"] ul li a {
 .place-owner {
 	float: right;
 	font-style: italic;
+}
+
+#EditPlacePopup-popup {
+    width: 80%;
+    left: 10%;
+    right: 10%
+}
+
+#EditPlacePopup table {
+	width: 100%;
+}
+
+#EditPlacePopup label {
+	margin-top: 8px;
+}
+
+@media (max-width:800px) {
+	#PlacesListView li a p.ui-li-aside {
+		display: none;
+	}
 }

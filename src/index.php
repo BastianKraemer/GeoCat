@@ -149,8 +149,8 @@
 		<div role="main" class="ui-content">
 			<div class="ui-field-contain places_header">
 			<p id="PlacesInformation"></p>
-				<button id="Places_Prev" class="ui-btn ui-btn-inline ui-icon-arrow-l ui-btn-icon-left"><?php $locale->write("places.prev_page") ?></button >
-				<button id="Places_Next" class="ui-btn ui-btn-inline ui-icon-arrow-r ui-btn-icon-right" style="float:right"><?php $locale->write("places.next_page") ?></button >
+				<button id="Places_Prev" class="ui-btn ui-btn-inline ui-icon-arrow-l ui-btn-icon-left ui-btn-icon-notext"><?php $locale->write("places.prev_page") ?></button >
+				<button id="Places_Next" class="ui-btn ui-btn-inline ui-icon-arrow-r ui-btn-icon-right ui-btn-icon-notext" style="float:right"><?php $locale->write("places.next_page") ?></button >
 			</div>
 
 			<ul id="PlacesListView" data-role="listview" data-inset="true">
@@ -160,12 +160,50 @@
 
 		<div data-role="footer" data-id="navbar" data-position="fixed" data-tap-toggle="false" data-theme="b" style="overflow:hidden;">
 			<div data-role="navbar" class="navigationbar">
-			<ul>
+				<ul>
 					<li><a id="Places_Find"><?php $locale->write("places.find") ?></a></li>
 					<li><a id="Places_ShowMyPlaces"><?php $locale->write("places.private_places") ?></a></li>
 					<li><a id="Places_ShowPublicPlaces" data-transition="none"><?php $locale->write("places.public_places") ?></a></li>
-					<li><a id="Places_NextToMe"><?php $locale->write("places.next_to_me") ?></a></li>
+					<li><a id="Places_newPlace"><?php $locale->write("places.new_place") ?></a></li>
 				</ul>
+			</div>
+		</div>
+
+		<!-- Popup to add/edit places -->
+		<div id="EditPlacePopup" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all">
+			<div data-role="header" data-theme="b">
+				<h3 id="EditPlacePopup_Title"><?php $locale->write("places.popup_edit.title"); ?></h3>
+				<button id="EditPlacePopup_Close" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-delete ui-btn-icon-notext" onclick="PlacesController.closeEditPlacePopup();">Close Window</button>
+				<button id="EditPlacePopup_Delete" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all" onclick="PlacesController.editPlacesDeleteButtonClicked();">
+					<?php $locale->write("places.delete"); ?>
+				</button>
+			</div>
+
+			<div role="main" class="ui-content">
+				<label for="EditPlacePopup_Name"><?php $locale->write("places.popup_edit.name"); ?></label>
+				<input id="EditPlacePopup_Name" name="EditPlacePopup_Name" placeholder="<?php $locale->write("places.placeholder.name"); ?>" data-theme="a" type="text">
+
+				<label for="EditPlacePopup_Desc"><?php $locale->write("places.popup_edit.description"); ?></label>
+				<textarea id="EditPlacePopup_Desc" name="EditPlacePopup_Desc" placeholder="<?php $locale->write("places.placeholder.description"); ?>"></textarea>
+
+				<table>
+					<tr>
+						<td>
+							<label for="EditPlacePopup_Lat"><?php $locale->write("places.popup_edit.latitude"); ?></label>
+							<input id="EditPlacePopup_Lat" name="EditPlacePopup_Lat" placeholder="50.0000">
+						</td>
+						<td>
+							<label for="EditPlacePopup_Lon"><?php $locale->write("places.popup_edit.longitude"); ?></label>
+							<input id="EditPlacePopup_Lon" name="EditPlacePopup_Lon" placeholder="8.0000">
+						</td>
+					</tr>
+				</table>
+
+			    <label>
+			        <input id="EditPlacePopup_Public" name="EditPlacePopup_Public" type="checkbox"><?php $locale->write("places.popup_edit.ispublic"); ?>
+			    </label>
+
+				<a id="EditPlacePopup_Save" onclick="PlacesController.editPlacesSaveButtonClicked();" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check"><?php $locale->write("save"); ?></a>
 			</div>
 		</div>
 	</div>

@@ -35,12 +35,19 @@ var GPSNavigationController = new function(){
 	idList["pref_debuginfo"] = "#GPSNavShowDebugInfo";
 	idList["pref_offline_mode"] = "#GPSNavOfflineMode";
 
-	this.onPageOpened = function(){
+	this.getInstance = function(){
 		if(pages["gpsnavigator"] == null){
 			pages["gpsnavigator"] = new GPSNavigator($("#gpsnavigator_content")[0]);
 		}
 
-		pages["gpsnavigator"].startNavigator();
+		return pages["gpsnavigator"];
+	}
+
+	this.onPageOpened = function(){
+
+		var nav = GPSNavigationController.getInstance();
+
+		nav.startNavigator();
 
 		// Append some event handler
 
@@ -170,7 +177,7 @@ var GPSNavigationController = new function(){
 	this.showCoordinateEditDialogForExistingDestination = function(destID){
 		if(pages["gpsnavigator"] != null){
 			var dest = pages["gpsnavigator"].getDestinationById(destID);
-			showCoordinateEditDialog(destID, dest.name, dest.description, dest.lat, dest.lon);
+			showCoordinateEditDialog(destID, dest.name, dest.desc, dest.lat, dest.lon);
 		}
 	}
 

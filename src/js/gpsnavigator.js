@@ -29,7 +29,7 @@ function Coordinate(name, latitude, longitude, description){
 	this.lat = latitude;
 	this.lon = longitude;
 	this.name = name;
-	this.description = description;
+	this.desc = description;
 }
 
  // TODO: Load/Store destination list in session/database via ajax

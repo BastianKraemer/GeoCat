@@ -166,6 +166,19 @@
 		}
 
 		/**
+		 * Checks if a user is an administrator
+		 * @param PDO $dbh Database handler
+		 * @param integer $accountId
+		 * @return boolean
+		 * @throws InvalidArgumentException if the account id is undefined
+		 */
+		public static function isAdministrator($dbh, $accountId){
+			$result = DBTools::fetchAll($dbh, "SELECT is_administrator FROM Account WHERE account_id = :accid", array(":accid" => $accountId));
+			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
+			return $result[0][0] == 1;
+		}
+
+		/**
 		 * Checks the password of an user
 		 *
 		 * <u>Possible return values:</u><br>

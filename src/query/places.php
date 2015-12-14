@@ -49,6 +49,7 @@
 		const KEY_LIMIT = "limit";
 		const KEY_OFFSET = "offset";
 		const KEY_COORD_ID = "coord_id";
+		const KEY_OTHER_ACCOUNT = "other_account";
 
 		public function __construct($databaseHandler, $session, $translations){
 			$this->dbh = $databaseHandler;
@@ -150,7 +151,8 @@
 												   "Please define '" . self::KEY_NAME . "', '" . self::KEY_LAT . "', '" . self::KEY_LON . "', '" . self::KEY_IS_PUBLIC . "' and '" . self::KEY_COORD_ID . "'.");
 			}
 
-			$accId = $this->session->getAccountId();
+			// If the key "SELF::KEY_OTHER_ACCOUNT" is defined then the user has to be an administrator
+			$accId = array_key_exists(SELF::KEY_OTHER_ACCOUNT, $data) ? switchUser($dbh, CoordinateManager::getPlaceOwner($dbh, $data[self::KEY_COORD_ID])) : $this->session->getAccountId();
 
 			$value = CoordinateManager::updatePlace($this->dbh, $accId, $data[self::KEY_COORD_ID], $data[self::KEY_NAME],
 													$data[self::KEY_LAT], $data[self::KEY_LON],
@@ -162,6 +164,15 @@
 			}
 			else{
 				throw new Exception("Cannot update place.");
+			}
+		}
+
+		private static function switchUser($dbh, $toUser){
+			if(AccountManager::isAdministrator($dbh, $this->session->getAccountId())){
+				return $toUser;
+			}
+			else{
+				throw InvalidArgumentException("Access denied: You don't have the permission to act as adminsitrator.");
 			}
 		}
 
@@ -186,7 +197,10 @@
 
 		private function removePlace($data){
 			if(self::requireValues($data, array(self::KEY_COORD_ID))){
-				$accId = $this->session->getAccountId();
+
+				// If the key "SELF::KEY_OTHER_ACCOUNT" is defined then the user has to be an administrator
+				$accId = array_key_exists(SELF::KEY_OTHER_ACCOUNT, $data) ? switchUser($dbh, CoordinateManager::getPlaceOwner($dbh, $data[self::KEY_COORD_ID])) : $this->session->getAccountId();
+
 				$result = CoordinateManager::removePlace($this->dbh, $accId, $data[self::KEY_COORD_ID]);
 
 				return self::createDefaultResponse($result == 1, "");

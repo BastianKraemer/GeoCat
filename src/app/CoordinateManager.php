@@ -147,7 +147,7 @@
 			$ret = array();
 			for($i = 0; $i < count($res); $i++){
 				$coord = new Coordinate($res[$i]["coord_id"], $res[$i]["name"], $res[$i]["latitude"], $res[$i]["longitude"], $res[$i]["description"]);
-				$ret[] = new Place($username, 1, $res[$i]["creation_date"], $res[$i]["modification_date"], $coord);
+				$ret[] = new Place($username, $res[$i]["is_public"], $res[$i]["creation_date"], $res[$i]["modification_date"], $coord);
 			}
 			return $ret;
 		}

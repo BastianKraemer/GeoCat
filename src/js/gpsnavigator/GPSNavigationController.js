@@ -17,14 +17,16 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-var GPSNavigationController = new function(){
+function GPSNavigationController(localCoordinateStore, myuplink){
 
 	// Define HTML-Element IDs
 	var idList = new Object();
 	idList["list"] = "#CurrentDestinationList";
 	idList["panel"] = "#CurrentDesitionListPanel";
 	idList["popup"] = "#GPSNavDestListPopup";
+	idList["popup_add2own"]  = "#GPSNavDestListPopup_Add2OwnPlaces";
 	idList["popup_save"] = "#GPSNavDestListPopup_Save";
+	idList["popup_close"] = "#GPSNavDestListPopup_Close";
 	idList["add_coordinate"] = "#GPSNavigator_AddCoordinate";
 	idList["field_name"] = "#GPSNavDestListPopup_Name";
 	idList["field_lat"] = "#GPSNavDestListPopup_Lat";
@@ -35,7 +37,12 @@ var GPSNavigationController = new function(){
 	idList["pref_debuginfo"] = "#GPSNavShowDebugInfo";
 	idList["pref_offline_mode"] = "#GPSNavOfflineMode";
 
-	this.getInstance = function(){
+	var localCoordStore = localCoordinateStore;
+	var uplink = myuplink;
+
+	this.getNavigatorInstance = getNavigatorInstance;
+
+	function getNavigatorInstance(){
 		if(pages["gpsnavigator"] == null){
 			pages["gpsnavigator"] = new GPSNavigator($("#gpsnavigator_content")[0]);
 		}
@@ -45,9 +52,8 @@ var GPSNavigationController = new function(){
 
 	this.onPageOpened = function(){
 
-		var nav = GPSNavigationController.getInstance();
-
-		nav.startNavigator();
+		var nav = getNavigatorInstance();
+		nav.startNavigator(localCoordStore);
 
 		// Append some event handler
 
@@ -66,7 +72,7 @@ var GPSNavigationController = new function(){
 
 			var lastGPSPos = pages["gpsnavigator"].getGPSPos();
 			if(lastGPSPos != null){
-				showCoordinateEditDialog(Date.now(), "", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude);
+				showCoordinateEditDialog(null, "", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude);
 			}
 			else{
 				alert("Unable to get current GPS position.");
@@ -81,7 +87,7 @@ var GPSNavigationController = new function(){
 			var id = $(idList["popup"]).attr("dest-id");
 
 			var name = $(idList["field_name"]).val();
-			var dest = $(idList["field_desc"]).val();
+			var desc = $(idList["field_desc"]).val();
 
 			var msg = "%s enthält ungültige Zeichen. Bitte verwenden Sie nur 'A-Z', '0-9' sowie einige Sonderzeichen ('!,;.#_-*')."
 			if(!stringVerify(name)){
@@ -89,8 +95,8 @@ var GPSNavigationController = new function(){
 				return;
 			}
 
-			if(dest != ""){
-				if(!stringVerify(dest)){
+			if(desc != ""){
+				if(!stringVerify(desc)){
 					alert(msg.replace("%s", "Die Beschreibung"));
 					return;
 				}
@@ -104,10 +110,45 @@ var GPSNavigationController = new function(){
 			}
 			else{
 				// Everything ok
-				pages["gpsnavigator"].addDestination(id, new Coordinate(name, lat, lon, dest));
+				if(id == undefined){
+					var add2OwnPlaces = $(idList["popup_add2own"]).is(":checked");
 
-				// Update label text
-				$(idList["list"] + " li[dest-id=" + id + "] a[href='#']").text($(idList["field_name"]).val());
+					var coord = new Coordinate.create(name, lat, lon, desc);
+
+					if(add2OwnPlaces){
+						uplink.sendNewCoordinate(name, desc, lat, lon, false, true,
+								function(msg){
+									localCoordStore.addCoordinateToNavigation(coord);
+								},
+								function(response){
+									alert(Tools.sprintf("Unable to perform this operation. (Status {0})\\n" +
+														"Server returned: {1}", [response["status"], response["msg"]]));
+								});
+					}
+					else{
+						localCoordStore.addCoordinateToNavigation(coord);
+					}
+				}
+				else{
+					var coord = localCoordStore.get(id);
+					coord.name = name;
+					coord.desc = desc;
+					coord.lat = lat;
+					coord.lon = lon;
+
+
+					uplink.sendCoordinateUpdate(coord, true,
+							function(msg){
+								localCoordStore.storePlace(coord);
+
+								// Update label text
+								$(idList["list"] + " li[dest-id=" + id + "] a[href='#']").text($(idList["field_name"]).val());
+							},
+							function(response){
+								Tools.showPopup("Error", Tools.sprintf(	"Unable to perform this operation. (Status {0})\\n" +
+												"Server returned: {1}", [response["status"], response["msg"]]), "OK", null);
+							});
+				}
 
 				// Close popup
 				$(idList["popup"]).popup("close");
@@ -125,6 +166,10 @@ var GPSNavigationController = new function(){
 			$(idList["pref_rotate"]).val(getPreference("rotate")).slider("refresh");
 			$(idList["pref_debuginfo"]).val(getPreference("debug_info")).slider("refresh");
 			$(idList["pref_offline_mode"]).val(getPreference("offline_mode")).slider("refresh");
+		});
+
+		$(idList["popup_close"]).click(function(){
+			$(idList["popup"]).popup("close");
 		});
 
 		bindPreferenceChangeEvent(idList["pref_rotate"], "rotate");
@@ -167,6 +212,7 @@ var GPSNavigationController = new function(){
 			$(idList["pref_offline_mode"]).unbind();
 			$(idList["popup_save"]).unbind();
 			$(idList["add_coordinate"]).unbind();
+			$(idList["popup_close"]).unbind();
 
 			pages["gpsnavigator"].stopNavigator();
 
@@ -175,19 +221,24 @@ var GPSNavigationController = new function(){
 	}
 
 	this.showCoordinateEditDialogForExistingDestination = function(destID){
-		if(pages["gpsnavigator"] != null){
-			var dest = pages["gpsnavigator"].getDestinationById(destID);
-			showCoordinateEditDialog(destID, dest.name, dest.desc, dest.lat, dest.lon);
-		}
+		var dest = localCoordStore.get(destID);
+		showCoordinateEditDialog(destID, dest.name, dest.desc, dest.lat, dest.lon);
 	}
 
 	function showCoordinateEditDialog(id, name, description, latitude, longitude){
+
 		$(idList["field_name"]).val(name);
 		$(idList["field_desc"]).val(description);
 		$(idList["field_lat"]).val(latitude);
 		$(idList["field_lon"]).val(longitude);
 		$(idList["popup"]).css("width", window.innerWidth - (window.innerWidth * 0.1) + "px");
-		$(idList["popup"]).attr("dest-id", id);
+
+		if(id == null){
+			$(idList["popup"]).removeAttr("dest-id");
+		}
+		else{
+			$(idList["popup"]).attr("dest-id", id);
+		}
 
 		$(idList["popup"]).popup("open", {positionTo: "window", transition: "pop"});
 	}
@@ -196,11 +247,12 @@ var GPSNavigationController = new function(){
 		var destList = $(idList["list"]);
 		destList.empty()
 
-		var list = pages["gpsnavigator"].getDestinationList();
+		var list = localCoordStore.getCurrentNavigation();
 		for(var key in list){
+			// TODO: Replace onclick handler by jQuery $(...) call
 			destList.append("<li dest-id=\"" + key + "\">" +
-							"<a onclick=\"GPSNavigationController.showCoordinateEditDialogForExistingDestination('" + key + "');\" href=\"#\">" + list[key].name + "</a>" +
-							"<a onclick=\"GPSNavigationController.deleteListItem('" + key + "');\" class=\"ui-icon-delete\">Remove</a>" +
+							"<a onclick=\"gpsNavigationController.showCoordinateEditDialogForExistingDestination('" + key + "');\" href=\"#\">" + list[key].name + "</a>" +
+							"<a onclick=\"gpsNavigationController.deleteListItem('" + key + "');\" class=\"ui-icon-delete\">Remove</a>" +
 							"</li>");
 		}
 
@@ -208,7 +260,7 @@ var GPSNavigationController = new function(){
 	}
 
 	this.deleteListItem = function(key){
-		pages["gpsnavigator"].removeDestination(key);
+		localCoordStore.removeFromNavigationById(key);
 		updateCurrentDestinationList();
 	}
 }

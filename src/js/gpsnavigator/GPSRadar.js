@@ -17,7 +17,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function GPSRadar(canvas_container, gpsNavigator){
+function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 
 	//TODO: Append a "buffer zone" between canvas and its border to prevent cut text
 
@@ -28,6 +28,7 @@ function GPSRadar(canvas_container, gpsNavigator){
 	var preferedCanvasSize;
 	var canvasAxisLength = 500;
 	var gpsnav = gpsNavigator;
+	var localCoordStore = localCoordinateStore;
 
 	this.start = function(){
 		updateCanvasSize();
@@ -69,8 +70,9 @@ function GPSRadar(canvas_container, gpsNavigator){
 		drawGrid(ctx, heading);
 		ctx.font = "14px Arial";
 		ctx.fillStyle = 'red';
-		var coords = gpsnav.getDestinationList();
-		for(var key in coords) {
+		var coords = localCoordStore.getCurrentNavigation();
+
+		for(var key in coords) {;
 			var distanceInMeter = GeoTools.calculateDistance(lon, lat, coords[key].lon, coords[key].lat) * 1000;
 
 			var angle = GeoTools.calculateAngleTo(lon, lat, coords[key].lon, coords[key].lat);

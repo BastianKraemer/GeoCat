@@ -198,8 +198,20 @@
 		private function removePlace($data){
 			if(self::requireValues($data, array(self::KEY_COORD_ID))){
 
+				$accId;
+
 				// If the key "SELF::KEY_OTHER_ACCOUNT" is defined then the user has to be an administrator
-				$accId = array_key_exists(SELF::KEY_OTHER_ACCOUNT, $data) ? switchUser($dbh, CoordinateManager::getPlaceOwner($dbh, $data[self::KEY_COORD_ID])) : $this->session->getAccountId();
+				if(array_key_exists(SELF::KEY_OTHER_ACCOUNT, $data)){
+					$accId = switchUser($dbh, CoordinateManager::getPlaceOwner($dbh, $data[self::KEY_COORD_ID]));
+				}
+				else{
+					$accId = $this->session->getAccountId();
+					$owner = CoordinateManager::getPlaceOwner($this->dbh, $data[self::KEY_COORD_ID]);
+
+					if($owner != $accId){
+						throw new InvalidArgumentException("You don't have the permission to delete this place.");
+					}
+				}
 
 				$result = CoordinateManager::removePlace($this->dbh, $accId, $data[self::KEY_COORD_ID]);
 

@@ -80,13 +80,13 @@ div[role="navigation"] ul li a {
 	font-style: italic;
 }
 
-#EditPlacePopup-popup {
+#EditPlacePopup-popup, GPSNavDestListPopup-popup {
     width: 80%;
     left: 10%;
     right: 10%
 }
 
-#EditPlacePopup table {
+#EditPlacePopup table,  #GPSNavDestListPopup table{
 	width: 100%;
 }
 

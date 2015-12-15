@@ -57,13 +57,15 @@
 
 	<script src="./lib/jquery.js"></script>
 	<script src="./lib/jquery.mobile-1.4.5.js"></script>
-	<script src="./js/gpsnavigator.js"></script>
-	<script src="./js/geotools.js"></script>
-	<script src="./js/gpsnavigator/GPSNavigationController.js"></script>
-	<script src="./js/places/PlacesController.js"></script>
-	<script src="./js/gpsnavigator/GPSRadar.js"></script>
-	<script src="./js/tools.js"></script>
 	<script src="./js/locale.js"></script>
+	<script src="./js/tools.js"></script>
+	<script src="./js/Uplink.js"></script>
+	<script src="./js/LocalCoordinateStore.js"></script>
+	<script src="./js/gpsnavigator/GPSNavigator.js"></script>
+	<script src="./js/gpsnavigator/GPSNavigationController.js"></script>
+	<script src="./js/gpsnavigator/GPSRadar.js"></script>
+	<script src="./js/geotools.js"></script>
+	<script src="./js/places/PlacesController.js"></script>
 	<script type="text/javascript">
 
 		// Global variales
@@ -73,8 +75,14 @@
 		var pageHeightOffset = 0;
 		var isFirstCreatedPage = true;
 
-		// Some useful (public) methods
+		var uplink = new Uplink("./");
+		var localCoordStore = new LocalCoordinateStore();
+		var gpsNavigationController = new GPSNavigationController(localCoordStore, uplink);
+		var placesController = new PlacesController(localCoordStore, uplink, gpsNavigationController);
 
+	//setTimeout(function(){placesController.onPageOpened();});
+
+		// Some useful (public) methods
 		function getPageHeight(){
 			var screen = $.mobile.getScreenHeight();
 			var header = $(".ui-header").hasClass("ui-header-fixed") ? $(".ui-header").outerHeight() - 1 : $(".ui-header").outerHeight();
@@ -98,17 +106,18 @@
 		 ==================================================================== */
 
 		// When page "gpsnavigator" is opened
-		$(document).on("pageshow","#gpsnavigator", GPSNavigationController.onPageOpened);
+		$(document).on("pageshow","#gpsnavigator", gpsNavigationController.onPageOpened);
 
 		// When page "gpsnavigator" is closed
-		$(document).on("pagebeforehide","#gpsnavigator", GPSNavigationController.onPageClosed);
+		$(document).on("pagebeforehide","#gpsnavigator", gpsNavigationController.onPageClosed);
 
 		/* ====================================================================
 			Places Eventhandling
 		==================================================================== */
 
-		// When page "gpsnavigator" is opened
-		$(document).on("pageshow","#Page_Places", PlacesController.onPageOpened);
+		// When page "Places" is opened
+		$(document).on("pageshow","#Page_Places", placesController.onPageOpened);
+		$(document).on("pagebeforehide","#Page_Places", placesController.onPageClosed);
 	</script>
 
 </head>
@@ -144,7 +153,7 @@
 	================================================================================
 	-->
 	<div data-role="page" id="Page_Places">
-		<?php printHeader($config["app.name"] . " - ". $locale->get("places.title"), true, false, $config); ?>
+		<?php printHeader($locale->get("places.title"), true, false, $config); ?>
 
 		<div role="main" class="ui-content">
 			<div class="ui-field-contain places_header">
@@ -173,8 +182,8 @@
 		<div id="EditPlacePopup" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all">
 			<div data-role="header" data-theme="b">
 				<h3 id="EditPlacePopup_Title"><?php $locale->write("places.popup_edit.title"); ?></h3>
-				<button id="EditPlacePopup_Close" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-delete ui-btn-icon-notext" onclick="PlacesController.closeEditPlacePopup();">Close Window</button>
-				<button id="EditPlacePopup_Delete" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all" onclick="PlacesController.editPlacesDeleteButtonClicked();">
+				<button id="EditPlacePopup_Close" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-delete ui-btn-icon-notext">Close Window</button>
+				<button id="EditPlacePopup_Delete" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all">
 					<?php $locale->write("places.delete"); ?>
 				</button>
 			</div>
@@ -189,11 +198,11 @@
 				<table>
 					<tr>
 						<td>
-							<label for="EditPlacePopup_Lat"><?php $locale->write("places.popup_edit.latitude"); ?></label>
+							<label for="EditPlacePopup_Lat"><?php $locale->write("latitude"); ?>:</label>
 							<input id="EditPlacePopup_Lat" name="EditPlacePopup_Lat" placeholder="50.0000">
 						</td>
 						<td>
-							<label for="EditPlacePopup_Lon"><?php $locale->write("places.popup_edit.longitude"); ?></label>
+							<label for="EditPlacePopup_Lon"><?php $locale->write("longitude"); ?>:</label>
 							<input id="EditPlacePopup_Lon" name="EditPlacePopup_Lon" placeholder="8.0000">
 						</td>
 					</tr>
@@ -203,7 +212,7 @@
 			        <input id="EditPlacePopup_Public" name="EditPlacePopup_Public" type="checkbox"><?php $locale->write("places.popup_edit.ispublic"); ?>
 			    </label>
 
-				<a id="EditPlacePopup_Save" onclick="PlacesController.editPlacesSaveButtonClicked();" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check"><?php $locale->write("save"); ?></a>
+				<button id="EditPlacePopup_Save" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check"><?php $locale->write("save"); ?></button>
 			</div>
 		</div>
 	</div>
@@ -215,9 +224,7 @@
 	-->
 	<div data-role="page" id="gpsnavigator">
 
-		<div data-role="header" data-id="page_header" data-theme="b">
-			<h1>GPS Navigator</h1>
-		</div>
+		<?php printHeader("GPS Navigator", true, false, $config); ?>
 
 		<div id="gpsnavigator_content" role="main" class="ui-content my-page">
 			<div id="CanvasFrame">
@@ -256,21 +263,38 @@
 		</div>
 
 		<!-- Popup to add/edit a destination -->
-		<div id="GPSNavDestListPopup" data-role="popup" data-theme="a" class="ui-corner-all" style="width: 80%;">
-			<div style="padding:10px 20px;">
+		<div id="GPSNavDestListPopup" data-role="popup" data-theme="a" class="ui-corner-all">
+
+			<div data-role="header" data-theme="b">
 				<h3>GPS Navigator</h3>
-				<label for="GPSNavDestListPopup_Name" class="ui-hidden-accessible">Name:</label>
-				<input id="GPSNavDestListPopup_Name" name="Destination_Name" placeholder="Name" data-theme="a" type="text">
+				<button id="GPSNavDestListPopup_Close" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-delete ui-btn-icon-notext">Close Window</button>
+			</div>
 
-				<label for="GPSNavDestListPopup_Desc">Description:</label>
-				<textarea id="GPSNavDestListPopup_Desc" name="Destination_Description" placeholder="Description" ></textarea>
+			<div role="main" class="ui-content">
+				<label for="GPSNavDestListPopup_Name"><?php $locale->write("gpsnav.popup.name"); ?></label>
+				<input id="GPSNavDestListPopup_Name" name="Destination_Name" placeholder="<?php $locale->write("gpsnav.placeholder.name"); ?>" data-theme="a" type="text">
 
-				<label for="GPSNavDestListPopup_Lat">Latitude:</label>
-				<input id="GPSNavDestListPopup_Lat" name="Destination_Latitude" placeholder="50.0000">
+				<label for="GPSNavDestListPopup_Desc"><?php $locale->write("gpsnav.popup.description"); ?></label>
+				<textarea id="GPSNavDestListPopup_Desc" name="Destination_Description" placeholder="<?php $locale->write("gpsnav.placeholder.description"); ?>" ></textarea>
 
-				<label for="GPSNavDestListPopup_Lon">Longitude:</label>
-				<input id="GPSNavDestListPopup_Lon" name="Destination_Longitude" placeholder="8.0000">
-				<a id="GPSNavDestListPopup_Save" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Save</a>
+				<table>
+					<tr>
+						<td>
+							<label for="GPSNavDestListPopup_Lat"><?php $locale->write("latitude"); ?>:</label>
+							<input id="GPSNavDestListPopup_Lat" name="Destination_Latitude" placeholder="50.0000">
+						</td>
+						<td>
+							<label for="GPSNavDestListPopup_Lon"><?php $locale->write("longitude"); ?>:</label>
+							<input id="GPSNavDestListPopup_Lon" name="Destination_Longitude" placeholder="8.0000">
+						</td>
+					</tr>
+				</table>
+
+				<label>
+			        <input id="GPSNavDestListPopup_Add2OwnPlaces" name="GPSNavDestListPopup_Add2OwnPlaces" type="checkbox"><?php $locale->write("gpsnav.popup.add_to_own_places"); ?>
+			    </label>
+
+				<button id="GPSNavDestListPopup_Save" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check"><?php $locale->write("gpsnav.popup.save"); ?></button>
 			</div>
 		</div>
 	</div>

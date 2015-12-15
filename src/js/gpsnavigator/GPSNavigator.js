@@ -1,7 +1,7 @@
 /*	GeoCat - Geocaching and -Tracking platform
 	Copyright (C) 2015 Bastian Kraemer
 
-	gpsnavigator.js
+	GPSNavigator.js
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,20 +17,6 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * This class represents a location
- * @class Coordinate
- * @param {String} name Name of this location
- * @param {Double} lat Latitude of this location
- * @param {Double} lon Logitude of this location
- * @param {String} description Description of this location
- */
-function Coordinate(name, latitude, longitude, description){
-	this.lat = latitude;
-	this.lon = longitude;
-	this.name = name;
-	this.desc = description;
-}
 
  // TODO: Load/Store destination list in session/database via ajax
  // TODO: Improve error handling
@@ -44,71 +30,12 @@ function Coordinate(name, latitude, longitude, description){
 function GPSNavigator(canvas_container){
 
 	var container = canvas_container;
-	var coords = new Object(); /* Map of "Coordinates" */
 	var currentHeading = 0;
 	var gpsWatchId = -1;
 	var lastGPSPosition = null;
 	var updateTimer = null;
 	var preferences = {rotate: true, debug_info: true, offline_mode: false};
 	var gpsDisplay = null;
-	/* Append some coordinates */
-	//addDestination(<id>, new Coordinate("<Name>", <latitude>, <longitude>, "<Description>"));
-
-	function addDestination(id, dest){
-		coords[id] = dest;
-	}
-
-	/**
-	 * Add another destination to the navigator
-	 * @param id {String} Identifier (has to be unique)
-	 * @param {Coordinate} coordinate Coordinates of of this destination
-	 *
-	 * @function addDestination
-	 * @memberOf GPSNavigator
-	 * @instance
-	 */
-	this.addDestination = addDestination;
-
-	/**
-	 * Remove a destination from the navigator
-	 * @param id {String} Identifier of the destination
-	 *
-	 * @function removeDestination
-	 * @memberOf GPSNavigator
-	 * @instance
-	 */
-	this.removeDestination = function(id){
-		if(coords.hasOwnProperty(id)){
-			delete coords[id];
-		}
-	};
-
-	/**
-	 * Returns one location that is currently on the destination list of the navigator
-	 * @param id {String} Identifier of the destination
-	 * @returns {Coordinate} The coordinates which belongs to the identifier
-	 * @see Coordinate
-	 *
-	 * @function getDestinationById
-	 * @memberOf GPSNavigator
-	 * @instance
-	 */
-	this.getDestinationById = function(id){
-		return coords[id];
-	};
-
-	/**
-	 * Returns list of destinations that is currently used by the navigator
-	 * @returns {Object.<String, Coordinate>} A map which contains the current destinations of the navigator
-	 * @see Coordinate
-	 *
-	 * @function getDestinationList
-	 * @memberOf GPSNavigator
-	 * @instance
-	 */
-	this.getDestinationList = function(){
-		return coords;
-	};
 
 	/**
 	 * Sets a preference of the navigator
@@ -181,12 +108,12 @@ function GPSNavigator(canvas_container){
 	 * @memberOf GPSNavigator
 	 * @instance
 	 */
-	this.startNavigator = function(){
+	this.startNavigator = function(localCoordStore){
 		if(gpsDisplay != null){
 			stopTimer();
 			gpsDisplay.stop();
 		}
-		gpsDisplay = new GPSRadar(container, this);
+		gpsDisplay = new GPSRadar(container, this, localCoordStore);
 		gpsDisplay.start();
 		watchGPSPosition();
 	}

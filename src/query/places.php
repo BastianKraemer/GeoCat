@@ -101,6 +101,18 @@
 				else if($cmd == "count_public"){
 					$ret = array("count" => CoordinateManager::countPublicPlaces($this->dbh, self::getFilter($req->data)));
 				}
+				else if($cmd == "nav_get"){
+					if(!$this->session->isSignedIn()){throw new MissingSessionException();}
+					$ret = CoordinateManager::getDestinationList($this->dbh, $this->session->getAccountId());
+				}
+				else if($cmd == "nav_add"){
+					if(!$this->session->isSignedIn()){throw new MissingSessionException();}
+					$ret = $this->addNavDestination($req->data);
+				}
+				else if($cmd == "nav_remove"|| $cmd == "nav_rm"){
+					if(!$this->session->isSignedIn()){throw new MissingSessionException();}
+					$ret = $this->removeNavDestination($req->data);
+				}
 				else{
 					return "Unsupported command.";
 				}
@@ -222,6 +234,25 @@
 			}
 		}
 
+		private function addNavDestination($data){
+			if(self::requireValues($data, array(self::KEY_COORD_ID))){
+				$result = CoordinateManager::addCoordinateToDestinationList($this->dbh, $this->session->getAccountId(), $data[self::KEY_COORD_ID]);
+				return self::createDefaultResponse($result, "");
+			}
+			else{
+				throw new InvalidArgumentException("Required parameter '" . self::KEY_COORD_ID . "' is undefined.");
+			}
+		}
+
+		private function removeNavDestination($data){
+			if(self::requireValues($data, array(self::KEY_COORD_ID))){
+				$result = CoordinateManager::removeCoordinateFromDestinationList($this->dbh, $this->session->getAccountId(), $data[self::KEY_COORD_ID]);
+				return self::createDefaultResponse($result == 1, "");
+			}
+			else{
+				throw new InvalidArgumentException("Required parameter '" . self::KEY_COORD_ID . "' is undefined.");
+			}
+		}
 
 		private static function getFilter($data){
 			return array_key_exists("filter", $data) ? "%" . $data["filter"] . "%" : null;

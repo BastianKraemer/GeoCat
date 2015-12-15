@@ -44,6 +44,12 @@
 		const TABLE_ACCOUNT = "Account";
 
 		/**
+		 * Name of the "CurrentNavigation" table
+		 * @var string
+		 */
+		const TABLE_CURRENT_NAV = "CurrentNavigation";
+
+		/**
 		 * Returns a coordinate defined by its id
 		 * @param PDO $dbh Database handler
 		 * @param integer $coordinateId
@@ -80,14 +86,20 @@
 													($filter == null ? "" : "AND (Coordinate.name LIKE :filter OR Coordinate.description LIKE :filter) ") .
 											"LIMIT " . $limit . " OFFSET " . $offset, ($filter != null ? array("filter" => $filter) : null));
 
-			$ret = array();
+			if($res){
+				$ret = array();
 
-			for($i = 0; $i < count($res); $i++){
-				$coord = new Coordinate($res[$i]["coord_id"], $res[$i]["name"], $res[$i]["latitude"], $res[$i]["longitude"], $res[$i]["description"]);
-				$ret[] = new Place($res[$i]["username"], 1, $res[$i]["creation_date"], $res[$i]["modification_date"], $coord);
+				for($i = 0; $i < count($res); $i++){
+					$coord = new Coordinate($res[$i]["coord_id"], $res[$i]["name"], $res[$i]["latitude"], $res[$i]["longitude"], $res[$i]["description"]);
+					$ret[] = new Place($res[$i]["username"], 1, $res[$i]["creation_date"], $res[$i]["modification_date"], $coord);
+				}
+
+				return $ret;
 			}
-
-			return $ret;
+			else{
+				self::printError("ERROR: 'getPublicPlaces()' failed.", array("\$res" => $res, "\$filter" => $filter, "\$limit" => $limit, "\$offset" => $offset));
+				return array();
+			}
 		}
 
 		/**
@@ -141,15 +153,21 @@
 											"WHERE account_id = :accid AND Place.coord_id = Coordinate.coord_id " .
 												($filter == null ? "" : "AND (Coordinate.name LIKE :filter OR Coordinate.description LIKE :filter) ") .
 											"LIMIT " . $limit . " OFFSET " . $offset, $arr);
+			if($res){
+				$username = AccountManager::getUserNameByAccountId($dbh, $account_id);
 
-			$username = AccountManager::getUserNameByAccountId($dbh, $account_id);
-
-			$ret = array();
-			for($i = 0; $i < count($res); $i++){
-				$coord = new Coordinate($res[$i]["coord_id"], $res[$i]["name"], $res[$i]["latitude"], $res[$i]["longitude"], $res[$i]["description"]);
-				$ret[] = new Place($username, $res[$i]["is_public"], $res[$i]["creation_date"], $res[$i]["modification_date"], $coord);
+				$ret = array();
+				for($i = 0; $i < count($res); $i++){
+					$coord = new Coordinate($res[$i]["coord_id"], $res[$i]["name"], $res[$i]["latitude"], $res[$i]["longitude"], $res[$i]["description"]);
+					$ret[] = new Place($username, $res[$i]["is_public"], $res[$i]["creation_date"], $res[$i]["modification_date"], $coord);
+				}
+				return $ret;
 			}
-			return $ret;
+			else{
+				self::printError("ERROR: 'getPlacesByAccountId()' failed.", array("\$res" => $res, "\$account_id" => $account_id, "\$filter" => $filter,
+																				  "\$limit" => $limit, "\$offset" => $offset));
+				return array();
+			}
 		}
 
 		/**
@@ -335,11 +353,7 @@
 			$res = $stmt->execute(array("accid" => $account_id, "coordId" => $coord_id));
 
 			if($res){
-				// Try to remove the coordinate - if it is referenced to other tables this won't work, so the coordinate is still available
-				try {
-					DBTools::query($dbh, "DELETE FROM " . self::TABLE_COORDINATE . " WHERE coord_id = :coordId", array("coordId" => $coord_id));
-				}
-				catch(PDOException $e){} //Ignore this error
+				self::tryToRemoveCooridate($dbh, $coord_id);
 
 				return $stmt->rowCount();
 			}
@@ -378,6 +392,19 @@
 		}
 
 		/**
+		 * This mehtod will try to remove a coordinate, this will fail if it is still referenced to other tables.
+		 * @param PDO $dbh Database handler
+		 * @param integer $coord_id The coordinate id
+		 */
+		public static function tryToRemoveCooridate($dbh, $coord_id){
+			// Try to remove a coordinate - if it is referenced to other tables this won't work, so the coordinate is still available
+			try {
+				DBTools::query($dbh, "DELETE FROM " . self::TABLE_COORDINATE . " WHERE coord_id = :coordId", array("coordId" => $coord_id));
+			}
+			catch(PDOException $e){} //Ignore this error
+		}
+
+		/**
 		 * Checks if a coordinate name is valid.
 		 * The conditions for this are: Only "A-Z", "a-z", "0-9" or ine of the characters "_ ,;.!#-*()" and a length less than 64.
 		 * @param string $name
@@ -396,6 +423,82 @@
 		public static function isValidCoordinateDescription($desc){
 			if($desc == null){return true;}
 			return preg_match("/^[^<>]{1,255}$/", $desc);
+		}
+
+		/**
+		 * Returns an array of Coordinates which matches the current destination list of the user
+		 * @param PDO $dbh Database handler
+		 * @param integer $accountId
+		 * @return Coordinate[]
+		 */
+		public static function getDestinationList($dbh, $accountId){
+
+			$res = DBTools::fetchAll($dbh, "SELECT CurrentNavigation.coord_id, Coordinate.name, Coordinate.description, Coordinate.latitude, Coordinate.longitude " .
+					"FROM ". self::TABLE_CURRENT_NAV . ", " . self::TABLE_COORDINATE . " "  .
+					"WHERE CurrentNavigation.account_id = :accid AND CurrentNavigation.coord_id = Coordinate.coord_id",
+					array("accid" => $accountId));
+
+			if($res){
+				$ret = array();
+
+				for($i = 0; $i < count($res); $i++){
+					$ret[] = new Coordinate($res[$i]["coord_id"], $res[$i]["name"], $res[$i]["latitude"], $res[$i]["longitude"], $res[$i]["description"]);
+				}
+
+				return $ret;
+			}
+			else{
+				self::printError("ERROR: 'getDestinationList()' failed.", array("\$res" => $res, "\$account_id" => $account_id));
+				return array();
+			}
+		}
+
+		/**
+		 * Adds a coordinate to the current destination list of a user
+		 * @param PDO $dbh
+		 * @param integer $accountId
+		 * @param integer $coord_id
+		 * @throws InvalidArgumentException if the coordinate does not exist
+		 */
+		public static function addCoordinateToDestinationList($dbh, $accountId, $coord_id){
+
+			if(!self::coordinateExists($dbh, $coord_id)){
+				throw new InvalidArgumentException("This coordinate does not exist.");
+			}
+
+			$res = DBTools::query($dbh, "INSERT INTO ". self::TABLE_CURRENT_NAV . " (account_id, coord_id) VALUES (:accid, :coordId)",
+									array("accid" => $accountId, "coordId" => $coord_id));
+
+			if($res){
+				return true;
+			}
+			else{
+				self::printError("ERROR: Cannot insert into table '". self::TABLE_CURRENT_NAV . "'", array("\$res" => $res, "\$accountId" => $accountId, "\$coord_id" => $coord_id));
+				return false;
+			}
+		}
+
+		/**
+		 * Removes a coordinate from the current destination list of a user
+		 * @param PDO $dbh
+		 * @param Integer $accountId
+		 * @param Integer $coord_id
+		 * @return Integer The number of deleted rows (should be 1)
+		 */
+		public static function removeCoordinateFromDestinationList($dbh, $account_id, $coord_id){
+
+			$stmt = $dbh->prepare("DELETE FROM " . self::TABLE_CURRENT_NAV ." WHERE account_id = :accid AND coord_id = :coordId");
+			$res = $stmt->execute(array("accid" => $account_id, "coordId" => $coord_id));
+
+			if($res){
+				self::tryToRemoveCooridate($dbh, $coord_id);
+				return $stmt->rowCount();
+			}
+			else{
+				self::printError("ERROR: Cannot delete rows in table'". self::TABLE_CURRENT_NAV . "'",
+						array("\$res" => $res, "\$accountid" => $account_id, "\$coordinate_id" => $coordinate_id));
+				return -1;
+			}
 		}
 
 		/**

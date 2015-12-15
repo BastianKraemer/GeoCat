@@ -90,13 +90,13 @@ function GPSNavigationController(localCoordinateStore, myuplink){
 			var desc = $(idList["field_desc"]).val();
 
 			var msg = "%s enthält ungültige Zeichen. Bitte verwenden Sie nur 'A-Z', '0-9' sowie einige Sonderzeichen ('!,;.#_-*')."
-			if(!stringVerify(name)){
+			if(!localCoordStore.verifyString(name)){
 				alert(msg.replace("%s", "Der Name"));
 				return;
 			}
 
 			if(desc != ""){
-				if(!stringVerify(desc)){
+				if(!localCoordStore.verifyString(desc)){
 					alert(msg.replace("%s", "Die Beschreibung"));
 					return;
 				}
@@ -177,10 +177,6 @@ function GPSNavigationController(localCoordinateStore, myuplink){
 		bindPreferenceChangeEvent(idList["pref_offline_mode"], "offline_mode");
 
 		//$(idList["panel"]).on("panelbeforeclose", function(){});
-	}
-
-	function stringVerify(str){
-		return (str.match(/([A-Za-z0-9 _,;\.\!\#\-\*]+)/g) == str);
 	}
 
 	function getPreference(key){

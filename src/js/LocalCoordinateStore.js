@@ -115,6 +115,10 @@ function LocalCoordinateStore(){
 			delete currentNavigation[id];
 		}
 	}
+
+	this.verifyString = function(str){
+		return (str.match(/([A-Za-z0-9 _,;\.\!\#\-\*]+)/g) == str);
+	}
 }
 
 

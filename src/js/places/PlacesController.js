@@ -292,6 +292,19 @@ function PlacesController(localCoordinateStore, myuplink, gpsNavigationControler
 			return;
 		}
 
+		var msg = "%s contains invalid characters. Only 'A-Z', '0-9' and some special characters like ('!,;.#_-*') are allowed."
+		if(!localCoordStore.verifyString(name)){
+			alert(msg.replace("%s", "The name"));
+			return;
+		}
+
+		if(desc != ""){
+			if(!localCoordStore.verifyString(desc)){
+				alert(msg.replace("%s", "The description"));
+				return;
+			}
+		}
+
 		if(newPlace == "true"){
 			uplink.sendNewCoordinate(name, desc, lat, lon, isPublic, true,
 										function(msg){
@@ -299,8 +312,9 @@ function PlacesController(localCoordinateStore, myuplink, gpsNavigationControler
 											reloadPlacesPage();
 										},
 										function(response){
-											alert(Tools.sprintf("Unable to perform this operation. (Status {0})\\n" +
+											alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
 																"Server returned: {1}", [response["status"], response["msg"]]));
+											disableSaveButton(false);
 										});
 			disableSaveButton(true);
 		}
@@ -325,6 +339,7 @@ function PlacesController(localCoordinateStore, myuplink, gpsNavigationControler
 							setTimeout(function(){
 								displayError(Tools.sprintf(	"Unable to perform this operation. (Status {0})\\n" +
 															"Server returned: {1}", [response["status"], response["msg"]]));
+								disableSaveButton(false);
 							}, 500);
 						});
 			}

@@ -117,7 +117,10 @@ function LocalCoordinateStore(){
 	}
 
 	this.verifyString = function(str){
-		return (str.match(/([A-Za-z0-9 _,;\.\!\#\-\*]+)/g) == str);
+		return (str.match(/[A-Za-z0-9_ ,;\.\!\#\-\*\(\)]{1,63}/g) == str);
+	}
+	this.verifyDescriptionString = function(str){
+		return (str.match(/^[^<>]{1,255}$/g) == str);
 	}
 }
 

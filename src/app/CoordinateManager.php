@@ -97,7 +97,6 @@
 				return $ret;
 			}
 			else{
-				self::printError("ERROR: 'getPublicPlaces()' failed.", array("\$res" => $res, "\$filter" => $filter, "\$limit" => $limit, "\$offset" => $offset));
 				return array();
 			}
 		}
@@ -126,7 +125,7 @@
 				return $res[0][0];
 			}
 			else{
-				self::printError("ERROR: Count of public places failed (Table: '". self::TABLE_COORDINATE . "')", array("\$res" => $res));
+				self::printError("ERROR: Count of public places failed (Table: '". self::TABLE_COORDINATE . "')", array("\$res" => json_encode($res)));
 				return 0;
 			}
 		}
@@ -164,8 +163,6 @@
 				return $ret;
 			}
 			else{
-				self::printError("ERROR: 'getPlacesByAccountId()' failed.", array("\$res" => $res, "\$account_id" => $account_id, "\$filter" => $filter,
-																				  "\$limit" => $limit, "\$offset" => $offset));
 				return array();
 			}
 		}
@@ -197,7 +194,7 @@
 			}
 			else{
 				self::printError("ERROR: Count of private account places faied (Table: '". self::TABLE_COORDINATE . "').",
-								 array("\$res" => $res, "\$account_id" => $account_id));
+								 array("\$res" => json_encode($res), "\$account_id" => $account_id));
 				return 0;
 			}
 		}
@@ -227,7 +224,7 @@
 			}
 			else{
 				self::printError("ERROR: Cannot insert into table '". self::TABLE_COORDINATE . "'",
-								  array("\$res" => $res, "\$name" => $name, "\$latitude" => $latitude, "\$longitude" => $longitude, "\$decription" => $decription));
+								  array("\$res" => json_encode($res), "\$name" => $name, "\$latitude" => $latitude, "\$longitude" => $longitude, "\$decription" => $decription));
 				return -1;
 			}
 		}
@@ -264,7 +261,7 @@
 				}
 				else{
 					self::printError("ERROR: Cannot insert into table '". self::TABLE_PLACE . "'",
-							array("\$res" => $res, "\$accountid" => $accountid, "\$coordinate_id" => $coordinate_id, "\$isPublic" => $isPublic));
+							array("\$res" => json_encode($res), "\$accountid" => $accountid, "\$coordinate_id" => $coordinate_id, "\$isPublic" => $isPublic));
 					return false;
 				}
 
@@ -309,7 +306,7 @@
 						if(!$res1){
 							// ERROR - Write debug information to PHP error log
 							self::printError("ERROR: Cannot update coordinate table '". self::TABLE_COORDINATE . "'",
-											  array("\$res" => $res, "\$accountid" => $accountid, "\$coordinate_id" => $coordinate_id,
+											  array("\$res" => json_encode($res), "\$accountid" => $accountid, "\$coordinate_id" => $coordinate_id,
 													"\$newName" => $newName, "\$newLatitude" => $newLatitude, "\$newLongitude" => $newLongitude,
 													"\$newDescription" => $newDescription, "\$isPublic" => $isPublic));
 							return false;
@@ -324,7 +321,7 @@
 						}
 						else{
 							self::printError("ERROR: Cannot update place in table '". self::TABLE_PLACE . "'",
-									array("\$res" => $res, "\$accountid" => $accountid, "\$coordinate_id" => $coordinate_id));
+									array("\$res" => json_encode($res), "\$accountid" => $accountid, "\$coordinate_id" => $coordinate_id));
 							return false;
 						}
 					}
@@ -359,7 +356,7 @@
 			}
 			else{
 				self::printError("ERROR: Cannot delete rows in table'". self::TABLE_PLACE . "'",
-						array("\$res" => $res, "\$accountid" => $accountid, "\$coordinate_id" => $coordinate_id));
+						array("\$res" => json_encode($res), "\$accountid" => $accountid, "\$coordinate_id" => $coordinate_id));
 				return -1;
 			}
 		}
@@ -448,7 +445,6 @@
 				return $ret;
 			}
 			else{
-				self::printError("ERROR: 'getDestinationList()' failed.", array("\$res" => $res, "\$account_id" => $account_id));
 				return array();
 			}
 		}
@@ -473,7 +469,7 @@
 				return true;
 			}
 			else{
-				self::printError("ERROR: Cannot insert into table '". self::TABLE_CURRENT_NAV . "'", array("\$res" => $res, "\$accountId" => $accountId, "\$coord_id" => $coord_id));
+				self::printError("ERROR: Cannot insert into table '". self::TABLE_CURRENT_NAV . "'", array("\$res" => json_encode($res), "\$accountId" => $accountId, "\$coord_id" => $coord_id));
 				return false;
 			}
 		}
@@ -496,7 +492,7 @@
 			}
 			else{
 				self::printError("ERROR: Cannot delete rows in table'". self::TABLE_CURRENT_NAV . "'",
-						array("\$res" => $res, "\$accountid" => $account_id, "\$coordinate_id" => $coordinate_id));
+						array("\$res" => json_encode($res), "\$accountid" => $account_id, "\$coordinate_id" => $coordinate_id));
 				return -1;
 			}
 		}

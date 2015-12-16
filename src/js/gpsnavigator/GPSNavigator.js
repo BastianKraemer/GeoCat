@@ -81,9 +81,9 @@ function GPSNavigator(canvas_container){
 	 * @memberOf GPSNavigator
 	 * @instance
 	 */
-	this.getGPSPos = function(){
+	this.getGPSPos = function getGPSPosition(){
 		return lastGPSPosition;
-	};
+	}
 
 	/**
 	 * Returns the current heading that has been calculated by the movement of the device.
@@ -154,7 +154,7 @@ function GPSNavigator(canvas_container){
 
 				// enableHighAccuracy: Use GPS
 				// maximumAge: Only use a position if it is not older than 2 seconds
-				gpsWatchId = navigator.geolocation.watchPosition(newGPSPositionReceived, gpsErrorHandler, {enableHighAccuracy: true, maximumAge: 5000});
+				gpsWatchId = navigator.geolocation.watchPosition(newGPSPositionReceived, gpsErrorHandler, {enableHighAccuracy: true});
 			} else {
 				alert("Geolocation is not supported by this browser.");
 				return;

@@ -171,7 +171,8 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 	}
 
 	function updatePageInfo(){
-		$("#PlacesInformation").html(Tools.sprintf(locale.get("places.page_of", "Page {0} of {1}"), [(currentPage + 1), maxPages]) + " " +
+		var numPages = maxPages > 0 ? maxPages : 1;
+		$("#PlacesInformation").html(Tools.sprintf(locale.get("places.page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]) + " " +
 									 Tools.sprintf(locale.get("places.count", "(Total number: {0})"), [allPlacesCount]));
 	}
 
@@ -215,20 +216,27 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 		var list = $("#PlacesListView");
 		list.empty();
 
-		for(var i = 0; i < currentlyDisplayedCoordinates.length; i++){
-			list.append(generatePlaceItemCode(	localCoordinateStore.get(currentlyDisplayedCoordinates[i]),
-												localCoordinateStore.getInfo(currentlyDisplayedCoordinates[i]),
-												(currentPage * placesPerPage) + i + 1));
+		if(currentlyDisplayedCoordinates.length > 0){
+
+			for(var i = 0; i < currentlyDisplayedCoordinates.length; i++){
+				list.append(generatePlaceItemCode(	localCoordinateStore.get(currentlyDisplayedCoordinates[i]),
+													localCoordinateStore.getInfo(currentlyDisplayedCoordinates[i]),
+													(currentPage * placesPerPage) + i + 1));
+			}
+
+			list.listview('refresh');
+			$("#PlacesListView li a.li-clickable").click(function(){
+				placeLiOnClick(this);
+			});
+
+			$("#PlacesListView li a.ui-icon-navigation").click(function(){
+				navigateTo_OnClick(this);
+			});
 		}
-
-		list.listview('refresh');
-		$("#PlacesListView li a.li-clickable").click(function(){
-			placeLiOnClick(this);
-		});
-
-		$("#PlacesListView li a.ui-icon-navigation").click(function(){
-			navigateTo_OnClick(this);
-		});
+		else{
+			list.append("<li><span>" + locale.get("places.empty_list", "No places found.") + "</span></li>");
+			list.listview('refresh');
+		}
 		updatePageInfo();
 	}
 
@@ -265,7 +273,14 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 	function navigateTo_OnClick(el){
 		var coord = localCoordStore.get($(el).attr("coordinate-id"));
 		if(coord != null){
-			localCoordStore.addCoordinateToNavigation(coord);
+			uplink.sendNavList_Add(coord.coord_id, true,
+				function(result){
+					localCoordStore.addCoordinateToNavigation(coord);
+				},
+				function(response){
+					alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
+										"Server returned: {1}", [response["status"], response["msg"]]));
+				});
 		}
 	}
 
@@ -320,7 +335,7 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 		}
 
 		if(desc != ""){
-			if(!localCoordStore.verifyString(desc)){
+			if(!localCoordStore.verifyDescriptionString(desc)){
 				alert(msg.replace("%s", "The description"));
 				return;
 			}

@@ -119,7 +119,7 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 			}
 
 			if(desc != ""){
-				if(!localCoordStore.verifyString(desc)){
+				if(!localCoordStore.verifyDescriptionString(desc)){
 					alert(msg.replace("%s", "Die Beschreibung"));
 					return;
 				}
@@ -192,7 +192,6 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 		function addCoordToNavList(coord, coordinateAlreadyExistsOnServer){
 
 			if(coordinateAlreadyExistsOnServer){
-
 				uplink.sendNavList_Add(coord.coord_id, true,
 						function(result){
 							localCoordStore.addCoordinateToNavigation(coord);

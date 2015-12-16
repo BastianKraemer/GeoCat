@@ -17,7 +17,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function GPSNavigationController(localCoordinateStore, myuplink){
+function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 
 	// Define HTML-Element IDs
 	var idList = new Object();
@@ -39,6 +39,7 @@ function GPSNavigationController(localCoordinateStore, myuplink){
 
 	var localCoordStore = localCoordinateStore;
 	var uplink = myuplink;
+	var login_status = login_Status;
 
 	this.getNavigatorInstance = getNavigatorInstance;
 
@@ -72,12 +73,35 @@ function GPSNavigationController(localCoordinateStore, myuplink){
 
 			var lastGPSPos = pages["gpsnavigator"].getGPSPos();
 			if(lastGPSPos != null){
-				showCoordinateEditDialog(null, "", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude);
+				showCoordinateEditDialog(null, "", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude, true);
 			}
 			else{
 				Tools.showPopup("Notification", "Unable to get current GPS position.", "OK", function(){resetActiveButtonState(idList["add_coordinate"]);});
 			}
 		});
+
+		function loadNavListFromServer(){
+			if(login_status.isSignedIn){
+				uplink.sendNavList_Get(
+							false,
+							function(response){
+								var result = JSON.parse(response);
+								for(var i = 0; i < result.length; i++){
+									result[i].is_public = false;
+									localCoordStore.addCoordinateToNavigation(result[i]);
+								}
+							},
+							function(response){
+								alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
+													"Server returned: {1}", [response["status"], response["msg"]]));
+							});
+			}
+		};
+
+		// This is part of the constructor
+
+		// Download the latest nav list from the server
+		loadNavListFromServer();
 
 		/*
 		 * Save button in popup dialog is clicked
@@ -107,17 +131,19 @@ function GPSNavigationController(localCoordinateStore, myuplink){
 			if(name == "" || isNaN(lat) || isNaN(lon)){
 				alert("Please enter a valid name and values for latitude and longitude.");
 			}
-			else{
+			else if(login_status.isSignedIn){
 				// Everything ok
+
 				if(id == undefined){
+					// It is a new place
 					var add2OwnPlaces = $(idList["popup_add2own"]).is(":checked");
 
-					var coord = new Coordinate.create(name, lat, lon, desc);
-
 					if(add2OwnPlaces){
+						// This place will be added to your own places
 						uplink.sendNewCoordinate(name, desc, lat, lon, false, true,
-								function(msg){
-									localCoordStore.addCoordinateToNavigation(coord);
+								function(result){
+									var coord = new Coordinate(result["coord_id"], name, lat, lon, desc, false)
+									addCoordToNavList(coord, true);
 								},
 								function(response){
 									alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
@@ -125,34 +151,69 @@ function GPSNavigationController(localCoordinateStore, myuplink){
 								});
 					}
 					else{
-						localCoordStore.addCoordinateToNavigation(coord);
+						// This place has to be added to the navigation list only
+						addCoordToNavList(new Coordinate.create(name, lat, lon, desc), false);
 					}
 				}
 				else{
-					var coord = localCoordStore.get(id);
-					coord.name = name;
-					coord.desc = desc;
-					coord.lat = lat;
-					coord.lon = lon;
+					if(id > 0){
+						var coord = localCoordStore.get(id);
+						coord.name = name;
+						coord.desc = desc;
+						coord.lat = lat;
+						coord.lon = lon;
 
+						uplink.sendCoordinateUpdate(coord, true,
+								function(result){
+									localCoordStore.storePlace(coord);
 
-					uplink.sendCoordinateUpdate(coord, true,
-							function(msg){
-								localCoordStore.storePlace(coord);
-
-								// Update label text
-								$(idList["list"] + " li[dest-id=" + id + "] a[href='#']").text($(idList["field_name"]).val());
-							},
-							function(response){
-								alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
-													"Server returned: {1}", [response["status"], response["msg"]]));
-							});
+									// Update label text
+									$(idList["list"] + " li[dest-id=" + id + "] a[href='#']").text($(idList["field_name"]).val());
+								},
+								function(response){
+									alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
+														"Server returned: {1}", [response["status"], response["msg"]]));
+								});
+					}
+					else{
+						localCoordStore.storePlace(coord);
+					}
 				}
 
 				// Close popup
 				$(idList["popup"]).popup("close");
 			}
+			else{
+				// The user is not signed in - just add the coordinate to the navigation
+				localCoordStore.addCoordinateToNavigation(new Coordinate.create(name, lat, lon, desc));
+			}
 		});
+
+		function addCoordToNavList(coord, coordinateAlreadyExistsOnServer){
+
+			if(coordinateAlreadyExistsOnServer){
+
+				uplink.sendNavList_Add(coord.coord_id, true,
+						function(result){
+							localCoordStore.addCoordinateToNavigation(coord);
+						},
+						function(response){
+							alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
+												"Server returned: {1}", [response["status"], response["msg"]]));
+						});
+			}
+			else{
+				uplink.sendNavList_Create(coord.name, coord.desc, coord.lat, coord.lon, true,
+						function(result){
+							coord.coord_id = result.coord_id; //Chacnge the coord_id to the id that has been returned from the server
+							localCoordStore.addCoordinateToNavigation(coord);
+						},
+						function(response){
+							alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
+												"Server returned: {1}", [response["status"], response["msg"]]));
+						});
+			}
+		}
 
 		$(idList["popup"]).on("popupafterclose", function(event, ui){
 			resetActiveButtonState(idList["add_coordinate"]);
@@ -217,10 +278,10 @@ function GPSNavigationController(localCoordinateStore, myuplink){
 
 	this.showCoordinateEditDialogForExistingDestination = function(destID){
 		var dest = localCoordStore.get(destID);
-		showCoordinateEditDialog(destID, dest.name, dest.desc, dest.lat, dest.lon);
+		showCoordinateEditDialog(destID, dest.name, dest.desc, dest.lat, dest.lon, false);
 	}
 
-	function showCoordinateEditDialog(id, name, description, latitude, longitude){
+	function showCoordinateEditDialog(id, name, description, latitude, longitude, showAdd2OwnPlaces){
 
 		$(idList["field_name"]).val(name);
 		$(idList["field_desc"]).val(description);
@@ -234,6 +295,8 @@ function GPSNavigationController(localCoordinateStore, myuplink){
 		else{
 			$(idList["popup"]).attr("dest-id", id);
 		}
+
+		$(idList["popup_add2own"]).parent().css("display", showAdd2OwnPlaces ? "block" : "none" );
 
 		$(idList["popup"]).popup("open", {positionTo: "window", transition: "pop"});
 	}
@@ -255,7 +318,20 @@ function GPSNavigationController(localCoordinateStore, myuplink){
 	}
 
 	this.deleteListItem = function(key){
-		localCoordStore.removeFromNavigationById(key);
-		updateCurrentDestinationList();
+		if(login_status.isSignedIn){
+			uplink.sendNavList_Remove(key, true,
+						function(response){
+							localCoordStore.removeFromNavigationById(key);
+							updateCurrentDestinationList();
+						},
+						function(response){
+							alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
+												"Server returned: {1}", [response["status"], response["msg"]]));
+						});
+		}
+		else{
+			localCoordStore.removeFromNavigationById(key);
+			updateCurrentDestinationList();
+		}
 	}
 }

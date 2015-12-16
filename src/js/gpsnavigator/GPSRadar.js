@@ -96,7 +96,7 @@ function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 			ctx.fillText(lon.toFixed(6), canvasAxisLength * -1, -1 * canvasAxisLength + 50);
 			ctx.fillText(timestamp, canvasAxisLength * -1, -1 * canvasAxisLength + 70);
 			ctx.fillText(accuracy + "m", canvasAxisLength * -1, -1 * canvasAxisLength + 90);
-			if(!isNaN(speed)){
+			if(speed != null && !isNaN(speed)){
 				ctx.fillText(speed.toFixed(1) + "m/s", canvasAxisLength * -1, -1 * canvasAxisLength + 110);
 			}
 		}

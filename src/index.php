@@ -82,7 +82,7 @@
 
 		var uplink = new Uplink("./");
 		var localCoordStore = new LocalCoordinateStore();
-		var gpsNavigationController = new GPSNavigationController(localCoordStore, uplink);
+		var gpsNavigationController = new GPSNavigationController(localCoordStore, loginStatus, uplink);
 		var placesController = new PlacesController(localCoordStore, loginStatus, uplink, gpsNavigationController);
 
 		// Some useful (public) methods

@@ -514,7 +514,7 @@
 			if($latitude == "" || $longitude == ""){throw new InvalidArgumentException("Latitude or longitude are undefined.");}
 
 			if(!is_double($latitude)){
-				if(preg_match("/^[0-9]+[,\\.][0-9]{1,8}$/", $latitude)){
+				if(preg_match("/^(-)?[0-9]+\.[0-9]{1,8}$/", $latitude)){
 					$latitide = floatval($latitude);
 				}
 				else{
@@ -523,7 +523,7 @@
 			}
 
 			if(!is_double($longitude)){
-				if(preg_match("/^[0-9]+[,\\.][0-9]{1,8}$/", $longitude)){
+				if(preg_match("/^(-)?[0-9]+\.[0-9]{1,8}$/", $longitude)){
 					$longitude = floatval($longitude);
 				}
 				else{

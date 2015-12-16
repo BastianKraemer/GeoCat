@@ -11,7 +11,7 @@ function Uplink(contextRoot){
 					if(expectStatusResponse){
 						var result = JSON.parse(response);
 						if(result.status == "ok"){
-							successCallback(result.msg);
+							successCallback(result);
 						}
 						else{
 							errorCallback(result);
@@ -67,4 +67,45 @@ function Uplink(contextRoot){
 						ajaxERROR);
 	}
 
+	this.sendNavList_Add = function(coordId, expectStatusResponse, successCallback, errorCallback){
+		sendHTTPRequest(urlPrefix + "query/places.php",
+						{cmd: "nav_add", coord_id: coordId},
+						expectStatusResponse,
+						successCallback,
+						errorCallback,
+						ajaxERROR);
+	}
+
+	this.sendNavList_Create = function(placeName, placeDesc, placeLat, placeLon, expectStatusResponse, successCallback, errorCallback){
+		sendHTTPRequest(urlPrefix + "query/places.php",
+						{
+							cmd: "nav_create",
+							name: placeName,
+							desc: placeDesc,
+							lat: placeLat,
+							lon: placeLon
+						},
+						expectStatusResponse,
+						successCallback,
+						errorCallback,
+						ajaxERROR);
+	}
+
+	this.sendNavList_Get = function(expectStatusResponse, successCallback, errorCallback){
+		sendHTTPRequest(urlPrefix + "query/places.php",
+						{cmd: "nav_get"},
+						expectStatusResponse,
+						successCallback,
+						errorCallback,
+						ajaxERROR);
+	}
+
+	this.sendNavList_Remove = function(coordId, expectStatusResponse, successCallback, errorCallback){
+		sendHTTPRequest(urlPrefix + "query/places.php",
+						{cmd: "nav_remove", coord_id: coordId},
+						expectStatusResponse,
+						successCallback,
+						errorCallback,
+						ajaxERROR);
+	}
 }

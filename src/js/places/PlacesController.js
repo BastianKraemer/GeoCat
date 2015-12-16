@@ -49,7 +49,13 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 
 	this.onPageOpened = function(){
 
-		requestMyPages();
+		if(login_status.isSignedIn){
+			requestMyPages();
+		}
+		else{
+			requestPublicPages();
+		}
+
 		$(idList["show_private_places"]).click(function(){
 			requestMyPages();
 		});
@@ -76,7 +82,7 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 		$(idList["popup_save"]).click(editPlacesSaveButtonClicked);
 
 		$(idList["popup_close"]).click(function(){
-			$(idList["popup"]).popup("close");
+			closePopup();
 		});
 
 		$(idList["popup_delete"]).click(editPlacesDeleteButtonClicked);
@@ -108,6 +114,18 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 	function sendRequest(){
 		countPlaces(currentlyShowingPrivatePlaces);
 		requestPlaces(currentPage, currentlyShowingPrivatePlaces);
+		highlightButtons();
+	}
+
+	function highlightButtons(){
+		if(currentlyShowingPrivatePlaces){
+			$(idList["show_private_places"]).addClass($.mobile.activeBtnClass);
+			$(idList["show_public_places"]).removeClass($.mobile.activeBtnClass);
+		}
+		else{
+			$(idList["show_private_places"]).removeClass($.mobile.activeBtnClass);
+			$(idList["show_public_places"]).addClass($.mobile.activeBtnClass);
+		}
 	}
 
 	function reloadPlacesPage(){
@@ -310,8 +328,8 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 
 		if(newPlace == "true"){
 			uplink.sendNewCoordinate(name, desc, lat, lon, isPublic, true,
-										function(msg){
-											$(idList["popup"]).popup("close");
+										function(result){
+											closePopup();
 											reloadPlacesPage();
 										},
 										function(response){
@@ -332,12 +350,12 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 				place.lon = lon;
 				place.is_public = isPublic;
 				uplink.sendCoordinateUpdate(place, true,
-						function(msg){
-							$(idList["popup"]).popup("close");
+						function(result){
+							closePopup();
 							updateList();
 						},
 						function(response){
-							$(idList["popup"]).popup("close");
+							closePopup();
 
 							setTimeout(function(){
 								displayError(Tools.sprintf(	"Unable to perform this operation. (Status {0})\\n" +
@@ -361,17 +379,23 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 		}
 	}
 
+	function closePopup(){
+		$(idList["popup"]).popup("close");
+		$(idList["new_place"]).removeClass($.mobile.activeBtnClass);
+		highlightButtons();
+	}
+
 	function editPlacesDeleteButtonClicked(){
 		var id = $(idList["popup"]).attr("coordinate-id");
 		if(id != undefined && id >= 0){
 			disableSaveButton(true);
 			uplink.sendDeleteCoordinate(id, true,
-						function(msg){
-							$(idList["popup"]).popup("close");
+						function(result){
+							closePopup();
 							reloadPlacesPage();
 						},
 						function(response){
-							$(idList["popup"]).popup("close");
+							closePopup();
 							setTimeout(function(){
 								displayError(Tools.sprintf(	"Unable to perform this operation. (Status {0})\\n" +
 															"Server returned: {1}", [response["status"], response["msg"]]));

@@ -109,7 +109,11 @@
 					if(!$this->session->isSignedIn()){throw new MissingSessionException();}
 					$ret = $this->addNavDestination($req->data);
 				}
-				else if($cmd == "nav_remove"|| $cmd == "nav_rm"){
+				else if($cmd == "nav_create"){
+					if(!$this->session->isSignedIn()){throw new MissingSessionException();}
+					$ret = $this->addNavDestinationCoord($req->data);
+				}
+				else if($cmd == "nav_remove" || $cmd == "nav_rm"){
 					if(!$this->session->isSignedIn()){throw new MissingSessionException();}
 					$ret = $this->removeNavDestination($req->data);
 				}
@@ -146,6 +150,8 @@
 			if($coordId == -1){
 				throw new Exception("Cannot store coordinate.");
 			}
+
+			if($data[self::KEY_IS_PUBLIC] == "false"){$data[self::KEY_IS_PUBLIC] = 0;}
 
 			if(CoordinateManager::addPlace($this->dbh, $accId, $coordId, $data[self::KEY_IS_PUBLIC])){
 				$ret = self::createDefaultResponse(true, "");
@@ -241,6 +247,31 @@
 			}
 			else{
 				throw new InvalidArgumentException("Required parameter '" . self::KEY_COORD_ID . "' is undefined.");
+			}
+		}
+
+		private function addNavDestinationCoord($data){
+			if(self::requireValues($data, array(self::KEY_NAME, self::KEY_LAT, self::KEY_LON))){
+
+				$coordId = CoordinateManager::createCoordinate($this->dbh, $data[self::KEY_NAME], $data[self::KEY_LAT], $data[self::KEY_LON],
+															   (array_key_exists(self::KEY_DESC, $data) ? $data[self::KEY_DESC] : null));
+
+
+				$result = CoordinateManager::addCoordinateToDestinationList($this->dbh, $this->session->getAccountId(), $coordId);
+				if($result){
+					$ret = self::createDefaultResponse($result, "");
+					$ret[self::KEY_COORD_ID] = $coordId;
+					return $ret;
+				}
+				else{
+					// Something went wrong - delete this coodinate
+					CoordinateManager::tryToRemoveCooridate($this->dbh, $coordId);
+					return self::createDefaultResponse(false, "An error occured. Please try again later.");
+				}
+			}
+			else{
+				throw new InvalidArgumentException("One or more required parameters are undefined.\n".
+												   "Please define '" . self::KEY_NAME . "', '" . self::KEY_LAT . "', '" . self::KEY_LON . "'.");
 			}
 		}
 

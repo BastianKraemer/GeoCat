@@ -92,7 +92,7 @@
 		 * Prints out the current login status as JSON object
 		 */
 		public function printLoginStatusAsJSON(){
-			print "{isSignedIn: \"" . ($this->isSignedIn() ? "true" : "false") . "\", username: \"" . $this->getUsername() . "\"}";
+			print "{isSignedIn: " . ($this->isSignedIn() ? "true" : "false") . ", username: \"" . $this->getUsername() . "\"}";
 		}
 	}
 

@@ -18,11 +18,10 @@
 */
 
 
- // TODO: Load/Store destination list in session/database via ajax
  // TODO: Improve error handling
 
 /**
- * This class is used by the GPS Radar to handle "destination list"
+ * This class is used by the GPS Radar to watch for the gps location
  * @class GPSNavigator
  * @param {HTMLElement} Container of the canvas which is used to display the navigator
  * @see GPSRadar
@@ -168,7 +167,7 @@ function GPSNavigator(canvas_container){
 		lastGPSPosition = gpspos;
 
 		if(preferences.rotate){
-			if(!isNaN(gpspos.coords.heading) && gpspos.coords.heading != 0){
+			if(gpspos.coords.heading != null && !isNaN(gpspos.coords.heading) && gpspos.coords.heading != 0){
 				currentHeading = gpspos.coords.heading.toFixed(0);
 			}
 		}

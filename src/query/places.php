@@ -1,7 +1,21 @@
 <?php
+	/*	GeoCat - Geolocation caching and tracking platform
+	 Copyright (C) 2015 Bastian Kraemer
 
-	/**
-	 * File places.php
+	 places.php
+
+	 This program is free software: you can redistribute it and/or modify
+	 it under the terms of the GNU General Public License as published by
+	 the Free Software Foundation, either version 3 of the License, or
+	 (at your option) any later version.
+
+	 This program is distributed in the hope that it will be useful,
+	 but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 GNU General Public License for more details.
+
+	 You should have received a copy of the GNU General Public License
+	 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	 */
 
 	require_once(__DIR__ . "/../app/CoordinateManager.php");
@@ -24,6 +38,11 @@
 		print("Invalid request format.");
 	}
 
+	/**
+	 * This class provides a interface to the CoordinateManager.
+	 * To interact wih this class you have to send a HTTP request with one ore more parameters which will be mapped to the CoordinateManager
+	 * @link CoordinateManager.html CoordinateManager
+	 */
 	class AJAXPlaceHandler {
 
 		/**
@@ -51,12 +70,25 @@
 		const KEY_COORD_ID = "coord_id";
 		const KEY_OTHER_ACCOUNT = "other_account";
 
+		/**
+		 * Create a AJAXPlaceHandler
+		 * @param PDO $databaseHandler
+		 * @param SessionManager $session
+		 * @param JSONLocale $translations
+		 */
 		public function __construct($databaseHandler, $session, $translations){
 			$this->dbh = $databaseHandler;
 			$this->session = $session;
 			$this->locale = $translations;
 		}
 
+		/**
+		 * Handles a request by using its parameters
+		 * The action is selected by the "cmd" parameter which must be defined in the parameters array
+		 * @param string[] $requestParameters The parameters from the HTTP request
+		 * @throws InvalidArgumentException If the requestdata is invalid
+		 * @throws MissingSessionException If the user has to be signed in to use this feature
+		 */
 		public function handleRequest($requestParameters){
 
 			$req = new DefaultRequestHandler($requestParameters);
@@ -134,10 +166,25 @@
 			}
 		}
 
+		/**
+		 * Creates a default response.
+		 * A default response contains a "status" and a "msg" property
+		 * @param boolean $successful
+		 * @param string $msg
+		 */
 		private static function createDefaultResponse($successful, $msg){
 			return array("status" => $successful ? "ok" : "failed", "msg" => $msg);
 		}
 
+		/**
+		 * Performs a add place request.
+		 * Required parameters: name, lat (latitude), lon (longitude), is_public
+		 * Optional parameter: desc
+		 * @param string[] $data Parameters of the request
+		 * @return string[] String array with three elements: "status", "msg" and "coord_id"
+		 * @throws InvalidArgumentException If one of the required parameters is undefined
+		 * @throws Exception If an unknown error occurs
+		 */
 		private function addPlace($data){
 			if(!self::requireValues($data, array(self::KEY_NAME, self::KEY_LAT, self::KEY_LON, self::KEY_IS_PUBLIC))){
 				throw new InvalidArgumentException("One or more required parameters are undefined.\n".
@@ -163,6 +210,15 @@
 			}
 		}
 
+		/**
+		 * Performs a update place request.
+		 * Required parameters: name, lat (latitude), lon (longitude), is_public
+		 * Optional parameter: desc
+		 * @param string[] $data Parameters of the request
+		 * @return string[] String array with two elements: "status", "msg"
+		 * @throws InvalidArgumentException If one of the required parameters is undefined
+		 * @throws Exception If an unknown error occurs
+		 */
 		private function updatePlace($data){
 			if(!self::requireValues($data, array(self::KEY_NAME, self::KEY_LAT, self::KEY_LON, self::KEY_IS_PUBLIC, self::KEY_COORD_ID))){
 				throw new InvalidArgumentException("One or more required parameters are undefined.\n".
@@ -185,6 +241,11 @@
 			}
 		}
 
+		/**
+		 * Returns another account_id if the user is an administrator - otherwise its not allowed to act as another user
+		 * @param PDO $dbh Database handler
+		 * @param integer $toUser The account_id of another user
+		 */
 		private static function switchUser($dbh, $toUser){
 			if(AccountManager::isAdministrator($dbh, $this->session->getAccountId())){
 				return $toUser;
@@ -194,6 +255,14 @@
 			}
 		}
 
+		/**
+		 * Performs a get places request which returns the places of an user
+		 * Required parameters: limit, offset
+		 * Optional parameter: filter
+		 * @param string[] $data Parameters of the request
+		 * @return Coordinate[] Array of coordinates with a maximum length of $limit
+		 * @throws InvalidArgumentException If one of the required parameters is undefined
+		 */
 		private function getPlaces($data){
 			if(self::requireValues($data, array(self::KEY_LIMIT, self::KEY_OFFSET))){
 				$accId = $this->session->getAccountId();
@@ -204,6 +273,14 @@
 			}
 		}
 
+		/**
+		 * Performs a get public places request which returns a part of the public places list
+		 * Required parameters: limit, offset
+		 * Optional parameter: filter
+		 * @param string[] $data Parameters of the request
+		 * @return Coordinate[] Array of coordinates with a maximum length of $limit
+		 * @throws InvalidArgumentException If one of the required parameters is undefined
+		 */
 		private function getPublicPlaces($data){
 			if(self::requireValues($data, array(self::KEY_LIMIT, self::KEY_OFFSET))){
 				return CoordinateManager::getPublicPlaces($this->dbh, intval($data[self::KEY_LIMIT]), intval($data[self::KEY_OFFSET]), self::getFilter($data));
@@ -213,6 +290,13 @@
 			}
 		}
 
+		/**
+		 * Performs a remove place request
+		 * Required parameters: coord_id
+		 * @param string[] $data Parameters of the request
+		 * @return string[] String array with two elements: "status" and "msg"
+		 * @throws InvalidArgumentException If $data["coord_id"] is undefined
+		 */
 		private function removePlace($data){
 			if(self::requireValues($data, array(self::KEY_COORD_ID))){
 
@@ -240,6 +324,13 @@
 			}
 		}
 
+		/**
+		 * Performs a add destination request which appends an existing coordinate to your current navigation list
+		 * Required parameters: coord_id
+		 * @param string[] $data Parameters of the request
+		 * @return string[] String array with two elements: "status" and "msg"
+		 * @throws InvalidArgumentException If $data["coord_id"] is undefined
+		 */
 		private function addNavDestination($data){
 			if(self::requireValues($data, array(self::KEY_COORD_ID))){
 				$result = CoordinateManager::addCoordinateToDestinationList($this->dbh, $this->session->getAccountId(), $data[self::KEY_COORD_ID]);
@@ -250,6 +341,14 @@
 			}
 		}
 
+		/**
+		 * Performs a add destination request which appends a new coordinate to your current navigation list
+		 * Required parameters: name, lat (latitude), lon (longitude)
+		 * Optional parameter: desc
+		 * @param string[] $data Parameters of the request
+		 * @return string[] String array with three elements: "status", "msg" and "coord_id"
+		 * @throws InvalidArgumentException If one of the required parameters is undefined
+		 */
 		private function addNavDestinationCoord($data){
 			if(self::requireValues($data, array(self::KEY_NAME, self::KEY_LAT, self::KEY_LON))){
 
@@ -275,6 +374,13 @@
 			}
 		}
 
+		/**
+		 * Performs a remove destination request which removes a coordinate from your current navigation list
+		 * Required parameters: coord_id
+		 * @param string[] $data Parameters of the request
+		 * @return string[] String array with two elements: "status" and "msg"
+		 * @throws InvalidArgumentException If $data["coord_id"] is undefined
+		 */
 		private function removeNavDestination($data){
 			if(self::requireValues($data, array(self::KEY_COORD_ID))){
 				$result = CoordinateManager::removeCoordinateFromDestinationList($this->dbh, $this->session->getAccountId(), $data[self::KEY_COORD_ID]);
@@ -285,10 +391,21 @@
 			}
 		}
 
+		/**
+		 * Extracts the filter from the request parameters and appends wildcards at the beginning and the end of the string
+		 * @param string[] $data Request parameters
+		 * @return string The filter with "%" as SQL wildcard: %FILTER%
+		 */
 		private static function getFilter($data){
 			return array_key_exists("filter", $data) ? "%" . $data["filter"] . "%" : null;
 		}
 
+		/**
+		 * Returns <code>true</code> if the array ($arr) contains all keys metioned in $values
+		 * @param array $arr The array
+		 * @param array $values The key values
+		 * @return <code>true</code> if all keys are defined, <code>false</code> if not
+		 */
 		private static function requireValues($arr, $values){
 			foreach($values as $val){
 				if(!array_key_exists($val, $arr)){

@@ -217,9 +217,7 @@
 		 * Function isValidCoordinateDescription()
 		 */
 		public static function createCoordinate($dbh, $name, $latitude, $longitude, $decription){
-			if(!is_double($latitude) || !is_double($longitude) || !self::isValidCoordinateName($name) || !self::isValidCoordinateDescription($decription)){
-				throw new InvalidArgumentException("One ore more parameters have invalid values.");
-			}
+			self::verifyCoordinate($name, $latitude, $longitude, $decription);
 
 			$res = DBTools::query($dbh, "INSERT INTO ". self::TABLE_COORDINATE . " (coord_id, name, description, latitude, longitude) VALUES (NULL, :name, :desc, :lat, :lon)",
 									array("name" => $name, "desc" => $decription, "lat" => $latitude, "lon" => $longitude));
@@ -299,6 +297,8 @@
 			if(self::isValidCoordinateName($newName) && self::isValidCoordinateDescription($newDescription)){
 				if(self::coordinateExists($dbh, $coordinate_id)){
 					if(self::isOwnerOfPlace($dbh, $account_id, $coordinate_id)){
+
+						self::verifyCoordinate($newName, $newLatitude, $newLongitude, $newDescription);
 
 						$res1 = DBTools::query($dbh, "UPDATE ". self::TABLE_COORDINATE . " " .
 													 "SET name = :name, description = :desc, latitude = :lat, longitude = :lon " .
@@ -498,6 +498,41 @@
 				self::printError("ERROR: Cannot delete rows in table'". self::TABLE_CURRENT_NAV . "'",
 						array("\$res" => $res, "\$accountid" => $account_id, "\$coordinate_id" => $coordinate_id));
 				return -1;
+			}
+		}
+
+		/**
+		 * Verifies a coordinate to check if the values are valid.
+		 * If one check fails thi smethod throws an exception
+		 * @param String $name
+		 * @param String|Double $latitude
+		 * @param String|Double $longitude
+		 * @param String $decription
+		 * @throws InvalidArgumentException
+		 */
+		private static function verifyCoordinate($name, $latitude, $longitude, $decription){
+			if($latitude == "" || $longitude == ""){throw new InvalidArgumentException("Latitude or longitude are undefined.");}
+
+			if(!is_double($latitude)){
+				if(preg_match("/^[0-9]+[,\\.][0-9]{1,8}$/", $latitude)){
+					$latitide = floatval($latitude);
+				}
+				else{
+					throw new InvalidArgumentException("Value for 'latitude' is invalid.");
+				}
+			}
+
+			if(!is_double($longitude)){
+				if(preg_match("/^[0-9]+[,\\.][0-9]{1,8}$/", $longitude)){
+					$longitude = floatval($longitude);
+				}
+				else{
+					throw new InvalidArgumentException("Value for 'longitude' is invalid.");
+				}
+			}
+
+			if(!self::isValidCoordinateName($name) || !self::isValidCoordinateDescription($decription)){
+				throw new InvalidArgumentException("Latitude or longitude are undefined.");
 			}
 		}
 

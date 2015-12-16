@@ -72,7 +72,7 @@
 				if($cmd == "add"){
 
 					if(!$this->session->isSignedIn()){throw new MissingSessionException();}
-					$ret = $this->appendPlace($req->data);
+					$ret = $this->addPlace($req->data);
 				}
 				else if($cmd == "get"){
 
@@ -134,14 +134,14 @@
 			return array("status" => $successful ? "ok" : "failed", "msg" => $msg);
 		}
 
-		private function appendPlace($data){
+		private function addPlace($data){
 			if(!self::requireValues($data, array(self::KEY_NAME, self::KEY_LAT, self::KEY_LON, self::KEY_IS_PUBLIC))){
 				throw new InvalidArgumentException("One or more required parameters are undefined.\n".
 												   "Please define '" . self::KEY_NAME . "', '" . self::KEY_LAT . "', '" . self::KEY_LON . "' and '" . self::KEY_IS_PUBLIC . "'.");
 			}
 
 			$accId = $this->session->getAccountId();
-			$coordId = CoordinateManager::createCoordinate($this->dbh, $data[self::KEY_NAME], floatval($data[self::KEY_LAT]), floatval($data[self::KEY_LON]), array_key_exists(self::KEY_DESC, $data) ? $data[self::KEY_DESC] : null);
+			$coordId = CoordinateManager::createCoordinate($this->dbh, $data[self::KEY_NAME], $data[self::KEY_LAT], $data[self::KEY_LON], array_key_exists(self::KEY_DESC, $data) ? $data[self::KEY_DESC] : null);
 
 			if($coordId == -1){
 				throw new Exception("Cannot store coordinate.");

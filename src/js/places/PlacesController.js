@@ -17,7 +17,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-function PlacesController(localCoordinateStore, myuplink, gpsNavigationControler){
+function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavigationControler){
 
 	var placesPerPage = 10;
 	var currentlyDisplayedCoordinates = new Array();
@@ -28,6 +28,7 @@ function PlacesController(localCoordinateStore, myuplink, gpsNavigationControler
 	var localCoordStore = localCoordinateStore;
 	var uplink = myuplink;
 	var gpsNav = gpsNavigationControler;
+	var login_status = login_Status;
 
 	var idList = new Object();
 	idList["popup"] = "#EditPlacePopup";
@@ -215,10 +216,12 @@ function PlacesController(localCoordinateStore, myuplink, gpsNavigationControler
 
 	function generatePlaceItemCode(coord, coord_info, number){
 
-		return 	"<li class=\"place-list-item\" data-role=\"list-divider\" coordinate-id=\"" + coord.coord_id + "\" is-editable=\"true\">" +
+		var isEditable = (coord_info.owner == login_status.username) ? "true" : "false";
+
+		return 	"<li class=\"place-list-item\" data-role=\"list-divider\">" +
 					"<span class=\"place-name\">#" + number + " " +coord.name + "</span>" +
 					"<span class=\"place-owner\">" + coord_info.owner + "</span></li>" +
-				"<li class=\"place-list-item\" coordinate-id=\"" + coord.coord_id + "\" is-editable=\"true\"><a class=\"li-clickable\">" +
+				"<li class=\"place-list-item\" coordinate-id=\"" + coord.coord_id + "\" is-editable=\"" + isEditable + "\"><a class=\"li-clickable\">" +
 					(coord.desc != null ? "<h2>"+ coord.desc + "</h2>" : "") +
 					"<p><strong>Coordinates: </strong>" + coord.lat + ", " + coord.lon + "</p>" +
 					"<p class=\"ui-li-aside\" title=\"" + locale.get("places.place_creation_date", "Creation date:") + " " + coord_info.creationDate + "\">" + locale.get("places.last_update", "Last update:") + "<br>" + coord_info.modificationDate + "</p>" +
@@ -232,12 +235,12 @@ function PlacesController(localCoordinateStore, myuplink, gpsNavigationControler
 		var isEditale = $(el).parent().attr("is-editable") == "true";
 		var coordId = $(el).parent().attr("coordinate-id");
 
-		if(isEditale){
-			var place = localCoordStore.get(coordId);
-			if(coordId !=  null){
-				showPlaceEditPopup(false, coordId, place.name, place.desc, place.lat, place.lon, place.is_public);
-				return;
-			}
+		var place = localCoordStore.get(coordId);
+		if(coordId !=  null){
+			showPlaceEditPopup(false, coordId, place.name, place.desc, place.lat, place.lon, place.is_public);
+		}
+		if(!isEditale){
+			disableSaveButton(true);
 		}
 	}
 
@@ -350,9 +353,11 @@ function PlacesController(localCoordinateStore, myuplink, gpsNavigationControler
 	function disableSaveButton(disable){
 		if(disable){
 			$(idList["popup_save"]).attr("disabled", "");
+			$(idList["popup_delete"]).attr("disabled", "");
 		}
 		else{
 			$(idList["popup_save"]).removeAttr("disabled");
+			$(idList["popup_delete"]).removeAttr("disabled");
 		}
 	}
 

@@ -6,8 +6,10 @@
 	$config = require("./config/config.php");
 	require_once "app/JSONLocale.php";
 	require_once "app/content/header.php";
+	require_once "app/SessionManager.php";
 
 	$locale = JSONLocale::withBrowserLanguage($config);
+	$session = new SessionManager();
 
 	/**
 	 * Add a tile for a jQuery Mobile Listview
@@ -69,6 +71,9 @@
 	<script type="text/javascript">
 
 		// Global variales
+
+		var loginStatus = <?php $session->printLoginStatusAsJSON(); ?>;
+
 		var pages = new Object();
 		var locale = new JSONLocale("de", "./");
 		//Workaround: The function "getPageHeight" will return different results after the first page chage
@@ -78,9 +83,7 @@
 		var uplink = new Uplink("./");
 		var localCoordStore = new LocalCoordinateStore();
 		var gpsNavigationController = new GPSNavigationController(localCoordStore, uplink);
-		var placesController = new PlacesController(localCoordStore, uplink, gpsNavigationController);
-
-	//setTimeout(function(){placesController.onPageOpened();});
+		var placesController = new PlacesController(localCoordStore, loginStatus, uplink, gpsNavigationController);
 
 		// Some useful (public) methods
 		function getPageHeight(){
@@ -130,7 +133,7 @@
 	-->
  	<div data-role="page" id="home" data-theme="b">
 
-		<?php printHeader($config["app.name"] . " - ". $locale->get("mainpage.title"), false, false, $config); ?>
+		<?php printHeader($config["app.name"] . " - ". $locale->get("mainpage.title"), false, false, $config, $session); ?>
 
 		<div role="main" class="ui-content my-page">
 				<ul data-role="listview" data-inset="true">
@@ -153,7 +156,7 @@
 	================================================================================
 	-->
 	<div data-role="page" id="Page_Places">
-		<?php printHeader($locale->get("places.title"), true, false, $config); ?>
+		<?php printHeader($locale->get("places.title"), true, false, $config, $session); ?>
 
 		<div role="main" class="ui-content">
 			<div class="ui-field-contain places_header">
@@ -224,7 +227,7 @@
 	-->
 	<div data-role="page" id="gpsnavigator">
 
-		<?php printHeader("GPS Navigator", true, false, $config); ?>
+		<?php printHeader("GPS Navigator", true, false, $config, $session); ?>
 
 		<div id="gpsnavigator_content" role="main" class="ui-content my-page">
 			<div id="CanvasFrame">

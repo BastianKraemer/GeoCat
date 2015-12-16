@@ -87,6 +87,13 @@
 			unset($_SESSION["username"]);
 			unset($_SESSION["accountid"]);
 		}
+
+		/**
+		 * Prints out the current login status as JSON object
+		 */
+		public function printLoginStatusAsJSON(){
+			print "{isSignedIn: \"" . ($this->isSignedIn() ? "true" : "false") . "\", username: \"" . $this->getUsername() . "\"}";
+		}
 	}
 
 	class MissingSessionException extends Exception

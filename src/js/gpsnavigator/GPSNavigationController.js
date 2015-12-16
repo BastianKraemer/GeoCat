@@ -121,7 +121,7 @@ function GPSNavigationController(localCoordinateStore, myuplink){
 									localCoordStore.addCoordinateToNavigation(coord);
 								},
 								function(response){
-									alert(Tools.sprintf("Unable to perform this operation. (Status {0})\\n" +
+									alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
 														"Server returned: {1}", [response["status"], response["msg"]]));
 								});
 					}
@@ -145,8 +145,8 @@ function GPSNavigationController(localCoordinateStore, myuplink){
 								$(idList["list"] + " li[dest-id=" + id + "] a[href='#']").text($(idList["field_name"]).val());
 							},
 							function(response){
-								Tools.showPopup("Error", Tools.sprintf(	"Unable to perform this operation. (Status {0})\\n" +
-												"Server returned: {1}", [response["status"], response["msg"]]), "OK", null);
+								alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
+													"Server returned: {1}", [response["status"], response["msg"]]));
 							});
 				}
 

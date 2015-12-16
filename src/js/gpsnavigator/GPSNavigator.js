@@ -178,12 +178,16 @@ function GPSNavigator(canvas_container){
 	}
 
 	function gpsErrorHandler(err) {
-		if(err.code == 1) {
-			alert("Error: Access is denied!");
+		if(gpsWatchId != -1){
+			navigator.geolocation.clearWatch(gpsWatchId);
+			gpsWatchId = -1;
 		}
 
+		if(err.code == 1) {
+			alert("Error: Access to GPS denied!");
+		}
 		else if( err.code == 2) {
 			alert("Error: Position is unavailable!");
 		}
-	 }
+	}
 }

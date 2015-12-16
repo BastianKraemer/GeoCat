@@ -75,8 +75,7 @@ function GPSNavigationController(localCoordinateStore, myuplink){
 				showCoordinateEditDialog(null, "", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude);
 			}
 			else{
-				alert("Unable to get current GPS position.");
-				resetActiveButtonState(idList["add_coordinate"]);
+				Tools.showPopup("Notification", "Unable to get current GPS position.", "OK", function(){resetActiveButtonState(idList["add_coordinate"]);});
 			}
 		});
 

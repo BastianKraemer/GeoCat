@@ -5,9 +5,9 @@
 	 */
 
 	require_once(__DIR__ . "/../app/CoordinateManager.php");
-	require_once(__DIR__ . "/../app/session.php");
-	require_once(__DIR__ . "/../app/jsonlocale.php");
-	require_once(__DIR__ . "/../app/dbtools.php");
+	require_once(__DIR__ . "/../app/SessionManager.php");
+	require_once(__DIR__ . "/../app/JSONLocale.php");
+	require_once(__DIR__ . "/../app/DBTools.php");
 	require_once(__DIR__ . "/../app/DefaultRequestHandler.php");
 	$config = require(__DIR__ . "/../config/config.php");
 
@@ -15,7 +15,7 @@
 		$dbh = DBTools::connectToDatabase($config);
 		$locale = JSONLocale::withBrowserLanguage($config);
 
-		$session = new SessionController();
+		$session = new SessionManager();
 		$placeHandler = new AJAXPlaceHandler($dbh, $session, $locale);
 
 		print($placeHandler->handleRequest($_POST));
@@ -32,7 +32,7 @@
 		private $dbh;
 
 		/**
-		 * @var SessionController Session handler
+		 * @var SessionManager Session handler
 		 */
 		private $session;
 

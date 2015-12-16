@@ -1,12 +1,12 @@
 <?php
 	/**
-	 * File session.php
+	 * File SessionManager.php
 	 */
 
 	/**
 	 * This class is designed to handle all interaction with the PHP session
 	 */
-	class SessionController {
+	class SessionManager {
 
 		/**
 		 * Start the session
@@ -18,7 +18,7 @@
 			}
 
 			require_once(__DIR__ . "/AccountManager.php");
-			require_once(__DIR__ . "/dbtools.php");
+			require_once(__DIR__ . "/DBTools.php");
 		}
 
 		/**

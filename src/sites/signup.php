@@ -5,7 +5,7 @@
 	 */
 
 	$config = require(__DIR__ . "/../config/config.php");
-	require_once(__DIR__ . "/../app/jsonlocale.php");
+	require_once(__DIR__ . "/../app/JSONLocale.php");
 	require_once(__DIR__ . "/../app/content/header.php");
 
 	$locale = JSONLocale::withBrowserLanguage($config);

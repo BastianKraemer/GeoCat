@@ -18,7 +18,7 @@
 	 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	 */
 
-	require_once(__DIR__ . "/dbtools.php");
+	require_once(__DIR__ . "/DBTools.php");
 	require_once(__DIR__ . "/AccountManager.php");
 
 	/**

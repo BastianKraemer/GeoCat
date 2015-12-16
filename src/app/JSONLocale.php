@@ -1,6 +1,6 @@
 <?php
 	/**
-	 * File jsonlocale.php
+	 * File JSONLocale.php
 	 */
 
 	/**

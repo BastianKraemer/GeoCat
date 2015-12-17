@@ -21,7 +21,7 @@
  // TODO: Improve error handling
 
 /**
- * This class is used by the GPS Radar to watch for the gps location
+ * This class is used by the {@link GPSRadar} to watch for the gps location
  * @class GPSNavigator
  * @param {HTMLElement} Container of the canvas which is used to display the navigator
  * @see GPSRadar
@@ -38,8 +38,8 @@ function GPSNavigator(canvas_container){
 
 	/**
 	 * Sets a preference of the navigator
-	 * @returns {Object.<String, Object>} Map of the current preferences
 	 *
+	 * @public
 	 * @function setPreferences
 	 * @memberOf GPSNavigator
 	 * @instance
@@ -52,6 +52,7 @@ function GPSNavigator(canvas_container){
 	 * Returns all preferences of the navigator
 	 * @returns {Object.<String, Object>} Map of the current preferences
 	 *
+	 * @public
 	 * @function getPreferences
 	 * @memberOf GPSNavigator
 	 * @instance
@@ -65,6 +66,7 @@ function GPSNavigator(canvas_container){
 	 * @param {String} key The key that identifies the preference
 	 * @returns {Object} The value of this preference
 	 *
+	 * @public
 	 * @function getPreference
 	 * @memberOf GPSNavigator
 	 * @instance
@@ -77,6 +79,7 @@ function GPSNavigator(canvas_container){
 	 * Returns the latest GPS position that is availabe to this class
 	 * @returns {Object} The object that is provided by the <code>navigator.geolocation.watchPosition</code> callback
 	 *
+	 * @public
 	 * @function getGPSPos
 	 * @memberOf GPSNavigator
 	 * @instance
@@ -89,9 +92,9 @@ function GPSNavigator(canvas_container){
 	 * Returns the current heading that has been calculated by the movement of the device.
 	 * The value is based on the HTML5 geolocation heading value, but will keep the last angle if the device stops moving.
 	 * The HTML5 geolocation API ist described here: http://www.w3.org/TR/geolocation-API/#heading
-	 * The value is directly represets the number of
-	 * @returns {Number} The heading in degrees counted clockwise from north (0 <= heading < 360).
+	 * @returns {Number} The heading is counted in degrees clockwise from north (0 <= heading < 360).
 	 *
+	 * @public
 	 * @function getHeading
 	 * @memberOf GPSNavigator
 	 * @instance
@@ -101,8 +104,9 @@ function GPSNavigator(canvas_container){
 	}
 
 	/**
-	 * Starts the navigator. This should be called when the GPS Navigator page is opened.
+	 * Starts the {@link GPSNavigator}. This should be called when the GPS Navigator page is opened.
 	 *
+	 * @public
 	 * @function startNavigator
 	 * @memberOf GPSNavigator
 	 * @instance
@@ -118,8 +122,9 @@ function GPSNavigator(canvas_container){
 	}
 
 	/**
-	 * Stops the navigator. This should be called when the GPS Navigator page is closed.
+	 * Stops the {@link GPSNavigator}. This should be called when the GPS Navigator page is closed.
 	 *
+	 * @public
 	 * @function stopNavigator
 	 * @memberOf GPSNavigator
 	 * @instance
@@ -147,13 +152,19 @@ function GPSNavigator(canvas_container){
 		}
 	}
 
+	/**
+	 * Starts watching the GPS location of the device
+	 *
+	 * @private
+	 * @memberOf GPSNavigator
+	 * @instance
+	 */
 	function watchGPSPosition(){
 		if(gpsWatchId == -1){
 			if (navigator.geolocation) {
 				//navigator.geolocation.getCurrentPosition(update);
 
 				// enableHighAccuracy: Use GPS
-				// maximumAge: Only use a position if it is not older than 2 seconds
 				gpsWatchId = navigator.geolocation.watchPosition(newGPSPositionReceived, gpsErrorHandler, {enableHighAccuracy: true});
 			} else {
 				alert("Geolocation is not supported by this browser.");

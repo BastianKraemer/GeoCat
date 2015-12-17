@@ -17,6 +17,13 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * This class displays the coordinates by using a HTML5 canvas
+ * @class GPSRadar
+ * @param canvas_container {HTMLElement} The target HTML5 canvas
+ * @param gpsNavigator {GPSNavigator} Reference to the {@link GPSNavigator}
+ * @param localCoordinateStore {LocalCoordinateStore} Reference to a {@link LocalCoordinateStore} object
+ */
 function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 
 	//TODO: Append a "buffer zone" between canvas and its border to prevent cut text
@@ -30,12 +37,28 @@ function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 	var gpsnav = gpsNavigator;
 	var localCoordStore = localCoordinateStore;
 
+	/**
+	 * Starts the {@link GPSRadar}
+	 *
+	 * @public
+	 * @function start
+	 * @memberOf GPSRadar
+	 * @instance
+	 */
 	this.start = function(){
 		updateCanvasSize();
 		prepareCanvas();
 		window.addEventListener('resize', updateCanvasSize, true);
 	}
 
+	/**
+	 * Stops the {@link GPSRadar}
+	 *
+	 * @public
+	 * @function stop
+	 * @memberOf GPSRadar
+	 * @instance
+	 */
 	this.stop = function(){
 		var ctx = canvas.getContext("2d");
 		clearCanvas(ctx);
@@ -44,6 +67,15 @@ function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 		window.removeEventListener('resize', updateCanvasSize, false);
 	}
 
+	/**
+	 * Updates the HTML5 canvas with the latest information.<br />
+	 * This function has to be called cyclic.
+	 *
+	 * @public
+	 * @function update
+	 * @memberOf GPSRadar
+	 * @instance
+	 */
 	this.update = function(){
 		var lastGPSPosition = gpsnav.getGPSPos();
 		if(lastGPSPosition == null){return;}

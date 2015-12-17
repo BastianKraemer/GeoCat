@@ -17,32 +17,60 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * Event handling for the "GPS Navigtor" page
+ * @class GPSNavigationController
+ * @param localCoordinateStore {LocalCoordinateStore} Reference to a {@link LocalCoordinateStore} object
+ * @param login_Status {Object} Reference to a login status object
+ * @param myuplink {Uplink} Reference to an {@link Uplink} object
+ */
 function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 
-	// Define HTML-Element IDs
-	var idList = new Object();
-	idList["list"] = "#CurrentDestinationList";
-	idList["panel"] = "#CurrentDesitionListPanel";
-	idList["popup"] = "#GPSNavDestListPopup";
-	idList["popup_add2own"]  = "#GPSNavDestListPopup_Add2OwnPlaces";
-	idList["popup_save"] = "#GPSNavDestListPopup_Save";
-	idList["popup_close"] = "#GPSNavDestListPopup_Close";
-	idList["add_coordinate"] = "#GPSNavigator_AddCoordinate";
-	idList["field_name"] = "#GPSNavDestListPopup_Name";
-	idList["field_lat"] = "#GPSNavDestListPopup_Lat";
-	idList["field_lon"] = "#GPSNavDestListPopup_Lon";
-	idList["field_desc"] = "#GPSNavDestListPopup_Desc";
-	idList["preferences"] = "#GPSNavigatorPreferencesPanel";
-	idList["pref_rotate"] = "#GPSNavDisableRotation";
-	idList["pref_debuginfo"] = "#GPSNavShowDebugInfo";
-	idList["pref_offline_mode"] = "#GPSNavOfflineMode";
+	// Private variables
 
 	var localCoordStore = localCoordinateStore;
 	var uplink = myuplink;
 	var login_status = login_Status;
 
+	// Collection (Map) of all important HTML elements (defeined by their id)
+	var htmlElement = new Object();
+	htmlElement["coordinate_list"] = "#CurrentDestinationList";
+	htmlElement["coordinate_panel"] = "#CurrentDesitionListPanel";
+	htmlElement["popup"] = "#GPSNavDestListPopup";
+	htmlElement["popup_button_save"] = "#GPSNavDestListPopup_Save";
+	htmlElement["popup_button_close"] = "#GPSNavDestListPopup_Close";
+	htmlElement["popup_checkbox_ownplaces"]  = "#GPSNavDestListPopup_Add2OwnPlaces";
+	htmlElement["button_add_coordinate"] = "#GPSNavigator_AddCoordinate";
+	htmlElement["field_name"] = "#GPSNavDestListPopup_Name";
+	htmlElement["field_lat"] = "#GPSNavDestListPopup_Lat";
+	htmlElement["field_lon"] = "#GPSNavDestListPopup_Lon";
+	htmlElement["field_desc"] = "#GPSNavDestListPopup_Desc";
+	htmlElement["preferences_panel"] = "#GPSNavigatorPreferencesPanel";
+	htmlElement["flipswitch_pref_rotate"] = "#GPSNavDisableRotation";
+	htmlElement["flipswitch_pref_debuginfo"] = "#GPSNavShowDebugInfo";
+	htmlElement["flipswitch_offline_mode"] = "#GPSNavOfflineMode";
+
+	// Download the latest navigation list from the server
+	downloadNavListFromServer();
+
+	/*
+	 * ============================================================================================
+	 * Public methods
+	 * ============================================================================================
+	 */
+
+
 	this.getNavigatorInstance = getNavigatorInstance;
 
+	/**
+	 * Returns a instance of the {@link GPSNavigator}
+	 * @returns {GPSNavigator}
+	 *
+	 * @public
+	 * @function
+	 * @memberOf GPSNavigationController
+	 * @instance
+	 */
 	function getNavigatorInstance(){
 		if(pages["gpsnavigator"] == null){
 			pages["gpsnavigator"] = new GPSNavigator($("#gpsnavigator_content")[0]);
@@ -51,6 +79,14 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 		return pages["gpsnavigator"];
 	}
 
+	/**
+	 * This function should be called when the "GPS navigator" page is opened
+	 *
+	 * @public
+	 * @function onPageOpened
+	 * @memberOf GPSNavigationController
+	 * @instance
+	 */
 	this.onPageOpened = function(){
 
 		var nav = getNavigatorInstance();
@@ -58,17 +94,12 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 
 		// Append some event handler
 
-		/*
-		 * On panel opened
-		 */
-		$(idList["panel"]).on("panelbeforeopen", function(){
+		$(htmlElement["coordinate_panel"]).on("panelbeforeopen", function(){
 			updateCurrentDestinationList();
 		});
 
-		/*
-		 * Add coordinate button
-		 */
-		$(idList["add_coordinate"]).click(function(e){
+		// Button "Add coordinate"
+		$(htmlElement["button_add_coordinate"]).click(function(e){
 			if(pages["gpsnavigator"] == null){return;}
 
 			var lastGPSPos = pages["gpsnavigator"].getGPSPos();
@@ -76,170 +107,138 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 				showCoordinateEditDialog(null, "", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude, true);
 			}
 			else{
-				Tools.showPopup("Notification", "Unable to get current GPS position.", "OK", function(){resetActiveButtonState(idList["add_coordinate"]);});
+				Tools.showPopup("Notification", "Unable to get current GPS position.", "OK", function(){resetActiveButtonState(htmlElement["button_add_coordinate"]);});
 			}
 		});
 
-		function loadNavListFromServer(){
-			if(login_status.isSignedIn){
-				uplink.sendNavList_Get(
-							false,
-							function(response){
-								var result = JSON.parse(response);
-								for(var i = 0; i < result.length; i++){
-									result[i].is_public = false;
-									localCoordStore.addCoordinateToNavigation(result[i]);
-								}
-							},
-							function(response){
-								alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
-													"Server returned: {1}", [response["status"], response["msg"]]));
-							});
-			}
-		};
+		// When button "Save" is clicked
+		$(htmlElement["popup_button_save"]).click(editDialog_SaveButton_OnClick);
 
-		// This is part of the constructor
-
-		// Download the latest nav list from the server
-		loadNavListFromServer();
-
-		/*
-		 * Save button in popup dialog is clicked
-		 */
-		$(idList["popup_save"]).click(function(e) {
-			var id = $(idList["popup"]).attr("dest-id");
-
-			var name = $(idList["field_name"]).val();
-			var desc = $(idList["field_desc"]).val();
-
-			var msg = "%s enthält ungültige Zeichen. Bitte verwenden Sie nur 'A-Z', '0-9' sowie einige Sonderzeichen ('!,;.#_-*')."
-			if(!localCoordStore.verifyString(name)){
-				alert(msg.replace("%s", "Der Name"));
-				return;
-			}
-
-			if(desc != ""){
-				if(!localCoordStore.verifyDescriptionString(desc)){
-					alert(msg.replace("%s", "Die Beschreibung"));
-					return;
-				}
-			}
-
-			var lat = parseFloat($(idList["field_lat"]).val());
-			var lon = parseFloat($(idList["field_lon"]).val());
-
-			if(name == "" || isNaN(lat) || isNaN(lon)){
-				alert("Please enter a valid name and values for latitude and longitude.");
-			}
-			else if(login_status.isSignedIn){
-				// Everything ok
-
-				if(id == undefined){
-					// It is a new place
-					var add2OwnPlaces = $(idList["popup_add2own"]).is(":checked");
-
-					if(add2OwnPlaces){
-						// This place will be added to your own places
-						uplink.sendNewCoordinate(name, desc, lat, lon, false, true,
-								function(result){
-									var coord = new Coordinate(result["coord_id"], name, lat, lon, desc, false)
-									addCoordToNavList(coord, true);
-								},
-								function(response){
-									alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
-														"Server returned: {1}", [response["status"], response["msg"]]));
-								});
-					}
-					else{
-						// This place has to be added to the navigation list only
-						addCoordToNavList(new Coordinate.create(name, lat, lon, desc), false);
-					}
-				}
-				else{
-					if(id > 0){
-						var coord = localCoordStore.get(id);
-						coord.name = name;
-						coord.desc = desc;
-						coord.lat = lat;
-						coord.lon = lon;
-
-						uplink.sendCoordinateUpdate(coord, true,
-								function(result){
-									localCoordStore.storePlace(coord);
-
-									// Update label text
-									$(idList["list"] + " li[dest-id=" + id + "] a[href='#']").text($(idList["field_name"]).val());
-								},
-								function(response){
-									alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
-														"Server returned: {1}", [response["status"], response["msg"]]));
-								});
-					}
-					else{
-						localCoordStore.storePlace(coord);
-					}
-				}
-
-				// Close popup
-				$(idList["popup"]).popup("close");
-			}
-			else{
-				// The user is not signed in - just add the coordinate to the navigation
-				localCoordStore.addCoordinateToNavigation(new Coordinate.create(name, lat, lon, desc));
-			}
+		// When button "Close dialog" is closed
+		$(htmlElement["popup_button_close"]).click(function(){
+			$(htmlElement["popup"]).popup("close");
 		});
 
-		function addCoordToNavList(coord, coordinateAlreadyExistsOnServer){
-
-			if(coordinateAlreadyExistsOnServer){
-				uplink.sendNavList_Add(coord.coord_id, true,
-						function(result){
-							localCoordStore.addCoordinateToNavigation(coord);
-						},
-						function(response){
-							alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
-												"Server returned: {1}", [response["status"], response["msg"]]));
-						});
-			}
-			else{
-				uplink.sendNavList_Create(coord.name, coord.desc, coord.lat, coord.lon, true,
-						function(result){
-							coord.coord_id = result.coord_id; //Chacnge the coord_id to the id that has been returned from the server
-							localCoordStore.addCoordinateToNavigation(coord);
-						},
-						function(response){
-							alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
-												"Server returned: {1}", [response["status"], response["msg"]]));
-						});
-			}
-		}
-
-		$(idList["popup"]).on("popupafterclose", function(event, ui){
-			resetActiveButtonState(idList["add_coordinate"]);
+		// When the edit dialog has been closed
+		$(htmlElement["popup"]).on("popupafterclose", function(event, ui){
+			resetActiveButtonState(htmlElement["button_add_coordinate"]);
 		});
 
-		/*
-		 * Before Preferences panel is opened
-		 */
-		$(idList["preferences"]).on("panelafteropen", function(){
-			$(idList["pref_rotate"]).val(getPreference("rotate")).slider("refresh");
-			$(idList["pref_debuginfo"]).val(getPreference("debug_info")).slider("refresh");
-			$(idList["pref_offline_mode"]).val(getPreference("offline_mode")).slider("refresh");
+		// When the preferences panel is opened
+		$(htmlElement["preferences_panel"]).on("panelafteropen", function(){
+			$(htmlElement["flipswitch_pref_rotate"]).val(getPreference("rotate")).slider("refresh");
+			$(htmlElement["flipswitch_pref_debuginfo"]).val(getPreference("debug_info")).slider("refresh");
+			$(htmlElement["flipswitch_offline_mode"]).val(getPreference("offline_mode")).slider("refresh");
 		});
 
-		$(idList["popup_close"]).click(function(){
-			$(idList["popup"]).popup("close");
-		});
 
-		bindPreferenceChangeEvent(idList["pref_rotate"], "rotate");
-		bindPreferenceChangeEvent(idList["pref_debuginfo"], "debug_info");
-		bindPreferenceChangeEvent(idList["pref_offline_mode"], "offline_mode");
-
-		//$(idList["panel"]).on("panelbeforeclose", function(){});
+		bindPreferenceChangeEvent(htmlElement["flipswitch_pref_rotate"], "rotate");
+		bindPreferenceChangeEvent(htmlElement["flipswitch_pref_debuginfo"], "debug_info");
+		bindPreferenceChangeEvent(htmlElement["flipswitch_offline_mode"], "offline_mode");
 	}
 
+	/**
+	 * This function should be called when the "GPS Navigator" page is closed
+	 *
+	 * @public
+	 * @function onPageClosed
+	 * @memberOf GPSNavigationController
+	 * @instance
+	 */
+	this.onPageClosed = function(){
+		if(pages["gpsnavigator"] != null){
+
+			// Remove all event handler
+			$(htmlElement["coordinate_panel"]).off();
+			$(htmlElement["popup"]).off();
+			$(htmlElement["popup_button_save"]).unbind();
+			$(htmlElement["popup_button_close"]).unbind();
+			$(htmlElement["flipswitch_pref_rotate"]).unbind();
+			$(htmlElement["flipswitch_pref_debuginfo"]).unbind();
+			$(htmlElement["flipswitch_offline_mode"]).unbind();
+			$(htmlElement["button_add_coordinate"]).unbind();
+
+			pages["gpsnavigator"].stopNavigator();
+
+			pageHeightOffset = 80; // global variable
+		}
+	}
+
+	/*
+	 * ============================================================================================
+	 * Private methods
+	 * ============================================================================================
+	 */
+
+	/**
+	 * Downloads the latest navigation list from the server
+	 *
+	 * @private
+	 * @function
+	 * @memberOf GPSNavigationController
+	 * @instance
+	 */
+	function downloadNavListFromServer(){
+		if(login_status.isSignedIn){
+			uplink.sendNavList_Get(
+						function(response){
+							var result = JSON.parse(response);
+							for(var i = 0; i < result.length; i++){
+								result[i].is_public = false;
+								localCoordStore.addCoordinateToNavigation(result[i]);
+							}
+						},
+						uplinkOnError);
+		}
+	}
+
+	/**
+	 * Appends a coordinate to the current naviagtion list.<br />
+	 * This method will send a request to the server too.
+	 * @param coord {Coordinate} The coordinate
+	 * @param coordinateAlreadyExistsOnServer {Boolean} Specify if the coordinate is already stored on the server
+	 *
+	 * @private
+	 * @function
+	 * @memberOf GPSNavigationController
+	 * @instance
+	 */
+	function addCoordToNavList(coord, coordinateAlreadyExistsOnServer){
+
+		if(coordinateAlreadyExistsOnServer){
+			uplink.sendNavList_Add(coord.coord_id,
+					function(result){
+						localCoordStore.addCoordinateToNavigation(coord);
+					},
+					uplinkOnError);
+		}
+		else{
+			uplink.sendNavList_Create(coord.name, coord.desc, coord.lat, coord.lon,
+					function(result){
+						coord.coord_id = result.coord_id; //Change the coord_id to the id that has been returned from the server
+						localCoordStore.addCoordinateToNavigation(coord);
+					},
+					uplinkOnError);
+		}
+	}
+
+	function uplinkOnError(response){
+		alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
+				"Server returned: {1}", [response["status"], response["msg"]]));
+	}
+
+	/**
+	 * Reads a preference from the {@link GPSNavigator}
+	 * @param key {String} Identifier for this preference
+	 * @returns {String} Value "On" or "Off"
+	 *
+	 * @private
+	 * @function
+	 * @memberOf GPSNavigationController
+	 * @instance
+	 */
 	function getPreference(key){
-		var val = pages["gpsnavigator"].getPreference("rotate");
+		var val = pages["gpsnavigator"].getPreference(key);
 		if(val != undefined){
 			return val == true ? "on" : "off";
 		}
@@ -256,81 +255,172 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 		$(buttonId).removeClass($.mobile.activeBtnClass);
 	}
 
-	this.onPageClosed = function(){
-		if(pages["gpsnavigator"] != null){
-
-			// Remove all event handler
-			$(idList["panel"]).off();
-			$(idList["popup"]).off();
-			$(idList["pref_rotate"]).unbind();
-			$(idList["pref_debuginfo"]).unbind();
-			$(idList["pref_offline_mode"]).unbind();
-			$(idList["popup_save"]).unbind();
-			$(idList["add_coordinate"]).unbind();
-			$(idList["popup_close"]).unbind();
-
-			pages["gpsnavigator"].stopNavigator();
-
-			pageHeightOffset = 80; //global variable
-		}
-	}
-
-	this.showCoordinateEditDialogForExistingDestination = function(destID){
-		var dest = localCoordStore.get(destID);
-		showCoordinateEditDialog(destID, dest.name, dest.desc, dest.lat, dest.lon, false);
-	}
-
+	/**
+	 * Shows the edit dialog
+	 * @param id {integer} Identifier of the coordinate
+	 * @param name {String} Name of the coordinate
+	 * @param description {String} Description of the coordinate
+	 * @param latitude {Double} Latitude of the coordinate
+	 * @param longitude {Double} Longitude of the coordinate
+	 * @param showAdd2OwnPlaces {Boolean} Show option "Add to own places"?
+	 *
+	 * @private
+	 * @function
+	 * @memberOf GPSNavigationController
+	 * @instance
+	 */
 	function showCoordinateEditDialog(id, name, description, latitude, longitude, showAdd2OwnPlaces){
 
-		$(idList["field_name"]).val(name);
-		$(idList["field_desc"]).val(description);
-		$(idList["field_lat"]).val(latitude);
-		$(idList["field_lon"]).val(longitude);
-		$(idList["popup"]).css("width", window.innerWidth - (window.innerWidth * 0.1) + "px");
+		// Fill the input fields with the values
+		$(htmlElement["field_name"]).val(name);
+		$(htmlElement["field_desc"]).val(description);
+		$(htmlElement["field_lat"]).val(latitude);
+		$(htmlElement["field_lon"]).val(longitude);
 
 		if(id == null){
-			$(idList["popup"]).removeAttr("dest-id");
+			$(htmlElement["popup"]).removeAttr("dest-id");
 		}
 		else{
-			$(idList["popup"]).attr("dest-id", id);
+			$(htmlElement["popup"]).attr("dest-id", id);
 		}
 
-		$(idList["popup_add2own"]).parent().css("display", showAdd2OwnPlaces ? "block" : "none" );
+		$(htmlElement["popup_checkbox_ownplaces"]).parent().css("display", showAdd2OwnPlaces ? "block" : "none" );
 
-		$(idList["popup"]).popup("open", {positionTo: "window", transition: "pop"});
+		$(htmlElement["popup"]).popup("open", {positionTo: "window", transition: "pop"});
 	}
 
+	/**
+	 * Updates the current destination list based on tha values stored in the {@link LocalCoordinateStore}
+	 *
+	 * @private
+	 * @function
+	 * @memberOf GPSNavigationController
+	 * @instance
+	 */
 	function updateCurrentDestinationList(){
-		var destList = $(idList["list"]);
+		var destList = $(htmlElement["coordinate_list"]);
 		destList.empty()
 
 		var list = localCoordStore.getCurrentNavigation();
 		for(var key in list){
-			// TODO: Replace onclick handler by jQuery $(...) call
 			destList.append("<li dest-id=\"" + key + "\">" +
-							"<a onclick=\"gpsNavigationController.showCoordinateEditDialogForExistingDestination('" + key + "');\" href=\"#\">" + list[key].name + "</a>" +
-							"<a onclick=\"gpsNavigationController.deleteListItem('" + key + "');\" class=\"ui-icon-delete\">Remove</a>" +
+							"<a>" + list[key].name + "</a>" +
+							"<a class=\"ui-icon-delete\">Remove</a>" +
 							"</li>");
 		}
+
+		$(htmlElement["coordinate_list"] + " li a:first-child").click(function(){coordinateListItem_OnClick(this);});
+		$(htmlElement["coordinate_list"] + " li a.ui-icon-delete").click(function(){deleteListItem_OnClick(this);});
 
 		destList.listview('refresh');
 	}
 
-	this.deleteListItem = function(key){
+	/*
+	 * ============================================================================================
+	 * "OnClick" functions
+	 * ============================================================================================
+	 */
+
+	function coordinateListItem_OnClick(element){
+		var dest = localCoordStore.get($(element).parent().attr("dest-id"));
+		showCoordinateEditDialog(dest.coord_id, dest.name, dest.desc, dest.lat, dest.lon, false);
+	}
+
+	function deleteListItem_OnClick(element){
+		var key = $(element).parent().attr("dest-id");
 		if(login_status.isSignedIn){
-			uplink.sendNavList_Remove(key, true,
+			uplink.sendNavList_Remove(key,
 						function(response){
 							localCoordStore.removeFromNavigationById(key);
 							updateCurrentDestinationList();
 						},
-						function(response){
-							alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
-												"Server returned: {1}", [response["status"], response["msg"]]));
-						});
+						uplinkOnError);
 		}
 		else{
 			localCoordStore.removeFromNavigationById(key);
 			updateCurrentDestinationList();
+		}
+	}
+
+	function editDialog_SaveButton_OnClick(){
+
+		// The id of the coordinate is stored as attribute in the HTML element
+		var id = $(htmlElement["popup"]).attr("dest-id");
+
+		var name = $(htmlElement["field_name"]).val();
+		var desc = $(htmlElement["field_desc"]).val();
+
+		// Verify the values of "name" and "description"
+		var msg = "%s enthält ungültige Zeichen. Bitte verwenden Sie nur 'A-Z', '0-9' sowie einige Sonderzeichen ('!,;.#_-*')."
+		if(!localCoordStore.verifyString(name)){
+			alert(msg.replace("%s", "Der Name"));
+			return;
+		}
+
+		if(desc != ""){
+			if(!localCoordStore.verifyDescriptionString(desc)){
+				alert(msg.replace("%s", "Die Beschreibung"));
+				return;
+			}
+		}
+
+		var lat = parseFloat($(htmlElement["field_lat"]).val());
+		var lon = parseFloat($(htmlElement["field_lon"]).val());
+
+		// Verify the values of "latitude" and "longitude"
+		if(name == "" || isNaN(lat) || isNaN(lon)){
+			alert("Please enter a valid name and values for latitude and longitude.");
+		}
+		else if(login_status.isSignedIn){
+			// Everything ok
+
+			if(id == undefined){
+				// It is a new place
+				var add2OwnPlaces = $(htmlElement["popup_checkbox_ownplaces"]).is(":checked");
+
+				if(add2OwnPlaces){
+					// This place will be added to your own places
+					uplink.sendNewCoordinate(name, desc, lat, lon, false,
+							function(result){
+								var coord = new Coordinate(result["coord_id"], name, lat, lon, desc, false)
+								addCoordToNavList(coord, true);
+							},
+							uplinkOnError);
+				}
+				else{
+					// This place has to be added to the navigation list only
+					addCoordToNavList(new Coordinate.create(name, lat, lon, desc), false);
+				}
+			}
+			else{
+				if(id > 0){
+					var coord = localCoordStore.get(id);
+					coord.name = name;
+					coord.desc = desc;
+					coord.lat = lat;
+					coord.lon = lon;
+
+					uplink.sendCoordinateUpdate(coord,
+							function(result){
+								localCoordStore.storePlace(coord);
+
+								// Update label text
+								$(htmlElement["coordinate_list"] + " li[dest-id=" + id + "] a[href='#']").text($(htmlElement["field_name"]).val());
+							},
+							uplinkOnError);
+				}
+				else{
+					// Only store this coordinate local
+					localCoordStore.storePlace(coord);
+				}
+			}
+
+			// Close popup
+			$(htmlElement["popup"]).popup("close");
+		}
+		else{
+			// The user is not signed in - just add the coordinate to the navigation
+			localCoordStore.addCoordinateToNavigation(new Coordinate.create(name, lat, lon, desc));
 		}
 	}
 }

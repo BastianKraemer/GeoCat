@@ -96,12 +96,25 @@
 		}
 	}
 
+	/**
+	 * This exception can be thrown if there is no active session and the user has to be signed in to use this feature
+	 */
 	class MissingSessionException extends Exception
 	{
+		/**
+		 * Create a new MissingSessionException object
+		 * @param string $message (optional) Exception message
+		 * @param number $code
+		 * @param Exception $previous
+		 */
 		public function __construct($message = "A login is required to use this feature", $code = 0, Exception $previous = null) {
 			parent::__construct($message, $code, $previous);
 		}
 
+		/**
+		 * Returns a string which contains the most information of this exception
+		 * @see Exception::__toString()
+		 */
 		public function __toString() {
 			return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
 		}

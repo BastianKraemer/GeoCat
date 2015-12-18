@@ -8,6 +8,9 @@
 #Custom GeoCat configuration file
 src/config/config.php
 
+# Auto-generated JSON files
+src/locale/*.json
+
 # NodeJS modules
 node_modules
 

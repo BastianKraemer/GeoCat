@@ -13,3 +13,4 @@ DROP TABLE IF EXISTS `ChallengeMember`;
 DROP TABLE IF EXISTS `ChallengeTeam`;
 DROP TABLE IF EXISTS `Challenge`;
 DROP TABLE IF EXISTS `Account`;
+DROP TABLE IF EXISTS `AccountType`;

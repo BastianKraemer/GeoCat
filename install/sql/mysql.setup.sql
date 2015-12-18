@@ -18,7 +18,7 @@ CREATE TABLE `Account` (
   `password` VARCHAR(64) NOT NULL,
   `salt` VARCHAR(32) NULL DEFAULT NULL,
   `email` VARCHAR(64) NOT NULL,
-  `type` VARCHAR(16) NOT NULL DEFAULT 'default',
+  `type` INTEGER NOT NULL DEFAULT 0,
   `is_administrator` TINYINT NOT NULL DEFAULT 0,
   PRIMARY KEY (`account_id`),
   UNIQUE KEY (`username`)
@@ -37,7 +37,8 @@ CREATE TABLE `Place` (
   `is_public` TINYINT NOT NULL DEFAULT 0,
   `creation_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `modification_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`coord_id`, `account_id`)
+  PRIMARY KEY (`coord_id`, `account_id`),
+  UNIQUE KEY (`coord_id`)
 );
 
 -- ---
@@ -70,6 +71,7 @@ CREATE TABLE `AccountInformation` (
   `my_position_timestamp` TIMESTAMP NULL DEFAULT NULL,
   `last_login` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `creation_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `failed_login_timestamp` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`account_id`)
 );
 
@@ -186,9 +188,23 @@ CREATE TABLE `ChallengeCheckpoint` (
 );
 
 -- ---
+-- Table 'AccountType'
+-- 
+-- ---
+
+DROP TABLE IF EXISTS `AccountType`;
+		
+CREATE TABLE `AccountType` (
+  `type` INTEGER NOT NULL,
+  `name` VARCHAR(8) NOT NULL,
+  PRIMARY KEY (`type`)
+);
+
+-- ---
 -- Foreign Keys 
 -- ---
 
+ALTER TABLE `Account` ADD FOREIGN KEY (type) REFERENCES `AccountType` (`type`);
 ALTER TABLE `Place` ADD FOREIGN KEY (coord_id) REFERENCES `Coordinate` (`coord_id`);
 ALTER TABLE `Place` ADD FOREIGN KEY (account_id) REFERENCES `Account` (`account_id`);
 ALTER TABLE `CurrentNavigation` ADD FOREIGN KEY (account_id) REFERENCES `Account` (`account_id`);
@@ -222,6 +238,7 @@ ALTER TABLE `ChallengeCheckpoint` ADD FOREIGN KEY (coord_id) REFERENCES `Coordin
 -- ALTER TABLE `Friends` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 -- ALTER TABLE `ChallengeTeam` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 -- ALTER TABLE `ChallengeCheckpoint` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+-- ALTER TABLE `AccountType` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ---
 -- Test Data
@@ -233,8 +250,8 @@ ALTER TABLE `ChallengeCheckpoint` ADD FOREIGN KEY (coord_id) REFERENCES `Coordin
 -- ('','','','','');
 -- INSERT INTO `CurrentNavigation` (`account_id`,`coord_id`) VALUES
 -- ('','');
--- INSERT INTO `AccountInformation` (`account_id`,`lastname`,`firstname`,`avatar`,`show_email_addr`,`my_position`,`my_position_timestamp`,`last_login`,`creation_date`) VALUES
--- ('','','','','','','','','');
+-- INSERT INTO `AccountInformation` (`account_id`,`lastname`,`firstname`,`avatar`,`show_email_addr`,`my_position`,`my_position_timestamp`,`last_login`,`creation_date`,`failed_login_timestamp`) VALUES
+-- ('','','','','','','','','','');
 -- INSERT INTO `Coordinate` (`coord_id`,`name`,`description`,`latitude`,`longitude`) VALUES
 -- ('','','','','');
 -- INSERT INTO `Challenge` (`challenge_id`,`owner`,`sessionkey`,`name`,`description`,`predefined_teams`,`max_teams`,`starttime`,`is_public`,`is_visible`) VALUES
@@ -249,3 +266,5 @@ ALTER TABLE `ChallengeCheckpoint` ADD FOREIGN KEY (coord_id) REFERENCES `Coordin
 -- ('','','','','','');
 -- INSERT INTO `ChallengeCheckpoint` (`team_id`,`coord_id`,`time`) VALUES
 -- ('','','');
+-- INSERT INTO `AccountType` (`type`,`name`) VALUES
+-- ('','');

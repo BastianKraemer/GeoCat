@@ -230,7 +230,7 @@ function createSchema($dbh, $dbtype, $schemaname){
 		print (" done.\n(Closing connection to database)\n\n");
 	}
 	else{
-		print("\n\nERROR - Creating schma failed:\n" .$sql . "\n");
+		print("\n\nERROR - Operation failed. Unable to create schema:\n" .$sql . "\n");
 		print("\nPDOStatement::errorInfo():\n");
 		$arr = $query->errorInfo();
 		print_r($arr);
@@ -256,7 +256,7 @@ function dropSchema($dbh, $dbtype, $schemaname){
 		print (" done.\n");
 	}
 	else{
-		print("\n\nERROR - Deleting schma failed:\n" .$sql . "\n");
+		print("\n\nERROR - Operation failed. Unable to delete schema:\n" .$sql . "\n");
 		print("\nPDOStatement::errorInfo():\n");
 		$arr = $query->errorInfo();
 		print_r($arr);
@@ -416,6 +416,7 @@ if($prefix == "setup"){
 
 	$setupFile = "./sql/" . $db_type . ".setup.sql";
 	$cleanupFile = "./sql/" . $db_type . ".cleanup.sql";
+	$defaultDataFile = "./sql/generic.default_data.sql";
 
 	if(file_exists($setupFile) && file_exists($cleanupFile)){
 		// All sql files are available
@@ -434,7 +435,11 @@ if($prefix == "setup"){
 
 		print("Creating tables");
 		installSQL_File($setupFile, $dbh);
-		print("\nSetup finished successful.\n");
+
+		print("Setting up default values");
+		installSQL_File($defaultDataFile, $dbh);
+
+		print("\nSetup finished successfully.\n");
 	}
 	else{
 		die("Cannot find required sql files: '" . $setupFile . "' and '" . $cleanupFile . "'.");
@@ -455,7 +460,7 @@ else if($prefix == "cleanup"){
 
 		print("Running 'cleanup'");
 		installSQL_File($cleanupFile, $dbh);
-		print("\nSetup finished successful, all tables has been removed.\n");
+		print("\nSetup finished successfully, all tables has been removed.\n");
 	}
 	else{
 		die("Cannot find required sql file: '" . $cleanupFile . "'.");

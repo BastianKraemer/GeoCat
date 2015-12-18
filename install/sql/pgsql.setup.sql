@@ -4,7 +4,7 @@ username VARCHAR(64) NOT NULL ,
 password VARCHAR(64) NOT NULL ,
 salt VARCHAR(32) ,
 email VARCHAR(64) NOT NULL ,
-type VARCHAR(16) NOT NULL DEFAULT 'default' ,
+type INTEGER NOT NULL DEFAULT 0 ,
 is_administrator SMALLINT NOT NULL DEFAULT 0 ,
 PRIMARY KEY (account_id),
 UNIQUE (username)
@@ -16,7 +16,8 @@ account_id INTEGER NOT NULL ,
 is_public SMALLINT NOT NULL DEFAULT 0 ,
 creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
 modification_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-PRIMARY KEY (coord_id, account_id)
+PRIMARY KEY (coord_id, account_id),
+UNIQUE (coord_id)
 );
 
 CREATE TABLE CurrentNavigation (
@@ -35,6 +36,7 @@ my_position INTEGER ,
 my_position_timestamp TIMESTAMP ,
 last_login TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
 creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+failed_login_timestamp TIMESTAMP ,
 PRIMARY KEY (account_id)
 );
 
@@ -101,6 +103,13 @@ time TIMESTAMP ,
 PRIMARY KEY (team_id, coord_id)
 );
 
+CREATE TABLE AccountType (
+type INTEGER NOT NULL ,
+name VARCHAR(8) NOT NULL ,
+PRIMARY KEY (type)
+);
+
+ALTER TABLE Account ADD FOREIGN KEY (type) REFERENCES AccountType (type);
 ALTER TABLE Place ADD FOREIGN KEY (coord_id) REFERENCES Coordinate (coord_id);
 ALTER TABLE Place ADD FOREIGN KEY (account_id) REFERENCES Account (account_id);
 ALTER TABLE CurrentNavigation ADD FOREIGN KEY (account_id) REFERENCES Account (account_id);

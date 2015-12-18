@@ -1,7 +1,7 @@
 /*	GeoCat - Geocaching and -Tracking platform
 	Copyright (C) 2015 Bastian Kraemer
 
-	gpsnavigator.js
+	GPSNavigator.js
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,26 +17,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * This class represents a location
- * @class Coordinate
- * @param {String} name Name of this location
- * @param {Double} lat Latitude of this location
- * @param {Double} lon Logitude of this location
- * @param {String} description Description of this location
- */
-function Coordinate(name, latitude, longitude, description){
-	this.lat = latitude;
-	this.lon = longitude;
-	this.name = name;
-	this.description = description;
-}
 
- // TODO: Load/Store destination list in session/database via ajax
  // TODO: Improve error handling
 
 /**
- * This class is used by the GPS Radar to handle "destination list"
+ * This class is used by the {@link GPSRadar} to watch for the gps location
  * @class GPSNavigator
  * @param {HTMLElement} Container of the canvas which is used to display the navigator
  * @see GPSRadar
@@ -44,76 +29,17 @@ function Coordinate(name, latitude, longitude, description){
 function GPSNavigator(canvas_container){
 
 	var container = canvas_container;
-	var coords = new Object(); /* Map of "Coordinates" */
 	var currentHeading = 0;
 	var gpsWatchId = -1;
 	var lastGPSPosition = null;
 	var updateTimer = null;
 	var preferences = {rotate: true, debug_info: true, offline_mode: false};
 	var gpsDisplay = null;
-	/* Append some coordinates */
-	//addDestination(<id>, new Coordinate("<Name>", <latitude>, <longitude>, "<Description>"));
-
-	function addDestination(id, dest){
-		coords[id] = dest;
-	}
-
-	/**
-	 * Add another destination to the navigator
-	 * @param id {String} Identifier (has to be unique)
-	 * @param {Coordinate} coordinate Coordinates of of this destination
-	 *
-	 * @function addDestination
-	 * @memberOf GPSNavigator
-	 * @instance
-	 */
-	this.addDestination = addDestination;
-
-	/**
-	 * Remove a destination from the navigator
-	 * @param id {String} Identifier of the destination
-	 *
-	 * @function removeDestination
-	 * @memberOf GPSNavigator
-	 * @instance
-	 */
-	this.removeDestination = function(id){
-		if(coords.hasOwnProperty(id)){
-			delete coords[id];
-		}
-	};
-
-	/**
-	 * Returns one location that is currently on the destination list of the navigator
-	 * @param id {String} Identifier of the destination
-	 * @returns {Coordinate} The coordinates which belongs to the identifier
-	 * @see Coordinate
-	 *
-	 * @function getDestinationById
-	 * @memberOf GPSNavigator
-	 * @instance
-	 */
-	this.getDestinationById = function(id){
-		return coords[id];
-	};
-
-	/**
-	 * Returns list of destinations that is currently used by the navigator
-	 * @returns {Object.<String, Coordinate>} A map which contains the current destinations of the navigator
-	 * @see Coordinate
-	 *
-	 * @function getDestinationList
-	 * @memberOf GPSNavigator
-	 * @instance
-	 */
-	this.getDestinationList = function(){
-		return coords;
-	};
 
 	/**
 	 * Sets a preference of the navigator
-	 * @returns {Object.<String, Object>} Map of the current preferences
 	 *
+	 * @public
 	 * @function setPreferences
 	 * @memberOf GPSNavigator
 	 * @instance
@@ -126,6 +52,7 @@ function GPSNavigator(canvas_container){
 	 * Returns all preferences of the navigator
 	 * @returns {Object.<String, Object>} Map of the current preferences
 	 *
+	 * @public
 	 * @function getPreferences
 	 * @memberOf GPSNavigator
 	 * @instance
@@ -139,6 +66,7 @@ function GPSNavigator(canvas_container){
 	 * @param {String} key The key that identifies the preference
 	 * @returns {Object} The value of this preference
 	 *
+	 * @public
 	 * @function getPreference
 	 * @memberOf GPSNavigator
 	 * @instance
@@ -151,21 +79,22 @@ function GPSNavigator(canvas_container){
 	 * Returns the latest GPS position that is availabe to this class
 	 * @returns {Object} The object that is provided by the <code>navigator.geolocation.watchPosition</code> callback
 	 *
+	 * @public
 	 * @function getGPSPos
 	 * @memberOf GPSNavigator
 	 * @instance
 	 */
-	this.getGPSPos = function(){
+	this.getGPSPos = function getGPSPosition(){
 		return lastGPSPosition;
-	};
+	}
 
 	/**
 	 * Returns the current heading that has been calculated by the movement of the device.
 	 * The value is based on the HTML5 geolocation heading value, but will keep the last angle if the device stops moving.
 	 * The HTML5 geolocation API ist described here: http://www.w3.org/TR/geolocation-API/#heading
-	 * The value is directly represets the number of
-	 * @returns {Number} The heading in degrees counted clockwise from north (0 <= heading < 360).
+	 * @returns {Number} The heading is counted in degrees clockwise from north (0 <= heading < 360).
 	 *
+	 * @public
 	 * @function getHeading
 	 * @memberOf GPSNavigator
 	 * @instance
@@ -175,25 +104,27 @@ function GPSNavigator(canvas_container){
 	}
 
 	/**
-	 * Starts the navigator. This should be called when the GPS Navigator page is opened.
+	 * Starts the {@link GPSNavigator}. This should be called when the GPS Navigator page is opened.
 	 *
+	 * @public
 	 * @function startNavigator
 	 * @memberOf GPSNavigator
 	 * @instance
 	 */
-	this.startNavigator = function(){
+	this.startNavigator = function(localCoordStore){
 		if(gpsDisplay != null){
 			stopTimer();
 			gpsDisplay.stop();
 		}
-		gpsDisplay = new GPSRadar(container, this);
+		gpsDisplay = new GPSRadar(container, this, localCoordStore);
 		gpsDisplay.start();
 		watchGPSPosition();
 	}
 
 	/**
-	 * Stops the navigator. This should be called when the GPS Navigator page is closed.
+	 * Stops the {@link GPSNavigator}. This should be called when the GPS Navigator page is closed.
 	 *
+	 * @public
 	 * @function stopNavigator
 	 * @memberOf GPSNavigator
 	 * @instance
@@ -221,14 +152,20 @@ function GPSNavigator(canvas_container){
 		}
 	}
 
+	/**
+	 * Starts watching the GPS location of the device
+	 *
+	 * @private
+	 * @memberOf GPSNavigator
+	 * @instance
+	 */
 	function watchGPSPosition(){
 		if(gpsWatchId == -1){
 			if (navigator.geolocation) {
 				//navigator.geolocation.getCurrentPosition(update);
 
 				// enableHighAccuracy: Use GPS
-				// maximumAge: Only use a position if it is not older than 2 seconds
-				gpsWatchId = navigator.geolocation.watchPosition(newGPSPositionReceived, gpsErrorHandler, {enableHighAccuracy: true, maximumAge: 5000});
+				gpsWatchId = navigator.geolocation.watchPosition(newGPSPositionReceived, gpsErrorHandler, {enableHighAccuracy: true});
 			} else {
 				alert("Geolocation is not supported by this browser.");
 				return;
@@ -241,7 +178,7 @@ function GPSNavigator(canvas_container){
 		lastGPSPosition = gpspos;
 
 		if(preferences.rotate){
-			if(!isNaN(gpspos.coords.heading) && gpspos.coords.heading != 0){
+			if(gpspos.coords.heading != null && !isNaN(gpspos.coords.heading) && gpspos.coords.heading != 0){
 				currentHeading = gpspos.coords.heading.toFixed(0);
 			}
 		}
@@ -251,12 +188,16 @@ function GPSNavigator(canvas_container){
 	}
 
 	function gpsErrorHandler(err) {
-		if(err.code == 1) {
-			alert("Error: Access is denied!");
+		if(gpsWatchId != -1){
+			navigator.geolocation.clearWatch(gpsWatchId);
+			gpsWatchId = -1;
 		}
 
+		if(err.code == 1) {
+			alert("Error: Access to GPS denied!");
+		}
 		else if( err.code == 2) {
 			alert("Error: Position is unavailable!");
 		}
-	 }
+	}
 }

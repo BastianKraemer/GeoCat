@@ -24,8 +24,8 @@
 
 	$config = require(__DIR__ . "/../config/config.php");
 
-	require_once(__DIR__ . "/../app/jsonlocale.php");
-	require_once(__DIR__ . "/../app/dbtools.php");
+	require_once(__DIR__ . "/../app/JSONLocale.php");
+	require_once(__DIR__ . "/../app/DBTools.php");
 	require_once(__DIR__ . "/../app/AccountManager.php");
 
 	$locale = JSONLocale::withBrowserLanguage($config);

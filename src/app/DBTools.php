@@ -1,6 +1,6 @@
 <?php
 	/**
-	 * File dbtools.php
+	 * File DBTools.php
 	 */
 
 	/**
@@ -28,7 +28,7 @@
 		 * Example:<br>
 		 * <code>
 		 * // $config = require("/config/config.php");<br>
-		 * // require_once("/app/dbtools.php");<br>
+		 * // require_once("/app/DBTools.php");<br>
 		 * $dbh = DBTools::connectToDatabase($config);<br>
 		 * $ret = DBTools::fetchAll($dbh, "SELECT * FROM Account WHERE email = :email", array(":email" => "master@example.com"));
 		 * </code>
@@ -41,7 +41,7 @@
 		public static function fetchAll($dbh, $sql, $values = null){
 			$stmt = $dbh->prepare($sql);
 
-			$res = ($values == null ? $query->execute() : $stmt->execute($values));
+			$res = ($values == null ? $stmt->execute() : $stmt->execute($values));
 			if($res){
 				return $stmt->fetchAll();
 			}

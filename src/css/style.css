@@ -20,6 +20,10 @@ div[role="navigation"] ul li a {
 	-webkit-overflow-scrolling: touch;
 }
 
+.ui-btn-inline {
+	margin-right: 0 !important;
+}
+
 /*
 	Overwrite the default background
 */
@@ -47,4 +51,51 @@ div[role="navigation"] ul li a {
 
 #CanvasFrame{
 	margin: 0px auto;
+}
+
+/* ==============================================================================
+	Places page
+============================================================================== */
+
+#Page_Places .ui-content {
+	padding: 0 4px;
+}
+
+.places_header{
+	margin-top: 0;
+}
+
+#PlacesInformation {
+	position: absolute;
+	text-align: center;
+	width: 100%;
+}
+
+.place-name {
+	float: left;
+}
+
+.place-owner {
+	float: right;
+	font-style: italic;
+}
+
+#EditPlacePopup-popup, #GPSNavDestListPopup-popup {
+    width: 80%;
+    left: 10%;
+    right: 10%
+}
+
+#EditPlacePopup table,  #GPSNavDestListPopup table{
+	width: 100%;
+}
+
+#EditPlacePopup label {
+	margin-top: 8px;
+}
+
+@media (max-width:800px) {
+	#PlacesListView li a p.ui-li-aside {
+		display: none;
+	}
 }

@@ -5,9 +5,11 @@
 	 */
 
 	$config = require(__DIR__ . "/../config/config.php");
-	require_once(__DIR__ . "/../app/jsonlocale.php");
-
+	require_once(__DIR__ . "/../app/JSONLocale.php");
+	require_once(__DIR__ . "/../app/content/header.php");
+	require_once(__DIR__ . "/../app/SessionManager.php");
 	$locale = JSONLocale::withBrowserLanguage($config);
+	$session = new SessionManager();
 
 	/**
 	 * @ignore
@@ -107,9 +109,7 @@
 	================================================================================
 	-->
 	<div data-role="page" id="page_createaccount" data-theme="a" >
-		<div data-role="header" data-id="page_header" data-theme="b">
-			<?php print("<h1>" . $config["app.name"] . " - " . $locale->get("createaccount.title") . "</h1>"); ?>
-		</div>
+		<?php printHeader($config["app.name"] . " - ". $locale->get("createaccount.title"), true, true, $config, $session); ?>
 
 		<div role="main" class="ui-content my-page">
 			<form id="form-signup" name="form-signup">
@@ -144,10 +144,6 @@
 				</div>
 			</form>
 		</div><!-- /content -->
-
-		<?php
-			require("../app/main/navigation.php");
-		?>
 	</div>
 </body>
 </html>

@@ -37,9 +37,10 @@ var Tools = new function(){
 		}).appendTo($popUp);
 
 		//create a message for the popup
-		$("<p/>", {
+		var p = $("<p/>", {
 			text : contentText
 		}).appendTo($popUp);
+		p.html(p.html().replace(/\\n/g, "<br />"));
 
 		//Create a submit button (fake)
 		$("<a>", {
@@ -54,5 +55,11 @@ var Tools = new function(){
 		}).appendTo($popUp);
 
 		$popUp.popup("open").trigger("create");
-	}
+	};
+
+	this.sprintf = function(txt, args){
+		return txt.replace(/{(\d+)}/g, function(match, number){
+				return typeof args[number] != 'undefined' ? args[number] : match;
+			});
+	 };
 }

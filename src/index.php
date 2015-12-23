@@ -2,7 +2,7 @@
 	/**
 	 * index.html - Startpage of GeoCat
 	 */
-
+	
 	$config = require("./config/config.php");
 	require_once "app/JSONLocale.php";
 	require_once "app/content/header.php";
@@ -158,6 +158,7 @@
 					?>
 				</ul>
 		</div><!-- /content -->
+		
 	</div>
 
 	<!--
@@ -311,5 +312,61 @@
 			</div>
 		</div>
 	</div>
+	
+	<!--
+	================================================================================
+	Login
+	================================================================================
+	-->
+	<div id="login" data-role="page" data-dialog="true" data-close-btn="none" data-theme="a">
+		
+		<script>
+		$(document).ready(function(){
+			$("#form-login").submit(function(e){
+				e.preventDefault();
+				$.ajax({
+					type: $(this).attr('method'),
+					url: $(this).attr('action'),
+					data: $(this).serialize(),
+					success: function(response){
+						var result = JSON.parse(response);
+						if(result.login){
+							console.log("true");
+							location.href = 'index.php';
+						} else {
+							console.log("false");
+						}
+					}
+				});
+			});
+		});
+		</script>
+		
+		<div data-role="header" data-theme="b">
+			<h1 class="ui-title">Login</h1>
+		</div>
+		
+		<div role="main" class="ui-content">
+			<form id="form-login" action="./app/content/login.php" method="POST">
+				<label for="useremail">E-Mail Adresse:</label>
+				<input type="text" id="useremail" name="useremail" value="" placeholder="E-Mail-Adresse" maxlength="50" required="required">
+				<label for="userpassword">Passwort:</label>
+				<input type="password" id="userpassword" name="userpassword" value="" placeholder="Passwort" maxlength="50" autocomplete="off" required="required">
+				<p>
+					<input type="checkbox" id="rememberme" name="rememberme">
+					<label for="rememberme">Angemeldet bleiben</label>
+				</p>
+				<div class="ui-grid-a ui-responsive">
+					<div class="ui-block-a">
+						<a id="login-back" href="#home" role="button" data-transition="fade" data-direction="reverse" class="ui-btn ui-corner-all">Zurück</a>
+					</div>
+					<div class="ui-block-b">
+						<input type="submit" value="Senden">
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	
 </body>
 </html>

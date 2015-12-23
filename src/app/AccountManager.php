@@ -33,7 +33,7 @@
 		 * Name of the "Account" table
 		 * @var string
 		 */
-		const TABLE_ACCOUNT = "Account";
+		const TABLE_ACCOUNT = "\"Account\"";
 
 		/**
 		 * Name of the "Account" table

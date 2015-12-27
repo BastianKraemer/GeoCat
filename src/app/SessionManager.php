@@ -1,12 +1,4 @@
 <?php
-
-	if(isset($_REQUEST["logout"])){
-		if(strcmp($_REQUEST["logout"], "true")){
-			SessionManager::logout();
-			return;
-		}
-	}
-
 	/**
 	 * File SessionManager.php
 	 */

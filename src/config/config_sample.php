@@ -8,6 +8,6 @@
 			"database.type" => "mysql", 	/* For all supported databases see https://secure.php.net/manual/en/pdo.drivers.php */
 			"database.username" => "root",
 			"database.password" => "",
-			"database.schema" => "geocat"
+			"database.name" => "geocat"
 	];
 ?>

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //ini_set('memory_limit', '5120M');
 set_time_limit ( 0 );
 
@@ -208,21 +208,21 @@ function split_sql_file($sql, $delimiter)
  * ============================================================================
  */
 
-function createSchema($dbh, $dbtype, $schemaname){
+function createDatabase($dbh, $dbtype, $database_name){
 
 	if($dbtype == "mysql"){
-		$sql = 	"CREATE DATABASE IF NOT EXISTS `" . $schemaname . "`\n" .
+		$sql = 	"CREATE DATABASE IF NOT EXISTS `" . $database_name . "`\n" .
 				"	DEFAULT CHARACTER SET utf8\n" .
 				"	DEFAULT COLLATE utf8_general_ci;";
 	}
 	else if($dbtype == "pgsql"){
-		$sql = "CREATE DATABASE " . $schemaname . " ENCODING 'UTF8';";
+		$sql = "CREATE DATABASE " . $database_name . " ENCODING 'UTF8';";
 	}
 	else{
-		die("Cannot create schema for database type '" . $dbtype . "' (not supported)");
+		die("Cannot create database for database type '" . $dbtype . "' (not supported)");
 	}
 
-	printf("Creating schema '%s'...", $schemaname);
+	printf("Creating database '%s'...", $database_name);
 
 	$query = $dbh->prepare($sql);
 	$res = $query->execute();
@@ -230,25 +230,26 @@ function createSchema($dbh, $dbtype, $schemaname){
 		print (" done.\n(Closing connection to database)\n\n");
 	}
 	else{
-		print("\n\nERROR - Operation failed. Unable to create schema:\n" .$sql . "\n");
+		print("\n\nERROR - Operation failed. Unable to create database:\n" .$sql . "\n");
 		print("\nPDOStatement::errorInfo():\n");
 		$arr = $query->errorInfo();
 		print_r($arr);
+    print("\n");
 	}
 }
 
-function dropSchema($dbh, $dbtype, $schemaname){
+function dropDatabase($dbh, $dbtype, $database_name){
 	if($dbtype == "mysql"){
-		$sql = 	"DROP DATABASE IF EXISTS `" . $schemaname . "`";
+		$sql = 	"DROP DATABASE IF EXISTS `" . $database_name . "`";
 	}
 	else if($dbtype == "pgsql"){
-		$sql = "DROP DATABASE IF EXISTS " . $$schemaname;
+		$sql = "DROP DATABASE IF EXISTS " . $database_name;
 	}
 	else{
-		die("Cannot delete schema for database type '" . $dbtype . "' (not supported)");
+		die("Cannot delete database (dbtype: '" . $dbtype . " is not supported).");
 	}
 
-	printf("Deleting schema '%s'...", $schemaname);
+	printf("Deleting database '%s'...", $database_name);
 
 	$query = $dbh->prepare($sql);
 	$res = $query->execute();
@@ -256,10 +257,11 @@ function dropSchema($dbh, $dbtype, $schemaname){
 		print (" done.\n");
 	}
 	else{
-		print("\n\nERROR - Operation failed. Unable to delete schema:\n" .$sql . "\n");
+		print("\n\nERROR - Operation failed. Unable to delete database:\n" .$sql . "\n");
 		print("\nPDOStatement::errorInfo():\n");
 		$arr = $query->errorInfo();
 		print_r($arr);
+    print("\n");
 	}
 }
 
@@ -283,6 +285,7 @@ function installSQL_File($filename, $dbh){
 			print("\nPDOStatement::errorInfo():\n");
 			$arr = $query->errorInfo();
 			print_r($arr);
+      print("\n");
 			die;
 		}
 	}
@@ -311,7 +314,7 @@ $db_port = "";
 $db_user = "root";
 $db_paswd = "";
 $db_name = "geocat";
-$create_schema = false;
+$create_database = false;
 
 for($i = 1; $i < count($argv); $i++){
 
@@ -337,15 +340,13 @@ for($i = 1; $i < count($argv); $i++){
 			break;
 
 		case "--create-database":
-		case "--create-schema":
-		case "-cs":
+		case "-c":
 			$db_name = $argv[++$i];
-			$create_schema = true;
+			$create_database = true;
 			break;
 
 		case "--dbname":
-		case "--schema":
-		case "-s":
+		case "-db":
 			$db_name = $argv[++$i];
 			break;
 
@@ -378,8 +379,8 @@ for($i = 1; $i < count($argv); $i++){
 					"--port; -p <port>\n" .
 					"--user; -l <user>\n" .
 					"--password; -pw <password>\n" .
-					"--create-schema; -cs <schema name>	(create a new schema)\n" .
-					"--schema; -s <schema name>		(by default this is 'geocat')\n\n" .
+					"--create-database; -c <database name>	(create a new database)\n" .
+					"--dbname; -db <database name>		(by default this is 'geocat')\n\n" .
 					"It's also possible to use '-i' and '-u' instead of '--install' or '--uninstall'");
 			exit(0);
 
@@ -405,7 +406,7 @@ if($db_user == ""){
 }
 
 if($db_name == ""){
-	die("Error: No database name (schema) defined.");
+	die("Error: No database name defined.");
 }
 
 if($prefix == "setup"){
@@ -421,14 +422,14 @@ if($prefix == "setup"){
 	if(file_exists($setupFile) && file_exists($cleanupFile)){
 		// All sql files are available
 
-		if($create_schema){
+		if($create_database){
 			$dbh = connectToDatabase($db_type, $db_host, $db_port, "", $db_user, $db_paswd);
-			createSchema($dbh, $db_type, $db_name);
+			createDatabase($dbh, $db_type, $db_name);
 		}
 
 		$dbh = connectToDatabase($db_type, $db_host, $db_port, $db_name, $db_user, $db_paswd);
 
-		if(!$create_schema){
+		if(!$create_database){
 			print("Running 'cleanup'");
 			installSQL_File($cleanupFile, $dbh);
 		}
@@ -469,11 +470,11 @@ else if($prefix == "cleanup"){
 else if($prefix == "delete"){
 
 	/* ========================================================================
-	 * Remove database (schema)
+	 * Remove database
 	 * ======================================================================== */
 
 	$dbh = connectToDatabase($db_type, $db_host, $db_port, "", $db_user, $db_paswd);
-	dropSchema($dbh, $db_type, $db_name);
+	dropDatabase($dbh, $db_type, $db_name);
 	print("\nDatabase successfully deleted.\n");
 }
 ?>

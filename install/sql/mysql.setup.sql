@@ -15,10 +15,10 @@ DROP TABLE IF EXISTS `Account`;
 CREATE TABLE `Account` (
   `account_id` INTEGER NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(64) NOT NULL,
-  `password` VARCHAR(64) NOT NULL,
-  `salt` VARCHAR(32) NULL DEFAULT NULL,
-  `email` VARCHAR(64) NOT NULL,
-  `acc_type_id` INTEGER NOT NULL DEFAULT 0,
+  `password` VARCHAR(64) NULL,
+  `salt` VARCHAR(32) NULL,
+  `email` VARCHAR(64) NULL,
+  `type` INTEGER NOT NULL DEFAULT 0,
   `is_administrator` TINYINT NOT NULL DEFAULT 0,
   PRIMARY KEY (`account_id`),
   UNIQUE KEY (`username`)
@@ -222,10 +222,21 @@ CREATE TABLE `ChallengeType` (
 );
 
 -- ---
+-- Table 'GuestAccount'
+-- 
+-- ---
+
+DROP TABLE IF EXISTS `GuestAccount`;
+		
+CREATE TABLE `GuestAccount` (
+  `next_number` INTEGER NOT NULL
+);
+
+-- ---
 -- Foreign Keys 
 -- ---
 
-ALTER TABLE `Account` ADD FOREIGN KEY (acc_type_id) REFERENCES `AccountType` (`acc_type_id`);
+ALTER TABLE `Account` ADD FOREIGN KEY (type) REFERENCES `AccountType` (`acc_type_id`);
 ALTER TABLE `Place` ADD FOREIGN KEY (coord_id) REFERENCES `Coordinate` (`coord_id`);
 ALTER TABLE `Place` ADD FOREIGN KEY (account_id) REFERENCES `Account` (`account_id`);
 ALTER TABLE `CurrentNavigation` ADD FOREIGN KEY (account_id) REFERENCES `Account` (`account_id`);
@@ -262,12 +273,13 @@ ALTER TABLE `ChallengeCheckpoint` ADD FOREIGN KEY (team_id) REFERENCES `Challeng
 -- ALTER TABLE `ChallengeCheckpoint` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 -- ALTER TABLE `AccountType` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 -- ALTER TABLE `ChallengeType` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+-- ALTER TABLE `GuestAccount` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ---
 -- Test Data
 -- ---
 
--- INSERT INTO `Account` (`account_id`,`username`,`password`,`salt`,`email`,`acc_type_id`,`is_administrator`) VALUES
+-- INSERT INTO `Account` (`account_id`,`username`,`password`,`salt`,`email`,`type`,`is_administrator`) VALUES
 -- ('','','','','','','');
 -- INSERT INTO `Place` (`coord_id`,`account_id`,`is_public`,`creation_date`,`modification_date`) VALUES
 -- ('','','','','');
@@ -293,3 +305,5 @@ ALTER TABLE `ChallengeCheckpoint` ADD FOREIGN KEY (team_id) REFERENCES `Challeng
 -- ('','');
 -- INSERT INTO `ChallengeType` (`challenge_type_id`,`acronym`,`full_name`) VALUES
 -- ('','','');
+-- INSERT INTO `GuestAccount` (`next_number`) VALUES
+-- ('');

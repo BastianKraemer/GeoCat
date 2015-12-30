@@ -15,3 +15,4 @@ DROP TABLE IF EXISTS `Challenge`;
 DROP TABLE IF EXISTS `ChallengeType`;
 DROP TABLE IF EXISTS `Account`;
 DROP TABLE IF EXISTS `AccountType`;
+DROP TABLE IF EXISTS `GuestAccount`;

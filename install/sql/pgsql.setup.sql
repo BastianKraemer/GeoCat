@@ -1,10 +1,10 @@
 CREATE TABLE Account (
 account_id  SERIAL NOT NULL ,
 username VARCHAR(64) NOT NULL ,
-password VARCHAR(64) NOT NULL ,
+password VARCHAR(64) ,
 salt VARCHAR(32) ,
-email VARCHAR(64) NOT NULL ,
-acc_type_id INTEGER NOT NULL DEFAULT 0 ,
+email VARCHAR(64) ,
+type INTEGER NOT NULL DEFAULT 0 ,
 is_administrator SMALLINT NOT NULL DEFAULT 0 ,
 PRIMARY KEY (account_id),
 UNIQUE (username)
@@ -123,7 +123,11 @@ full_name VARCHAR(32) NOT NULL ,
 PRIMARY KEY (challenge_type_id)
 );
 
-ALTER TABLE Account ADD FOREIGN KEY (acc_type_id) REFERENCES AccountType (acc_type_id);
+CREATE TABLE GuestAccount (
+next_number INTEGER NOT NULL 
+);
+
+ALTER TABLE Account ADD FOREIGN KEY (type) REFERENCES AccountType (acc_type_id);
 ALTER TABLE Place ADD FOREIGN KEY (coord_id) REFERENCES Coordinate (coord_id);
 ALTER TABLE Place ADD FOREIGN KEY (account_id) REFERENCES Account (account_id);
 ALTER TABLE CurrentNavigation ADD FOREIGN KEY (account_id) REFERENCES Account (account_id);

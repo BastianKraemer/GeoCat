@@ -60,7 +60,7 @@
 		public static function query($dbh, $sql, $values = null){
 			$stmt = $dbh->prepare($sql);
 
-			$res = ($values == null ? $query->execute() : $stmt->execute($values));
+			$res = ($values == null ? $stmt->execute() : $stmt->execute($values));
 			return $res;
 		}
 	}

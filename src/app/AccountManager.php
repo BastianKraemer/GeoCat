@@ -141,6 +141,70 @@
 		}
 
 		/**
+		 * Create a guest account
+		 * @param PDO $dbh Database handler
+		 * @param string $firstname
+		 * @param string $lastname (optional)
+		 * @return boolean <code>true</code> if the account has been created, <code>false</code> if not
+		 */
+		public static function createGuestAccount($dbh, $firstname, $lastname = null){
+			if(!self::isValidRealName($firstname)){return false;}
+			if($lastname != null && $lastname != ""){
+				if(!self::isValidRealName($lastname)){return false;}
+			}
+			else{
+				$lastname = null;
+			}
+
+			// A guest account has the following pattern _guest[number]
+			// This is very useful, because by convention in regular usernames an underscore is not allowed as first character
+
+			$guestNumber = DBTools::fetchAll($dbh,	"SELECT * FROM GuestAccount; " .
+													"UPDATE GuestAccount SET next_number = next_number + 1;");
+
+			// Verify the response for $guestNumber
+			if(count($guestNumber[0]) > 0){
+				$guestNumber = $guestNumber[0]["next_number"];
+			}
+			else{
+				error_log("Error: Unable to get guest account number. Database returned invalid values.");
+				return false;
+			}
+
+			$accTypeId = DBTools::fetchAll($dbh, "SELECT acc_type_id FROM AccountType WHERE name = :acctype", array("acctype" => "guest"));
+
+			// Verify the response for $accTypeId
+			if(count($accTypeId[0]) > 0){
+				$accTypeId = $accTypeId[0][0];
+			}
+			else{
+				error_log("Error: Unable to get key for account type 'guest'. Database returned invalid values.");
+				return false;
+			}
+
+			// Build the account name
+			$accName = "_guest" . $guestNumber;
+
+			$result = DBTools::query($dbh, "INSERT INTO " . self::TABLE_ACCOUNT . " (account_id, username, password, salt, email, type) VALUES (NULL, :user, NULL, NULL, NULL, :acc_type)",
+											array("user" => $accName, "acc_type" => $accTypeId));
+
+			if(!$result){
+				error_log("Unable to create guest account: Insert into '" . self::TABLE_ACCOUNT . "' failed!\nDatabase returned '" . $result . "'");
+				return false;
+			}
+			else{
+				$accId = self::getAccountIdByUserName($dbh, $accName);
+				$result = DBTools::query($dbh, "INSERT INTO " . self::TABLE_ACCOUNTINFO . "  (account_id, lastname, firstname, show_email_addr) VALUES (:accid, :lastname, :firstname, 0)",
+											array("accid" => $accId, "lastname" => $lastname, "firstname" => $firstname));
+
+				if(!$result){
+					error_log("Unable to create guest account: Insert into '" . self::TABLE_ACCOUNTINFO . " ' failed!\nDatabase returned '" . $result . "'");
+				}
+				return $result ? true : false;
+			}
+		}
+
+		/**
 		 * Returns the account id which is assigned to the username
 		 * @param PDO $dbh Database handler
 		 * @param string $username
@@ -218,7 +282,7 @@
 		 * @return boolean
 		 */
 		public static function isValidUsername($username){
-			return preg_match("/^[A-Za-z0-9_]{2,63}$/", $username);
+			return preg_match("/^[A-Za-z0-9][A-Za-z0-9_]{1,63}$/", $username);
 		}
 
 		/**
@@ -238,7 +302,7 @@
 		 */
 		public static function isValidRealName($name){
 			if($name == null || $name == ""){return true;}
-			return preg_match("/^[A-Za-z ]{1,63}$/", $name);
+			return preg_match("/^[A-Za-zÄäÖöÜüß ]{1,63}$/", $name);
 		}
 	}
 ?>

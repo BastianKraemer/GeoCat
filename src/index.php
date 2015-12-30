@@ -57,17 +57,27 @@
 	<link rel="stylesheet" href="./css/listview-grid.css">
 	<link rel="stylesheet" href="./css/style.css">
 
+	<!-- <## ./lib/jquery_package.min.js ##> -->
 	<script src="./lib/jquery.js"></script>
 	<script src="./lib/jquery.mobile-1.4.5.js"></script>
+	<!-- </## ./lib/jquery_package.min.js ##> -->
+	
+	<!-- <## ./js/geocat.min.js ##> -->
 	<script src="./js/locale.js"></script>
 	<script src="./js/tools.js"></script>
 	<script src="./js/Uplink.js"></script>
 	<script src="./js/LocalCoordinateStore.js"></script>
-	<script src="./js/gpsnavigator/GPSNavigator.js"></script>
-	<script src="./js/gpsnavigator/GPSNavigationController.js"></script>
-	<script src="./js/gpsnavigator/GPSRadar.js"></script>
-	<script src="./js/geotools.js"></script>
 	<script src="./js/places/PlacesController.js"></script>
+	<!-- </## ./js/geocat.min.js ##> -->
+
+	<!-- <## ./js/gpscat.min.js ##> -->
+        <script src="./js/gpsnavigator/GPSNavigator.js"></script>
+        <script src="./js/gpsnavigator/GPSNavigationController.js"></script>
+        <script src="./js/gpsnavigator/GPSRadar.js"></script>
+        <script src="./js/geotools.js"></script>
+	<!-- </## ./js/gpscat.min.js ##> -->
+
+
 	<script type="text/javascript">
 
 		// Global variales

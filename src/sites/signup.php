@@ -35,8 +35,11 @@
 	<link rel="stylesheet" href="../css/listview-grid.css">
 	<link rel="stylesheet" href="../css/style.css">
 
+	<!-- <## ../lib/jquery_package.min.js ##> -->
 	<script src="../lib/jquery.js"></script>
 	<script src="../lib/jquery.mobile-1.4.5.js"></script>
+	<!-- </## ../lib/jquery_package.min.js ##> -->
+	
 	<script src="../js/tools.js"></script>
 
 	<script type="text/javascript">

@@ -22,6 +22,8 @@
 	 * File AccountManager.php
 	 */
 
+	require_once(__DIR__ . "/DBTools.php");
+
 	/**
 	 * This class can be used to deal with accounts
 	 */

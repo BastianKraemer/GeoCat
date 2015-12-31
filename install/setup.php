@@ -219,7 +219,7 @@ function createDatabase($dbh, $dbtype, $database_name){
 		$sql = "CREATE DATABASE " . $database_name . " ENCODING 'UTF8';";
 	}
 	else{
-		die("Cannot create database for database type '" . $dbtype . "' (not supported)");
+		die("Cannot create database for database type '" . $dbtype . "' (not supported).\n");
 	}
 
 	printf("Creating database '%s'...", $database_name);
@@ -246,7 +246,7 @@ function dropDatabase($dbh, $dbtype, $database_name){
 		$sql = "DROP DATABASE IF EXISTS " . $database_name;
 	}
 	else{
-		die("Cannot delete database (dbtype: '" . $dbtype . " is not supported).");
+		die("Cannot delete database (dbtype: '" . $dbtype . " is not supported).\n");
 	}
 
 	printf("Deleting database '%s'...", $database_name);
@@ -268,7 +268,7 @@ function dropDatabase($dbh, $dbtype, $database_name){
 // Install section
 
 function installSQL_File($filename, $dbh){
-	$sql_query = @fread(@fopen($filename, 'r'), @filesize($filename)) or die("Cannot read file '" . $filename . "'.");
+	$sql_query = @fread(@fopen($filename, 'r'), @filesize($filename)) or die("Cannot read file '" . $filename . "'.\n");
 	$sql_query = remove_comments($sql_query);
 	$sql_query = remove_remarks($sql_query);
 	$sql_query = split_sql_file($sql_query, ';');
@@ -301,7 +301,7 @@ function connectToDatabase($dbtype, $host, $port, $dbname, $username, $password)
 		return new PDO($dbtype . ":host=" . $host . ($port != "" ? ";port=" . $port : "") . ($dbname != "" ? ";dbname=" . $dbname : ""), $username, $password);
 
 	} catch (PDOException $e) {
-		die("Connection to database failed: " . $e->getMessage());
+		die("Connection to database failed: " . $e->getMessage() . "\n");
 	}
 }
 
@@ -358,8 +358,7 @@ for($i = 1; $i < count($argv); $i++){
 		case "--admin":
 			if($prefix == ""){$prefix = "create_admin";}
 			if(count($argv) <= $i + 3){
-				print("Invalid usage of '--create-admin'. For more information please use the '--help' switch.\n");
-				exit(0);
+				die("Invalid usage of '--create-admin'. For more information please use the '--help' switch.\n");
 			}
 			$admin_user = $argv[++$i];
 			$admin_pw = $argv[++$i];
@@ -421,28 +420,28 @@ for($i = 1; $i < count($argv); $i++){
 			exit(0);
 
 		default:
-			die("Unknown command line option: " . $argv[$i]);
+			die("Unknown command line option: " . $argv[$i] . "\n");
 	}
 }
 
 if(!($db_type == "mysql" || $db_type == "pgsql")){
-	die("Database type is not defined. Please use the '--dbtype' switch to do this.");
+	die("Database type is not defined. Please use the '--dbtype' switch to do this.\n");
 }
 
 if($prefix == "" || ($prefix != "setup" && $prefix != "cleanup" && $prefix != "delete" && $prefix != "create_admin")){
-	die("Please use one of the following parameters '--install', '--uninstall' or '--delete'.");
+	die("Please use one of the following parameters '--install', '--uninstall' or '--delete'.\n");
 }
 
 if($db_host == ""){
-	die("Error: Hostname is not defined.");
+	die("Error: Hostname is not defined.\n");
 }
 
 if($db_user == ""){
-	die("Error: Username is not defined.");
+	die("Error: Username is not defined.\n");
 }
 
 if($db_name == ""){
-	die("Error: No database name defined.");
+	die("Error: No database name defined.\n");
 }
 
 if($prefix == "setup"){
@@ -452,10 +451,10 @@ if($prefix == "setup"){
 	 * ======================================================================== */
 
 	$setupFile = __DIR__ . "/sql/" . $db_type . ".setup.sql";
-	$cleanupFile = __DIR__ ."./sql/" . $db_type . ".cleanup.sql";
-	$defaultDataFile = __DIR__ . "./sql/generic.default_data.sql";
+	$cleanupFile = __DIR__ ."/sql/" . $db_type . ".cleanup.sql";
+	$defaultDataFile = __DIR__ . "/sql/generic.default_data.sql";
 
-	if(file_exists($setupFile) && file_exists($cleanupFile)){
+	if(file_exists($setupFile) && file_exists($cleanupFile) && file_exists($defaultDataFile)){
 		// All sql files are available
 
 		if($create_database){
@@ -481,7 +480,7 @@ if($prefix == "setup"){
 		print("\nSetup finished successfully.\n");
 	}
 	else{
-		die("Cannot find required sql files: '" . $setupFile . "' and '" . $cleanupFile . "'.");
+		die("Cannot find required sql files: '" . $setupFile . "', '" . $cleanupFile . "' and '" . $defaultDataFile . "'.\n");
 	}
 }
 else if($prefix == "cleanup"){
@@ -490,7 +489,7 @@ else if($prefix == "cleanup"){
 	 * Remove all tables
 	 * ======================================================================== */
 
-	$cleanupFile = "./sql/" . $db_type . ".cleanup.sql";
+	$cleanupFile = __DIR__ ."/sql/" . $db_type . ".cleanup.sql";
 
 	if(file_exists($cleanupFile)){
 		// All sql files are available
@@ -502,7 +501,7 @@ else if($prefix == "cleanup"){
 		print("\nSetup finished successfully, all tables has been removed.\n");
 	}
 	else{
-		die("Cannot find required sql file: '" . $cleanupFile . "'.");
+		die("Cannot find required sql file: '" . $cleanupFile . "'.\n");
 	}
 }
 else if($prefix == "delete"){

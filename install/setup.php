@@ -305,6 +305,23 @@ function connectToDatabase($dbtype, $host, $port, $dbname, $username, $password)
 	}
 }
 
+function createAdminAccount($dbh, $user, $pw, $email){
+	if($user != null){
+		require_once(__DIR__ . "/../src/app/AccountManager.php");
+		print("Creating adminsitrator account... ");
+		try{
+			$accId = AccountManager::createAccount($dbh, $user, $pw, $email, true, array());
+			print("done. (account_id='" . $accId . "')\n");
+		}
+		catch(InvalidArgumentException $e){
+			print("failed.\nUnable to create adminsitrator account: " . $e->getMessage(). "\n");
+		}
+		catch(Exception $e){
+			print("failed.\nUnable to create adminsitrator account: " . $e->getMessage(). "\n");
+		}
+	}
+}
+
 // Parse command line arguments
 
 $prefix = "";
@@ -314,6 +331,9 @@ $db_port = "";
 $db_user = "root";
 $db_paswd = "";
 $db_name = "geocat";
+$admin_user = null;
+$admin_pw = null;
+$admin_email = null;
 $create_database = false;
 
 for($i = 1; $i < count($argv); $i++){
@@ -332,6 +352,18 @@ for($i = 1; $i < count($argv); $i++){
 		case "--delete":
 		case "-d":
 			$prefix = "delete";
+			break;
+
+		case "--create-admin":
+		case "--admin":
+			if($prefix == ""){$prefix = "create_admin";}
+			if(count($argv) <= $i + 3){
+				print("Invalid usage of '--create-admin'. For more information please use the '--help' switch.\n");
+				exit(0);
+			}
+			$admin_user = $argv[++$i];
+			$admin_pw = $argv[++$i];
+			$admin_email = $argv[++$i];
 			break;
 
 		case "--dbtype":
@@ -367,6 +399,7 @@ for($i = 1; $i < count($argv); $i++){
 
 		case "--password":
 		case "-pw":
+		case "--pw":
 			$db_paswd = $argv[++$i];
 			break;
 
@@ -381,7 +414,10 @@ for($i = 1; $i < count($argv); $i++){
 					"--password; -pw <password>\n" .
 					"--create-database; -c <database name>	(create a new database)\n" .
 					"--dbname; -db <database name>		(by default this is 'geocat')\n\n" .
-					"It's also possible to use '-i' and '-u' instead of '--install' or '--uninstall'");
+					"It's also possible to use '-i' and '-u' instead of '--install' or '--uninstall'\n\n\n" .
+					"This setup can be used to create administrator accounts too:\n" .
+					"   php setup.php [options] --create-admin <username> <password> <email_address>\n\n".
+					"You can use this parameter in combination with the install command too.\n");
 			exit(0);
 
 		default:
@@ -393,7 +429,7 @@ if(!($db_type == "mysql" || $db_type == "pgsql")){
 	die("Database type is not defined. Please use the '--dbtype' switch to do this.");
 }
 
-if($prefix == "" || ($prefix != "setup" && $prefix != "cleanup" && $prefix != "delete")){
+if($prefix == "" || ($prefix != "setup" && $prefix != "cleanup" && $prefix != "delete" && $prefix != "create_admin")){
 	die("Please use one of the following parameters '--install', '--uninstall' or '--delete'.");
 }
 
@@ -415,9 +451,9 @@ if($prefix == "setup"){
 	 * Install database
 	 * ======================================================================== */
 
-	$setupFile = "./sql/" . $db_type . ".setup.sql";
-	$cleanupFile = "./sql/" . $db_type . ".cleanup.sql";
-	$defaultDataFile = "./sql/generic.default_data.sql";
+	$setupFile = __DIR__ . "/sql/" . $db_type . ".setup.sql";
+	$cleanupFile = __DIR__ ."./sql/" . $db_type . ".cleanup.sql";
+	$defaultDataFile = __DIR__ . "./sql/generic.default_data.sql";
 
 	if(file_exists($setupFile) && file_exists($cleanupFile)){
 		// All sql files are available
@@ -439,6 +475,8 @@ if($prefix == "setup"){
 
 		print("Setting up default values");
 		installSQL_File($defaultDataFile, $dbh);
+
+		createAdminAccount($dbh, $admin_user, $admin_pw, $admin_email);
 
 		print("\nSetup finished successfully.\n");
 	}
@@ -476,5 +514,10 @@ else if($prefix == "delete"){
 	$dbh = connectToDatabase($db_type, $db_host, $db_port, "", $db_user, $db_paswd);
 	dropDatabase($dbh, $db_type, $db_name);
 	print("\nDatabase successfully deleted.\n");
+}
+else if($prefix == "create_admin"){
+	// Maybe just create another adminsitrator account?
+	$dbh = connectToDatabase($db_type, $db_host, $db_port, $db_name, $db_user, $db_paswd);
+	createAdminAccount($dbh, $admin_user, $admin_pw, $admin_email);
 }
 ?>

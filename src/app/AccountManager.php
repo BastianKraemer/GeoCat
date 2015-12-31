@@ -96,24 +96,31 @@
 		 * @param string $email
 		 * @param boolean $isAdmin
 		 * @param array $details This array should contain information like "firstname" or "lastname"
-		 * @return boolean <code>true</code> if the account has been created, <code>false</code> if not
+		 * @return integer The account_id of the new account
+		 * @throws InvalidArgumentException
+		 * @throws Exception
 		 */
 		public static function createAccount($dbh, $username, $password, $email, $isAdmin, $details){
 			// Verify parameters
-			if(empty($password)){return false;}
-			if(self::accountExists($dbh, $username, $email) <= 0){return false;}
+			if(empty($password)){throw new InvalidArgumentException("Password is empty");}
+
+			$accountCheck = self::accountExists($dbh, $username, $email);
+			if($accountCheck == 0){throw new InvalidArgumentException("An account with this username already exists.");}
+			if($accountCheck < 0){throw new InvalidArgumentException("E-mail address or username are invalid.");}
 			$lastname = self::getOrDefault("lastname", $details, null);
 			$firstname = self::getOrDefault("firstname", $details, null);
 			$publicemail = self::getOrDefault("public_email", $details, 0);
 
-			if(!self::isValidRealName($lastname) || !self::isValidRealName($firstname) || !is_int($publicemail)){
+			if(!self::isValidRealName($lastname) || !self::isValidRealName($firstname)){
 				// Invalid first name or last name or $publicemail is not an integer
-				return false;
+				throw new InvalidArgumentException("The values for 'first name' or 'last name' are invalid.");
 			}
+
+			if(!is_int($publicemail)){$publicemail = intval($publicemail);}
 
 			if($publicemail != 0 && $publicemail != 1){
 				// $publicemail is not 0 or 1
-				return false;
+				throw new InvalidArgumentException("Invalid value for 'public_email'.");
 			}
 
 			$hash = self::getPBKDF2Hash($password);
@@ -122,21 +129,25 @@
 
 			if(!$result){
 				error_log("Couldn't create new account: Insert into '" . self::TABLE_ACCOUNT . "' failed!\nDatabase returned '" . $result . "'");
-				return false;
+				throw new Exception("Unable to access database.");
 			}
 			else{
 				$accId = self::getAccountIdByUserName($dbh, $username);
 				if($accId == -1){
-					error_log("Couldn't create new account: account_id is '-1' (unable to find recently created account).");
+					error_log("Unable to create new account: account_id is '-1' (unable to find recently created account).");
+					throw new Exception("Account verification failed.");
 				}
 
 				$result = DBTools::query($dbh, "INSERT INTO " . self::TABLE_ACCOUNTINFO . "  (account_id, lastname, firstname, show_email_addr) VALUES (:accid, :lastname, :firstname, :publicemail)",
 										 array("accid" => $accId, "lastname" => $lastname, "firstname" => $firstname, "publicemail" => $publicemail));
 
-				if(!$result){
-					error_log("Couldn't create new account: Insert into '" . self::TABLE_ACCOUNTINFO . " ' failed!\nDatabase returned '" . $result . "'");
+				if($result){
+					return $accId;
 				}
-				return $result ? true : false;
+				else{
+					error_log("Unable to create new account: Insert into '" . self::TABLE_ACCOUNTINFO . " ' failed!\nDatabase returned '" . $result . "'");
+					throw new Exception("Unable to access database.");
+				}
 			}
 		}
 
@@ -145,12 +156,14 @@
 		 * @param PDO $dbh Database handler
 		 * @param string $firstname
 		 * @param string $lastname (optional)
-		 * @return boolean <code>true</code> if the account has been created, <code>false</code> if not
+		 * @return integer The account_id of the new account
+		 * @throws InvalidArgumentException
+		 * @throws Exception
 		 */
 		public static function createGuestAccount($dbh, $firstname, $lastname = null){
-			if(!self::isValidRealName($firstname)){return false;}
+			if(!self::isValidRealName($firstname)){throw new InvalidArgumentException("Invalid value for parameter 'firstname'.");}
 			if($lastname != null && $lastname != ""){
-				if(!self::isValidRealName($lastname)){return false;}
+				if(!self::isValidRealName($lastname)){throw new InvalidArgumentException("Invalid value for parameter 'lastname'.");}
 			}
 			else{
 				$lastname = null;
@@ -168,7 +181,7 @@
 			}
 			else{
 				error_log("Error: Unable to get guest account number. Database returned invalid values.");
-				return false;
+				throw new Exception("Unable to access database.");
 			}
 
 			$accTypeId = DBTools::fetchAll($dbh, "SELECT acc_type_id FROM AccountType WHERE name = :acctype", array("acctype" => "guest"));
@@ -179,7 +192,7 @@
 			}
 			else{
 				error_log("Error: Unable to get key for account type 'guest'. Database returned invalid values.");
-				return false;
+				throw new Exception("Account verification failed.");
 			}
 
 			// Build the account name
@@ -190,17 +203,20 @@
 
 			if(!$result){
 				error_log("Unable to create guest account: Insert into '" . self::TABLE_ACCOUNT . "' failed!\nDatabase returned '" . $result . "'");
-				return false;
+				throw new Exception("Unable to access database.");
 			}
 			else{
 				$accId = self::getAccountIdByUserName($dbh, $accName);
 				$result = DBTools::query($dbh, "INSERT INTO " . self::TABLE_ACCOUNTINFO . "  (account_id, lastname, firstname, show_email_addr) VALUES (:accid, :lastname, :firstname, 0)",
 											array("accid" => $accId, "lastname" => $lastname, "firstname" => $firstname));
 
-				if(!$result){
-					error_log("Unable to create guest account: Insert into '" . self::TABLE_ACCOUNTINFO . " ' failed!\nDatabase returned '" . $result . "'");
+				if($result){
+					return $accId;
 				}
-				return $result ? true : false;
+				else{
+					error_log("Unable to create guest account: Insert into '" . self::TABLE_ACCOUNTINFO . " ' failed!\nDatabase returned '" . $result . "'");
+					throw new Exception("Unable to access database.");
+				}
 			}
 		}
 
@@ -302,7 +318,7 @@
 		 */
 		public static function isValidRealName($name){
 			if($name == null || $name == ""){return true;}
-			return preg_match("/^[A-Za-zÄäÖöÜüß ]{1,63}$/", $name);
+			return preg_match("/^[A-Za-zÄäÖöÜüß \-]{1,63}$/", $name);
 		}
 	}
 ?>

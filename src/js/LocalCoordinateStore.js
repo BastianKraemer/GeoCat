@@ -238,7 +238,7 @@ function LocalCoordinateStore(){
 	 * @instance
 	 */
 	this.verifyString = function(str){
-		return (str.match(/[A-Za-z0-9_ ,;\.\!\#\-\*\(\)]{1,63}/g) == str);
+		return (str.match(/[A-Za-z0-9ÄäÖöÜüß_ ,;\.\!\#\-\*\(\)]{1,63}/g) == str);
 	}
 
 	/**

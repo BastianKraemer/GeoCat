@@ -27,16 +27,18 @@
 	require_once(__DIR__ . "/../app/JSONLocale.php");
 	require_once(__DIR__ . "/../app/DBTools.php");
 	require_once(__DIR__ . "/../app/AccountManager.php");
+	require_once(__DIR__ . "/../app/DefaultRequestHandler.php");
 
-	$locale = JSONLocale::withBrowserLanguage($config);
-	$dbh = DBTools::connectToDatabase($config);
+	try{
+		$locale = JSONLocale::withBrowserLanguage($config);
+		$dbh = DBTools::connectToDatabase($config);
 
-	$accountHandler = new AJAXAccountHandler($dbh, $locale);
-	header("Content-Type: text/json; charset=utf-8");
-	if(array_key_exists("cmd", $_POST) && array_key_exists("type", $_POST) && array_key_exists("data", $_POST)){
-		print($accountHandler->handleRequest($_POST["cmd"], $_POST["type"], $_POST["data"]));
+		$accountHandler = new AJAXAccountHandler($dbh, $locale);
+		header("Content-Type: text/json; charset=utf-8");
+
+		print($accountHandler->handleRequest($_POST));
 	}
-	else{
+	catch(Exception $e){
 		print("Invalid request format.");
 	}
 
@@ -57,7 +59,7 @@
 	 * </ul>
 	 *
 	 * You can also test this class using cURL:
-	 * <code>curl -s --data "cmd=check&type=json&data={\"username\":\"[Username]\",\"email\":\"[email]\"}" https://geocat.server/query/account.php</code>
+	 * <code>curl -s --data "cmd=check&username=[Username]&email=[email]" https://geocat.server/query/account.php</code>
 	 */
 	class AJAXAccountHandler {
 
@@ -89,29 +91,41 @@
 		 * @param string $type
 		 * @param array $data
 		 */
-		public function handleRequest($cmd, $type, $data){
+		public function handleRequest($requestParameters){
 
-			$arr;
-			if(strtolower($type) == "json"){
-				$arr = (array) json_decode($data);
-			}
-			else{
-				return self::createResponse("false", "Error: Invalid data type.");
-			}
+			$req = new DefaultRequestHandler($requestParameters);
 
-			if(!(array_key_exists("username", $arr) && array_key_exists("email", $arr))){
-				return self::createResponse("false", "Error: Invalid parameters.");
-			}
+			try{
+				if(!array_key_exists("cmd", $req->data)){
+					throw new InvalidArgumentException("Parameter 'cmd' is not defined.");
+				}
 
-			if($cmd == "check"){
-				return self::checkAccountData($arr["username"], $arr["email"]);
+				$cmd = $req->data["cmd"];
+				$ret;
+
+				if(!array_key_exists("username", $req->data)){
+					$ret = self::createDefaultResponse("false", "Error: Parameter 'username' is not defined." . $req->data["username"]);
+				}
+				else if(!array_key_exists("email", $req->data)){
+					$ret = self::createDefaultResponse("false", "Error: Parameter 'email' is not defined.");
+				}
+				else if($cmd == "check"){
+					$ret = self::checkAccountData($req->data["username"], $req->data["email"]);
+				}
+				else if($cmd == "create"){
+					$ret = self::createAccount($req->data);
+				}
+				else{
+					$ret = self::createDefaultResponse("false", "Error: Invalid command.");
+				}
+
+				return $req->prepareResponse($ret);
 			}
-			else if($cmd == "create"){
-				if(!array_key_exists("password", $arr)){self::createResponse("false", "Error: Parameter 'Password' is not defined.");}
-				return self::createAccount($arr["username"], $arr["password"], $arr["email"], false, $arr);
+			catch(InvalidArgumentException $e){
+				return $req->prepareResponse(self::createDefaultResponse(false, "Invalid request: " . $e->getMessage()));
 			}
-			else{
-				return self::createResponse("false", "Error: Invalid command.");
+			catch(Exception $e){
+				return $req->prepareResponse(array("status" => "error", "msg" => "Internal server error: " . $e->getMessage()));
 			}
 		}
 
@@ -125,16 +139,16 @@
 			$value = AccountManager::accountExists($this->dbh, $username, $email);
 
 			if($value == 1){
-				return self::createResponse("true", "OK");
+				return self::createDefaultResponse("true", "OK");
 			}
 			else if($value == 2){
-				return self::createResponse("true", $this->locale->get("createaccount.notification.email_already_in_use"));
+				return self::createDefaultResponse("true", $this->locale->get("createaccount.notification.email_already_in_use"));
 			}
 			else if($value == 0){
-				return self::createResponse("false", $this->locale->get("createaccount.denied.username_already_in_use"));
+				return self::createDefaultResponse("false", $this->locale->get("createaccount.denied.username_already_in_use"));
 			}
 			else{
-				return self::createResponse("false", $this->locale->get("createaccount.invalid_user_or_email"));
+				return self::createDefaultResponse("false", $this->locale->get("createaccount.invalid_user_or_email"));
 			}
 		}
 
@@ -146,24 +160,30 @@
 		 * @param boolean  $adminRights
 		 * @param array $details
 		 */
-		private function createAccount($username, $password, $email, $adminRights, $details){
+		private function createAccount($data){
+
+			$username = $data["username"];
+			$email = $data["email"];
+
+			if(!array_key_exists("password", $data)){throw InvalidArgumentException("Parameter 'password' is not defined.");}
+			$pw = $data["password"];
 
 			$val = AccountManager::accountExists($this->dbh, $username, $email);
 			if($val > 0){
-				$success = AccountManager::createAccount($this->dbh, $username, $password, $email, $adminRights, $details);
 
-				if($success){
-					return self::createResponse("true", $val == 1 ? "OK" : $this->locale->get("createaccount.notification.email_already_in_use"));
+				try{
+					$accId = AccountManager::createAccount($this->dbh, $username, $pw, $email, false, $data);
+					return self::createDefaultResponse("true", $val == 1 ? "OK" : $this->locale->get("createaccount.notification.email_already_in_use"));
 				}
-				else{
-					return self::createResponse("false", $this->locale->get("createaccount.failed"));
+				catch(InvalidArgumentException $e){
+					return self::createDefaultResponse("false", $this->locale->get("createaccount.failed") . "\\n\\nDetails: " . $e->getMessage());
 				}
 			}
 			else if($val == 0){
-				return self::createResponse("false", $this->locale->get("createaccount.denied.username_already_in_use"));
+				return self::createDefaultResponse("false", $this->locale->get("createaccount.denied.username_already_in_use"));
 			}
 			else{
-				return self::createResponse("false", $this->locale->get("createaccount.invalid_user_or_email"));
+				return self::createDefaultResponse("false", $this->locale->get("createaccount.invalid_user_or_email"));
 			}
 		}
 
@@ -173,8 +193,8 @@
 		 * @param string $msg A message which is asigned to the request
 		 * @return string A JSON object string that can be returned to the sender
 		 */
-		private static function createResponse($result, $msg){
-			return json_encode(array("result" => $result, "msg" => $msg));
+		private static function createDefaultResponse($result, $msg){
+			return array("result" => $result, "msg" => $msg);
 		}
 	}
 ?>

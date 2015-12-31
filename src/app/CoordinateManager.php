@@ -408,7 +408,7 @@
 		 * @return boolean
 		 */
 		public static function isValidCoordinateName($name){
-			return preg_match("/^[A-Za-z0-9_ ,;\.\!\#\-\*\(\)]{1,63}$/", $name);
+			return preg_match("/^[A-Za-z0-9ÄäÖöÜüß_ ,;\.\!\#\-\*\(\)]{1,63}$/", $name);
 		}
 
 		/**

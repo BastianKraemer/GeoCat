@@ -39,7 +39,7 @@
 	<script src="../lib/jquery.js"></script>
 	<script src="../lib/jquery.mobile-1.4.5.js"></script>
 	<!-- </## ../lib/jquery_package.min.js ##> -->
-	
+
 	<script src="../js/tools.js"></script>
 
 	<script type="text/javascript">
@@ -74,19 +74,17 @@
 
 		function sendRequest(command, user, pw, emailAddr, firstName, lastName, emailIsPublic){
 			if(!ajaxSent){
-				var json = JSON.stringify({
-								cmd: command,
-								username: user,
-								password: pw,
-								email: emailAddr,
-								firstname: firstName,
-								lastname: lastName,
-								public_email: emailIsPublic});
-
 				ajaxSent = true;
 
 				$.ajax({type: "POST", url: "../query/account.php",
-					data: { cmd: command, type: "json", data : json },
+					data: { cmd: command,
+							username: user,
+							password: pw,
+							email: emailAddr,
+							firstname: firstName,
+							lastname: lastName,
+							public_email: emailIsPublic
+					},
 					cache: false,
 					success: function(response){
 						ajaxSent = false;
@@ -98,7 +96,8 @@
 						}
 					},
 					error: function(xhr, status, error){
-						Tools.showPopup("Error", "Ajax request failed: " + status, <?php $locale->writeQuoted("okay"); ?>, null);
+						ajaxSent = false;
+						Tools.showPopup("Error", "Ajax request failed: " + error, <?php $locale->writeQuoted("okay"); ?>, null);
 				}});
 			}
 		}

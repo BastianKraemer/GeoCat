@@ -23,7 +23,7 @@
 		}
 
 		/**
-		 * Fetchs all data from a SQL statement
+		 * Fetches all data from a SQL statement
 		 *
 		 * Example:<br>
 		 * <code>
@@ -35,15 +35,16 @@
 		 * @param PDO $dbh PDO database connection
 		 * @param string $sql SQL statement
 		 * @param array $values (optional) Values for the SQL statement
+		 * @return array The fetched data
 		 * @throws PDOException If the SQL statement is invalid or contains at least on undefined parameter
 		 * @throws Exception If the database returned an error
 		 */
-		public static function fetchAll($dbh, $sql, $values = null){
+		public static function fetchAll($dbh, $sql, $values = null, $fetchStyle = PDO::FETCH_BOTH){
 			$stmt = $dbh->prepare($sql);
 
 			$res = ($values == null ? $stmt->execute() : $stmt->execute($values));
 			if($res){
-				return $stmt->fetchAll();
+				return $stmt->fetchAll($fetchStyle);
 			}
 			else{
 				throw new Exception("Error while excuting SQL statement, database returned '" . $res . "'");
@@ -51,10 +52,58 @@
 		}
 
 		/**
+		 * Fetches the first row from an SQL statement
+		 * @param PDO $dbh PDO database connection
+		 * @param string $sql SQL statement
+		 * @param array $values (optional) Values for the SQL statement
+		 * @return array The fetched row
+		 * @throws PDOException If the SQL statement is invalid or contains at least on undefined parameter
+		 * @throws Exception If the database returned an error
+		 */
+		public static function fetch($dbh, $sql, $values = null, $fetchStyle = PDO::FETCH_BOTH){
+			$stmt = $dbh->prepare($sql);
+
+			$res = ($values == null ? $stmt->execute() : $stmt->execute($values));
+			if($res){
+				return $stmt->fetch($fetchStyle);
+			}
+			else{
+				throw new Exception("Error while excuting SQL statement, database returned '" . $res . "'");
+			}
+		}
+
+		/**
+		 * Fetches the first row from an SQL statement without indexes
+		 * @param PDO $dbh PDO database connection
+		 * @param string $sql SQL statement
+		 * @param array $values (optional) Values for the SQL statement
+		 * @return array The fetched row
+		 * @throws PDOException If the SQL statement is invalid or contains at least on undefined parameter
+		 * @throws Exception If the database returned an error
+		 */
+		public static function fetchAssoc($dbh, $sql, $values = null){
+			return self::fetch($dbh, $sql, $values, PDO::FETCH_ASSOC);
+		}
+
+		/**
+		 * Fetches the first row from an SQL statement with indexes as column names
+		 * @param PDO $dbh PDO database connection
+		 * @param string $sql SQL statement
+		 * @param array $values (optional) Values for the SQL statement
+		 * @return array The fetched row
+		 * @throws PDOException If the SQL statement is invalid or contains at least on undefined parameter
+		 * @throws Exception If the database returned an error
+		 */
+		public static function fetchNum($dbh, $sql, $values = null){
+			return self::fetch($dbh, $sql, $values, PDO::FETCH_NUM);
+		}
+
+		/**
 		 * Executes a SQL statement
 		 * @param PDO $dbh
 		 * @param string $sql
 		 * @param array $values
+		 * @return integer Return value of the database
 		 * @throws PDOException If the SQL statement is invalid or contains at least on undefined parameter
 		 */
 		public static function query($dbh, $sql, $values = null){

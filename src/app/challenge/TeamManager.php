@@ -69,6 +69,7 @@
 		}
 
 		public static function checkTeamAccessCode($dbh, $teamId, $accessCode){
+			if(!self::teamExists($dbh, $teamId)){throw new InvalidArgumentException("The requested team does not exists.");}
 			$res = DBTools::fetchAll($dbh, "SELECT access_code FROM ChallengeTeam WHERE team_id = :team", array("team" => $teamId));
 
 			if($res[0][0] == null){return true;}

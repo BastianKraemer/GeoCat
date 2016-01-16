@@ -1,6 +1,6 @@
 <?php
 	/*	GeoCat - Geocaching and -Tracking platform
-	 Copyright (C) 2016 Bastian Kraemer
+	 Copyright (C) 2015-2016 Bastian Kraemer
 
 	 ChallengeManager.php
 
@@ -32,6 +32,18 @@
 				return -1;
 			}
 		}
+
+		public static function getPublicChallengs($dbh){
+			$res = DBTools::fetchAll($dbh,	"SELECT Account.username AS owner_name, Challenge.name, Challenge.description, " .
+												"Challenge.challenge_type_id AS type_id, ChallengeType.full_name AS type_name, " .
+												"Challenge.max_teams, Challenge.max_team_members, Challenge.predefined_teams, " .
+												"Challenge.start_time, Challenge.end_time, Challenge.is_public " .
+											"FROM Challenge, Account, ChallengeType WHERE is_public = 1 AND Challenge.is_enabled = 1 " .
+												"AND Account.account_id = Challenge.owner AND Challenge.challenge_type_id = ChallengeType.challenge_type_id", null, PDO::FETCH_ASSOC);
+
+			return $res;
+		}
+
 		public static function challengeExists($dbh, $challengeId){
 			$res = DBTools::fetchAll($dbh, "SELECT COUNT(challenge_id) FROM Challenge WHERE challenge_id = :id", array("id" => $challengeId));
 
@@ -54,8 +66,8 @@
 			 * current_team_cnt
 			 */
 
-			$res = DBTools::fetchAssoc($dbh,"SELECT Challenge.owner, Account.username AS owner_name, Challenge.name, Challenge.description, " .
-													"Challenge.challenge_type_id AS type_id, ChallengeType.full_name, " .
+			$res = DBTools::fetchAssoc($dbh,"SELECT Challenge.challenge_id, Challenge.owner, Account.username AS owner_name, Challenge.name, Challenge.description, " .
+													"Challenge.challenge_type_id AS type_id, ChallengeType.full_name AS type_name, " .
 													"Challenge.max_teams, Challenge.max_team_members, Challenge.predefined_teams, " .
 													"Challenge.start_time, Challenge.end_time, Challenge.is_public " .
 											"FROM Challenge, Account, ChallengeType " .
@@ -82,6 +94,23 @@
 			return $res;
 		}
 
+		public static function checkChallengeKey($dbh, $challengeId, $sessionkey){
+			$res = DBTools::fetchNum($dbh, "SELECT Challenge.sessionkey FROM Challenge WHERE Challenge.challenge_id = :challengeId",
+										array("challengeId" => $challengeId));
+
+			if($res){
+				if(count($res) == 1){
+					return ($sessionkey == $res[0]);
+				}
+				else{
+					return false;
+				}
+			}
+			else{
+				return false;
+			}
+		}
+
 		public static function getOwner($dbh, $challengeId){
 			$res = DBTools::fetchNum($dbh, "SELECT owner FROM Challenge WHERE challenge_id = :id", array("id" => $challengeId));
 			return $res ? $res[0] : -1;
@@ -99,6 +128,10 @@
 		public static function getMaxMembersPerTeam($dbh, $challengeId){
 			$res = DBTools::fetchNum($dbh, "SELECT max_team_members FROM Challenge WHERE challenge_id = :id", array("id" => $challengeId));
 			return $res ? $res[0] : null;
+		}
+
+		public static function isChallengePublic($dbh, $challengeId){
+			return (self::getSingleValue($dbh, $challengeId, "is_public") == 1);
 		}
 
 		public static function isChallengeEnabled($dbh, $challengeId){
@@ -288,10 +321,9 @@
 
 	abstract class ChallengeType
 	{
-		//$type = ChallengeType::DefaultChallenge;
+		//Usage: $type = ChallengeType::DefaultChallenge;
 		const DefaultChallenge = 0;
 		const CaptureTheFlag = 1;
-
 	}
 
 ?>

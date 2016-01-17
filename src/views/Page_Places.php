@@ -42,7 +42,7 @@
 
 		protected function printContent($config, $locale, $session){
 
-			$this->printHeader($locale->get("places.title"), true, false, $config, $session);
+			self::printHeader($locale->get("places.title"), true, false, $config, $session);
 ?>
 
 	<div role="main" class="ui-content">

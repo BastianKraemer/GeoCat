@@ -16,7 +16,7 @@
 			print("</div>\n");
 		}
 
-		protected function printHeader($title, $homeButton, $externalLink, $config, $session){
+		public static function printHeader($title, $homeButton, $externalLink, $config, $session){
 			print("\t<div data-role=\"header\" data-id=\"page_header\" data-theme=\"b\">\n" .
 					"\t\t<h1>" . $title . "</h1>\n");
 			if($homeButton){

@@ -43,7 +43,7 @@
 
 		protected function printContent($config, $locale, $session){
 
-			$this->printHeader($config["app.name"] . " - ". $locale->get("mainpage.title"), false, false, $config, $session);
+			self::printHeader($config["app.name"] . " - ". $locale->get("mainpage.title"), false, false, $config, $session);
 ?>
 	<div role="main" class="ui-content my-page">
 		<ul data-role="listview" data-inset="true">

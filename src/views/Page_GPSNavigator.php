@@ -7,7 +7,7 @@
 
 		protected function printContent($config, $locale, $session){
 
-			$this->printHeader("GPS Navigator", true, false, $config, $session);
+			self::printHeader("GPS Navigator", true, false, $config, $session);
 ?>
 		<div id="gpsnavigator_content" role="main" class="ui-content my-page">
 			<div id="CanvasFrame">

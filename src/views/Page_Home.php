@@ -51,7 +51,7 @@
 				$this->addDefaultTile("info", "#", ".", $locale);
 				$this->addDefaultTile("map", "#", ".", $locale);
 				$this->addDefaultTile("places", "#places", ".", $locale);
-				$this->addDefaultTile("challenges", "#", ".", $locale);
+				$this->addDefaultTile("challenges", "#challenge_browser", ".", $locale);
 				$this->addDefaultTile("social", "#", ".", $locale);
 				$this->addDefaultTile("navigator", "#gpsnavigator", ".", $locale);
 				$this->addDefaultTile("account", "#", ".", $locale);

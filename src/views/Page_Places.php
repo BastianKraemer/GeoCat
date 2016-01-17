@@ -46,8 +46,8 @@
 ?>
 
 	<div role="main" class="ui-content">
-		<div class="ui-field-contain places_header">
-		<p id="PlacesInformation"></p>
+		<div class="ui-field-contain listview-header">
+		<p id="PlacesInformation" class="page-number-info"></p>
 			<button id="Places_Prev" class="ui-btn ui-btn-inline ui-icon-arrow-l ui-btn-icon-left ui-btn-icon-notext"><?php $locale->write("places.prev_page") ?></button >
 			<button id="Places_Next" class="ui-btn ui-btn-inline ui-icon-arrow-r ui-btn-icon-right ui-btn-icon-notext" style="float:right"><?php $locale->write("places.next_page") ?></button >
 		</div>

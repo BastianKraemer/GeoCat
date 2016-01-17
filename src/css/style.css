@@ -33,8 +33,37 @@ body .ui-page-theme-b {
 }
 
 /* ==============================================================================
+	Listview styles
+============================================================================== */
+
+.page-number-info {
+	position: absolute;
+	text-align: center;
+	width: 100%;
+	margin-top: 0.75em;
+}
+
+.listview-header{
+	margin-top: 0;
+}
+
+.listview-left {
+	float: left;
+}
+
+.listview-right {
+	float: right;
+	font-style: italic;
+}
+
+/* ==============================================================================
 	General styles
 ============================================================================== */
+/*
+body, body div[data-role="page"] {
+	height: auto;
+	min-height: 100% !important;
+}*/
 
 .required {
 	color: #357fb8;
@@ -59,25 +88,6 @@ body .ui-page-theme-b {
 
 #places .ui-content {
 	padding: 0 4px;
-}
-
-.places_header{
-	margin-top: 0;
-}
-
-#PlacesInformation {
-	position: absolute;
-	text-align: center;
-	width: 100%;
-}
-
-.place-name {
-	float: left;
-}
-
-.place-owner {
-	float: right;
-	font-style: italic;
 }
 
 #EditPlacePopup-popup, #GPSNavDestListPopup-popup {

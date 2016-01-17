@@ -33,15 +33,21 @@
 			}
 		}
 
-		public static function getPublicChallengs($dbh){
-			$res = DBTools::fetchAll($dbh,	"SELECT Account.username AS owner_name, Challenge.name, Challenge.description, " .
+		public static function getPublicChallengs($dbh, $limit = -1, $offset = -1){
+			$res = DBTools::fetchAll($dbh,	"SELECT Account.username AS owner_name, Challenge.challenge_id, Challenge.name, Challenge.description, " .
 												"Challenge.challenge_type_id AS type_id, ChallengeType.full_name AS type_name, " .
 												"Challenge.max_teams, Challenge.max_team_members, Challenge.predefined_teams, " .
 												"Challenge.start_time, Challenge.end_time, Challenge.is_public " .
 											"FROM Challenge, Account, ChallengeType WHERE is_public = 1 AND Challenge.is_enabled = 1 " .
-												"AND Account.account_id = Challenge.owner AND Challenge.challenge_type_id = ChallengeType.challenge_type_id", null, PDO::FETCH_ASSOC);
+												"AND Account.account_id = Challenge.owner AND Challenge.challenge_type_id = ChallengeType.challenge_type_id" .
+											($limit > 0 ? " LIMIT " . $limit : "") . ($offset > 0 ? " OFFSET " . $offset : ""),null, PDO::FETCH_ASSOC);
 
 			return $res;
+		}
+
+		public static function countPublicChallenges($dbh){
+			$res = DBTools::fetch($dbh,	"SELECT COUNT(Challenge.challenge_id) FROM Challenge WHERE is_public = 1 AND Challenge.is_enabled = 1", null, PDO::FETCH_NUM);
+			return $res[0];
 		}
 
 		public static function challengeExists($dbh, $challengeId){

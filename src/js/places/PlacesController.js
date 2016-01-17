@@ -325,8 +325,8 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 		var isEditable = (coord_info.owner == login_status.username) ? "true" : "false";
 
 		return 	"<li class=\"place-list-item\" data-role=\"list-divider\">" +
-					"<span class=\"place-name\">#" + number + " " +coord.name + "</span>" +
-					"<span class=\"place-owner\">" + coord_info.owner + "</span></li>" +
+					"<span class=\"listview-left\">#" + number + " " +coord.name + "</span>" +
+					"<span class=\"listview-right\">" + coord_info.owner + "</span></li>" +
 				"<li class=\"place-list-item\" coordinate-id=\"" + coord.coord_id + "\" is-editable=\"" + isEditable + "\"><a class=\"li-clickable\">" +
 					(coord.desc != null ? "<h2>"+ coord.desc + "</h2>" : "") +
 					"<p><strong>Coordinates: </strong>" + coord.lat + ", " + coord.lon + "</p>" +

@@ -23,8 +23,8 @@
 	<link rel="stylesheet" href="./css/style.css">
 
 	<!-- <## ./lib/jquery_package.min.js ##> -->
-	<script src="./lib/jquery.js"></script>
-	<script src="./lib/jquery.mobile-1.4.5.js"></script>
+	<script src="./lib/jquery.min.js"></script>
+	<script src="./lib/jquery.mobile-1.4.5.min.js"></script>
 	<!-- </## ./lib/jquery_package.min.js ##> -->
 
 	<!-- <## ./js/geocat.min.js ##> -->
@@ -42,6 +42,7 @@
         <script src="./js/geotools.js"></script>
 	<!-- </## ./js/gpscat.min.js ##> -->
 
+	<script src="./js/challenges/browse.js"></script>
 
 	<script type="text/javascript">
 
@@ -57,8 +58,11 @@
 
 		var uplink = new Uplink("./");
 		var localCoordStore = new LocalCoordinateStore();
+
+
 		var gpsNavigationController = new GPSNavigationController(localCoordStore, loginStatus, uplink);
 		var placesController = new PlacesController(localCoordStore, loginStatus, uplink, gpsNavigationController);
+		var challengeBrowserController = new BrowseChallengeController(loginStatus, uplink);
 
 		// Some useful (public) methods
 		function getPageHeight(){
@@ -96,6 +100,14 @@
 		// When page "Places" is opened
 		$(document).on("pageshow","#places", placesController.onPageOpened);
 		$(document).on("pagebeforehide","#places", placesController.onPageClosed);
+
+		/* ====================================================================
+		Challenges event handling
+		==================================================================== */
+
+		// When page "Places" is opened
+		$(document).on("pageshow","#challenge_browser", challengeBrowserController.onPageOpened);
+		$(document).on("pagebeforehide","#challenge_browser", challengeBrowserController.onPageClosed);
 	</script>
 
 </head>
@@ -106,14 +118,17 @@
 	require_once(__DIR__ . "/views/Page_Home.php");
 	require_once(__DIR__ . "/views/Page_Places.php");
 	require_once(__DIR__ . "/views/Page_GPSNavigator.php");
+	require_once(__DIR__ . "/views/Page_BrowseChallenges.php");
 
 	$home = new Page_Home();
 	$places = new Page_Places();
 	$gpsNav = new Page_GPSNavigator();
+	$challengeBrowser = new Page_BrowseChallenges();
 
 	$home->printPage($config, $locale, $session);
 	$places->printPage($config, $locale, $session);
 	$gpsNav->printPage($config, $locale, $session);
+	$challengeBrowser->printPage($config, $locale, $session);
 ?>
 </body>
 </html>

@@ -97,7 +97,19 @@
 
 
 		protected function get_challenges(){
-			return ChallengeManager::getPublicChallengs($this->dbh);
+
+			$this->verifyOptionalParameters(array(
+					"limit" => "/\d/",
+					"offset" => "/\d/"
+			));
+
+			$this->assignOptionalParameter("limit", 10);
+			$this->assignOptionalParameter("offset", 0);
+			return ChallengeManager::getPublicChallengs($this->dbh, $this->args["limit"], $this->args["offset"]);
+		}
+
+		protected function count_challenges(){
+			return array("count" => ChallengeManager::countPublicChallenges($this->dbh));
 		}
 
 		protected function get_teams(){

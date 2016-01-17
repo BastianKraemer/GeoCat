@@ -22,7 +22,7 @@
 		 */
 		function __construct($locale, $config) {
 			if(strtolower($locale) == "de"){
-				$this->translations = json_decode(file_get_contents($_SERVER["DOCUMENT_ROOT"] . $config["app.contextroot"] . "/locale/" . $locale . ".json"), true);
+				$this->translations = json_decode(file_get_contents(__DIR__ . "/../locale/" . $locale . ".json"), true);
 			}
 			else{
 				throw new InvalidArgumentException("Unsupported locale: " . $locale);

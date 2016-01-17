@@ -9,6 +9,8 @@
 	 */
 	class DBTools {
 
+		private static $dbh = null;
+
 		/**
 		 * Create a PDO database object by using the default configuration
 		 * @param array $config Application configuration (see "config/config.php")
@@ -20,6 +22,17 @@
 			$dbh = new PDO($config["database.type"] . ":host=" . $config["database.host"] . $port . ";dbname=" . $config["database.name"] . ";charset=utf8", $config["database.username"], $config["database.password"]);
 			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			return $dbh;
+		}
+
+		/**
+		 * Creates a PDO database object and stores it for further usage.
+		 * You can access the database handler by calling this function again.
+		 * @param array $config Application configuration (see "config/config.php")
+		 * @throws PDOException If the connection couldn't be established
+		 */
+		public static function getDatabaseHandler($config){
+			if(self::$dbh == null){self::$dbh = connectToDatabase($config);}
+			return self::$dbh;
 		}
 
 		/**

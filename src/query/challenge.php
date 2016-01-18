@@ -78,7 +78,7 @@
 				"max_team_members" => "/\d/"
 			));
 
-			$this->assignOptionalParameter("isPublic", 0);
+			$this->assignOptionalParameter("is_public", 0);
 			$this->assignOptionalParameter("start_time", null);
 			$this->assignOptionalParameter("end_time", null);
 			$this->assignOptionalParameter("predefined_teams", 0);
@@ -89,7 +89,7 @@
 			if($this->args["type"] == "ctf"){$challengeType = ChallengeType::CaptureTheFlag;}
 
 			$id = ChallengeManager::createChallenge($this->dbh, $this->args["name"], $challengeType, $session->getAccountId(), $this->args["desc"],
-													$this->args["isPublic"], $this->args["start_time"], $this->args["end_time"],
+													$this->args["is_public"], $this->args["start_time"], $this->args["end_time"],
 													$this->args["predefined_teams"], $this->args["max_teams"],  $this->args["max_team_members"]);
 
 			return self::buildResponse(true, array("session_id" => $id));

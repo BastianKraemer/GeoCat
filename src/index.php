@@ -43,6 +43,7 @@
 	<!-- </## ./js/gpscat.min.js ##> -->
 
 	<script src="./js/challenges/browse.js"></script>
+	<link rel="stylesheet" href="./css/substance.css">
 
 	<script type="text/javascript">
 
@@ -62,7 +63,7 @@
 
 		var gpsNavigationController = new GPSNavigationController(localCoordStore, loginStatus, uplink);
 		var placesController = new PlacesController(localCoordStore, loginStatus, uplink, gpsNavigationController);
-		var challengeBrowserController = new BrowseChallengeController(loginStatus, uplink);
+		var challengeBrowserController = new BrowseChallengesController(loginStatus, uplink);
 
 		// Some useful (public) methods
 		function getPageHeight(){

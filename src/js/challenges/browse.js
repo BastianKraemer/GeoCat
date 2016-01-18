@@ -19,10 +19,10 @@
 
 /**
  * Event handling for the "Browse Challenges" page
- * @class BrowseChallengeController
+ * @class BrowseChallengesController
  * @param login_Status {Object} Reference to a login status object
  */
-function BrowseChallengeController(login_Status, myuplink){
+function BrowseChallengesController(login_Status, myuplink){
 
 	// Private variables
 	var uplink = myuplink;
@@ -52,7 +52,7 @@ function BrowseChallengeController(login_Status, myuplink){
 	 *
 	 * @public
 	 * @function onPageOpened
-	 * @memberOf BrowseChallengeController
+	 * @memberOf BrowseChallengesController
 	 * @instance
 	 */
 	this.onPageOpened = function(){
@@ -82,7 +82,7 @@ function BrowseChallengeController(login_Status, myuplink){
 	 *
 	 * @public
 	 * @function onPageClosed
-	 * @memberOf BrowseChallengeController
+	 * @memberOf BrowseChallengesController
 	 * @instance
 	 */
 	this.onPageClosed = function(){
@@ -100,7 +100,7 @@ function BrowseChallengeController(login_Status, myuplink){
 	 * Sends a request to the server to get the first page of the challenge list
 	 *
 	 * @private
-	 * @memberOf BrowseChallengeController
+	 * @memberOf BrowseChallengesController
 	 * @instance
 	 */
 	function loadPublicChallengeListFromServer(){
@@ -121,7 +121,7 @@ function BrowseChallengeController(login_Status, myuplink){
 	 * Sends a <b>COUNT_CHALLENGES</b> command to the server
 	 *
 	 * @private
-	 * @memberOf BrowseChallengeController
+	 * @memberOf BrowseChallengesController
 	 * @instance
 	 */
 	function countPublicChallenges(){
@@ -152,7 +152,7 @@ function BrowseChallengeController(login_Status, myuplink){
 	 * @param data {Object}
 	 *
 	 * @private
-	 * @memberOf BrowseChallengeController
+	 * @memberOf BrowseChallengesController
 	 * @instance
 	 */
 	function updateList(data){
@@ -171,7 +171,7 @@ function BrowseChallengeController(login_Status, myuplink){
 			});
 		}
 		else{
-			list.append("<li><span>" + locale.get("places.empty_list", "No challenge found.") + "</span></li>");
+			list.append("<li><span>" + locale.get("challenge.browse.empty", "There is no public challenge at the moment.") + "</span></li>");
 			list.listview('refresh');
 		}
 		updatePageInfo();
@@ -191,7 +191,7 @@ function BrowseChallengeController(login_Status, myuplink){
 	 * @param start_time {String} Start time of the challenge
 	 *
 	 * @private
-	 * @memberOf BrowseChallengeController
+	 * @memberOf BrowseChallengesController
 	 * @instance
 	 */
 	function generateChallengeItemCode(name, owner, challenge_id, desc, type, start_time){
@@ -202,14 +202,13 @@ function BrowseChallengeController(login_Status, myuplink){
 				"<li class=\"challenge-list-item\" challenge-id=\"" + challenge_id + "\"><a class=\"li-clickable\">" +
 					"<h3>"+ name + "</h3>" +
 					"<p>" + desc + "</p>" +
-					"<p class=\"ui-li-aside\">" + locale.get("challenge.start_date", "Start time:") + "<br>" + start_time + "</p>" +
+					"<p class=\"ui-li-aside\"><i>" + locale.get("challenge.start_date", "Start time:") + "</i><br>" + start_time.replace(" ", "<br>") + "</p>" +
 				"</li>\n";
 	}
 
 	function updatePageInfo(){
 		var numPages = maxPages > 0 ? maxPages : 1;
-		$(htmlElement["page_info"]).html(Tools.sprintf(locale.get("places.page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]) + " " +
-									 	 Tools.sprintf(locale.get("places.count", "(Total number: {0})"), [challengeCount]));
+		$(htmlElement["page_info"]).html(Tools.sprintf(locale.get("page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]));
 	}
 
 	/*
@@ -219,7 +218,6 @@ function BrowseChallengeController(login_Status, myuplink){
 	 */
 
 	function challenge_OnClick(el){
-
 		var cId = $(el).parent().attr("challenge-id");
 	}
 }

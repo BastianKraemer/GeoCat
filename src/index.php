@@ -331,10 +331,9 @@
 					success: function(response){
 						var result = JSON.parse(response);
 						if(result.login){
-							console.log("true");
 							location.href = 'index.php';
 						} else {
-							console.log("false");
+							//trigger window shake
 						}
 					}
 				});
@@ -348,22 +347,26 @@
 		
 		<div role="main" class="ui-content">
 			<form id="form-login" action="./app/content/login.php" method="POST">
-				<label for="useremail">E-Mail Adresse:</label>
-				<input type="text" id="useremail" name="useremail" value="" placeholder="E-Mail-Adresse" maxlength="50" required="required">
-				<label for="userpassword">Passwort:</label>
-				<input type="password" id="userpassword" name="userpassword" value="" placeholder="Passwort" maxlength="50" autocomplete="off" required="required">
+				<label for="useremail"><?php $locale->write("createaccount.email"); ?>:</label>
+				<input type="text" id="useremail" name="useremail" value="" placeholder="<?php $locale->write('createaccount.email'); ?>" maxlength="50" required="required">
+				<label for="userpassword"><?php $locale->write("createaccount.password"); ?>:</label>
+				<input type="password" id="userpassword" name="userpassword" value="" placeholder="<?php $locale->write('createaccount.password'); ?>" maxlength="50" autocomplete="off" required="required">
 				<p>
 					<input type="checkbox" id="rememberme" name="rememberme">
-					<label for="rememberme">Angemeldet bleiben</label>
+					<label for="rememberme"><?php $locale->write("createaccount.rememberme"); ?></label>
 				</p>
 				<div class="ui-grid-a ui-responsive">
 					<div class="ui-block-a">
-						<a id="login-back" href="#home" role="button" data-transition="fade" data-direction="reverse" class="ui-btn ui-corner-all">Zurück</a>
+						<a id="login-back" href="#home" role="button" data-transition="fade" data-direction="reverse" class="ui-btn ui-corner-all"><?php $locale->write("back"); ?></a>
 					</div>
 					<div class="ui-block-b">
-						<input type="submit" value="Senden">
+						<input type="submit" value="<?php $locale->write('send'); ?>">
 					</div>
 				</div>
+				<p>
+					<h2><?php $locale->write("createaccount.question.noaccount"); ?>?</h2>
+				</p>
+				<a href="./sites/signup.php" role="button" class="ui-btn ui-corner-all"><?php $locale->write("createaccount.confirm"); ?></a>
 			</form>
 		</div>
 	</div>

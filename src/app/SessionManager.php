@@ -32,7 +32,7 @@
 		public function login($dbh, $accountid, $password){
 			if(AccountManager::checkPassword($dbh, $accountid, $password) == 1){
 				$username = AccountManager::getUserNameByAccountId($dbh, $accountid);
-				$this->performLogin($dbh, $accountid, $username);
+				self::performLogin($dbh, $accountid, $username);
 				return true;
 			}
 			else{
@@ -47,10 +47,10 @@
 		 * @param string $username The username that belongs to this account id
 		 */
 		private function performLogin($dbh, $accountid, $username){
-			$this->logout();
+			self::logout();
 			$_SESSION["username"] = $username;
 			$_SESSION["accountid"] = $accountid;
-			$res = DBTools::query($dbh, "UPDATE AccountInformation SET last_login = CURRENT_TIMESTAMP WHERE account_id = :accid", array("accid" => $accountid));#
+			$res = DBTools::query($dbh, "UPDATE AccountInformation SET last_login = CURRENT_TIMESTAMP WHERE account_id = :accid", array("accid" => $accountid));
 			if(!$res){
 				error_log("Error: Unable to update 'last_login' attribute of user '" . $username . " (Accountid: " . $accountid . ").");
 			}

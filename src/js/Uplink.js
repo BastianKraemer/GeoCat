@@ -241,7 +241,6 @@ function Uplink(pathToRootDirectory){
 }
 
 function redirectHome(xhttp){
-	//console.log("logout erfolgreich");
 	location.href = 'index.php';
 }
 
@@ -249,11 +248,10 @@ function sendRequest(toUrl, body, cfunc){
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function(){
 		if(xhttp.readyState == 4 && xhttp.status == 200){
-			if(typeof cfunc == 'function'){
-				cfunc(xhttp);
-			}
+			if(typeof cfunc == 'function'){ cfunc(xhttp); }
 		}
 	}
 	xhttp.open("POST", toUrl);
-	xhttp.send(body);	
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(body);
 }

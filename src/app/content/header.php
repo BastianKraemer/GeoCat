@@ -14,7 +14,7 @@
 			<div data-role="controlgroup" data-type="horizontal" class="ui-btn-right">
 				<!-- link zu "Account" -->
 				<a href="#" data-transition="fade" class="loginbutton ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-user"><?php echo $session->getUsername() ?></a>
-				<button onclick="sendRequest('query/logout.php', 'logout=true', redirectHome);" class="loginbutton ui-btn ui-btn-inline ui-mini ui-corner-all">Logout</a>
+				<button onclick="sendRequest('app/content/logout.php', 'logout=true', redirectHome);" class="loginbutton ui-btn ui-btn-inline ui-mini ui-corner-all">Logout</a>
 			</div>
 		<?php else: ?>
 			<a href="#login" data-transition="fade" class="loginbutton ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-user">Login</a>

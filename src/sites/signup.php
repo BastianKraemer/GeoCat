@@ -138,7 +138,7 @@
 
 				<div class="ui-grid-a ui-responsive">
 					<div class="ui-block-a">
-						<a id="login-back" href="./../../" role="button" class="ui-btn ui-corner-all"><?php $locale->write("back"); ?></a>
+						<a id="login-back" href="./../" role="button" class="ui-btn ui-corner-all"><?php $locale->write("back"); ?></a>
 					</div>
 					<div class="ui-block-b">
 						<input id="CreateAccount" type="button" value="<?php $locale->write("createaccount.confirm"); ?>">

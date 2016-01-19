@@ -17,7 +17,7 @@
 		public static function connectToDatabase($config){
 			$port = ($config["database.port"] != "" ? ";port=" . $config["database.port"] : "");
 			// Establish connection to database
-			$dbh = new PDO($config["database.type"] . ":host=" . $config["database.host"] . $port . ";dbname=" . $config["database.name"] . ";charset=utf8", $config["database.username"], $config["database.password"]);
+			$dbh = new PDO($config["database.type"] . ":host=" . $config["database.host"] . $port . ";dbname=" . $config["database.name"], $config["database.username"], $config["database.password"]);
 			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			return $dbh;
 		}

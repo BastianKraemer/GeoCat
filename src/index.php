@@ -46,6 +46,7 @@
 	<script src="./js/LoginController.js"></script>
 	<script src="./js/Logout.js"></script>
 	<script src="./js/challenges/browse.js"></script>
+	<script src="./js/GPS.js"></script>
 	<link rel="stylesheet" href="./css/substance.css">
 
 	<script type="text/javascript">

@@ -49,6 +49,7 @@ function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 		updateCanvasSize();
 		prepareCanvas();
 		window.addEventListener('resize', updateCanvasSize, true);
+		GPS.start();
 	}
 
 	/**
@@ -65,6 +66,7 @@ function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 		ctx.restore();
 		ctx.setTransform(1, 0, 0, 1, 0, 0);
 		window.removeEventListener('resize', updateCanvasSize, false);
+		GPS.stop();
 	}
 
 	/**
@@ -77,12 +79,12 @@ function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 	 * @instance
 	 */
 	this.update = function(){
-		var lastGPSPosition = gpsnav.getGPSPos();
+		var lastGPSPosition = GPS.get();
 		if(lastGPSPosition == null){return;}
 
 		var lat = lastGPSPosition.coords.latitude;
 		var lon = lastGPSPosition.coords.longitude;
-		var heading = gpsnav.getHeading();
+		var heading = GPS.getHeading();
 		var accuracy = lastGPSPosition.coords.accuracy;
 		var speed =  lastGPSPosition.coords.speed;
 		var timestamp = lastGPSPosition.timestamp;

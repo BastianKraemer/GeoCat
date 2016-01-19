@@ -102,7 +102,7 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 		$(htmlElement["button_add_coordinate"]).click(function(e){
 			if(pages["gpsnavigator"] == null){return;}
 
-			var lastGPSPos = pages["gpsnavigator"].getGPSPos();
+			var lastGPSPos = GPS.get();
 			if(lastGPSPos != null){
 				showCoordinateEditDialog(null, "", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude, true);
 			}

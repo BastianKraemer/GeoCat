@@ -376,19 +376,22 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 
 		// If latitude and longitude are empty, try to get the latest coordinate from the GPSNavigatior
 		if(latitude == "" && longitude == ""){
-			var gpspos = gpsNav.getNavigatorInstance().getGPSPos();
-			if(gpspos != null){
-				latitude = gpspos.coords.latitude;
-				longitude = gpspos.coords.longitude;
-			}
+			$(htmlElement["field_lat"]).val("");
+			$(htmlElement["field_lon"]).val("");
+
+			GPS.getOnce(function(pos){
+				if($(htmlElement["field_lat"]).val() == "" && $(htmlElement["field_lon"]).val("")){
+					$(htmlElement["field_lat"]).val(pos.coords.latitude);
+					$(htmlElement["field_lon"]).val(pos.coords.longitude);
+				}
+			});
 		}
 
 		// Insert the values into the HTML form
 		disableSaveButton(false);
 		$(htmlElement["field_name"]).val(name);
 		$(htmlElement["field_desc"]).val(description);
-		$(htmlElement["field_lat"]).val(latitude);
-		$(htmlElement["field_lon"]).val(longitude);
+
 		$(htmlElement["field_ispublic"]).prop("checked", (isPublic == true || isPublic == 1)).checkboxradio('refresh');
 
 		$(htmlElement["popup"]).attr("coordinate-id", coordId);

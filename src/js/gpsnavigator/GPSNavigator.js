@@ -29,9 +29,6 @@
 function GPSNavigator(canvas_container){
 
 	var container = canvas_container;
-	var currentHeading = 0;
-	var gpsWatchId = -1;
-	var lastGPSPosition = null;
 	var updateTimer = null;
 	var preferences = {rotate: true, debug_info: true, offline_mode: false};
 	var gpsDisplay = null;
@@ -76,34 +73,6 @@ function GPSNavigator(canvas_container){
 	};
 
 	/**
-	 * Returns the latest GPS position that is availabe to this class
-	 * @returns {Object} The object that is provided by the <code>navigator.geolocation.watchPosition</code> callback
-	 *
-	 * @public
-	 * @function getGPSPos
-	 * @memberOf GPSNavigator
-	 * @instance
-	 */
-	this.getGPSPos = function getGPSPosition(){
-		return lastGPSPosition;
-	}
-
-	/**
-	 * Returns the current heading that has been calculated by the movement of the device.
-	 * The value is based on the HTML5 geolocation heading value, but will keep the last angle if the device stops moving.
-	 * The HTML5 geolocation API ist described here: http://www.w3.org/TR/geolocation-API/#heading
-	 * @returns {Number} The heading is counted in degrees clockwise from north (0 <= heading < 360).
-	 *
-	 * @public
-	 * @function getHeading
-	 * @memberOf GPSNavigator
-	 * @instance
-	 */
-	this.getHeading = function(){
-		return currentHeading;
-	}
-
-	/**
 	 * Starts the {@link GPSNavigator}. This should be called when the GPS Navigator page is opened.
 	 *
 	 * @public
@@ -118,7 +87,7 @@ function GPSNavigator(canvas_container){
 		}
 		gpsDisplay = new GPSRadar(container, this, localCoordStore);
 		gpsDisplay.start();
-		watchGPSPosition();
+		startTimer();
 	}
 
 	/**
@@ -130,11 +99,6 @@ function GPSNavigator(canvas_container){
 	 * @instance
 	 */
 	this.stopNavigator = function(){
-		if(gpsWatchId != -1){
-			navigator.geolocation.clearWatch(gpsWatchId);
-			gpsWatchId = -1;
-		}
-
 		stopTimer();
 		if(gpsDisplay != null){gpsDisplay.stop(); gpsDisplay = null;}
 	}
@@ -149,55 +113,6 @@ function GPSNavigator(canvas_container){
 		if(updateTimer != null){
 			clearInterval(updateTimer);
 			updateTimer = null;
-		}
-	}
-
-	/**
-	 * Starts watching the GPS location of the device
-	 *
-	 * @private
-	 * @memberOf GPSNavigator
-	 * @instance
-	 */
-	function watchGPSPosition(){
-		if(gpsWatchId == -1){
-			if (navigator.geolocation) {
-				//navigator.geolocation.getCurrentPosition(update);
-
-				// enableHighAccuracy: Use GPS
-				gpsWatchId = navigator.geolocation.watchPosition(newGPSPositionReceived, gpsErrorHandler, {enableHighAccuracy: true});
-			} else {
-				alert("Geolocation is not supported by this browser.");
-				return;
-			}
-		}
-		startTimer();
-	}
-
-	function newGPSPositionReceived(gpspos){
-		lastGPSPosition = gpspos;
-
-		if(preferences.rotate){
-			if(gpspos.coords.heading != null && !isNaN(gpspos.coords.heading) && gpspos.coords.heading != 0){
-				currentHeading = gpspos.coords.heading.toFixed(0);
-			}
-		}
-		else{
-			currentHeading = 0;
-		}
-	}
-
-	function gpsErrorHandler(err) {
-		if(gpsWatchId != -1){
-			navigator.geolocation.clearWatch(gpsWatchId);
-			gpsWatchId = -1;
-		}
-
-		if(err.code == 1) {
-			alert("Error: Access to GPS denied!");
-		}
-		else if( err.code == 2) {
-			alert("Error: Position is unavailable!");
 		}
 	}
 }

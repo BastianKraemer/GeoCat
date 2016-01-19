@@ -70,15 +70,15 @@ body, body div[data-role="page"] {
 }
 
 /* ==============================================================================
-	GPS Navigator
+	GPS Radar
 ============================================================================== */
 
-#NavigatorCanvas {
+canvas.gpsradar {
 	width: 100%;
 	height: 100%;
 }
 
-#CanvasFrame{
+.gpsradar-container {
 	margin: 0px auto;
 }
 

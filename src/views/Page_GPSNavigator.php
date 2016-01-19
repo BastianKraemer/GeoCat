@@ -10,8 +10,8 @@
 			self::printHeader("GPS Navigator", true, false, $config, $session);
 ?>
 		<div id="gpsnavigator_content" role="main" class="ui-content my-page">
-			<div id="CanvasFrame">
-				<canvas id="NavigatorCanvas"></canvas>
+			<div class="gpsradar-container">
+				<canvas id="NavigatorCanvas" class="gpsradar"></canvas>
 			</div>
 		</div>
 

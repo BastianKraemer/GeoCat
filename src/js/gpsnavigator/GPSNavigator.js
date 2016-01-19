@@ -32,7 +32,7 @@ function GPSNavigator(canvas_container){
 	var updateTimer = null;
 	var preferences = {rotate: true, debug_info: true, offline_mode: false};
 	var gpsDisplay = null;
-
+	var localCoordStore = null;
 	/**
 	 * Sets a preference of the navigator
 	 *
@@ -80,12 +80,15 @@ function GPSNavigator(canvas_container){
 	 * @memberOf GPSNavigator
 	 * @instance
 	 */
-	this.startNavigator = function(localCoordStore){
+	this.startNavigator = function(localCoordinateStore){
 		if(gpsDisplay != null){
 			stopTimer();
 			gpsDisplay.stop();
+
 		}
-		gpsDisplay = new GPSRadar(container, this, localCoordStore);
+
+		localCoordStore = localCoordinateStore;
+		gpsDisplay = new GPSRadar(container, $("#NavigatorCanvas")[0]);
 		gpsDisplay.start();
 		startTimer();
 	}
@@ -105,8 +108,12 @@ function GPSNavigator(canvas_container){
 
 	function startTimer(){
 		if(updateTimer == null){
-			updateTimer = setInterval(gpsDisplay.update, 2000);
+			updateTimer = setInterval(updateGPSDisplay, 2000);
 		}
+	}
+
+	function updateGPSDisplay(){
+		gpsDisplay.update(localCoordStore.getCurrentNavigation());
 	}
 
 	function stopTimer(){

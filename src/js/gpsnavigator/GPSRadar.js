@@ -20,22 +20,20 @@
 /**
  * This class displays the coordinates by using a HTML5 canvas
  * @class GPSRadar
- * @param canvas_container {HTMLElement} The target HTML5 canvas
- * @param gpsNavigator {GPSNavigator} Reference to the {@link GPSNavigator}
- * @param localCoordinateStore {LocalCoordinateStore} Reference to a {@link LocalCoordinateStore} object
+ * @param jQueryMobileContentDivElement {HTMLElement} The jQuery Mobile content area
+ * @param targetCanvas {HTMLElement} The target HTML5 canvas
  */
-function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
+function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 
 	//TODO: Append a "buffer zone" between canvas and its border to prevent cut text
 
 	var maxDisplayedDistance = 1000; //distance between window border and center (in meters)
-	var container = canvas_container;
-	var canvas = $("#NavigatorCanvas")[0];
-	var canvasFrame = $("#CanvasFrame")[0];
+	var jQueryMobileContentDiv = jQueryMobileContentDivElement;
+	var canvas = targetCanvas;
+	var canvasFrame = targetCanvas.parentElement;
 	var preferedCanvasSize;
 	var canvasAxisLength = 500;
-	var gpsnav = gpsNavigator;
-	var localCoordStore = localCoordinateStore;
+	var showDebugInfos = true;
 
 	/**
 	 * Starts the {@link GPSRadar}
@@ -50,7 +48,7 @@ function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 		prepareCanvas();
 		window.addEventListener('resize', updateCanvasSize, true);
 		GPS.start();
-	}
+	};
 
 	/**
 	 * Stops the {@link GPSRadar}
@@ -67,18 +65,19 @@ function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 		ctx.setTransform(1, 0, 0, 1, 0, 0);
 		window.removeEventListener('resize', updateCanvasSize, false);
 		GPS.stop();
-	}
+	};
 
 	/**
 	 * Updates the HTML5 canvas with the latest information.<br />
 	 * This function has to be called cyclic.
+	 * @param coords {Object.<String, Coordinate>} Map of all coordinates
 	 *
 	 * @public
 	 * @function update
 	 * @memberOf GPSRadar
 	 * @instance
 	 */
-	this.update = function(){
+	this.update = function(coords){
 		var lastGPSPosition = GPS.get();
 		if(lastGPSPosition == null){return;}
 
@@ -104,7 +103,6 @@ function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 		drawGrid(ctx, heading);
 		ctx.font = "14px Arial";
 		ctx.fillStyle = 'red';
-		var coords = localCoordStore.getCurrentNavigation();
 
 		for(var key in coords) {;
 			var distanceInMeter = GeoTools.calculateDistance(lon, lat, coords[key].lon, coords[key].lat) * 1000;
@@ -123,7 +121,7 @@ function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 			ctx.fillText(distanceInMeter.toFixed(0) + "m", relativePosition[0], relativePosition[1] + 24);
 		}
 
-		if(gpsnav.getPreferences().debug_info){
+		if(showDebugInfos){
 			ctx.fillStyle = 'green';
 			ctx.fillText(heading + "°", canvasAxisLength * -1, -1 * canvasAxisLength + 10);
 			ctx.fillText(lat.toFixed(6), canvasAxisLength * -1, -1 * canvasAxisLength + 30);
@@ -134,7 +132,11 @@ function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 				ctx.fillText(speed.toFixed(1) + "m/s", canvasAxisLength * -1, -1 * canvasAxisLength + 110);
 			}
 		}
-	}
+	};
+
+	this.debugMode = function(value){
+		showDebugInfos = value;
+	};
 
 	function prepareCanvas(){
 		var ctx = canvas.getContext("2d");
@@ -148,7 +150,7 @@ function GPSRadar(canvas_container, gpsNavigator, localCoordinateStore){
 
 	function updateCanvasSize(){
 		var h = getPageHeight();
-		var w = container.offsetWidth;
+		var w = jQueryMobileContentDiv.offsetWidth;
 		var offset = 40;
 
 		if(w > h){

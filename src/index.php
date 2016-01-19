@@ -56,6 +56,7 @@
 	<link rel="stylesheet" href="./css/jquery.mobile-1.4.5.min.css">
 	<link rel="stylesheet" href="./css/listview-grid.css">
 	<link rel="stylesheet" href="./css/style.css">
+	<link rel="stylesheet" href="./css/animations.css">
 
 	<!-- <## ./lib/jquery_package.min.js ##> -->
 	<script src="./lib/jquery.js"></script>
@@ -318,13 +319,15 @@
 	Login
 	================================================================================
 	-->
-	<div id="login" data-role="page" data-dialog="true" data-close-btn="none" data-theme="a">
+	<div id="login" data-role="page" data-dialog="true" data-close-btn="none" data-theme="a" class="">
 		
 		<script>
 		$(document).ready(function(){
 			var cookie;
 			if((cookie = getCookie("GEOCAT"))){
-				console.log(cookie);
+				cookie = JSON.parse(window.unescape(cookie));
+				document.getElementById('useremail').value = cookie.email;
+				document.getElementById('userpassword').value = cookie.pass;
 			}
 			$("#form-login").submit(function(e){
 				e.preventDefault();
@@ -338,6 +341,11 @@
 							location.href = 'index.php';
 						} else {
 							//trigger window shake
+							var page = document.getElementById('login');
+							page.classList.add('shake-horizontal');
+							setTimeout(function(){
+								page.classList.remove('shake-horizontal');
+							}, 500);
 						}
 					}
 				});

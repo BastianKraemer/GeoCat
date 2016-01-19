@@ -94,6 +94,17 @@
 		public function printLoginStatusAsJSON(){
 			print "{isSignedIn: " . ($this->isSignedIn() ? "true" : "false") . ", username: \"" . $this->getUsername() . "\"}";
 		}
+		
+		/**
+		 * Create new cookie with json encoded content
+		 * @param string name		name of cookie
+		 * @param string data		content of cookie
+		 * @param int expire		lifetime of cookie, default: expires at end of session
+		 * @param string path		available domain-level (and below), default: entire domain
+		 */
+		public function createCookie($name, $data, $expire = 0, $path = "/"){
+			return setcookie($name, json_encode($data), ($expire > 0 ? time()+$expire : $expire), $path);
+		}
 	}
 
 	/**

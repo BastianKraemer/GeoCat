@@ -322,6 +322,10 @@
 		
 		<script>
 		$(document).ready(function(){
+			var cookie;
+			if((cookie = getCookie("GEOCAT"))){
+				console.log(cookie);
+			}
 			$("#form-login").submit(function(e){
 				e.preventDefault();
 				$.ajax({

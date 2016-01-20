@@ -44,6 +44,19 @@
 				"mainpage.tiles." . $tilename . ".aside",
 				$target, $imgsrc);
 	}
+	
+	/**
+	 * @ignore
+	 */
+	function printInputTextField($nameAndId, $isPasswordField, $labelTranslationKey, $isRequiredField, $maxCharacters){
+		global $locale;
+
+		print("<div class=\"ui-field-contain\">\n" .
+				"<label for=\"" . $nameAndId . "\">" . $locale->get($labelTranslationKey) . ":" . ($isRequiredField ? " <span class=\"required\">*</span>" : "") . "</label>\n" .
+				"<input id=\"" . $nameAndId . "\" name=\"" . $nameAndId . "\" type=\"" . ($isPasswordField ? "password" : "text") . "\" value=\"\" placeholder=\"" . $locale->get($labelTranslationKey) . "\" maxlength=" . $maxCharacters . ">\n" .
+			  "</div>");
+	}
+	
 ?>
 
 <!DOCTYPE html>
@@ -359,8 +372,8 @@
 		
 		<div role="main" class="ui-content">
 			<form id="form-login" action="./app/content/login.php" method="POST">
-				<label for="useremail"><?php $locale->write("createaccount.email"); ?>:</label>
-				<input type="text" id="useremail" name="useremail" value="" placeholder="<?php $locale->write('createaccount.email'); ?>" maxlength="50" required="required">
+				<label for="useremail"><?php $locale->write("createaccount.question.emailorusername"); ?>:</label>
+				<input type="text" id="useremail" name="useremail" value="" placeholder="<?php $locale->write('createaccount.question.emailorusername'); ?>" maxlength="50" required="required">
 				<label for="userpassword"><?php $locale->write("createaccount.password"); ?>:</label>
 				<input type="password" id="userpassword" name="userpassword" value="" placeholder="<?php $locale->write('createaccount.password'); ?>" maxlength="50" autocomplete="off" required="required">
 				<!--
@@ -380,9 +393,108 @@
 				<p>
 					<h2><?php $locale->write("createaccount.question.noaccount"); ?>?</h2>
 				</p>
-				<a href="./sites/signup.php" role="button" class="ui-btn ui-corner-all"><?php $locale->write("createaccount.confirm"); ?></a>
+				<a href="#page_createaccount" role="button" class="ui-btn ui-corner-all"><?php $locale->write("createaccount.confirm"); ?></a>
 			</form>
 		</div>
+	</div>
+	
+	<!--
+	================================================================================
+	Signup
+	================================================================================
+	-->
+	<div data-role="page" id="page_createaccount" data-theme="a" >
+		
+		<script type="text/javascript">
+		var ajaxSent = false;
+		$(document).on("pagecreate", function(event){
+
+			$("#CreateAccount").click(function(){
+				var usrname = $("#Form_CreateAccount_username").val();
+				var email = $("#Form_CreateAccount_email").val();
+				var pw1 = $("#Form_CreateAccount_password").val();
+				var pw2 = $("#Form_CreateAccount_password_confirm").val();
+
+				if(usrname != "" && email != "" && pw1 != "" && pw2 != ""){
+					if(pw1 == pw2){
+						signupRequest("create",
+									usrname,
+									pw1,
+									email,
+									$("#Form_CreateAccount_firstname").val(),
+									$("#Form_CreateAccount_lastname").val(),
+									$("Form_CreateAccount_public_email").is(":checked") ? 1 : 0);
+					}
+					else{
+						Tools.showPopup(<?php $locale->writeQuoted("notification"); ?>, <?php $locale->writeQuoted("signup.passwords_not_equal"); ?>,  <?php $locale->writeQuoted("okay"); ?>, null);
+					}
+				}
+				else{
+					Tools.showPopup(<?php $locale->writeQuoted("notification"); ?>, <?php $locale->writeQuoted("signup.fill_required_fields"); ?>, <?php $locale->writeQuoted("okay"); ?>, null);
+				}
+			});
+		});
+
+		function signupRequest(command, user, pw, emailAddr, firstName, lastName, emailIsPublic){
+			if(!ajaxSent){
+				ajaxSent = true;
+
+				$.ajax({type: "POST", url: "./query/account.php",
+					data: { cmd: command,
+							username: user,
+							password: pw,
+							email: emailAddr,
+							firstname: firstName,
+							lastname: lastName,
+							public_email: emailIsPublic
+					},
+					cache: false,
+					success: function(response){
+						ajaxSent = false;
+						if(response["result"] == "true"){
+							Tools.showPopup(<?php $locale->writeQuoted("signup.account_created"); ?>, <?php $locale->writeQuoted("signup.account_created_msg"); ?>, <?php $locale->writeQuoted("okay"); ?>, function(){ location.href="./index.php"; });
+						}
+						else{
+							Tools.showPopup("Error", response["msg"], <?php $locale->writeQuoted("okay"); ?>, null);
+						}
+					},
+					error: function(xhr, status, error){
+						ajaxSent = false;
+						Tools.showPopup("Error", "Ajax request failed: " + error, <?php $locale->writeQuoted("okay"); ?>, null);
+				}});
+			}
+		}
+		</script>
+		
+		<?php printHeader($config["app.name"] . " - ". $locale->get("createaccount.title"), true, true, $config, $session); ?>
+		<div role="main" class="ui-content my-page">
+			<form id="form-signup" name="form-signup">
+				<h3><?php $locale->write("createaccount.headline"); ?></h3>
+				<?php
+					printInputTextField("Form_CreateAccount_username", false, "createaccount.username", true, 63);
+					printInputTextField("Form_CreateAccount_password", true, "createaccount.password", true, 63);
+					printInputTextField("Form_CreateAccount_password_confirm", true, "createaccount.password_confirm", true, 63);
+					printInputTextField("Form_CreateAccount_email", false, "createaccount.email", true, 63);
+				?>
+				<hr />
+				<?php
+					printInputTextField("Form_CreateAccount_firstname", false, "createaccount.firstname", false, 63);
+					printInputTextField("Form_CreateAccount_lastname", false, "createaccount.lastname", false, 63);
+				?>
+				<div class="ui-field-contain">
+					<label for="Form_CreateAccount_public_email"><?php $locale->write("createaccount.public_email"); ?></label>
+					<input id="Form_CreateAccount_public_email" data-role="flipswitch" name="Form_CreateAccount_public_email" type="checkbox">
+				</div>
+				<div class="ui-grid-a ui-responsive">
+					<div class="ui-block-a">
+						<a href="#home" role="button" class="ui-btn ui-corner-all"><?php $locale->write("back"); ?></a>
+					</div>
+					<div class="ui-block-b">
+						<input id="CreateAccount" type="button" value="<?php $locale->write("createaccount.confirm"); ?>">
+					</div>
+				</div>
+			</form>
+		</div><!-- /content -->
 	</div>
 	
 </body>

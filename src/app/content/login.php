@@ -12,7 +12,10 @@ if(isset($_REQUEST['useremail']) && isset($_REQUEST['userpassword'])):
     $userpassword = $_REQUEST['userpassword'];
     $config = require_once("../../config/config.php");
     $dbh = DBTools::connectToDatabase($config);
-    $res = DBTools::fetchAll($dbh, "select * from account where email = :email;", array(':email' => $useremail));
+    $sql = "SELECT * FROM Account WHERE ";
+    $isValid = $account->isValidEMailAddr($useremail);
+    $sql = $sql . ($isValid ? "email = :email;" : "username = :username;");
+    $res = DBTools::fetchAll($dbh, $sql, array(($isValid ? ':email' : ':username') => $useremail));
     foreach ($res as $row):
         if($session->login($dbh, $row['account_id'], $userpassword)):
             if(isset($_REQUEST['rememberme']) && $_REQUEST['rememberme'] == 'on'):

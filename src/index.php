@@ -363,10 +363,12 @@
 				<input type="text" id="useremail" name="useremail" value="" placeholder="<?php $locale->write('createaccount.email'); ?>" maxlength="50" required="required">
 				<label for="userpassword"><?php $locale->write("createaccount.password"); ?>:</label>
 				<input type="password" id="userpassword" name="userpassword" value="" placeholder="<?php $locale->write('createaccount.password'); ?>" maxlength="50" autocomplete="off" required="required">
+				<!--
 				<p>
 					<input type="checkbox" id="rememberme" name="rememberme">
-					<label for="rememberme"><?php $locale->write("createaccount.rememberme"); ?></label>
+					<label for="rememberme"><?php //$locale->write("createaccount.rememberme"); ?></label>
 				</p>
+				-->
 				<div class="ui-grid-a ui-responsive">
 					<div class="ui-block-a">
 						<a id="login-back" href="#home" role="button" data-transition="fade" data-direction="reverse" class="ui-btn ui-corner-all"><?php $locale->write("back"); ?></a>

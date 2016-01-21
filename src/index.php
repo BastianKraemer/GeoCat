@@ -452,7 +452,7 @@
 					success: function(response){
 						ajaxSent = false;
 						if(response["result"] == "true"){
-							Tools.showPopup(<?php $locale->writeQuoted("signup.account_created"); ?>, <?php $locale->writeQuoted("signup.account_created_msg"); ?>, <?php $locale->writeQuoted("okay"); ?>, function(){ console.log('reload index.php'); location.href="./index.php"; });
+							Tools.showPopup(<?php $locale->writeQuoted("signup.account_created"); ?>, <?php $locale->writeQuoted("signup.account_created_msg"); ?>, <?php $locale->writeQuoted("okay"); ?>, function(){ location.href="./index.php"; });
 						}
 						else{
 							Tools.showPopup("Error", response["msg"], <?php $locale->writeQuoted("okay"); ?>, null);

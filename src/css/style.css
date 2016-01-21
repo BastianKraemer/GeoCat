@@ -27,7 +27,7 @@ div[role="navigation"] ul li a {
 /*
 	Overwrite the default background
 */
-body .ui-page-theme-b {
+body .ui-page-theme-b, .gray-color-gradient {
 	background-color: white !important;
 	background-image: linear-gradient(#FFF 0%, #A4A4A4 100%) !important;
 }

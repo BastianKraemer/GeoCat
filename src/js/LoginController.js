@@ -22,10 +22,12 @@ function LoginController(){
 				}
 			});
 		});
+		$("body").addClass("gray-color-gradient");
 	};
 
 	this.pageClosed = function(){
 		$("#form-login").unbind();
+		$("body").removeClass("gray-color-gradient");
 	};
 }
 

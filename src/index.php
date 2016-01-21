@@ -92,7 +92,7 @@
 		==================================================================== */
 
 		$(document).on("pageshow","#login", LoginController.onPageOpened);
-		$(document).on("pagebeforehide","#login", LoginController.onPageOpened);
+		$(document).on("pagebeforehide","#login", LoginController.onPageClosed);
 
 		/* ====================================================================
 			 GPS Navigator Eventhandling

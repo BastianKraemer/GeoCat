@@ -22,8 +22,8 @@ if(isset($_REQUEST['useremail']) && isset($_REQUEST['userpassword'])):
                 $session->createCookie("GEOCAT", array("email" => $useremail, "pass" => $account->getPBKDF2Hash($userpassword)[0]), (60*60*24*30));
             endif;
             echo json_encode(array("login" => true));
+            return;
         endif;
-        return;
     endforeach;
 endif;
 echo json_encode(array("login" => false));

@@ -59,6 +59,7 @@
 	<link rel="stylesheet" href="../css/jquery.mobile-1.4.5.min.css">
 	<link rel="stylesheet" href="../css/listview-grid.css">
 	<link rel="stylesheet" href="../css/style.css">
+	<link rel="stylesheet" href="../css/animations.css">
 
 	<!-- <## ../lib/jquery_package.min.js ##> -->
 	<script src="../lib/jquery.min.js"></script>
@@ -67,9 +68,13 @@
 
 	<script src="../js/tools.js"></script>
 	<script src="../js/Logout.js"></script>
+	<script src="../js/LoginController.js"></script>
 
 	<script type="text/javascript">
 		var ajaxSent = false;
+
+		LoginController.init("../");
+
 		$(document).on("pagecreate", function(event){
 
 			$("#CreateAccount").click(function(){
@@ -185,5 +190,12 @@
 			</form>
 		</div>
 	</div>
+
+	<?php
+		require_once(__DIR__ . "/../views/Page_Login.php");
+
+		$loginPage = new Page_Login();
+		$loginPage->printPage($config, $locale, $session);
+	?>
 </body>
 </html>

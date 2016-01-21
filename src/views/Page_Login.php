@@ -17,7 +17,7 @@
 			</div>
 
 			<div role="main" class="ui-content">
-				<form id="form-login" action="./query/login.php" method="POST">
+				<form id="form-login" action="<?php print($config["app.contextroot"] . "/query/login.php"); ?>" method="POST">
 					<label for="useremail"><?php $locale->write("login.email_or_username"); ?>:</label>
 					<input type="text" id="useremail" name="useremail" value="" placeholder="<?php $locale->write('login.email_or_username'); ?>" maxlength="50" required="required">
 					<label for="userpassword"><?php $locale->write("createaccount.password"); ?>:</label>

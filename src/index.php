@@ -91,8 +91,7 @@
 			Login page event handling
 		==================================================================== */
 
-		$(document).on("pageshow","#login", LoginController.onPageOpened);
-		$(document).on("pagebeforehide","#login", LoginController.onPageClosed);
+		LoginController.init("./");
 
 		/* ====================================================================
 			 GPS Navigator Eventhandling
@@ -137,16 +136,11 @@
 		$page->printPage($config, $locale, $session);
 	}
 
-	$home = new Page_Home();
-	$places = new Page_Places();
-	$gpsNav = new Page_GPSNavigator();
-	$challengeBrowser = new Page_BrowseChallenges();
-
-	$home->printPage($config, $locale, $session);
+	printPage(new Page_Home());
 	printPage(new Page_Login());
-	$places->printPage($config, $locale, $session);
-	$gpsNav->printPage($config, $locale, $session);
-	$challengeBrowser->printPage($config, $locale, $session);
+	printPage(new Page_Places());
+	printPage(new Page_GPSNavigator());
+	printPage(new Page_BrowseChallenges());
 
 ?>
 

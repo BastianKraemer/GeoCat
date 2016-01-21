@@ -10,7 +10,7 @@ function LoginController(){
 				success: function(response){
 					var result = JSON.parse(response);
 					if(result.login){
-						location.href = 'index.php';
+						location.href = LoginController.pathToRoot  + "index.php";
 					} else {
 						//trigger window shake
 						var page = document.getElementById('login');
@@ -32,6 +32,7 @@ function LoginController(){
 }
 
 LoginController.currentInstance = null;
+LoginController.pathToRoot = "./";
 
 LoginController.onPageOpened = function(){
 	LoginController.currentInstance = new LoginController();
@@ -41,4 +42,10 @@ LoginController.onPageOpened = function(){
 LoginController.onPageClosed = function(){
 	LoginController.currentInstance.pageClosed();
 	LoginController.currentInstance = null;
+}
+
+LoginController.init = function(pathToRoot){
+	LoginController.pathToRoot = pathToRoot;
+	$(document).on("pageshow", "#login", LoginController.onPageOpened);
+	$(document).on("pagebeforehide", "#login", LoginController.onPageClosed);
 }

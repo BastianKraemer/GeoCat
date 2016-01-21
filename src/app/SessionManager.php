@@ -50,7 +50,7 @@
 			$this->logout();
 			$_SESSION["username"] = $username;
 			$_SESSION["accountid"] = $accountid;
-			$res = DBTools::query($dbh, "UPDATE AccountInformation SET last_login = CURRENT_TIMESTAMP WHERE account_id = :accid", array("accid" => $accountid));#
+			$res = DBTools::query($dbh, "UPDATE AccountInformation SET last_login = CURRENT_TIMESTAMP WHERE account_id = :accid", array("accid" => $accountid));
 			if(!$res){
 				error_log("Error: Unable to update 'last_login' attribute of user '" . $username . " (Accountid: " . $accountid . ").");
 			}
@@ -93,6 +93,17 @@
 		 */
 		public function printLoginStatusAsJSON(){
 			print "{isSignedIn: " . ($this->isSignedIn() ? "true" : "false") . ", username: \"" . $this->getUsername() . "\"}";
+		}
+		
+		/**
+		 * Create new cookie with json encoded content
+		 * @param string name		name of cookie
+		 * @param string data		content of cookie
+		 * @param int expire		lifetime of cookie, default: expires at end of session
+		 * @param string path		available domain-level (and below), default: entire domain
+		 */
+		public function createCookie($name, $data, $expire = 0, $path = "/"){
+			return setcookie($name, json_encode($data), ($expire > 0 ? time()+$expire : $expire), $path);
 		}
 	}
 

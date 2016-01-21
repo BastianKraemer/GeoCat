@@ -28,6 +28,7 @@
 	require_once(__DIR__ . "/../app/DBTools.php");
 	require_once(__DIR__ . "/../app/AccountManager.php");
 	require_once(__DIR__ . "/../app/DefaultRequestHandler.php");
+	require_once(__DIR__ . "/../app/SessionManager.php");
 
 	try{
 		$locale = JSONLocale::withBrowserLanguage($config);
@@ -172,8 +173,12 @@
 			if($val > 0){
 
 				try{
-					$accId = AccountManager::createAccount($this->dbh, $username, $pw, $email, false, $data);
-					return self::createDefaultResponse("true", $val == 1 ? "OK" : $this->locale->get("createaccount.notification.email_already_in_use"));
+					if($val == 1):
+						$accId = AccountManager::createAccount($this->dbh, $username, $pw, $email, false, $data);
+						$session = new SessionManager();
+						$session->login($this->dbh, $accId, $pw);
+					endif;
+					return ($val == 1 ? self::createDefaultResponse("true", "OK") : self::createDefaultResponse("false", $this->locale->get("createaccount.notification.email_already_in_use")));
 				}
 				catch(InvalidArgumentException $e){
 					return self::createDefaultResponse("false", $this->locale->get("createaccount.failed") . "\\n\\nDetails: " . $e->getMessage());

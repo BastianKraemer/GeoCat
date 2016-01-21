@@ -1,11 +1,17 @@
 <?php
 
+require_once("../app/SessionManager.php");
+
+$session = new SessionManager();
+
 if(isset($_REQUEST["logout"])){
-    if(strcmp($_REQUEST["logout"], "true")){
-        $session = new SessionManager();
+    if($_REQUEST["logout"] == "true"){
         $session->logout();
-        return;
+        echo "true";
+    } else {
+        echo "false";
     }
+    return;
 }
 
 ?>

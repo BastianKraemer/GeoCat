@@ -7,7 +7,8 @@ email VARCHAR(64) ,
 type INTEGER NOT NULL DEFAULT 0 ,
 is_administrator SMALLINT NOT NULL DEFAULT 0 ,
 PRIMARY KEY (account_id),
-UNIQUE (username)
+UNIQUE (username),
+UNIQUE (email)
 );
 
 CREATE TABLE Place (
@@ -36,7 +37,7 @@ my_position_timestamp TIMESTAMP ,
 last_login TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
 creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
 failed_login_timestamp TIMESTAMP ,
-UNIQUE (account_id)
+PRIMARY KEY (account_id)
 );
 
 CREATE TABLE Coordinate (
@@ -61,7 +62,7 @@ max_team_members INTEGER NOT NULL DEFAULT 4 ,
 start_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
 end_time TIMESTAMP ,
 is_public SMALLINT NOT NULL DEFAULT 0 ,
-is_visible SMALLINT NOT NULL DEFAULT 0 ,
+is_enabled SMALLINT NOT NULL DEFAULT 0 ,
 PRIMARY KEY (challenge_id),
 UNIQUE (sessionkey)
 );
@@ -76,8 +77,8 @@ CREATE TABLE ChallengeCoord (
 challenge_coord_id  SERIAL NOT NULL ,
 challenge_id INTEGER NOT NULL ,
 coord_id INTEGER NOT NULL ,
-index INTEGER NOT NULL ,
-code VARCHAR(16) ,
+priority INTEGER NOT NULL DEFAULT 0 ,
+code VARCHAR(32) ,
 verify_user_pos SMALLINT ,
 captured_by INTEGER ,
 capture_time TIMESTAMP ,
@@ -94,19 +95,20 @@ UNIQUE (account_id, friend_id)
 CREATE TABLE ChallengeTeam (
 team_id  SERIAL NOT NULL ,
 challenge_id INTEGER NOT NULL ,
-name VARCHAR(64) NOT NULL ,
+name VARCHAR(32) NOT NULL ,
 color VARCHAR(24) NOT NULL ,
-max_members INTEGER NOT NULL DEFAULT -1 ,
-immutable_teamname SMALLINT NOT NULL DEFAULT 0 ,
+access_code VARCHAR(16) ,
+is_predefined SMALLINT NOT NULL DEFAULT 0 ,
 starttime TIMESTAMP ,
 PRIMARY KEY (team_id),
-UNIQUE (team_id, challenge_id)
+UNIQUE (team_id, challenge_id),
+UNIQUE (challenge_id, name)
 );
 
 CREATE TABLE ChallengeCheckpoint (
 challenge_coord_id INTEGER NOT NULL ,
 team_id INTEGER NOT NULL ,
-time TIMESTAMP ,
+time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
 UNIQUE (team_id, challenge_coord_id)
 );
 
@@ -125,6 +127,12 @@ PRIMARY KEY (challenge_type_id)
 
 CREATE TABLE GuestAccount (
 next_number INTEGER NOT NULL 
+);
+
+CREATE TABLE LoginToken (
+account_id INTEGER NOT NULL ,
+token VARCHAR(64) NOT NULL ,
+PRIMARY KEY (account_id)
 );
 
 ALTER TABLE Account ADD FOREIGN KEY (type) REFERENCES AccountType (acc_type_id);
@@ -146,3 +154,4 @@ ALTER TABLE Friends ADD FOREIGN KEY (friend_id) REFERENCES Account (account_id);
 ALTER TABLE ChallengeTeam ADD FOREIGN KEY (challenge_id) REFERENCES Challenge (challenge_id);
 ALTER TABLE ChallengeCheckpoint ADD FOREIGN KEY (challenge_coord_id) REFERENCES ChallengeCoord (challenge_coord_id);
 ALTER TABLE ChallengeCheckpoint ADD FOREIGN KEY (team_id) REFERENCES ChallengeTeam (team_id);
+ALTER TABLE LoginToken ADD FOREIGN KEY (account_id) REFERENCES Account (account_id);

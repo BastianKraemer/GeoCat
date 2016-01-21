@@ -2,6 +2,7 @@
 -- PostgreSQL Cleanup file
 -- ---
 
+DROP TABLE IF EXISTS LoginToken CASCADE;
 DROP TABLE IF EXISTS Place CASCADE;
 DROP TABLE IF EXISTS CurrentNavigation CASCADE;
 DROP TABLE IF EXISTS AccountInformation CASCADE;

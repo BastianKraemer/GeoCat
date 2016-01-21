@@ -46,7 +46,6 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 	htmlElement["popup_title"] = "#EditPlacePopup_Title";
 	htmlElement["popup_save"] = "#EditPlacePopup_Save";
 	htmlElement["popup_delete"] = "#EditPlacePopup_Delete";
-	htmlElement["popup_close"] = "#EditPlacePopup_Close";
 	htmlElement["field_name"] = "#EditPlacePopup_Name";
 	htmlElement["field_lat"] = "#EditPlacePopup_Lat";
 	htmlElement["field_lon"] = "#EditPlacePopup_Lon";
@@ -106,10 +105,6 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 
 		$(htmlElement["popup_save"]).click(editPlace_SaveButton_OnClick);
 
-		$(htmlElement["popup_close"]).click(function(){
-			closePopup();
-		});
-
 		$(htmlElement["popup_delete"]).click(editPlace_DeleteButton_OnClick);
 	}
 
@@ -129,7 +124,6 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 		$(htmlElement["button_new_place"]).unbind();
 		$(htmlElement["popup_save"]).unbind();
 		$(htmlElement["popup_delete"]).unbind();
-		$(htmlElement["popup_close"]).unbind();
 	}
 
 	/*
@@ -148,7 +142,7 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 	function requestMyPlaces(){
 		currentPage = 0;
 		currentlyShowingPrivatePlaces = true;
-		sendRequest();
+		sendHTTPRequest();
 	}
 
 	/**
@@ -161,7 +155,7 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 	function requestPublicPlaces(){
 		currentPage = 0;
 		currentlyShowingPrivatePlaces = false;
-		sendRequest();
+		sendHTTPRequest();
 	}
 
 	/**
@@ -177,7 +171,7 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 	 * @memberOf PlacesController
 	 * @instance
 	 */
-	function sendRequest(){
+	function sendHTTPRequest(){
 		countPlaces(currentlyShowingPrivatePlaces);
 		requestPlaces(currentPage, currentlyShowingPrivatePlaces);
 		highlightButtons();
@@ -325,8 +319,8 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 		var isEditable = (coord_info.owner == login_status.username) ? "true" : "false";
 
 		return 	"<li class=\"place-list-item\" data-role=\"list-divider\">" +
-					"<span class=\"place-name\">#" + number + " " +coord.name + "</span>" +
-					"<span class=\"place-owner\">" + coord_info.owner + "</span></li>" +
+					"<span class=\"listview-left\">#" + number + " " +coord.name + "</span>" +
+					"<span class=\"listview-right\">" + coord_info.owner + "</span></li>" +
 				"<li class=\"place-list-item\" coordinate-id=\"" + coord.coord_id + "\" is-editable=\"" + isEditable + "\"><a class=\"li-clickable\">" +
 					(coord.desc != null ? "<h2>"+ coord.desc + "</h2>" : "") +
 					"<p><strong>Coordinates: </strong>" + coord.lat + ", " + coord.lon + "</p>" +
@@ -349,7 +343,7 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 
 	function updatePageInfo(){
 		var numPages = maxPages > 0 ? maxPages : 1;
-		$("#PlacesInformation").html(Tools.sprintf(locale.get("places.page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]) + " " +
+		$("#PlacesInformation").html(Tools.sprintf(locale.get("page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]) + " " +
 									 Tools.sprintf(locale.get("places.count", "(Total number: {0})"), [allPlacesCount]));
 	}
 

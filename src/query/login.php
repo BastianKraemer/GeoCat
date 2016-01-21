@@ -1,8 +1,8 @@
 <?php
 
-require_once("../DBTools.php");
-require_once("../SessionManager.php");
-require_once("../AccountManager.php");
+require_once("../app/DBTools.php");
+require_once("../app/SessionManager.php");
+require_once("../app/AccountManager.php");
 
 $session = new SessionManager();
 $account = new AccountManager();
@@ -10,7 +10,7 @@ $account = new AccountManager();
 if(isset($_REQUEST['useremail']) && isset($_REQUEST['userpassword'])):
     $useremail = $_REQUEST['useremail'];
     $userpassword = $_REQUEST['userpassword'];
-    $config = require_once("../../config/config.php");
+    $config = require("../config/config.php");
     $dbh = DBTools::connectToDatabase($config);
     $sql = "SELECT * FROM Account WHERE ";
     $isValid = $account->isValidEMailAddr($useremail);
@@ -22,8 +22,8 @@ if(isset($_REQUEST['useremail']) && isset($_REQUEST['userpassword'])):
                 $session->createCookie("GEOCAT", array("email" => $useremail, "pass" => $account->getPBKDF2Hash($userpassword)[0]), (60*60*24*30));
             endif;
             echo json_encode(array("login" => true));
+            return;
         endif;
-        return;
     endforeach;
 endif;
 echo json_encode(array("login" => false));

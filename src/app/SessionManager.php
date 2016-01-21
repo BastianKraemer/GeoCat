@@ -94,7 +94,7 @@
 		public function printLoginStatusAsJSON(){
 			print "{isSignedIn: " . ($this->isSignedIn() ? "true" : "false") . ", username: \"" . $this->getUsername() . "\"}";
 		}
-		
+
 		/**
 		 * Create new cookie with json encoded content
 		 * @param string name		name of cookie

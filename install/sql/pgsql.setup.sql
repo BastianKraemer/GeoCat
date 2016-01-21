@@ -7,7 +7,8 @@ email VARCHAR(64) ,
 type INTEGER NOT NULL DEFAULT 0 ,
 is_administrator SMALLINT NOT NULL DEFAULT 0 ,
 PRIMARY KEY (account_id),
-UNIQUE (username)
+UNIQUE (username),
+UNIQUE (email)
 );
 
 CREATE TABLE Place (
@@ -36,7 +37,7 @@ my_position_timestamp TIMESTAMP ,
 last_login TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
 creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
 failed_login_timestamp TIMESTAMP ,
-UNIQUE (account_id)
+PRIMARY KEY (account_id)
 );
 
 CREATE TABLE Coordinate (
@@ -78,7 +79,7 @@ challenge_id INTEGER NOT NULL ,
 coord_id INTEGER NOT NULL ,
 priority INTEGER NOT NULL DEFAULT 0 ,
 code VARCHAR(32) ,
-verify_user_pos SMALLINT(1) ,
+verify_user_pos SMALLINT ,
 captured_by INTEGER ,
 capture_time TIMESTAMP ,
 PRIMARY KEY (challenge_coord_id),
@@ -100,7 +101,8 @@ access_code VARCHAR(16) ,
 is_predefined SMALLINT NOT NULL DEFAULT 0 ,
 starttime TIMESTAMP ,
 PRIMARY KEY (team_id),
-UNIQUE (team_id, challenge_id)
+UNIQUE (team_id, challenge_id),
+UNIQUE (challenge_id, name)
 );
 
 CREATE TABLE ChallengeCheckpoint (
@@ -127,6 +129,12 @@ CREATE TABLE GuestAccount (
 next_number INTEGER NOT NULL 
 );
 
+CREATE TABLE LoginToken (
+account_id INTEGER NOT NULL ,
+token VARCHAR(64) NOT NULL ,
+PRIMARY KEY (account_id)
+);
+
 ALTER TABLE Account ADD FOREIGN KEY (type) REFERENCES AccountType (acc_type_id);
 ALTER TABLE Place ADD FOREIGN KEY (coord_id) REFERENCES Coordinate (coord_id);
 ALTER TABLE Place ADD FOREIGN KEY (account_id) REFERENCES Account (account_id);
@@ -146,3 +154,4 @@ ALTER TABLE Friends ADD FOREIGN KEY (friend_id) REFERENCES Account (account_id);
 ALTER TABLE ChallengeTeam ADD FOREIGN KEY (challenge_id) REFERENCES Challenge (challenge_id);
 ALTER TABLE ChallengeCheckpoint ADD FOREIGN KEY (challenge_coord_id) REFERENCES ChallengeCoord (challenge_coord_id);
 ALTER TABLE ChallengeCheckpoint ADD FOREIGN KEY (team_id) REFERENCES ChallengeTeam (team_id);
+ALTER TABLE LoginToken ADD FOREIGN KEY (account_id) REFERENCES Account (account_id);

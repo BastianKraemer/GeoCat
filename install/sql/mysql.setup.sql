@@ -21,7 +21,8 @@ CREATE TABLE `Account` (
   `type` INTEGER NOT NULL DEFAULT 0,
   `is_administrator` TINYINT NOT NULL DEFAULT 0,
   PRIMARY KEY (`account_id`),
-  UNIQUE KEY (`username`)
+  UNIQUE KEY (`username`),
+  UNIQUE KEY (`email`)
 );
 
 -- ---
@@ -71,7 +72,7 @@ CREATE TABLE `AccountInformation` (
   `last_login` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `creation_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `failed_login_timestamp` TIMESTAMP NULL DEFAULT NULL,
-  UNIQUE KEY (`account_id`)
+  PRIMARY KEY (`account_id`)
 );
 
 -- ---
@@ -141,7 +142,7 @@ CREATE TABLE `ChallengeCoord` (
   `coord_id` INTEGER NOT NULL,
   `priority` INTEGER NOT NULL DEFAULT 0,
   `code` VARCHAR(32) NULL DEFAULT NULL,
-  `verify_user_pos` TINYINT(1) NULL DEFAULT NULL,
+  `verify_user_pos` TINYINT NULL DEFAULT NULL,
   `captured_by` INTEGER NULL DEFAULT NULL,
   `capture_time` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`challenge_coord_id`),
@@ -177,7 +178,8 @@ CREATE TABLE `ChallengeTeam` (
   `is_predefined` TINYINT NOT NULL DEFAULT 0,
   `starttime` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`team_id`),
-  UNIQUE KEY (`team_id`, `challenge_id`)
+  UNIQUE KEY (`team_id`, `challenge_id`),
+  UNIQUE KEY (`challenge_id`, `name`)
 );
 
 -- ---
@@ -233,6 +235,19 @@ CREATE TABLE `GuestAccount` (
 );
 
 -- ---
+-- Table 'LoginToken'
+-- 
+-- ---
+
+DROP TABLE IF EXISTS `LoginToken`;
+
+CREATE TABLE `LoginToken` (
+  `account_id` INTEGER NOT NULL,
+  `token` VARCHAR(64) NOT NULL,
+  PRIMARY KEY (`account_id`)
+);
+
+-- ---
 -- Foreign Keys 
 -- ---
 
@@ -255,4 +270,5 @@ ALTER TABLE `Friends` ADD FOREIGN KEY (friend_id) REFERENCES `Account` (`account
 ALTER TABLE `ChallengeTeam` ADD FOREIGN KEY (challenge_id) REFERENCES `Challenge` (`challenge_id`);
 ALTER TABLE `ChallengeCheckpoint` ADD FOREIGN KEY (challenge_coord_id) REFERENCES `ChallengeCoord` (`challenge_coord_id`);
 ALTER TABLE `ChallengeCheckpoint` ADD FOREIGN KEY (team_id) REFERENCES `ChallengeTeam` (`team_id`);
+ALTER TABLE `LoginToken` ADD FOREIGN KEY (account_id) REFERENCES `Account` (`account_id`);
 

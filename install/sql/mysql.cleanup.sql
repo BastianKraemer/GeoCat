@@ -2,6 +2,7 @@
 -- MySQL Cleanup file
 -- ---
 
+DROP TABLE IF EXISTS `LoginToken`;
 DROP TABLE IF EXISTS `Place`;
 DROP TABLE IF EXISTS `CurrentNavigation`;
 DROP TABLE IF EXISTS `AccountInformation`;

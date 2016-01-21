@@ -84,11 +84,11 @@
 				var maxMebersPerTeam = $("#form-cc-max-team-members").val();
 
 				//Send Request and replace the 'T's in the timestamp
-				sendRequest(name, desc, type, isPublic, starttime.replace("T", " "), endtime.replace("T", " "), predefTeams, maxTeams, maxMebersPerTeam);
+				sendCreateChallengeRequest(name, desc, type, isPublic, starttime.replace("T", " "), endtime.replace("T", " "), predefTeams, maxTeams, maxMebersPerTeam);
 			});
 		});
 
-		function sendRequest(challengeName, description, challengeType, isPublic, starttime, endtime, predefTeams, maxTeams, maxMembersPerTeam){
+		function sendCreateChallengeRequest(challengeName, description, challengeType, isPublic, starttime, endtime, predefTeams, maxTeams, maxMembersPerTeam){
 			if(!ajaxSent){
 				ajaxSent = true;
 

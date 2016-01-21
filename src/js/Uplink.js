@@ -265,10 +265,6 @@ function Uplink(pathToRootDirectory){
 	}
 }
 
-function redirectHome(xhttp){
-	location.href = 'index.php';
-}
-
 function sendRequest(toUrl, body, cfunc){
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function(){

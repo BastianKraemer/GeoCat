@@ -142,7 +142,7 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 	function requestMyPlaces(){
 		currentPage = 0;
 		currentlyShowingPrivatePlaces = true;
-		sendRequest();
+		sendHTTPRequest();
 	}
 
 	/**
@@ -155,7 +155,7 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 	function requestPublicPlaces(){
 		currentPage = 0;
 		currentlyShowingPrivatePlaces = false;
-		sendRequest();
+		sendHTTPRequest();
 	}
 
 	/**
@@ -171,7 +171,7 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 	 * @memberOf PlacesController
 	 * @instance
 	 */
-	function sendRequest(){
+	function sendHTTPRequest(){
 		countPlaces(currentlyShowingPrivatePlaces);
 		requestPlaces(currentPage, currentlyShowingPrivatePlaces);
 		highlightButtons();

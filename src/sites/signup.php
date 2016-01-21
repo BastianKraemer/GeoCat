@@ -55,7 +55,7 @@
 
 				if(usrname != "" && email != "" && pw1 != "" && pw2 != ""){
 					if(pw1 == pw2){
-						sendRequest("create",
+						sendCreateAccountRequest("create",
 									usrname,
 									pw1,
 									email,
@@ -73,7 +73,7 @@
 			});
 		});
 
-		function sendRequest(command, user, pw, emailAddr, firstName, lastName, emailIsPublic){
+		function sendCreateAccountRequest(command, user, pw, emailAddr, firstName, lastName, emailIsPublic){
 			if(!ajaxSent){
 				ajaxSent = true;
 

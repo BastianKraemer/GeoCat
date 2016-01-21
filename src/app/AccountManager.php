@@ -126,7 +126,7 @@
 			}
 
 			$hash = self::getPBKDF2Hash($password);
-			$result = DBTools::query($dbh, "INSERT INTO " . self::TABLE_ACCOUNT . " (account_id, username, password, salt, email, is_administrator) VALUES (NULL, :user, :pw, :salt, :email, :admin)",
+			$result = DBTools::query($dbh, "INSERT INTO " . self::TABLE_ACCOUNT . " (account_id, username, password, salt, email, is_administrator) VALUES (DEFAULT, :user, :pw, :salt, :email, :admin)",
 									 array("user" => $username, "pw" => $hash[0], "salt" => $hash[1], "email" => $email, "admin" => $isAdmin ? 1 : 0));
 
 			if(!$result){

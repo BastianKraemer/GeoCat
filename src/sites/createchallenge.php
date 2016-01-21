@@ -66,6 +66,7 @@
 	<!-- </## ../lib/jquery_package.min.js ##> -->
 
 	<script src="../js/tools.js"></script>
+	<script src="../js/Logout.js"></script>
 
 	<script type="text/javascript">
 		var ajaxSent = false;

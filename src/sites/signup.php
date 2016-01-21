@@ -36,11 +36,12 @@
 	<link rel="stylesheet" href="../css/style.css">
 
 	<!-- <## ../lib/jquery_package.min.js ##> -->
-	<script src="../lib/jquery.js"></script>
-	<script src="../lib/jquery.mobile-1.4.5.js"></script>
+	<script src="../lib/jquery.min.js"></script>
+	<script src="../lib/jquery.mobile-1.4.5.min.js"></script>
 	<!-- </## ../lib/jquery_package.min.js ##> -->
 
 	<script src="../js/tools.js"></script>
+	<script src="../js/Logout.js"></script>
 
 	<script type="text/javascript">
 		var ajaxSent = false;
@@ -89,7 +90,8 @@
 					success: function(response){
 						ajaxSent = false;
 						if(response["result"] == "true"){
-							Tools.showPopup(<?php $locale->writeQuoted("signup.account_created"); ?>, <?php $locale->writeQuoted("signup.account_created_msg"); ?>, <?php $locale->writeQuoted("okay"); ?>, null);
+							Tools.showPopup(<?php $locale->writeQuoted("signup.account_created"); ?>, <?php $locale->writeQuoted("signup.account_created_msg"); ?>, <?php $locale->writeQuoted("okay"); ?>,
+											function(){location.href="../index.php";});
 						}
 						else{
 							Tools.showPopup("Error", response["msg"], <?php $locale->writeQuoted("okay"); ?>, null);
@@ -145,7 +147,7 @@
 					</div>
 				</div>
 			</form>
-		</div><!-- /content -->
+		</div>
 	</div>
 </body>
 </html>

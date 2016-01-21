@@ -17,12 +17,10 @@ function Uplink(pathToRootDirectory){
 						var result = JSON.parse(response);
 						if(result.status == "ok"){
 							successCallback(result);
-						}
-						else{
+						} else{
 							errorCallback(result);
 						}
-					}
-					else{
+					} else {
 						successCallback(response);
 					}
 				},
@@ -265,4 +263,20 @@ function Uplink(pathToRootDirectory){
 						null,
 						ajaxERROR);
 	}
+}
+
+function redirectHome(xhttp){
+	location.href = 'index.php';
+}
+
+function sendRequest(toUrl, body, cfunc){
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function(){
+		if(xhttp.readyState == 4 && xhttp.status == 200){
+			if(typeof cfunc == 'function'){ cfunc(xhttp); }
+		}
+	}
+	xhttp.open("POST", toUrl);
+	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhttp.send(body);
 }

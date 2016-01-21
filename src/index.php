@@ -21,6 +21,7 @@
 	<link rel="stylesheet" href="./css/jquery.mobile-1.4.5.min.css">
 	<link rel="stylesheet" href="./css/listview-grid.css">
 	<link rel="stylesheet" href="./css/style.css">
+	<link rel="stylesheet" href="./css/animations.css">
 
 	<!-- <## ./lib/jquery_package.min.js ##> -->
 	<script src="./lib/jquery.min.js"></script>
@@ -42,6 +43,8 @@
         <script src="./js/geotools.js"></script>
 	<!-- </## ./js/gpscat.min.js ##> -->
 
+	<script src="./js/LoginController.js"></script>
+	<script src="./js/Logout.js"></script>
 	<script src="./js/challenges/browse.js"></script>
 	<link rel="stylesheet" href="./css/substance.css">
 
@@ -85,6 +88,13 @@
 		});
 
 		/* ====================================================================
+			Login page event handling
+		==================================================================== */
+
+		$(document).on("pageshow","#login", LoginController.onPageOpened);
+		$(document).on("pagebeforehide","#login", LoginController.onPageOpened);
+
+		/* ====================================================================
 			 GPS Navigator Eventhandling
 		 ==================================================================== */
 
@@ -117,9 +127,15 @@
 <?php
 
 	require_once(__DIR__ . "/views/Page_Home.php");
+	require_once(__DIR__ . "/views/Page_Login.php");
 	require_once(__DIR__ . "/views/Page_Places.php");
 	require_once(__DIR__ . "/views/Page_GPSNavigator.php");
 	require_once(__DIR__ . "/views/Page_BrowseChallenges.php");
+
+	function printPage($page){
+		global $config, $locale, $session;
+		$page->printPage($config, $locale, $session);
+	}
 
 	$home = new Page_Home();
 	$places = new Page_Places();
@@ -127,9 +143,12 @@
 	$challengeBrowser = new Page_BrowseChallenges();
 
 	$home->printPage($config, $locale, $session);
+	printPage(new Page_Login());
 	$places->printPage($config, $locale, $session);
 	$gpsNav->printPage($config, $locale, $session);
 	$challengeBrowser->printPage($config, $locale, $session);
+
 ?>
+
 </body>
 </html>

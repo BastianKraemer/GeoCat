@@ -113,7 +113,7 @@ function GPSNavigator(canvas_container){
 	}
 
 	function updateGPSDisplay(){
-		gpsDisplay.update(localCoordStore.getCurrentNavigation());
+		gpsDisplay.update(localCoordStore.getCurrentNavigation(), {}, {});
 	}
 
 	function stopTimer(){

@@ -71,13 +71,15 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 	 * Updates the HTML5 canvas with the latest information.<br />
 	 * This function has to be called cyclic.
 	 * @param coords {Object.<String, Coordinate>} Map of all coordinates
+	 * @param colors {Object.<String, String>} Map for the coordinate colors (id -> HTML color)
+	 * @param colors {Object.<String, GPSRadar.CoordinateIcon>} Map for the coordinate icons (id -> icon)
 	 *
 	 * @public
 	 * @function update
 	 * @memberOf GPSRadar
 	 * @instance
 	 */
-	this.update = function(coords){
+	this.update = function(coords, colors, icons){
 		var lastGPSPosition = GPS.get();
 		if(lastGPSPosition == null){return;}
 
@@ -104,7 +106,7 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 		ctx.font = "14px Arial";
 		ctx.fillStyle = 'red';
 
-		for(var key in coords) {;
+		for(var key in coords) {
 			var distanceInMeter = GeoTools.calculateDistance(lon, lat, coords[key].lon, coords[key].lat) * 1000;
 
 			var angle = GeoTools.calculateAngleTo(lon, lat, coords[key].lon, coords[key].lat);
@@ -116,9 +118,19 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 			var distInPx = convertDistance2Points(distanceInMeter, maxDisplayedDistance, canvasAxisLength)
 			var relativePosition = calculateRelativePoint(angle, distInPx);
 
-			drawPoint(ctx, relativePosition[0], relativePosition[1], 10);
-			ctx.fillText(coords[key].name, relativePosition[0] - 16, relativePosition[1] - 12);
-			ctx.fillText(distanceInMeter.toFixed(0) + "m", relativePosition[0], relativePosition[1] + 24);
+			var icon = icons.hasOwnProperty(key) ? icons[key] : GPSRadar.CoordinateIcon.POINT;
+			var color = colors.hasOwnProperty(key) ? colors[key] : "#000";
+			if(icon == GPSRadar.CoordinateIcon.CROSS){
+				drawCross(ctx, relativePosition[0], relativePosition[1], 8, color)
+			}
+			else if(icon == GPSRadar.CoordinateIcon.CIRCLE){
+				drawCircle(ctx, relativePosition[0], relativePosition[1], 8, color)
+			}
+			else{
+				drawPoint(ctx, relativePosition[0], relativePosition[1], 8, color);
+			}
+
+			drawCoordinateText(ctx, coords[key].name, distanceInMeter.toFixed(0), relativePosition[0], relativePosition[1], color);
 		}
 
 		if(showDebugInfos){
@@ -133,6 +145,12 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 			}
 		}
 	};
+
+	function drawCoordinateText(ctx, coordName, coordDist, x, y, color){
+		ctx.fillStyle = color;
+		ctx.fillText(coordName, x - 16, y - 12);
+		ctx.fillText(coordDist + "m", x, y + 24);
+	}
 
 	this.debugMode = function(value){
 		showDebugInfos = value;
@@ -171,14 +189,20 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 
 	function drawGrid(ctx, heading){
 		ctx.font = "16px Arial";
+
+		drawFilledCircle(ctx, 1, -8, "#ffffff");
+		drawFilledCircle(ctx, 0.734, -8, "#f8f8f8");
+		drawFilledCircle(ctx, 0.463, -8, "#f2f2f2");
+		drawFilledCircle(ctx, 0.215, -8, "#ededed");
+
 		 //Radius for "1% of max distance" by default 10m
-		drawCircleWithLabel(ctx, 0.215, -8, maxDisplayedDistance * 0.01 + "m");
+		drawCircleWithLabel(ctx, 0.215, -8, maxDisplayedDistance * 0.01 + "m", "#999", false);
 		 //Radius for "10% of max distance" by default 100m
-		drawCircleWithLabel(ctx, 0.463, -8, maxDisplayedDistance * 0.1 + "m");
+		drawCircleWithLabel(ctx, 0.463, -8, maxDisplayedDistance * 0.1 + "m", "#999", false);
 		 //Radius for "40% of max distance" by default 400m
-		drawCircleWithLabel(ctx, 0.734, -8, maxDisplayedDistance * 0.4 + "m");
+		drawCircleWithLabel(ctx, 0.734, -8, maxDisplayedDistance * 0.4 + "m", "#999", false);
 		 //Radius for "100% of max distance" by default 1000m
-		drawCircleWithLabel(ctx, 1, -8, maxDisplayedDistance + "m");
+		drawCircleWithLabel(ctx, 1, -8, maxDisplayedDistance + "m", "#999", true);
 
 		ctx.font = "22px Arial";
 		heading = 360 - heading;
@@ -186,13 +210,18 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 		drawCompass(ctx, "W", heading - 90);
 		drawCompass(ctx, "S", heading - 180);
 		drawCompass(ctx, "E", heading - 270);
+	}
 
-		/*ctx.moveTo(-1 * canvasAxisLength,0);
-		ctx.lineTo(canvasAxisLength, 0);
-		ctx.stroke();
-		ctx.moveTo(0, -1 * canvasAxisLength);
-		ctx.lineTo(0, canvasAxisLength);
-		ctx.stroke();*/
+	function drawCircleWithLabel(ctx, radiusInPercent, offset, label, color, drawBorder){
+		if(drawBorder){
+			drawCircle(ctx, 0, 0, canvasAxisLength * radiusInPercent, color);
+		}
+		ctx.fillStyle = color;
+		ctx.fillText(label, -4 * label.length, canvasAxisLength * radiusInPercent + offset);
+	}
+
+	function drawFilledCircle(ctx, radiusInPercent, offset, color){
+		drawPoint(ctx, 0, 0, canvasAxisLength * radiusInPercent, color);
 	}
 
 	function drawCompass(ctx, txt, heading){
@@ -204,25 +233,34 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 
 	function drawPoint(ctx, x, y, r, color){
 		ctx.beginPath();
+		ctx.fillStyle = color;
 		ctx.arc(x, y, r, 0, 2*Math.PI);
+		ctx.closePath();
 		ctx.fill();
+	}
+
+	function drawCross(ctx, x, y, r, color){
+		ctx.strokeStyle = color;
+		ctx.moveTo(x - r, y -r);
+		ctx.lineTo(x + r, y + r);
+		ctx.stroke();
+		ctx.moveTo(x + r, y - r);
+		ctx.lineTo(x -r, y + r);
+		ctx.stroke();
+	}
+
+	function drawCircle(ctx, x, y, r, color){
+		ctx.beginPath();
+		ctx.arc(x, y, r, 0, 2*Math.PI);
+		ctx.strokeStyle = color;
+		ctx.closePath();
+		ctx.stroke();
 	}
 
 	function convertDistance2Points(currentDist, maxDist, axisLength){
 		if(currentDist >= maxDist){return axisLength;}
 		// y = 0.215x^0.333
 		return 0.215 * Math.pow((currentDist/maxDist) * 100, 0.333) * axisLength;
-	}
-
-	function drawCircleWithLabel(ctx, radiusInPercent, offset, label){
-		drawCircle(ctx, canvasAxisLength * radiusInPercent);
-		ctx.fillText(label, -4 * label.length, canvasAxisLength * radiusInPercent + offset);
-	}
-
-	function drawCircle(ctx, r){
-		ctx.beginPath();
-		ctx.arc(0, 0, r, 0, 2*Math.PI);
-		ctx.stroke();
 	}
 
 	function calculateRelativePoint(angle, dist){
@@ -234,3 +272,9 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 		return ret;
 	}
 }
+
+GPSRadar.CoordinateIcon = {
+    POINT: 0,
+    CIRCLE: 1,
+    CROSS: 2
+};

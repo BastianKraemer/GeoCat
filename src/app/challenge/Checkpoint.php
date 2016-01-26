@@ -26,13 +26,15 @@
 				throw new InvalidArgumentException("This coordinate has been already reached by this team.");
 			}
 
-			$res = DBTools::query($dbh, "INSERT INTO ChallengeCheckpoint (challenge_coord_id, team_id) VALUES (:ccid, :team)",
+			$res = DBTools::query($dbh, "INSERT INTO ChallengeCheckpoint (challenge_coord_id, team_id, time) VALUES (:ccid, :team, DEFAULT)",
 										array("ccid" => $challengeCoordId, "team" => $teamId));
 
 			if(!$res){
-				error_log("Error: Unable to inester into table ChallengeCheckpoint. Database retuned '" . $res . "' (" . __METHOD__ . "@" .__CLASS__ . ")");
+				error_log("Error: Unable to insert into table ChallengeCheckpoint. Database retuned '" . $res . "' (" . __METHOD__ . "@" .__CLASS__ . ")");
 				throw new Exception("Unable to set checkpoint as reached.");
 			}
+
+			return self::isReachedBy($dbh, $challengeCoordId, $teamId);
 		}
 
 		public static function clearCheckpointsOfTeam($dbh, $teamId){

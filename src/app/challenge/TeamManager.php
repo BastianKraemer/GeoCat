@@ -50,8 +50,28 @@
 			return $res[0][0] == 1;
 		}
 
+		public static function getTeamInfo($dbh, $teamId){
+			return DBTools::fetchAssoc($dbh, "SELECT ChallengeTeam.name, ChallengeTeam.color, ChallengeTeam.starttime " .
+											 "FROM ChallengeTeam WHERE ChallengeTeam.team_id = :teamId",
+											 array("teamId" => $teamId));
+		}
+
+		public static function getTeamMembers($dbh, $teamId){
+			$res = DBTools::fetchAll($dbh,	"SELECT Account.username " .
+											"FROM Account, ChallengeMember " .
+											"WHERE Account.account_id = ChallengeMember.account_id AND ChallengeMember.team_id = :teamId",
+											array("teamId" => $teamId), PDO::FETCH_NUM);
+
+			$ret = array();
+			for($i = 0; $i < count($res); $i++){
+				$ret[] = $res[$i][0];
+			}
+
+			return $ret;
+		}
+
 		public static function getChallengeIdOfTeam($dbh, $teamId){
-			$res = DBTools::fetchAll($dbh, "SELECT challenge_id FROM ChallengeTeam WHERE team_id = :id", array("id" => $teamId));
+			$res = DBTools::fetchAll($dbh, "SELECT challenge_id FROM ChallengeTeam WHERE team_id = :teamId", array("teamId" => $teamId));
 
 			if($res){
 				return $res[0][0];
@@ -59,6 +79,16 @@
 			else{
 				return -1;
 			}
+		}
+
+		public static function getTeamOfUser($dbh, $challengeId, $accId){
+			$res = DBTools::fetchNum($dbh,	"SELECT ChallengeTeam.team_id " .
+											"FROM ChallengeTeam, ChallengeMember, Account " .
+											"WHERE ChallengeMember.team_id = ChallengeTeam.team_id AND ChallengeMember.account_id = Account.account_id " .
+												"AND ChallengeTeam.challenge_id = :challengeId AND ChallengeMember.account_id = :accId",
+											array("challengeId" => $challengeId, "accId" => $accId));
+
+			return ($res[0] != "" ? $res[0] : -1);
 		}
 
 		public static function isMemberOfTeam($dbh, $teamId, $accountId){

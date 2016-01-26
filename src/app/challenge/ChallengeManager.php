@@ -91,8 +91,9 @@
 
 		public static function getChallengeCoordinates($dbh, $challengeId){
 
-			$res = DBTools::fetchAll($dbh,	"SELECT ChallengeCoord.challenge_coord_id, ChallengeCoord.priority, " .
-												"Coordinate.coord_id, Coordinate.name, Coordinate.description, Coordinate.latitude, Coordinate.longitude " .
+			$res = DBTools::fetchAll($dbh,	"SELECT ChallengeCoord.challenge_coord_id, ChallengeCoord.priority, ChallengeCoord.captured_by, ChallengeCoord.capture_time," .
+												"Coordinate.coord_id, Coordinate.name, Coordinate.description, Coordinate.latitude, Coordinate.longitude, " .
+												"(NOT ISNULL(ChallengeCoord.code)) AS code_required " .
 											"FROM ChallengeCoord, Coordinate " .
 											"WHERE ChallengeCoord.challenge_id = :challengeId AND ChallengeCoord.coord_id = Coordinate.coord_id " .
 											"ORDER BY ChallengeCoord.priority ASC",
@@ -123,7 +124,7 @@
 		}
 
 		public static function getTeams($dbh, $challengeId){
-			return DBTools::fetchAll($dbh, "SELECT team_id, name FROM ChallengeTeam WHERE challenge_id = :id", array("id" => $challengeId), PDO::FETCH_ASSOC);
+			return DBTools::fetchAll($dbh, "SELECT team_id, name, color FROM ChallengeTeam WHERE challenge_id = :id", array("id" => $challengeId), PDO::FETCH_ASSOC);
 		}
 
 		public static function getMaxNumberOfTeams($dbh, $challengeId){

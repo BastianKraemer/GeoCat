@@ -46,7 +46,9 @@
 	<script src="./js/LoginController.js"></script>
 	<script src="./js/Logout.js"></script>
 	<script src="./js/challenges/browse.js"></script>
+	<script src="./js/challenges/ChallengeNavigatorController.js"></script>
 	<script src="./js/GPS.js"></script>
+	<script src="./js/Substance.js"></script>
 	<link rel="stylesheet" href="./css/substance.css">
 
 	<script type="text/javascript">
@@ -119,6 +121,10 @@
 		// When page "Places" is opened
 		$(document).on("pageshow","#challenge_browser", challengeBrowserController.onPageOpened);
 		$(document).on("pagebeforehide","#challenge_browser", challengeBrowserController.onPageClosed);
+
+
+		ChallengeNavigatorController.init();
+
 	</script>
 
 </head>
@@ -131,6 +137,7 @@
 	require_once(__DIR__ . "/views/Page_Places.php");
 	require_once(__DIR__ . "/views/Page_GPSNavigator.php");
 	require_once(__DIR__ . "/views/Page_BrowseChallenges.php");
+	require_once(__DIR__ . "/views/Page_ChallengeNavigator.php");
 
 	function printPage($page){
 		global $config, $locale, $session;
@@ -142,7 +149,7 @@
 	printPage(new Page_Places());
 	printPage(new Page_GPSNavigator());
 	printPage(new Page_BrowseChallenges());
-
+	printPage(new Page_ChallengeNavigator());
 ?>
 
 </body>

@@ -3,9 +3,6 @@
 
 	class Page_Home extends GeoCatPage {
 
-		public function getPageId(){return "home";}
-		public function getPageTheme(){return "b";}
-
 		/**
 		 * Add a tile for a jQuery Mobile Listview
 		 * @param string $title Tile title
@@ -14,7 +11,7 @@
 		 * @param string $target Hyperlink (href) for this tile
 		 * @param string $imgsrc Path to the background image
 		 */
-		function addTile($title, $text, $aside, $target, $imgsrc, $locale){
+		private function addTile($title, $text, $aside, $target, $imgsrc, $locale){
 			print(	"\t\t\t" .
 					"<li><a href=\"" . $target . "\">" .
 					"<img src=\"" . $imgsrc . "\" class=\"ui-li-thumb\">" .
@@ -33,30 +30,36 @@
 		 * @param string $target Hyperlink (href) for this tile
 		 * @param string $imgsrc Path to the background image
 		 */
-		function addDefaultTile($tilename, $target, $imgsrc, $locale){
+		private function addDefaultTile($tilename, $target, $imgsrc, $locale){
 			$this->addTile(	"mainpage.tiles." . $tilename . ".title",
 							"mainpage.tiles." . $tilename . ".text",
 							"mainpage.tiles." . $tilename . ".aside",
 							$target, $imgsrc, $locale);
 		}
 
-
-		protected function printContent($config, $locale, $session){
-
-			self::printHeader($config["app.name"] . " - ". $locale->get("mainpage.title"), false, false, $config, $session);
+		public function printHead($config, $locale, $session, $pathToRoot){
 ?>
-	<div role="main" class="ui-content my-page">
-		<ul data-role="listview" data-inset="true">
+	<link rel="stylesheet" href="./css/listview-grid.css">
+<?php
+
+		}
+		public function printContent($config, $locale, $session, $pathToRoot){
+?>
+	<div data-role="page" id="Home" data-theme="b">
+<?php self::printHeader($config["app.name"] . " - ". $locale->get("mainpage.title"), false, false, $config, $session); ?>
+		<div role="main" class="ui-content my-page">
+			<ul data-role="listview" data-inset="true">
 <?php
 				$this->addDefaultTile("info", "#", ".", $locale);
 				$this->addDefaultTile("map", "#", ".", $locale);
-				$this->addDefaultTile("places", "#places", ".", $locale);
-				$this->addDefaultTile("challenges", "#challenge_browser", ".", $locale);
+				$this->addDefaultTile("places", "#Places", ".", $locale);
+				$this->addDefaultTile("challenges", "#ChallengeBrowser", ".", $locale);
 				$this->addDefaultTile("social", "#", ".", $locale);
-				$this->addDefaultTile("navigator", "#gpsnavigator", ".", $locale);
+				$this->addDefaultTile("navigator", "#GPSNavigator", ".", $locale);
 				$this->addDefaultTile("account", "#", ".", $locale);
 ?>
-		</ul>
+			</ul>
+		</div>
 	</div>
 <?php
 		}

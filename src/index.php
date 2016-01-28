@@ -3,12 +3,28 @@
 	 * index.php - Startpage of GeoCat
 	 */
 
-	$config = require("./config/config.php");
-	require_once "app/JSONLocale.php";
-	require_once "app/SessionManager.php";
+	$config = require(__DIR__ . "/config/config.php");
+	require_once(__DIR__ . "/app/JSONLocale.php");
+	require_once(__DIR__ . "/app/SessionManager.php");
+	require_once(__DIR__ . "/app/pages/GeoCatPage.php");
 
 	$locale = JSONLocale::withBrowserLanguage($config);
 	$session = new SessionManager();
+	$pathToRoot = "./";
+
+	require_once(__DIR__ . "/views/Page_Home.php");
+	require_once(__DIR__ . "/views/Page_Login.php");
+	require_once(__DIR__ . "/views/Page_Places.php");
+	require_once(__DIR__ . "/views/Page_GPSNavigator.php");
+	require_once(__DIR__ . "/views/Page_BrowseChallenges.php");
+
+	$allPages = array(
+		new Page_Home(),
+		new Page_Login(),
+		new Page_Places(),
+		new Page_GPSNavigator(),
+		new Page_BrowseChallenges()
+	);
 ?>
 
 <!DOCTYPE html>
@@ -19,7 +35,6 @@
 	<title>GeoCat</title>
 
 	<link rel="stylesheet" href="./css/jquery.mobile-1.4.5.min.css">
-	<link rel="stylesheet" href="./css/listview-grid.css">
 	<link rel="stylesheet" href="./css/style.css">
 	<link rel="stylesheet" href="./css/animations.css">
 
@@ -63,7 +78,6 @@
 		var uplink = new Uplink("./");
 		var localCoordStore = new LocalCoordinateStore();
 
-
 		var gpsNavigationController = new GPSNavigationController(localCoordStore, loginStatus, uplink);
 		var placesController = new PlacesController(localCoordStore, loginStatus, uplink, gpsNavigationController);
 		var challengeBrowserController = new BrowseChallengesController(loginStatus, uplink);
@@ -88,61 +102,39 @@
 		});
 
 		/* ====================================================================
-			Login page event handling
-		==================================================================== */
-
-		LoginController.init("./");
-
-		/* ====================================================================
 			 GPS Navigator Eventhandling
 		 ==================================================================== */
 
 		// When page "gpsnavigator" is opened
-		$(document).on("pageshow","#gpsnavigator", gpsNavigationController.onPageOpened);
+		$(document).on("pageshow","#GPSNavigator", gpsNavigationController.onPageOpened);
 
 		// When page "gpsnavigator" is closed
-		$(document).on("pagebeforehide","#gpsnavigator", gpsNavigationController.onPageClosed);
+		$(document).on("pagebeforehide","#GPSNavigator", gpsNavigationController.onPageClosed);
 
 		/* ====================================================================
 			Places Eventhandling
 		==================================================================== */
 
 		// When page "Places" is opened
-		$(document).on("pageshow","#places", placesController.onPageOpened);
-		$(document).on("pagebeforehide","#places", placesController.onPageClosed);
+		$(document).on("pageshow","#Places", placesController.onPageOpened);
+		$(document).on("pagebeforehide","#Places", placesController.onPageClosed);
 
 		/* ====================================================================
 		Challenges event handling
 		==================================================================== */
 
 		// When page "Places" is opened
-		$(document).on("pageshow","#challenge_browser", challengeBrowserController.onPageOpened);
-		$(document).on("pagebeforehide","#challenge_browser", challengeBrowserController.onPageClosed);
+		$(document).on("pageshow","#ChallengeBrowser", challengeBrowserController.onPageOpened);
+		$(document).on("pagebeforehide","#ChallengeBrowser", challengeBrowserController.onPageClosed);
 	</script>
 
+<?php
+	GeoCatPage::printAllHeaders($allPages, $config, $locale, $session, $pathToRoot);
+?>
 </head>
 <body>
-
 <?php
-
-	require_once(__DIR__ . "/views/Page_Home.php");
-	require_once(__DIR__ . "/views/Page_Login.php");
-	require_once(__DIR__ . "/views/Page_Places.php");
-	require_once(__DIR__ . "/views/Page_GPSNavigator.php");
-	require_once(__DIR__ . "/views/Page_BrowseChallenges.php");
-
-	function printPage($page){
-		global $config, $locale, $session;
-		$page->printPage($config, $locale, $session);
-	}
-
-	printPage(new Page_Home());
-	printPage(new Page_Login());
-	printPage(new Page_Places());
-	printPage(new Page_GPSNavigator());
-	printPage(new Page_BrowseChallenges());
-
+	GeoCatPage::printAllPages($allPages, $config, $locale, $session, $pathToRoot);
 ?>
-
 </body>
 </html>

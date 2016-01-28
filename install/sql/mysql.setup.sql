@@ -106,7 +106,7 @@ CREATE TABLE `Challenge` (
   `name` VARCHAR(64) NOT NULL,
   `description` VARCHAR(512) NOT NULL,
   `predefined_teams` TINYINT NOT NULL DEFAULT 0,
-  `max_teams` INTEGER NOT NULL DEFAULT 4,
+  `max_teams` INTEGER NOT NULL DEFAULT -1,
   `max_team_members` INTEGER NOT NULL DEFAULT 4,
   `start_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `end_time` TIMESTAMP NULL DEFAULT NULL,
@@ -141,8 +141,8 @@ CREATE TABLE `ChallengeCoord` (
   `challenge_id` INTEGER NOT NULL,
   `coord_id` INTEGER NOT NULL,
   `priority` INTEGER NOT NULL DEFAULT 0,
+  `hint` VARCHAR(256) NULL DEFAULT NULL,
   `code` VARCHAR(32) NULL DEFAULT NULL,
-  `verify_user_pos` TINYINT NULL DEFAULT NULL,
   `captured_by` INTEGER NULL DEFAULT NULL,
   `capture_time` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`challenge_coord_id`),
@@ -240,7 +240,7 @@ CREATE TABLE `GuestAccount` (
 -- ---
 
 DROP TABLE IF EXISTS `LoginToken`;
-
+		
 CREATE TABLE `LoginToken` (
   `account_id` INTEGER NOT NULL,
   `token` VARCHAR(64) NOT NULL,

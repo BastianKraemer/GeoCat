@@ -3,12 +3,13 @@
 
 	class Page_GPSNavigator extends GeoCatPage {
 
-		public function getPageId(){return "gpsnavigator";}
+		public function printHead($config, $locale, $session, $pathToRoot){
+		}
 
-		protected function printContent($config, $locale, $session){
-
-			self::printHeader("GPS Navigator", true, false, $config, $session);
+		public function printContent($config, $locale, $session, $pathToRoot){
 ?>
+	<div data-role="page" id="GPSNavigator" data-theme="a">
+<?php self::printHeader("GPS Navigator", true, false, $config, $session); ?>
 		<div id="gpsnavigator_content" role="main" class="ui-content my-page">
 			<div id="CanvasFrame">
 				<canvas id="NavigatorCanvas"></canvas>
@@ -80,6 +81,7 @@
 				<button id="GPSNavDestListPopup_Save" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check"><?php $locale->write("gpsnav.popup.save"); ?></button>
 			</div>
 		</div>
+	</div>
 <?php
 		}
 	}

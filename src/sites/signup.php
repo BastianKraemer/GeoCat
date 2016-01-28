@@ -117,7 +117,7 @@
 	Page "create account"
 	================================================================================
 	-->
-	<div data-role="page" id="page_createaccount" data-theme="a" >
+	<div data-role="page" id="CreateAccount" data-theme="a" >
 		<?php GeoCatPage::printHeader($config["app.name"] . " - ". $locale->get("createaccount.title"), true, true, $config, $session); ?>
 
 		<div role="main" class="ui-content my-page">
@@ -154,12 +154,5 @@
 			</form>
 		</div>
 	</div>
-
-	<?php
-		require_once(__DIR__ . "/../views/Page_Login.php");
-
-		$loginPage = new Page_Login();
-		$loginPage->printPage($config, $locale, $session);
-	?>
 </body>
 </html>

@@ -3,15 +3,17 @@
 
 	class Page_Login extends GeoCatPage {
 
-		public function getPageId(){return "login";}
-		public function getPageTheme(){return "a";}
-
-		protected function getPageHeaderAttributes(){
-			return "data-dialog=\"true\"";
+		public function printHead($config, $locale, $session, $pathToRoot){
+?>
+	<script type="text/javascript">
+		LoginController.init("<?php print($pathToRoot) ?>");
+	</script>
+<?php
 		}
 
-		protected function printContent($config, $locale, $session){
+		public function printContent($config, $locale, $session, $pathToRoot){
 ?>
+		<div data-role="page" id="login" data-theme="a" data-dialog="true">
 			<div data-role="header" data-theme="b">
 				<h1 class="ui-title">Login</h1>
 			</div>
@@ -30,7 +32,7 @@
 					-->
 					<div class="ui-grid-a ui-responsive">
 						<div class="ui-block-a">
-							<a id="login-back" href="#home" role="button" data-transition="fade" data-direction="reverse" class="ui-btn ui-corner-all"><?php $locale->write("back"); ?></a>
+							<a id="login-back" href="#Home" role="button" data-transition="fade" data-direction="reverse" class="ui-btn ui-corner-all"><?php $locale->write("back"); ?></a>
 						</div>
 						<div class="ui-block-b">
 							<input type="submit" value="<?php $locale->write('signin'); ?>">
@@ -41,6 +43,7 @@
 					<a href="./sites/signup.php" rel="external" data-ajax="false" role="button" class="ui-btn ui-corner-all"><?php $locale->write("createaccount.confirm"); ?></a>
 				</form>
 			</div>
+		</div>
 <?php
 		}
 	}

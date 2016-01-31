@@ -4,7 +4,7 @@
 
 	class ChallengeCoord {
 
-		public static function create($dbh, $challengeId, $coordId, $priority, $code, $verifyUserPos){
+		public static function create($dbh, $challengeId, $coordId, $priority, $hint, $code){
 
 			require_once(__DIR__ . "/../CoordinateManager.php");
 			require_once(__DIR__ . "/ChallengeManager.php");
@@ -16,6 +16,11 @@
 				else if(strlen($code) > 32){
 					throw new InvalidArgumentException("The maximum length for the code is limited to 32 characters.");
 				}
+			}
+
+			$hint = htmlspecialchars($hint, ENT_QUOTES);
+			if(strlen($hint) > 256){
+				throw new InvalidArgumentException("The maximum length for the hint field is limited to 256 characters.");
 			}
 
 			if(!CoordinateManager::coordinateExists($dbh, $coordId)){
@@ -33,13 +38,11 @@
 				}
 			}
 
-			$verifyUserPos = $verifyUserPos ? 1 : 0;
-
 			$res = DBTools::query($dbh, "INSERT INTO ChallengeCoord " .
-											"(challenge_coord_id, challenge_id, coord_id, priority, code, verify_user_pos) " .
-										"VALUES (null, :challengeId, :coordId, :priority, :code, :verifyPos)",
+											"(challenge_coord_id, challenge_id, coord_id, priority, hint, code) " .
+										"VALUES (null, :challengeId, :coordId, :priority, :hint, :code)",
 									array(	"challengeId" => $challengeId, "coordId" => $coordId, "priority" => $priority,
-											"code" => $code, "verifyPos" => $verifyUserPos));
+											"hint" => $hint, "code" => $code));
 
 			if($res){
 				return $dbh->lastInsertId("challenge_coord_id");

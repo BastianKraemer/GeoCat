@@ -190,12 +190,5 @@
 			</form>
 		</div>
 	</div>
-
-	<?php
-		require_once(__DIR__ . "/../views/Page_Login.php");
-
-		$loginPage = new Page_Login();
-		$loginPage->printPage($config, $locale, $session);
-	?>
 </body>
 </html>

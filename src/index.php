@@ -39,35 +39,37 @@
 	<link rel="stylesheet" href="./css/jquery.mobile-1.4.5.min.css">
 	<link rel="stylesheet" href="./css/style.css">
 	<link rel="stylesheet" href="./css/animations.css">
+	<link rel="stylesheet" href="./css/substance.css">
 
 	<!-- <## ./lib/jquery_package.min.js ##> -->
 	<script src="./lib/jquery.min.js"></script>
 	<script src="./lib/jquery.mobile-1.4.5.min.js"></script>
 	<!-- </## ./lib/jquery_package.min.js ##> -->
 
-	<script src="./js/GeoCat.js"></script>
-
 	<!-- <## ./js/geocat.min.js ##> -->
-	<script src="./js/locale.js"></script>
+	<script src="./js/GeoCat.js"></script>
+	<script src="./js/etc/JSONLocale.js"></script>
 	<script src="./js/tools.js"></script>
-	<script src="./js/Uplink.js"></script>
-	<script src="./js/LocalCoordinateStore.js"></script>
-	<script src="./js/places/PlacesController.js"></script>
+	<script src="./js/etc/Uplink.js"></script>
+	<script src="./js/etc/LocalCoordinateStore.js"></script>
+	<script src="./js/Logout.js"></script>
+	<script src="./js/Substance.js"></script>
 	<!-- </## ./js/geocat.min.js ##> -->
 
-	<!-- <## ./js/gpscat.min.js ##> -->
-        <script src="./js/gpsnavigator/GPSNavigationController.js"></script>
-        <script src="./js/gpsnavigator/GPSRadar.js"></script>
-        <script src="./js/geotools.js"></script>
-	<!-- </## ./js/gpscat.min.js ##> -->
-
+	<!-- <## ./js/controller.min.js ##> -->
 	<script src="./js/LoginController.js"></script>
-	<script src="./js/Logout.js"></script>
+	<script src="./js/places/PlacesController.js"></script>
+	<script src="./js/gpsnavigator/GPSNavigationController.js"></script>
 	<script src="./js/challenges/BrowseChallengesController.js"></script>
 	<script src="./js/challenges/ChallengeNavigatorController.js"></script>
-	<script src="./js/GPS.js"></script>
-	<script src="./js/Substance.js"></script>
-	<link rel="stylesheet" href="./css/substance.css">
+	<!-- </## ./js/controller.min.js ##> -->
+
+	<!-- <## ./js/gpscat.min.js ##> -->
+	<script src="./js/gps/GPSRadar.js"></script>
+	<script src="./js/gps/GPS.js"></script>
+	<script src="./js/gps/GeoTools.js"></script>
+	<!-- </## ./js/gpscat.min.js ##> -->
+
 
 	<script type="text/javascript">
 		GeoCat.init("de", "./");

@@ -21,29 +21,36 @@ module.exports = function(grunt) {
 			options: {
 				mangle: false
 			},
-			geocatJS: {
+			GeoCatJavaScriptFiles: {
 				files: {
 					'dest/js/geocat.min.js':
 						[
-							'src/js/locale.js',
-							'src/js/tools.js',
-							'src/js/Uplink.js',
-							'src/js/LocalCoordinateStore.js',
-							'src/js/places/*.js'
+							'src/js/GeoCat.js',
+							'src/js/etc/*.js',
+							'src/js/Logout.js',
+							'src/js/Substance.js'
+						],
+
+					 'dest/js/gpscat.min.js':
+						[
+							'src/js/gps/*.js'
+						],
+
+					'dest/js/controller.min.js':
+						[
+							'src/js/LoginController.js',
+							'src/places/PlacesController.js',
+							'src/gpsnavigator/GPSNavigationController.js',
+							'src/challenges/*.js'
 						]
 				}
-			},
-			gpscatJS: {
-				files: {
-					'dest/js/gpscat.min.js': ['src/js/geotools.js', 'src/js/gpsnavigator/*.js']
-				}
-			},
+			}
 		},
 
 		copy: {
 			main: {
 				cwd: 'src/',
-				src: ['app/**', 'config/config.php', 'css/**', 'js/**', 'lib/*.min.js', 'locale/*.json', 'query/**', 'sites/**', 'index.php'],
+				src: ['app/**', 'config/config.php', 'css/**', 'js/**', 'lib/*.min.js', 'locale/*.json', 'query/**', 'sites/**', 'views/**', 'index.php'],
 				dest: 'dest/',
 				expand: true,
 				options: {

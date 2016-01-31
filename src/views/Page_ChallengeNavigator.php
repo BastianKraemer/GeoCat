@@ -3,12 +3,18 @@
 
 	class Page_ChallengeNavigator extends GeoCatPage {
 
-		public function getPageId(){return "ChallengeNavigator";}
-
-		protected function printContent($config, $locale, $session){
-
-		self::printHeader("Challenge Navigator", true, false, $config, $session);
+		public function printHead($config, $locale, $session, $pathToRoot){
 ?>
+	<script type="text/javascript">
+		ChallengeNavigatorController.init();
+	</script>
+<?php
+		}
+
+		public function printContent($config, $locale, $session, $pathToRoot){
+?>
+	<div data-role="page" id="ChallengeNavigator" data-theme="a">
+		<?php self::printHeader("Challenge Navigator", true, false, $config, $session); ?>
 		<div id="challenge-navigator-content" role="main" class="ui-content my-page">
 			<div class="gpsradar-container">
 				<canvas id="challenge-navigator-canvas" class="gpsradar"></canvas>
@@ -27,16 +33,17 @@
 			</ul>
 		</div>
 
-	<div id="code-input-popup" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all">
-		<div data-role="header" data-theme="b">
-			<h3><?php $locale->write("challenge.navigator.codeinput.title"); ?></h3>
-			<a href="#" data-role="button" data-rel="back" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-delete ui-btn-icon-notext">Close Window</a>
-		</div>
+		<div id="code-input-popup" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all">
+			<div data-role="header" data-theme="b">
+				<h3><?php $locale->write("challenge.navigator.codeinput.title"); ?></h3>
+				<a href="#" data-role="button" data-rel="back" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-delete ui-btn-icon-notext">Close Window</a>
+			</div>
 
-		<div role="main" class="ui-content">
-			<label for="checkpoint-code-input"><?php $locale->write("challenge.navigator.codeinput.label"); ?>:</label>
-			<input id="checkpoint-code-input" name="checkpoint-code-input" placeholder="<?php $locale->write("challenge.navigator.codeinput.placeholder"); ?>" data-theme="a" type="text">
-			<button id="checkpoint-code-input-ok" class="ui-btn ui-corner-all ui-shadow"><?php $locale->write("okay"); ?></button>
+			<div role="main" class="ui-content">
+				<label for="checkpoint-code-input"><?php $locale->write("challenge.navigator.codeinput.label"); ?>:</label>
+				<input id="checkpoint-code-input" name="checkpoint-code-input" placeholder="<?php $locale->write("challenge.navigator.codeinput.placeholder"); ?>" data-theme="a" type="text">
+				<button id="checkpoint-code-input-ok" class="ui-btn ui-corner-all ui-shadow"><?php $locale->write("okay"); ?></button>
+			</div>
 		</div>
 	</div>
 <?php

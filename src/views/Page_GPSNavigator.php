@@ -4,6 +4,11 @@
 	class Page_GPSNavigator extends GeoCatPage {
 
 		public function printHead($config, $locale, $session, $pathToRoot){
+?>
+	<script type="text/javascript">
+		GPSNavigationController.init();
+	</script>
+<?php
 		}
 
 		public function printContent($config, $locale, $session, $pathToRoot){
@@ -19,7 +24,7 @@
 		<div data-role="footer" data-id="navbar" data-position="fixed" data-tap-toggle="false" data-theme="b" style="overflow:hidden;">
 			<div data-role="navbar" class="navigationbar">
 			<ul>
-					<li><a href="#home" data-transition="none">Zurück</a></li>
+					<li><a href="#Home" data-transition="none">Zurück</a></li>
 					<li><a id="GPSNavigator_AddCoordinate" >Ort hinzufügen</a></li>
 					<li><a href="#CurrentDesitionListPanel" data-transition="none">Ziele anzeigen</a></li>
 					<li><a href="#GPSNavigatorPreferencesPanel" data-rel="panel" data-transition="none">Optionen</a></li>

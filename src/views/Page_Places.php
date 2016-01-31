@@ -4,6 +4,11 @@
 	class Page_Places extends GeoCatPage {
 
 		public function printHead($config, $locale, $session, $pathToRoot){
+?>
+	<script type="text/javascript">
+		PlacesController.init();
+	</script>
+<?php
 		}
 
 		public function printContent($config, $locale, $session, $pathToRoot){

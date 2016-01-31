@@ -20,12 +20,8 @@
 /**
  * Event handling for the "Places" page
  * @class PlacesController
- * @param localCoordinateStore {LocalCoordinateStore} Reference to a {@link LocalCoordinateStore} object
- * @param login_Status {Object} Reference to a login status object
- * @param myuplink {Uplink} Reference to an {@link Uplink} object
- * @param gpsNavigationControler {GPSNavigationController} Reference to a {@link GPSNavigationController} object
  */
-function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavigationController){
+function PlacesController(){
 
 	// Private variables
 	var placesPerPage = 10;
@@ -34,10 +30,9 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 	var allPlacesCount = 0;
 	var maxPages = 0;
 	var currentlyShowingPrivatePlaces = true;
-	var localCoordStore = localCoordinateStore;
-	var uplink = myuplink;
-	var gpsNav = gpsNavigationController;
-	var login_status = login_Status;
+	var localCoordStore = GeoCat.getLocalCoordStore();
+	var uplink = GeoCat.getUplink();
+	var locale = GeoCat.locale;
 
 	// Collection (Map) of all important HTML elements (defeined by their id)
 
@@ -73,7 +68,7 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 	 */
 	this.onPageOpened = function(){
 
-		if(login_status.isSignedIn){
+		if(GeoCat.loginStatus.isSignedIn){
 			requestMyPlaces();
 		}
 		else{
@@ -275,8 +270,8 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 		if(currentlyDisplayedCoordinates.length > 0){
 
 			for(var i = 0; i < currentlyDisplayedCoordinates.length; i++){
-				list.append(generatePlaceItemCode(	localCoordinateStore.get(currentlyDisplayedCoordinates[i]),
-													localCoordinateStore.getInfo(currentlyDisplayedCoordinates[i]),
+				list.append(generatePlaceItemCode(	localCoordStore.get(currentlyDisplayedCoordinates[i]),
+													localCoordStore.getInfo(currentlyDisplayedCoordinates[i]),
 													(currentPage * placesPerPage) + i + 1));
 			}
 
@@ -316,7 +311,7 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 	 */
 	function generatePlaceItemCode(coord, coord_info, number){
 
-		var isEditable = (coord_info.owner == login_status.username) ? "true" : "false";
+		var isEditable = (coord_info.owner == GeoCat.loginStatus.username) ? "true" : "false";
 
 		return 	"<li class=\"place-list-item\" data-role=\"list-divider\">" +
 					"<span class=\"listview-left\">#" + number + " " +coord.name + "</span>" +
@@ -325,7 +320,7 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 					(coord.desc != null ? "<h2>"+ coord.desc + "</h2>" : "") +
 					"<p><strong>Coordinates: </strong>" + coord.lat + ", " + coord.lon + "</p>" +
 					"<p class=\"ui-li-aside\" title=\"" + locale.get("places.place_creation_date", "Creation date:") + " " + coord_info.creationDate + "\">" + locale.get("places.last_update", "Last update:") + "<br>" + coord_info.modificationDate + "</p>" +
-				"</a><a href=\"#gpsnavigator\" coordinate-id=\"" + coord.coord_id + "\" class=\"ui-icon-navigation\">" + locale.get("places.navigateTo", "Start navigation") + "</a></li>\n";
+				"</a><a href=\"#GPSNavigator\" coordinate-id=\"" + coord.coord_id + "\" class=\"ui-icon-navigation\">" + locale.get("places.navigateTo", "Start navigation") + "</a></li>\n";
 
 		// Note: the class ui-icon-navigation is used to identify this objects
 	}
@@ -537,3 +532,17 @@ function PlacesController(localCoordinateStore, login_Status, myuplink, gpsNavig
 		}
 	}
 }
+
+PlacesController.currentInstance = null;
+
+PlacesController.init = function(){
+	$(document).on("pageshow", "#Places", function(){
+		PlacesController.currentInstance = new PlacesController();
+		PlacesController.currentInstance.onPageOpened();
+	});
+
+	$(document).on("pagebeforehide", "#Places", function(){
+		PlacesController.currentInstance.onPageClosed();
+		PlacesController.currentInstance = null
+	});
+};

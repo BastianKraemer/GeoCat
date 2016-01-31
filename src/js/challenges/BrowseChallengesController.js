@@ -1,7 +1,7 @@
 /*	GeoCat - Geolocation caching and tracking platform
 	Copyright (C) 2016 Bastian Kraemer
 
-	browse.js
+	BrowseChallengesController.js
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,18 +20,16 @@
 /**
  * Event handling for the "Browse Challenges" page
  * @class BrowseChallengesController
- * @param login_Status {Object} Reference to a login status object
  */
-function BrowseChallengesController(login_Status, myuplink){
+function BrowseChallengesController(){
 
 	// Private variables
-	var uplink = myuplink;
 	var itemsPerPage = 10;
 	var currentPage = 0;
 	var challengeCount = 0;
 	var maxPages = 0;
-	var uplink = myuplink;
-	var login_status = login_Status;
+	var uplink = GeoCat.getUplink();
+	var locale = GeoCat.locale;
 
 	// Collection (Map) of all important HTML elements (defeined by their id)
 
@@ -57,7 +55,6 @@ function BrowseChallengesController(login_Status, myuplink){
 	 */
 	this.onPageOpened = function(){
 
-		//if(login_status.isSignedIn){
 		$(htmlElement["listview"]).listview('refresh');
 		countPublicChallenges();
 		loadPublicChallengeListFromServer();
@@ -110,7 +107,7 @@ function BrowseChallengesController(login_Status, myuplink){
 					updateList(JSON.parse(response));
 				}
 				catch(e){
-					displayError(Tools.sprintf("An error occured, please try again later.\\n\\n" +
+					displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
 											   "Details:\\n{0}", [e.message]));
 				}
 			}, itemsPerPage, currentPage * itemsPerPage);
@@ -141,7 +138,7 @@ function BrowseChallengesController(login_Status, myuplink){
 						}
 					}
 					catch(e){
-						displayError(Tools.sprintf("An error occured, please try again later.\\n\\n" +
+						displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
 												   "Details:\\n{0}", [e.message]));
 					}
 				});
@@ -178,7 +175,7 @@ function BrowseChallengesController(login_Status, myuplink){
 	}
 
 	function displayError(message){
-		Tools.showPopup("Error", message, "OK", null);
+		GuiToolkit.showPopup("Error", message, "OK", null);
 	}
 
 	/**
@@ -208,7 +205,7 @@ function BrowseChallengesController(login_Status, myuplink){
 
 	function updatePageInfo(){
 		var numPages = maxPages > 0 ? maxPages : 1;
-		$(htmlElement["page_info"]).html(Tools.sprintf(locale.get("page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]));
+		$(htmlElement["page_info"]).html(GuiToolkit.sprintf(locale.get("page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]));
 	}
 
 	/*
@@ -221,3 +218,17 @@ function BrowseChallengesController(login_Status, myuplink){
 		var cId = $(el).parent().attr("challenge-id");
 	}
 }
+
+BrowseChallengesController.currentInstance = null;
+
+BrowseChallengesController.init = function(){
+	$(document).on("pageshow", "#ChallengeBrowser", function(){
+		BrowseChallengesController.currentInstance = new BrowseChallengesController();
+		BrowseChallengesController.currentInstance.onPageOpened();
+	});
+
+	$(document).on("pagebeforehide", "#ChallengeBrowser", function(){
+		BrowseChallengesController.currentInstance.onPageClosed();
+		BrowseChallengesController.currentInstance = null
+	});
+};

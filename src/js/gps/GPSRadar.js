@@ -167,19 +167,19 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 	}
 
 	function updateCanvasSize(){
-		var h = getPageHeight();
-		var w = jQueryMobileContentDiv.offsetWidth;
-		var offset = 40;
+		var h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+		var w = jQueryMobileContentDiv.offsetWidth - 32; //Substract size for padding and margin
+		h -= 144; // Substract size for header and footer
 
 		if(w > h){
-			canvasFrame.style.width = (h - offset) + "px";
-			canvasFrame.style.height = (h - offset) + "px";
-			preferedCanvasSize = 1.25 * (h - offset);
+			canvasFrame.style.width = h + "px";
+			canvasFrame.style.height = h + "px";
+			preferedCanvasSize = 1.25 * h;
 		}
 		else{
-			canvasFrame.style.width = (w - offset) + "px";
-			canvasFrame.style.height = (w - offset) + "px";
-			preferedCanvasSize = 1.25 * (w - offset);
+			canvasFrame.style.width = w + "px";
+			canvasFrame.style.height = w + "px";
+			preferedCanvasSize = 1.25 * w;
 		}
 	}
 

@@ -80,7 +80,7 @@ function GPSNavigationController(){
 				showCoordinateEditDialog(null, "", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude, true);
 			}
 			else{
-				Tools.showPopup("Notification", "Unable to get current GPS position.", "OK", function(){resetActiveButtonState(htmlElement["button_add_coordinate"]);});
+				GuiToolkit.showPopup("Notification", "Unable to get current GPS position.", "OK", function(){resetActiveButtonState(htmlElement["button_add_coordinate"]);});
 			}
 		});
 
@@ -211,7 +211,7 @@ function GPSNavigationController(){
 	}
 
 	function uplinkOnError(response){
-		alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
+		alert(GuiToolkit.sprintf("Unable to perform this operation. (Status {0})\n" +
 				"Server returned: {1}", [response["status"], response["msg"]]));
 	}
 

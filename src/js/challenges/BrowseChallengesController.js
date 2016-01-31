@@ -107,7 +107,7 @@ function BrowseChallengesController(){
 					updateList(JSON.parse(response));
 				}
 				catch(e){
-					displayError(Tools.sprintf("An error occured, please try again later.\\n\\n" +
+					displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
 											   "Details:\\n{0}", [e.message]));
 				}
 			}, itemsPerPage, currentPage * itemsPerPage);
@@ -138,7 +138,7 @@ function BrowseChallengesController(){
 						}
 					}
 					catch(e){
-						displayError(Tools.sprintf("An error occured, please try again later.\\n\\n" +
+						displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
 												   "Details:\\n{0}", [e.message]));
 					}
 				});
@@ -175,7 +175,7 @@ function BrowseChallengesController(){
 	}
 
 	function displayError(message){
-		Tools.showPopup("Error", message, "OK", null);
+		GuiToolkit.showPopup("Error", message, "OK", null);
 	}
 
 	/**
@@ -205,7 +205,7 @@ function BrowseChallengesController(){
 
 	function updatePageInfo(){
 		var numPages = maxPages > 0 ? maxPages : 1;
-		$(htmlElement["page_info"]).html(Tools.sprintf(locale.get("page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]));
+		$(htmlElement["page_info"]).html(GuiToolkit.sprintf(locale.get("page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]));
 	}
 
 	/*

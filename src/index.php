@@ -49,7 +49,7 @@
 	<!-- <## ./js/geocat.min.js ##> -->
 	<script src="./js/GeoCat.js"></script>
 	<script src="./js/etc/JSONLocale.js"></script>
-	<script src="./js/tools.js"></script>
+	<script src="./js/etc/GuiToolkit.js"></script>
 	<script src="./js/etc/Uplink.js"></script>
 	<script src="./js/etc/LocalCoordinateStore.js"></script>
 	<script src="./js/Logout.js"></script>

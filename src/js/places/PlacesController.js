@@ -211,7 +211,7 @@ function PlacesController(){
 						}
 					}
 					catch(e){
-						displayError(Tools.sprintf("An error occured, please try again later.\\n\\n" +
+						displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
 												   "Details:\\n{0}", [e.message]));
 					}
 				});
@@ -233,7 +233,7 @@ function PlacesController(){
 					try{
 						var result = JSON.parse(response);
 						if(result.hasOwnProperty("status")){
-							displayError(Tools.sprintf("Unable to download the requested information. (Status {0})\\n" +
+							displayError(GuiToolkit.sprintf("Unable to download the requested information. (Status {0})\\n" +
 													   "Server returned: {1}", [response["status"], response["msg"]]))
 						}
 						else{
@@ -250,7 +250,7 @@ function PlacesController(){
 						}
 					}
 					catch(e){
-						displayError(Tools.sprintf("An error occured, please try again later.\\n\\n" +
+						displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
 												   "Details:\\n{0}", [e.message]));
 					}
 				});
@@ -292,11 +292,11 @@ function PlacesController(){
 	}
 
 	function ajaxError(xhr, status, error){
-		Tools.showPopup("Error", "Ajax request failed.", "OK", null);
+		GuiToolkit.showPopup("Error", "Ajax request failed.", "OK", null);
 	}
 
 	function displayError(message){
-		Tools.showPopup("Error", message, "OK", null);
+		GuiToolkit.showPopup("Error", message, "OK", null);
 	}
 
 	/**
@@ -338,8 +338,8 @@ function PlacesController(){
 
 	function updatePageInfo(){
 		var numPages = maxPages > 0 ? maxPages : 1;
-		$("#PlacesInformation").html(Tools.sprintf(locale.get("page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]) + " " +
-									 Tools.sprintf(locale.get("places.count", "(Total number: {0})"), [allPlacesCount]));
+		$("#PlacesInformation").html(GuiToolkit.sprintf(locale.get("page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]) + " " +
+									 GuiToolkit.sprintf(locale.get("places.count", "(Total number: {0})"), [allPlacesCount]));
 	}
 
 	/**
@@ -414,7 +414,7 @@ function PlacesController(){
 	function uplinkErrorHander(response){
 		closePopup();
 		setTimeout(function(){
-			displayError(Tools.sprintf(	"Unable to perform this operation. (Status {0})\\n" +
+			displayError(GuiToolkit.sprintf(	"Unable to perform this operation. (Status {0})\\n" +
 										"Server returned: {1}", [response["status"], response["msg"]]));
 			disableSaveButton(false);
 		}, 500);
@@ -493,7 +493,7 @@ function PlacesController(){
 											reloadPlacesPage();
 										},
 										function(response){
-											alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
+											alert(GuiToolkit.sprintf("Unable to perform this operation. (Status {0})\n" +
 																"Server returned: {1}", [response["status"], response["msg"]]));
 											disableSaveButton(false);
 										});

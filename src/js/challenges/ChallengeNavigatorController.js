@@ -52,6 +52,7 @@ function ChallengeNavigatorController(challenge_id){
 	var getChallengeInformation = function(){
 		$.ajax({
 			type: "POST", url: "./query/challenge.php",
+			encoding: "UTF-8",
 			data: {task: "device_start", challenge: challengeId},
 			cache: false,
 			success: function(response){
@@ -61,8 +62,8 @@ function ChallengeNavigatorController(challenge_id){
 						onChallengeDataReceived(responseData);
 					}
 					else{
-						SubstanceTheme.showNotification("<h3>Unable to download challenge information</h3><p>" + responseData.msg + "</p>", 7,
-														$.mobile.activePage[0], "substance-red no-shadow white");
+						SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("challenge.nav.error.download_info", "Unable to download challenge information") + "</h3>" +
+														"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
 					}
 				}
 				catch(e){
@@ -77,6 +78,7 @@ function ChallengeNavigatorController(challenge_id){
 	var getCoordinates = function(){
 		$.ajax({
 			type: "POST", url: "./query/challenge.php",
+			encoding: "UTF-8",
 			data: {task: "info", challenge: challengeId},
 			cache: false,
 			success: function(response){
@@ -86,12 +88,11 @@ function ChallengeNavigatorController(challenge_id){
 						onCoordinateDataReceived(responseData);
 					}
 					else{
-						SubstanceTheme.showNotification("<h3>Unable to download cache positions</h3><p>" + responseData.msg + "</p>", 7,
-														$.mobile.activePage[0], "substance-red no-shadow white");
+						SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("challenge.nav.error.download_caches", "Unable to download cache positions") + "</h3>" +
+														"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
 					}
 				}
 				catch(e){
-					alert(e);
 					SubstanceTheme.showNotification("<h3>Unable to download cache positions</h3><p>Server returned:<br>" + response + "</p>", 7,
 													$.mobile.activePage[0], "substance-red no-shadow white");
 				}
@@ -118,7 +119,7 @@ function ChallengeNavigatorController(challenge_id){
 		}
 		else{
 			// Seems that the user has pressed the update button
-			SubstanceTheme.showNotification("<p>Update successful.</p>", 3,
+			SubstanceTheme.showNotification("<p>" + GeoCat.locale.get("challenge.nav.updated", "Update successful") + "</p>", 3,
 											$.mobile.activePage[0], "substance-skyblue no-shadow white");
 		}
 	};
@@ -178,15 +179,15 @@ function ChallengeNavigatorController(challenge_id){
 	var generateItem = function(name, reachedTime, capturedBy, index){
 		return generateDefaultListItem(name,
 					"<a class=\"li-clickable\" data-index=\"" + index + "\">" +
-					"<p>Reached: " + (reachedTime == null ? "-" : reachedTime) + "</p>" +
-					(capturedBy != null ? "<p style=\"color: " + teamMap[capturedBy].color + "\">Captured by: " + teamMap[capturedBy].name + "</p>" : "")
+					"<p>" + GeoCat.locale.get("challenge.nav.reached", "Reached") + ": " + (reachedTime == null ? "-" : reachedTime) + "</p>" +
+					(capturedBy != null ? "<p style=\"color: " + teamMap[capturedBy].color + "\">" + GeoCat.locale.get("challenge.nav.captured_by", "Captured by") + ": " + teamMap[capturedBy].name + "</p>" : "")
 				);
 	};
 
 	var listItemOnClick = function(el){
 		var data = coordData.coords[$(el).attr("data-index")];
-		SubstanceTheme.showNotification("<h3>Hint for cache '" + data.name + "'</h3><p>" + data.hint + "</p>", -1,
-										$.mobile.activePage[0], "substance-skyblue no-shadow white")
+		SubstanceTheme.showNotification("<h3>" + GuiToolkit.sprintf(GeoCat.locale.get("challenge.nav.hint", "Hint for cache '{0}'"), [data.name]) + "</h3>" +
+										"<p>" + data.hint + "</p>", -1,	$.mobile.activePage[0], "substance-skyblue no-shadow white");
 	};
 
 	var updateStatsPanel = function(){
@@ -194,13 +195,13 @@ function ChallengeNavigatorController(challenge_id){
 		var list = $(htmlElement["stats"]);
 		list.empty();
 
-		list.append(generateDefaultListItem("Challenge Information",
+		list.append(generateDefaultListItem(GeoCat.locale.get("challenge.nav.challenge_info", "Challenge Information"),
 						"<h3>" + challengeData.name + "</h3>\n" +
 						"<table>" +
-						"<tr><td>Type:</td><td>" + challengeData.type_name + "</td></tr>\n" +
-						"<tr><td>Organizer:</td><td>" + challengeData.owner_name + "</td></tr>\n" +
-						"<tr><td>Start:</td><td>" + challengeData.start_time + "</td></tr>\n" +
-						"<tr><td>End:</td><td>" + challengeData.end_time + "</td></tr>\n" +
+						"<tr><td>" + GeoCat.locale.get("challenge.nav.typeinfo", "Type") + ":</td><td>" + challengeData.type_name + "</td></tr>\n" +
+						"<tr><td>" + GeoCat.locale.get("challenge.nav.ownerinfo", "Organizer") + ":</td><td>" + challengeData.owner_name + "</td></tr>\n" +
+						"<tr><td>" + GeoCat.locale.get("challenge.nav.startinfo", "Start") + "::</td><td>" + challengeData.start_time + "</td></tr>\n" +
+						"<tr><td>" + GeoCat.locale.get("challenge.nav.endinfo", "End") + ":</td><td>" + challengeData.end_time + "</td></tr>\n" +
 						"</table>\n"));
 
 
@@ -224,13 +225,13 @@ function ChallengeNavigatorController(challenge_id){
 				coordCount++;
 			}
 
-			var txt = "<tr><td>Free</td><td>" + free  + " (" + ((100 / coordCount) * free) + "%)</td></tr>";
+			var txt = "<tr><td>" + GeoCat.locale.get("challenge.nav.free_caches", "Free") + "</td><td>" + free  + " (" + ((100 / coordCount) * free) + "%)</td></tr>";
 
 			for(var key in stats){
 				txt += "<tr><td>" + teamMap[key].name + "</td><td>" + stats[key] + " (" + ((100 / coordCount) * stats[key]) + "%)</td></tr>\n"
 			}
 
-			list.append(generateDefaultListItem("Stats", "<table>\n" + txt + "</table>\n"));
+			list.append(generateDefaultListItem(GeoCat.locale.get("challenge.nav.stats", "Stats"), "<table>\n" + txt + "</table>\n"));
 		}
 		else{
 			// Stats for regular challenges
@@ -243,10 +244,10 @@ function ChallengeNavigatorController(challenge_id){
 				coordCount++;
 			}
 
-			list.append(generateDefaultListItem("Stats",
+			list.append(generateDefaultListItem(GeoCat.locale.get("challenge.nav.stats", "Stats"),
 					"<table>\n" +
-					"<tr><td>Caches:</td><td>" + coordCount + "</td></tr>\n" +
-					"<tr><td>Reached:</td><td>" + reachedCount + " (" + ((100 / coordCount) * reachedCount) + "%)</td></tr>\n" +
+					"<tr><td>" + GeoCat.locale.get("challenge.nav.caches", "Caches") + "</td><td>" + coordCount + "</td></tr>\n" +
+					"<tr><td>" + GeoCat.locale.get("challenge.nav.reached", "Reached") + ":</td><td>" + reachedCount + " (" + ((100 / coordCount) * reachedCount) + "%)</td></tr>\n" +
 					"</table>\n"));
 		}
 
@@ -277,6 +278,7 @@ function ChallengeNavigatorController(challenge_id){
 	var sendCheckpointReached = function(challengeCoordId, cacheCode){
 		$.ajax({
 			type: "POST", url: "./query/challenge.php",
+			encoding: "UTF-8",
 			data: {
 				task: "checkpoint",
 				challenge: challengeId,
@@ -293,8 +295,8 @@ function ChallengeNavigatorController(challenge_id){
 						for(var i = 0; i < coordData.coords.length; i++){
 							if(coordData.coords[i].challenge_coord_id == challengeCoordId){
 								coordData.coords[i].reached = responseData.time;
-								SubstanceTheme.showNotification("<p>Checkpoint has been successfully tagged as 'reached'.</p>", 7,
-																$.mobile.activePage[0], "substance-green no-shadow white");
+								SubstanceTheme.showNotification("<p>" + GeoCat.locale.get("challenge.nav.tagged", "Checkpoint has been successfully tagged as 'reached'") + "</p>",
+																7, $.mobile.activePage[0], "substance-green no-shadow white");
 								break;
 							}
 						}
@@ -304,13 +306,13 @@ function ChallengeNavigatorController(challenge_id){
 						updateStatsPanel();
 					}
 					else{
-						SubstanceTheme.showNotification("<h3>Unable to update checkpoint</h3><p>" + responseData.msg + "</p>", 7,
-														$.mobile.activePage[0], "substance-red no-shadow white");
+						SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("challenge.nav.error.update_checkpoint", "Unable to update checkpoint") + "</h3>" +
+								"						<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
 					}
 				}
 				catch(e){
-					SubstanceTheme.showNotification("<h3>Unable to store checkpoint</h3><p>" + response + "</p>", 7,
-													$.mobile.activePage[0], "substance-red no-shadow white");
+					SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("challenge.nav.error.update_checkpoint", "Unable to update checkpoint") + "</h3>" +
+													"<p>" + response + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
 				}
 			},
 			error: ajaxError
@@ -320,6 +322,7 @@ function ChallengeNavigatorController(challenge_id){
 	var sendCheckpointCaptured = function(challengeCoordId, cacheCode){
 		$.ajax({
 			type: "POST", url: "./query/challenge.php",
+			encoding: "UTF-8",
 			data: {
 				task: "capture",
 				challenge: challengeId,
@@ -336,8 +339,8 @@ function ChallengeNavigatorController(challenge_id){
 							if(coordData.coords[i].challenge_coord_id == challengeCoordId){
 								coordData.coords[i].captured_by = challengeData.team;
 								coordData.coords[i].capture_time = responseData.time;
-								SubstanceTheme.showNotification("<p>Checkpoint has been successfully captured.</p>", 7,
-																$.mobile.activePage[0], "substance-green no-shadow white");
+								SubstanceTheme.showNotification("<p>" + GeoCat.locale.get("challenge.nav.captured", "Checkpoint has been successfully captured") + "</p>",
+																7, $.mobile.activePage[0], "substance-green no-shadow white");
 								break;
 							}
 						}
@@ -347,13 +350,13 @@ function ChallengeNavigatorController(challenge_id){
 						updateStatsPanel();
 					}
 					else{
-						SubstanceTheme.showNotification("<h3>Unable to capture this checkpoint</h3><p>" + responseData.msg + "</p>", 7,
-														$.mobile.activePage[0], "substance-red no-shadow white");
+						SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("challenge.nav.error.capture_checkpoint", "Unable to capture this checkpoint") + "</h3>" +
+														"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
 					}
 				}
 				catch(e){
-					SubstanceTheme.showNotification("<h3>Unable to capture this checkpoint</h3><p>" + response + "</p>", 7,
-													$.mobile.activePage[0], "substance-red no-shadow white");
+					SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("challenge.nav.error.capture_checkpoint", "Unable to capture this checkpoint") + "</h3>" +
+													"<p>" + response + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
 				}
 			},
 			error: ajaxError
@@ -380,7 +383,7 @@ function ChallengeNavigatorController(challenge_id){
 		var myPos = GPS.get();
 
 		if(myPos == null){
-			SubstanceTheme.showNotification("<p>The GPS position is currently not available - please wait until the GPS position is fixed.</p>", 7,
+			SubstanceTheme.showNotification("<p>" + GeoCat.locale.get("challenge.nav.gps_not_available ", "The GPS position is currently not available - please wait until the GPS position is fixed") + "</p>", 7,
 											$.mobile.activePage[0], "substance-skyblue no-shadow white");
 			return;
 		}
@@ -400,14 +403,14 @@ function ChallengeNavigatorController(challenge_id){
 		if(coord != null){
 			if(isCTF){
 				if(coord.captured_by != null){
-					SubstanceTheme.showNotification("<p>This cache has been already captured.</p>", 7,
+					SubstanceTheme.showNotification("<p>" + GeoCat.locale.get("challenge.nav.already_captured", "This cache has been already captured") + "</p>", 7,
 													$.mobile.activePage[0], "substance-skyblue no-shadow white");
 					return; //cancel
 				}
 			}
 			else{
 				if(coord.reached != null){
-					SubstanceTheme.showNotification("<p>You have already tagged this cache as 'reached'.</p>", 7,
+					SubstanceTheme.showNotification("<p>" + GeoCat.locale.get("challenge.nav.already_tagged", "You have already tagged this cache as 'reached'") + "</p>", 7,
 													$.mobile.activePage[0], "substance-skyblue no-shadow white");
 					return; //cancel
 				}
@@ -422,13 +425,13 @@ function ChallengeNavigatorController(challenge_id){
 			}
 		}
 		else{
-			SubstanceTheme.showNotification("<p>You have to get closer to a cache before you can set the point as 'reached' (less than " + minDistanceToSetReached + " m).</p>", 7,
+			SubstanceTheme.showNotification("<p>" + GuiToolkit.sprintf(GeoCat.locale.get("challenge.nav.too_far_away", "You have to get closer to a cache before you can set the point as 'reached' (less than {0} m)", [minDistanceToSetReached])) + "</p>", 7,
 											$.mobile.activePage[0], "substance-skyblue no-shadow white");
 		}
 	};
 
 	var ajaxError = function(xhr, status, error){
-		SubstanceTheme.showNotification("<h3>Unknown error - Ajax request faild</h3><p>" + error + "</p>", 7,
+		SubstanceTheme.showNotification("<h3>Unknown error - Ajax request failed</h3><p>" + error + "</p>", 7,
 				$.mobile.activePage[0], "substance-red no-shadow white");
 	};
 }

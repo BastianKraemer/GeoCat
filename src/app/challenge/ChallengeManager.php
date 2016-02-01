@@ -77,7 +77,7 @@
 													"Challenge.max_teams, Challenge.max_team_members, Challenge.predefined_teams, " .
 													"Challenge.start_time, Challenge.end_time, Challenge.is_public " .
 											"FROM Challenge, Account, ChallengeType " .
-											"WHERE Challenge.challenge_id = :challengeId AND Challenge.owner = Account.account_id",
+											"WHERE Challenge.challenge_id = :challengeId AND Challenge.owner = Account.account_id AND ChallengeType.challenge_type_id = Challenge.challenge_type_id",
 									array("challengeId" => $challengeId));
 
 			if($res){
@@ -91,7 +91,7 @@
 
 		public static function getChallengeCoordinates($dbh, $challengeId){
 
-			$res = DBTools::fetchAll($dbh,	"SELECT ChallengeCoord.challenge_coord_id, ChallengeCoord.priority, ChallengeCoord.captured_by, ChallengeCoord.capture_time," .
+			$res = DBTools::fetchAll($dbh,	"SELECT ChallengeCoord.challenge_coord_id, ChallengeCoord.hint, ChallengeCoord.priority, ChallengeCoord.captured_by, ChallengeCoord.capture_time," .
 												"Coordinate.coord_id, Coordinate.name, Coordinate.description, Coordinate.latitude, Coordinate.longitude, " .
 												"(NOT ISNULL(ChallengeCoord.code)) AS code_required " .
 											"FROM ChallengeCoord, Coordinate " .

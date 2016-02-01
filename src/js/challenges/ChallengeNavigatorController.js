@@ -3,6 +3,7 @@ function ChallengeNavigatorController(challenge_id){
 	var htmlElement = new Object();
 	htmlElement["coord_panel"] = "#challenge-navigator-coord-panel";
 	htmlElement["coord_list"] = "#challenge-navigator-coord-list";
+	htmlElement["stats"] = "#challenge-navigator-stats";
 	htmlElement["canvas"] = "#challenge-navigator-canvas";
 	htmlElement["canvas_container"] = "#challenge-navigator-content";
 	htmlElement["codeinput_popup"] = "#code-input-popup";
@@ -65,7 +66,7 @@ function ChallengeNavigatorController(challenge_id){
 					}
 				}
 				catch(e){
-					SubstanceTheme.showNotification("<h3>Unable to download challenge inforamtion</h3><p>Server returned:<br>" + response + "</p>", 7,
+					SubstanceTheme.showNotification("<h3>Unable to download challenge information</h3><p>Server returned:<br>" + response + "</p>", 7,
 													$.mobile.activePage[0], "substance-red no-shadow white");
 				}
 			},
@@ -90,6 +91,7 @@ function ChallengeNavigatorController(challenge_id){
 					}
 				}
 				catch(e){
+					alert(e);
 					SubstanceTheme.showNotification("<h3>Unable to download cache positions</h3><p>Server returned:<br>" + response + "</p>", 7,
 													$.mobile.activePage[0], "substance-red no-shadow white");
 				}
@@ -109,6 +111,7 @@ function ChallengeNavigatorController(challenge_id){
 
 		updateCoordList();
 		updateListPanel();
+		updateStatsPanel();
 
 		if(gpsRadar == null){
 			start();
@@ -126,9 +129,10 @@ function ChallengeNavigatorController(challenge_id){
 		iconList = new Object();  // Map id -> icon
 
 		teamMap = new Object();
-
-		for(var i = 0; i < challengeData.team_list.length; i++){
-			teamMap[challengeData.team_list[i].team_id] = {color: challengeData.team_list[i].color, name: challengeData.team_list[i].name};
+		if(isCTF){
+			for(var i = 0; i < challengeData.team_list.length; i++){
+				teamMap[challengeData.team_list[i].team_id] = {color: challengeData.team_list[i].color, name: challengeData.team_list[i].name};
+			}
 		}
 
 		for(var i = 0; i < coordData.coords.length; i++){
@@ -161,19 +165,98 @@ function ChallengeNavigatorController(challenge_id){
 
 		for(var i = 0; i < coordData.coords.length; i++){
 			list.append(generateItem(coordData.coords[i].name, isCTF ? coordData.coords[i].capture_time : coordData.coords[i].reached,
-									 coordData.coords[i].captured_by));
+									 isCTF ? coordData.coords[i].captured_by : null, i));
+		}
+
+		$(htmlElement["coord_list"] + " li a.li-clickable").click(function(){
+			listItemOnClick(this);
+		});
+
+		list.listview('refresh');
+	};
+
+	var generateItem = function(name, reachedTime, capturedBy, index){
+		return generateDefaultListItem(name,
+					"<a class=\"li-clickable\" data-index=\"" + index + "\">" +
+					"<p>Reached: " + (reachedTime == null ? "-" : reachedTime) + "</p>" +
+					(capturedBy != null ? "<p style=\"color: " + teamMap[capturedBy].color + "\">Captured by: " + teamMap[capturedBy].name + "</p>" : "")
+				);
+	};
+
+	var listItemOnClick = function(el){
+		var data = coordData.coords[$(el).attr("data-index")];
+		SubstanceTheme.showNotification("<h3>Hint for cache '" + data.name + "'</h3><p>" + data.hint + "</p>", -1,
+										$.mobile.activePage[0], "substance-skyblue no-shadow white")
+	};
+
+	var updateStatsPanel = function(){
+
+		var list = $(htmlElement["stats"]);
+		list.empty();
+
+		list.append(generateDefaultListItem("Challenge Information",
+						"<h3>" + challengeData.name + "</h3>\n" +
+						"<table>" +
+						"<tr><td>Type:</td><td>" + challengeData.type_name + "</td></tr>\n" +
+						"<tr><td>Organizer:</td><td>" + challengeData.owner_name + "</td></tr>\n" +
+						"<tr><td>Start:</td><td>" + challengeData.start_time + "</td></tr>\n" +
+						"<tr><td>End:</td><td>" + challengeData.end_time + "</td></tr>\n" +
+						"</table>\n"));
+
+
+		if(isCTF){
+			// Stats for capture the flag challenges
+			var free = 0;
+			var coordCount = 0;
+			var stats = new Object();
+			for(var i = 0; i < coordData.coords.length; i++){
+				if(coordData.coords[i].captured_by == null){
+					free++;
+				}
+				else{
+					if(stats.hasOwnProperty(coordData.coords[i].captured_by)){
+						stats[coordData.coords[i].captured_by]++;
+					}
+					else{
+						stats[coordData.coords[i].captured_by] = 1;
+					}
+				}
+				coordCount++;
+			}
+
+			var txt = "<tr><td>Free</td><td>" + free  + " (" + ((100 / coordCount) * free) + "%)</td></tr>";
+
+			for(var key in stats){
+				txt += "<tr><td>" + teamMap[key].name + "</td><td>" + stats[key] + " (" + ((100 / coordCount) * stats[key]) + "%)</td></tr>\n"
+			}
+
+			list.append(generateDefaultListItem("Stats", "<table>\n" + txt + "</table>\n"));
+		}
+		else{
+			// Stats for regular challenges
+			var coordCount = 0;
+			var reachedCount = 0;
+			for(var i = 0; i < coordData.coords.length; i++){
+				if(coordData.coords[i].reached != null){
+					reachedCount++;
+				}
+				coordCount++;
+			}
+
+			list.append(generateDefaultListItem("Stats",
+					"<table>\n" +
+					"<tr><td>Caches:</td><td>" + coordCount + "</td></tr>\n" +
+					"<tr><td>Reached:</td><td>" + reachedCount + " (" + ((100 / coordCount) * reachedCount) + "%)</td></tr>\n" +
+					"</table>\n"));
 		}
 
 		list.listview('refresh');
 	};
 
-	var generateItem = function(name, reachedTime, capturedBy){
-		return	"<li class=\"challenge-list-item\" data-role=\"list-divider\">" +
-				"<span class=\"listview-left\">" + name + "</span>" +
-				"<li data-icon=\"false\" class=\"challenge-list-item\"><a class=\"li-clickable\">" +
-				"<p>Reached: " + (reachedTime == null ? "-" : reachedTime) + "</p>" +
-				(capturedBy != null ? "<p style=\"color: " + teamMap[capturedBy].color + "\">Captured by: " + teamMap[capturedBy].name + "</p>" : "") +
-				"</li>\n";
+	var generateDefaultListItem = function(title, content){
+		return	"<li data-role=\"list-divider\">" +
+				"<span class=\"listview-left\">" + title + "</span>" +
+				"<li data-icon=\"false\">" + content + "</li>\n";
 	};
 
 /*
@@ -202,8 +285,9 @@ function ChallengeNavigatorController(challenge_id){
 			},
 			cache: false,
 			success: function(response){
+				var responseData = null
 				try{
-					var responseData = JSON.parse(response);
+					responseData = JSON.parse(response);
 					if(responseData.status == "ok"){
 						// The checkpoint ist now marked as reached - update the local "database"
 						for(var i = 0; i < coordData.coords.length; i++){
@@ -217,6 +301,7 @@ function ChallengeNavigatorController(challenge_id){
 
 						updateCoordList();
 						updateListPanel();
+						updateStatsPanel();
 					}
 					else{
 						SubstanceTheme.showNotification("<h3>Unable to update checkpoint</h3><p>" + responseData.msg + "</p>", 7,
@@ -259,6 +344,7 @@ function ChallengeNavigatorController(challenge_id){
 
 						updateCoordList();
 						updateListPanel();
+						updateStatsPanel();
 					}
 					else{
 						SubstanceTheme.showNotification("<h3>Unable to capture this checkpoint</h3><p>" + responseData.msg + "</p>", 7,

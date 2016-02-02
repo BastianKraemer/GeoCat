@@ -189,6 +189,7 @@
 
 		// ================ Challenge Navigator ==========================
 
+		// Get the information about this challenge (name, teams, team colors, ...)
 		protected function device_start(){
 			$session = $this->requireLogin();
 
@@ -211,6 +212,7 @@
 			return self::buildResponse(true, $info);
 		}
 
+		// Get some information about the challenge coordinates
 		protected function info(){
 			require_once(__DIR__ . "/../app/challenge/Checkpoint.php");
 
@@ -223,7 +225,7 @@
 			$challengeId = $this->args["challenge"];
 
 			$this->requireEnabledChallenge($challengeId);
-			$this->requireStartedChallenge($challengeId);
+			$this->requireStartedChallenge($challengeId, false);
 
 			$team_id = $this->getTeamId($challengeId, $session);
 
@@ -236,6 +238,7 @@
 			return self::buildResponse(true, array("coords" => $coords));
 		}
 
+		// Tag a checkpoint as 'reached'
 		protected function checkpoint(){
 			require_once(__DIR__ . "/../app/challenge/Checkpoint.php");
 			require_once(__DIR__ . "/../app/challenge/ChallengeCoord.php");
@@ -251,7 +254,7 @@
 
 			$challengeId = $this->args["challenge"];
 			$this->requireEnabledChallenge($challengeId);
-			$this->requireStartedChallenge($challengeId);
+			$this->requireStartedChallenge($challengeId, true);
 
 			$ccid = $this->args["coord"];
 			$cid = ChallengeCoord::getCoordinate($this->dbh, $this->args["coord"]);
@@ -281,6 +284,7 @@
 			}
 		}
 
+		// Tag a checkpoint as 'captured'
 		protected function capture(){
 			require_once(__DIR__ . "/../app/challenge/Checkpoint.php");
 			require_once(__DIR__ . "/../app/challenge/ChallengeCoord.php");
@@ -294,11 +298,13 @@
 
 			$challengeId = $this->args["challenge"];
 			$this->requireEnabledChallenge($challengeId);
-			$this->requireStartedChallenge($challengeId);
 
 			$teamId = $this->getTeamId($challengeId, $session);
 
-			if(!ChallengeManager::getChallengeInformation($this->dbh, $challengeId)["type_id"] == ChallengeType::CaptureTheFlag){
+			$challengeData = ChallengeManager::getChallengeInformation($this->dbh, $challengeId);
+			$this->requireStartedChallenge($challengeId, true, $challengeData);
+
+			if($challengeData["type_id"] != ChallengeType::CaptureTheFlag){
 				return self::buildResponse(false, array("msg" => $this->locale->get("query.challenge.capture_not_allowed")));
 			}
 
@@ -335,8 +341,25 @@
 			}
 		}
 
-		private function requireStartedChallenge($challengeId){
-			// TODO: has challenge started (compare start_time with current time)
+		private function requireStartedChallenge($challengeId, $checkEndTimeToo, $challengeData = null){
+			if($challengeData == null){
+				$challengeData = ChallengeManager::getChallengeInformation($this->dbh, $challengeId);
+			}
+
+			$startTime = strtotime($challengeData["start_time"]);
+			$endTimeStr = $challengeData["end_time"];
+			$current_time = time();
+
+			if($current_time < $startTime){
+				throw new InvalidArgumentException(sprintf($this->locale->get("query.challenge.not_started"), date("d.m.y", $startTime),  date("H:i:s", $startTime)));
+			}
+
+
+			if($endTimeStr != null && $checkEndTimeToo){
+				if($current_time > strtotime($endTimeStr)){
+					throw new InvalidArgumentException(sprintf($this->locale->get("query.challenge.has_ended")));
+				}
+			}
 		}
 
 		private function getTeamId($challengeId, $session){

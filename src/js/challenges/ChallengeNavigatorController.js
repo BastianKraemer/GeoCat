@@ -26,10 +26,11 @@ function ChallengeNavigatorController(challenge_id){
 
 	this.pageOpened = function(){
 
-		$(htmlElement["codeinput_ok"]).click(function(e){
-			sendCapturedOrReached($(htmlElement["codeinput_popup"]).attr("data-ccid"), $(htmlElement["codeinput_textfield"]).val());
-			$(htmlElement["codeinput_textfield"]).val("");
-			$(htmlElement["codeinput_popup"]).popup("close");
+		$(htmlElement["codeinput_ok"]).click(codeInputOnClick);
+		$(htmlElement["codeinput_textfield"]).keyup(function(e){
+			if(e.keyCode == 13){
+				codeInputOnClick();
+			}
 		});
 
 		$(htmlElement["reload_button"]).click(function(e){
@@ -45,8 +46,20 @@ function ChallengeNavigatorController(challenge_id){
 
 	this.pageClosed = function(){
 		$(htmlElement["codeinput_ok"]).unbind();
+		$(htmlElement["codeinput_textfield"]).unbind();
 		$(htmlElement["reload_button"]).unbind();
 		$(htmlElement["reached_button"]).unbind();
+
+		// Close any opened notifications
+		if(SubstanceTheme.previousNotification != null){
+			SubstanceTheme.previousNotification.hide();
+		}
+	};
+
+	var codeInputOnClick = function(){
+		sendCapturedOrReached($(htmlElement["codeinput_popup"]).attr("data-ccid"), $(htmlElement["codeinput_textfield"]).val());
+		$(htmlElement["codeinput_textfield"]).val("");
+		$(htmlElement["codeinput_popup"]).popup("close");
 	};
 
 	var getChallengeInformation = function(){
@@ -232,6 +245,8 @@ function ChallengeNavigatorController(challenge_id){
 			}
 
 			list.append(generateDefaultListItem(GeoCat.locale.get("challenge.nav.stats", "Stats"), "<table>\n" + txt + "</table>\n"));
+
+			if(free == 0){showAllCachesReachedOrCapturedNotification();}
 		}
 		else{
 			// Stats for regular challenges
@@ -249,6 +264,8 @@ function ChallengeNavigatorController(challenge_id){
 					"<tr><td>" + GeoCat.locale.get("challenge.nav.caches", "Caches") + "</td><td>" + coordCount + "</td></tr>\n" +
 					"<tr><td>" + GeoCat.locale.get("challenge.nav.reached", "Reached") + ":</td><td>" + reachedCount + " (" + ((100 / coordCount) * reachedCount) + "%)</td></tr>\n" +
 					"</table>\n"));
+
+			if(reachedCount == coordCount){showAllCachesReachedOrCapturedNotification();}
 		}
 
 		list.listview('refresh');
@@ -258,6 +275,14 @@ function ChallengeNavigatorController(challenge_id){
 		return	"<li data-role=\"list-divider\">" +
 				"<span class=\"listview-left\">" + title + "</span>" +
 				"<li data-icon=\"false\">" + content + "</li>\n";
+	};
+
+	var showAllCachesReachedOrCapturedNotification = function(){
+		setTimeout(function(){
+			SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("challenge.nav.finished.title", "You have finished this challenge") + "</h3>" +
+											"<p>" + GeoCat.locale.get("challenge.nav.finished.text", "Go back to the challenge overview to take a look at the ranking") + "</p>",
+											-1, $.mobile.activePage[0], "substance-green no-shadow white");
+		}, 3000);
 	};
 
 /*
@@ -419,6 +444,7 @@ function ChallengeNavigatorController(challenge_id){
 			if(coord.code_required == 1){
 				$(htmlElement["codeinput_popup"]).attr("data-ccid", coord.challenge_coord_id);
 				$(htmlElement["codeinput_popup"]).popup("open", {positionTo: "window", transition: "pop"});
+				$(htmlElement["codeinput_textfield"]).select();
 			}
 			else{
 				sendCapturedOrReached(coord.challenge_coord_id, null);

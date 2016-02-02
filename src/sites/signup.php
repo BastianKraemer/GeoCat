@@ -8,7 +8,7 @@
 	require_once(__DIR__ . "/../app/JSONLocale.php");
 	require_once(__DIR__ . "/../app/pages/GeoCatPage.php");
 	require_once(__DIR__ . "/../app/SessionManager.php");
-	$locale = JSONLocale::withBrowserLanguage($config);
+	$locale = JSONLocale::withBrowserLanguage();
 	$session = new SessionManager();
 
 	/**

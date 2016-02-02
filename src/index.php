@@ -8,7 +8,7 @@
 	require_once(__DIR__ . "/app/SessionManager.php");
 	require_once(__DIR__ . "/app/pages/GeoCatPage.php");
 
-	$locale = JSONLocale::withBrowserLanguage($config);
+	$locale = JSONLocale::withBrowserLanguage();
 	$session = new SessionManager();
 	$pathToRoot = "./";
 

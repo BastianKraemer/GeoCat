@@ -17,10 +17,9 @@
 		/**
 		 * Create a JSONLocale object to get the translations
 		 * @param string $locale The language. For example "en" or "de".
-		 * @param string[] $config Configuration from "config.php". The required parameter is "app.contextroot".
 		 * @throws InvalidArgumentException If the selected language is not available
 		 */
-		function __construct($locale, $config) {
+		function __construct($locale) {
 			if(strtolower($locale) == "de"){
 				$this->translations = json_decode(file_get_contents(__DIR__ . "/../locale/" . $locale . ".json"), true);
 			}
@@ -76,8 +75,8 @@
 		 * @param string[] $config Configuration from "config.php".
 		 * @return JSONLocale
 		 */
-		public static function withBrowserLanguage($config){
-			return new JSONLocale(self::getBrowserLanguage(), $config);
+		public static function withBrowserLanguage(){
+			return new JSONLocale(self::getBrowserLanguage());
 		}
 	}
 ?>

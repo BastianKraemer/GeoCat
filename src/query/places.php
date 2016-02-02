@@ -27,7 +27,7 @@
 
 	try{
 		$dbh = DBTools::connectToDatabase($config);
-		$locale = JSONLocale::withBrowserLanguage($config);
+		$locale = JSONLocale::withBrowserLanguage();
 
 		$session = new SessionManager();
 		$placeHandler = new AJAXPlaceHandler($dbh, $session, $locale);

@@ -451,7 +451,7 @@ function ChallengeNavigatorController(challenge_id){
 			}
 		}
 		else{
-			SubstanceTheme.showNotification("<p>" + GuiToolkit.sprintf(GeoCat.locale.get("challenge.nav.too_far_away", "You have to get closer to a cache before you can set the point as 'reached' (less than {0} m)", [minDistanceToSetReached])) + "</p>", 7,
+			SubstanceTheme.showNotification("<p>" + GuiToolkit.sprintf(GeoCat.locale.get("challenge.nav.too_far_away", "You have to get closer to a cache before you can set the point as 'reached' (less than {0} m)"), [minDistanceToSetReached]) + "</p>", 7,
 											$.mobile.activePage[0], "substance-skyblue no-shadow white");
 		}
 	};

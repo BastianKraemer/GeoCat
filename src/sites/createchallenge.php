@@ -77,8 +77,6 @@
 	<script type="text/javascript">
 		var ajaxSent = false;
 
-		LoginController.init("../");
-
 		$(document).on("pagecreate", function(event){
 
 			$("#CreateAccount").click(function(){

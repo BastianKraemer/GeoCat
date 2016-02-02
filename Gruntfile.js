@@ -10,7 +10,7 @@ module.exports = function(grunt) {
 				dest: 'src/locale'
 			}
 		},
-		
+
 		clean: {
 			build: {
 				src: ["dest/*"]
@@ -39,9 +39,9 @@ module.exports = function(grunt) {
 					'dest/js/controller.min.js':
 						[
 							'src/js/LoginController.js',
-							'src/places/PlacesController.js',
-							'src/gpsnavigator/GPSNavigationController.js',
-							'src/challenges/*.js'
+							'src/js/places/PlacesController.js',
+							'src/js/gpsnavigator/GPSNavigationController.js',
+							'src/js/challenges/*.js'
 						]
 				}
 			}
@@ -50,7 +50,14 @@ module.exports = function(grunt) {
 		copy: {
 			main: {
 				cwd: 'src/',
-				src: ['app/**', 'config/config.php', 'css/**', 'js/**', 'lib/*.min.js', 'locale/*.json', 'query/**', 'sites/**', 'views/**', 'index.php'],
+				src: ['app/**', 'config/config.php', 'css/**', 'img/**', 'js/**', 'lib/*.min.js', 'locale/*.json'],
+				dest: 'dest/',
+				expand: true
+			},
+
+			ReferenceMinimizedFiles: {
+				cwd: 'src/',
+				src: ['query/**', 'sites/**', 'views/**', 'index.php'],
 				dest: 'dest/',
 				expand: true,
 				options: {

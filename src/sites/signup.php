@@ -52,11 +52,9 @@
 	<script type="text/javascript">
 		var ajaxSent = false;
 
-		LoginController.init("../");
-
 		$(document).on("pagecreate", function(event){
 
-			$("#CreateAccount").click(function(){
+			$("#CreateAccountButton").click(function(){
 				var usrname = $("#Form_CreateAccount_username").val();
 				var email = $("#Form_CreateAccount_email").val();
 				var pw1 = $("#Form_CreateAccount_password").val();
@@ -152,7 +150,7 @@
 						<a id="login-back" href="./../../" role="button" class="ui-btn ui-corner-all"><?php $locale->write("back"); ?></a>
 					</div>
 					<div class="ui-block-b">
-						<input id="CreateAccount" type="button" value="<?php $locale->write("createaccount.confirm"); ?>">
+						<input id="CreateAccountButton" type="button" value="<?php $locale->write("createaccount.confirm"); ?>">
 					</div>
 				</div>
 			</form>

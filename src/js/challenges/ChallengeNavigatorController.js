@@ -41,6 +41,8 @@ function ChallengeNavigatorController(challenge_id){
 			setReached();
 		});
 
+		$(htmlElement["coord_panel"]).on("panelbeforeopen", updateListPanel);
+
 		getChallengeInformation();
 	};
 
@@ -49,6 +51,7 @@ function ChallengeNavigatorController(challenge_id){
 		$(htmlElement["codeinput_textfield"]).unbind();
 		$(htmlElement["reload_button"]).unbind();
 		$(htmlElement["reached_button"]).unbind();
+		$(htmlElement["coord_panel"]).unbind();
 
 		// Close any opened notifications
 		if(SubstanceTheme.previousNotification != null){
@@ -124,7 +127,6 @@ function ChallengeNavigatorController(challenge_id){
 		coordData = data
 
 		updateCoordList();
-		updateListPanel();
 		updateStatsPanel();
 
 		if(gpsRadar == null){
@@ -173,25 +175,32 @@ function ChallengeNavigatorController(challenge_id){
 	};
 
 	var updateListPanel = function(){
-
 		var list = $(htmlElement["coord_list"]);
 		list.empty();
 
-		for(var i = 0; i < coordData.coords.length; i++){
-			list.append(generateItem(coordData.coords[i].name, isCTF ? coordData.coords[i].capture_time : coordData.coords[i].reached,
-									 isCTF ? coordData.coords[i].captured_by : null, i));
+		if(coordData != null){
+			var pos = GPS.get();
+
+			for(var i = 0; i < coordData.coords.length; i++){
+				list.append(generateItem(coordData.coords[i].name,
+								isCTF ? coordData.coords[i].capture_time : coordData.coords[i].reached,
+								isCTF ? coordData.coords[i].captured_by : null,
+								(pos == null ? "-" : (GeoTools.calculateDistance(pos.coords.longitude, pos.coords.latitude, coordData.coords[i].longitude, coordData.coords[i].latitude) * 1000).toFixed(1) + " m"),
+								i));
+			}
+
+			$(htmlElement["coord_list"] + " li a.li-clickable").click(function(){
+				listItemOnClick(this);
+			});
+
+			list.listview('refresh');
 		}
-
-		$(htmlElement["coord_list"] + " li a.li-clickable").click(function(){
-			listItemOnClick(this);
-		});
-
-		list.listview('refresh');
 	};
 
-	var generateItem = function(name, reachedTime, capturedBy, index){
+	var generateItem = function(name, reachedTime, capturedBy, distance, index){
 		return generateDefaultListItem(name,
 					"<a class=\"li-clickable\" data-index=\"" + index + "\">" +
+					"<p>" + GeoCat.locale.get("challenge.nav.distance", "Distance") + ": " + distance + "</p>" +
 					"<p>" + GeoCat.locale.get("challenge.nav.reached", "Reached") + ": " + (reachedTime == null ? "-" : reachedTime) + "</p>" +
 					(capturedBy != null ? "<p style=\"color: " + teamMap[capturedBy].color + "\">" + GeoCat.locale.get("challenge.nav.captured_by", "Captured by") + ": " + teamMap[capturedBy].name + "</p>" : "")
 				);
@@ -208,13 +217,15 @@ function ChallengeNavigatorController(challenge_id){
 		var list = $(htmlElement["stats"]);
 		list.empty();
 
+		var endTime = challengeData.end_time == null ? "-" : challengeData.end_time;
+
 		list.append(generateDefaultListItem(GeoCat.locale.get("challenge.nav.challenge_info", "Challenge Information"),
 						"<h3>" + challengeData.name + "</h3>\n" +
 						"<table>" +
 						"<tr><td>" + GeoCat.locale.get("challenge.nav.typeinfo", "Type") + ":</td><td>" + challengeData.type_name + "</td></tr>\n" +
 						"<tr><td>" + GeoCat.locale.get("challenge.nav.ownerinfo", "Organizer") + ":</td><td>" + challengeData.owner_name + "</td></tr>\n" +
 						"<tr><td>" + GeoCat.locale.get("challenge.nav.startinfo", "Start") + "::</td><td>" + challengeData.start_time + "</td></tr>\n" +
-						"<tr><td>" + GeoCat.locale.get("challenge.nav.endinfo", "End") + ":</td><td>" + challengeData.end_time + "</td></tr>\n" +
+						"<tr><td>" + GeoCat.locale.get("challenge.nav.endinfo", "End") + ":</td><td>" + endTime + "</td></tr>\n" +
 						"</table>\n"));
 
 
@@ -327,7 +338,6 @@ function ChallengeNavigatorController(challenge_id){
 						}
 
 						updateCoordList();
-						updateListPanel();
 						updateStatsPanel();
 					}
 					else{
@@ -371,7 +381,6 @@ function ChallengeNavigatorController(challenge_id){
 						}
 
 						updateCoordList();
-						updateListPanel();
 						updateStatsPanel();
 					}
 					else{
@@ -418,7 +427,7 @@ function ChallengeNavigatorController(challenge_id){
 		var lowestDist = minDistanceToSetReached;
 		for(var i = 0; i < coordData.coords.length; i++){
 			var c = coordData.coords[i];
-			var distanceInMeter = GeoTools.calculateDistance(myPos.coords.latitude, myPos.coords.longitude, c.latitude,c.longitude) * 1000;
+			var distanceInMeter = GeoTools.calculateDistance(myPos.coords.latitude, myPos.coords.longitude, c.latitude, c.longitude) * 1000;
 			if(distanceInMeter < lowestDist){
 				ilowestDist = distanceInMeter;
 				coord = c;

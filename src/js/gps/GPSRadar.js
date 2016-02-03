@@ -1,5 +1,5 @@
 /*	GeoCat - Geolocation caching and tracking platform
-	Copyright (C) 2015 Bastian Kraemer
+	Copyright (C) 2015-2016 Bastian Kraemer
 
 	GPSRadar.js
 
@@ -24,8 +24,6 @@
  * @param targetCanvas {HTMLElement} The target HTML5 canvas
  */
 function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
-
-	//TODO: Append a "buffer zone" between canvas and its border to prevent cut text
 
 	var maxDisplayedDistance = 1000; //distance between window border and center (in meters)
 	var jQueryMobileContentDiv = jQueryMobileContentDivElement;
@@ -106,6 +104,7 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 		}
 
 		drawGrid(ctx, heading);
+		drawStickman(ctx, 0, 0);
 
 		for(var key in coords) {
 			var distanceInMeter = GeoTools.calculateDistance(lon, lat, coords[key].lon, coords[key].lat) * 1000;
@@ -253,6 +252,29 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 		ctx.beginPath();
 		ctx.arc(x, y, r, 0, 2*Math.PI);
 		ctx.strokeStyle = color;
+		ctx.closePath();
+		ctx.stroke();
+	}
+
+	function drawStickman(ctx, x, y){
+		ctx.beginPath();
+		ctx.arc(x, y - 8, 3, 0, 2*Math.PI);
+
+		ctx.moveTo(x, y - 4);
+		ctx.lineTo(x, y + 2);
+
+		ctx.moveTo(x, y + 2);
+		ctx.lineTo(x + 3, y + 10);
+
+		ctx.moveTo(x, y + 2);
+		ctx.lineTo(x - 3, y + 10);
+
+		ctx.moveTo(x, y);
+		ctx.lineTo(x + 5, y - 4);
+
+		ctx.moveTo(x, y);
+		ctx.lineTo(x - 5, y - 4);
+
 		ctx.closePath();
 		ctx.stroke();
 	}

@@ -22,6 +22,7 @@ function ChallengeNavigatorController(challenge_id){
 	var coordList; // The map for the GPSRadar
 	var iconList;
 	var colorList;
+	var visibilityList = new Object();
 	var teamMap;
 
 	var gpsRadar = null;
@@ -188,24 +189,29 @@ function ChallengeNavigatorController(challenge_id){
 								isCTF ? coordData.coords[i].capture_time : coordData.coords[i].reached,
 								isCTF ? coordData.coords[i].captured_by : null,
 								(pos == null ? "-" : (GeoTools.calculateDistance(pos.coords.longitude, pos.coords.latitude, coordData.coords[i].longitude, coordData.coords[i].latitude) * 1000).toFixed(1) + " m"),
-								i));
+								isVisible(coordData.coords[i].coord_id), i));
 			}
 
-			$(htmlElement["coord_list"] + " li").click(function(){
+			$(htmlElement["coord_list"] + " li.li-clickable, " + htmlElement["coord_list"] + " li a.li-clickable").click(function(){
 				listItemOnClick(this);
+			});
+
+			$(htmlElement["coord_list"] + " li a.show-coord").click(function(){
+				toogleVisibilityOnClick(this);
 			});
 
 			list.listview('refresh');
 		}
 	};
 
-	var generateItem = function(name, reachedTime, capturedBy, distance, index){
-		return	"<li data-role=\"list-divider\" data-index=\"" + index + "\">" +
+	var generateItem = function(name, reachedTime, capturedBy, distance, isVisible, index){
+		return	"<li data-role=\"list-divider\" data-index=\"" + index + "\" class=\"li-clickable\">" +
 				"<span class=\"listview-left\">" + name + "</span>" +
-				"<li data-icon=\"false\" data-index=\"" + index + "\" class=\"li-clickable\">" +
+				"<li data-icon=\"true\"><a class=\"li-clickable\" data-index=\"" + index + "\">" +
 				"<p>" + GeoCat.locale.get("challenge.nav.distance", "Distance") + ": " + distance + "</p>" +
 				"<p>" + GeoCat.locale.get("challenge.nav.reached", "Reached") + ": " + (reachedTime == null ? "-" : reachedTime) + "</p>" +
 				(capturedBy != null ? "<p style=\"color: " + teamMap[capturedBy].color + "\">" + GeoCat.locale.get("challenge.nav.captured_by", "Captured by") + ": " + teamMap[capturedBy].name + "</p>" : "") +
+				"</a><a class=\"" + (isVisible ? "ui-icon-eye " : "") + "show-coord\" data-index=\"" + index + "\">" + GeoCat.locale.get("challenge.nav.show", "Start navigation") + "</a>" +
 				"</li>\n";
 	};
 
@@ -219,6 +225,28 @@ function ChallengeNavigatorController(challenge_id){
 			SubstanceTheme.showNotification("<p>" + GuiToolkit.sprintf(GeoCat.locale.get("challenge.nav.nohint", "There is no hint for cache '{0}' available"), [data.name]) + "</p>", 7,
 											$.mobile.activePage[0], "substance-skyblue no-shadow white");
 		}
+	};
+
+	var toogleVisibilityOnClick = function(el){
+		var coord = coordData.coords[$(el).attr("data-index")];
+		var id = coord.coord_id;
+		if(isVisible(id)){
+			visibilityList[id] = false;
+			delete coordList[id];
+			$(el).removeClass("ui-icon-eye");
+		}
+		else{
+			visibilityList[id] = true;
+			coordList[id] = new Coordinate(id, coord.name, coord.latitude, coord.longitude, coord.decription, false);
+			$(el).addClass("ui-icon-eye");
+		}
+	};
+
+	var isVisible = function(id){
+		if(visibilityList.hasOwnProperty(id)){
+			return visibilityList[id];
+		}
+		return true;
 	};
 
 	var updateStatsPanel = function(){

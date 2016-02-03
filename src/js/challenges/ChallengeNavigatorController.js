@@ -7,10 +7,12 @@ function ChallengeNavigatorController(challenge_id){
 	htmlElement["canvas"] = "#challenge-navigator-canvas";
 	htmlElement["canvas_container"] = "#challenge-navigator-content";
 	htmlElement["codeinput_popup"] = "#code-input-popup";
+	htmlElement["codeinput_hint"] = "#checkpoint-code-input-hint";
 	htmlElement["codeinput_textfield"] = "#checkpoint-code-input";
 	htmlElement["codeinput_ok"] = "#checkpoint-code-input-ok";
 	htmlElement["reached_button"] = "#checkpoint-reached-button";
 	htmlElement["reload_button"] = "#challenge-navigator-update-button";
+
 	var minDistanceToSetReached = 20; // In meters
 
 	var challengeId = challenge_id;
@@ -189,7 +191,7 @@ function ChallengeNavigatorController(challenge_id){
 								i));
 			}
 
-			$(htmlElement["coord_list"] + " li a.li-clickable").click(function(){
+			$(htmlElement["coord_list"] + " li").click(function(){
 				listItemOnClick(this);
 			});
 
@@ -198,18 +200,25 @@ function ChallengeNavigatorController(challenge_id){
 	};
 
 	var generateItem = function(name, reachedTime, capturedBy, distance, index){
-		return generateDefaultListItem(name,
-					"<a class=\"li-clickable\" data-index=\"" + index + "\">" +
-					"<p>" + GeoCat.locale.get("challenge.nav.distance", "Distance") + ": " + distance + "</p>" +
-					"<p>" + GeoCat.locale.get("challenge.nav.reached", "Reached") + ": " + (reachedTime == null ? "-" : reachedTime) + "</p>" +
-					(capturedBy != null ? "<p style=\"color: " + teamMap[capturedBy].color + "\">" + GeoCat.locale.get("challenge.nav.captured_by", "Captured by") + ": " + teamMap[capturedBy].name + "</p>" : "")
-				);
+		return	"<li data-role=\"list-divider\" data-index=\"" + index + "\">" +
+				"<span class=\"listview-left\">" + name + "</span>" +
+				"<li data-icon=\"false\" data-index=\"" + index + "\" class=\"li-clickable\">" +
+				"<p>" + GeoCat.locale.get("challenge.nav.distance", "Distance") + ": " + distance + "</p>" +
+				"<p>" + GeoCat.locale.get("challenge.nav.reached", "Reached") + ": " + (reachedTime == null ? "-" : reachedTime) + "</p>" +
+				(capturedBy != null ? "<p style=\"color: " + teamMap[capturedBy].color + "\">" + GeoCat.locale.get("challenge.nav.captured_by", "Captured by") + ": " + teamMap[capturedBy].name + "</p>" : "") +
+				"</li>\n";
 	};
 
 	var listItemOnClick = function(el){
 		var data = coordData.coords[$(el).attr("data-index")];
-		SubstanceTheme.showNotification("<h3>" + GuiToolkit.sprintf(GeoCat.locale.get("challenge.nav.hint", "Hint for cache '{0}'"), [data.name]) + "</h3>" +
-										"<p>" + data.hint + "</p>", -1,	$.mobile.activePage[0], "substance-skyblue no-shadow white");
+		if(data.hint != null){
+			SubstanceTheme.showNotification("<h3>" + GuiToolkit.sprintf(GeoCat.locale.get("challenge.nav.hint_for", "Hint for cache '{0}'"), [data.name]) + "</h3>" +
+											"<p>" + data.hint + "</p>", -1,	$.mobile.activePage[0], "substance-skyblue no-shadow white");
+		}
+		else{
+			SubstanceTheme.showNotification("<p>" + GuiToolkit.sprintf(GeoCat.locale.get("challenge.nav.nohint", "There is no hint for cache '{0}' available"), [data.name]) + "</p>", 7,
+											$.mobile.activePage[0], "substance-skyblue no-shadow white");
+		}
 	};
 
 	var updateStatsPanel = function(){
@@ -249,10 +258,10 @@ function ChallengeNavigatorController(challenge_id){
 				coordCount++;
 			}
 
-			var txt = "<tr><td>" + GeoCat.locale.get("challenge.nav.free_caches", "Free") + "</td><td>" + free  + " (" + ((100 / coordCount) * free) + "%)</td></tr>";
+			var txt = "<tr><td>" + GeoCat.locale.get("challenge.nav.free_caches", "Free") + "</td><td>" + free  + " (" + ((100 / coordCount) * free).toFixed(1) + "%)</td></tr>";
 
 			for(var key in stats){
-				txt += "<tr><td>" + teamMap[key].name + "</td><td>" + stats[key] + " (" + ((100 / coordCount) * stats[key]) + "%)</td></tr>\n"
+				txt += "<tr><td>" + teamMap[key].name + "</td><td>" + stats[key] + " (" + ((100 / coordCount) * stats[key]).toFixed(1) + "%)</td></tr>\n"
 			}
 
 			list.append(generateDefaultListItem(GeoCat.locale.get("challenge.nav.stats", "Stats"), "<table>\n" + txt + "</table>\n"));
@@ -273,7 +282,7 @@ function ChallengeNavigatorController(challenge_id){
 			list.append(generateDefaultListItem(GeoCat.locale.get("challenge.nav.stats", "Stats"),
 					"<table>\n" +
 					"<tr><td>" + GeoCat.locale.get("challenge.nav.caches", "Caches") + "</td><td>" + coordCount + "</td></tr>\n" +
-					"<tr><td>" + GeoCat.locale.get("challenge.nav.reached", "Reached") + ":</td><td>" + reachedCount + " (" + ((100 / coordCount) * reachedCount) + "%)</td></tr>\n" +
+					"<tr><td>" + GeoCat.locale.get("challenge.nav.reached", "Reached") + ":</td><td>" + reachedCount + " (" + ((100 / coordCount) * reachedCount).toFixed(1) + "%)</td></tr>\n" +
 					"</table>\n"));
 
 			if(reachedCount == coordCount){showAllCachesReachedOrCapturedNotification();}
@@ -282,7 +291,7 @@ function ChallengeNavigatorController(challenge_id){
 		list.listview('refresh');
 	};
 
-	var generateDefaultListItem = function(title, content){
+	var generateDefaultListItem = function(title, content, liAttrib){
 		return	"<li data-role=\"list-divider\">" +
 				"<span class=\"listview-left\">" + title + "</span>" +
 				"<li data-icon=\"false\">" + content + "</li>\n";
@@ -453,6 +462,14 @@ function ChallengeNavigatorController(challenge_id){
 			if(coord.code_required == 1){
 				$(htmlElement["codeinput_popup"]).attr("data-ccid", coord.challenge_coord_id);
 				$(htmlElement["codeinput_popup"]).popup("open", {positionTo: "window", transition: "pop"});
+				if(coord.hint == null){
+					$(htmlElement["codeinput_hint"]).css("height", "0").css("visibility", "hidden");
+				}
+				else{
+					$(htmlElement["codeinput_hint"]).css("height", "auto").css("visibility", "shown");
+					$(htmlElement["codeinput_hint"])[0].innerHTML = "<u>" + GeoCat.locale.get("challenge.nav.hint", "Hint") + ":</u> " + coord.hint;
+				}
+
 				$(htmlElement["codeinput_textfield"]).select();
 			}
 			else{

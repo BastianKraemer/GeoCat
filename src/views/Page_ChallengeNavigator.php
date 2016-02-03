@@ -48,6 +48,7 @@
 
 			<div role="main" class="ui-content">
 				<label for="checkpoint-code-input"><?php $locale->write("challenge.navigator.codeinput.label"); ?>:</label>
+				<p id="checkpoint-code-input-hint" class="hint"></p>
 				<input id="checkpoint-code-input" name="checkpoint-code-input" placeholder="<?php $locale->write("challenge.navigator.codeinput.placeholder"); ?>" data-theme="a" type="text">
 				<button id="checkpoint-code-input-ok" class="ui-btn ui-corner-all ui-shadow"><?php $locale->write("okay"); ?></button>
 			</div>

@@ -125,3 +125,16 @@ canvas.gpsradar {
 		display: none;
 	}
 }
+
+/* ==============================================================================
+	Challenge Navigator
+============================================================================== */
+
+.hint {
+	color: #777777;
+	font-style: italic;
+}
+
+#challenge-navigator-coord-list li.ui-li-divider {
+	cursor: pointer;
+}

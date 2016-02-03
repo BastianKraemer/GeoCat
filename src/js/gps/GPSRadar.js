@@ -32,8 +32,11 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 	var canvas = targetCanvas;
 	var canvasFrame = targetCanvas.parentElement;
 	var preferedCanvasSize;
+
+	var canvasOffset = 16;
 	var canvasAxisLength = 500;
-	var showDebugInfos = true;
+	var canvasRadius = canvasAxisLength - canvasOffset;
+	var showDebugInfos = false;
 
 	/**
 	 * Starts the {@link GPSRadar}
@@ -98,13 +101,11 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 			canvas.width = preferedCanvasSize;
 			canvas.height = preferedCanvasSize;
 			canvasAxisLength = preferedCanvasSize / 2;
+			canvasRadius = canvasAxisLength - canvasOffset;
 			ctx.translate(canvasAxisLength, canvasAxisLength);
 		}
 
-		ctx.fillStyle = 'black';
 		drawGrid(ctx, heading);
-		ctx.font = "14px Arial";
-		ctx.fillStyle = 'red';
 
 		for(var key in coords) {
 			var distanceInMeter = GeoTools.calculateDistance(lon, lat, coords[key].lon, coords[key].lat) * 1000;
@@ -115,7 +116,7 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 			angle = (angle - heading) % 360;
 
 			//Calulate position relative to your own position
-			var distInPx = convertDistance2Points(distanceInMeter, maxDisplayedDistance, canvasAxisLength)
+			var distInPx = convertDistance2Points(distanceInMeter, maxDisplayedDistance, canvasRadius)
 			var relativePosition = calculateRelativePoint(angle, distInPx);
 
 			var icon = icons.hasOwnProperty(key) ? icons[key] : GPSRadar.CoordinateIcon.POINT;
@@ -147,9 +148,16 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 	};
 
 	function drawCoordinateText(ctx, coordName, coordDist, x, y, color){
+		ctx.font = "14px Arial";
 		ctx.fillStyle = color;
-		ctx.fillText(coordName, x - 16, y - 12);
-		ctx.fillText(coordDist + "m", x, y + 24);
+
+		ctx.fillText(coordName, x - (ctx.measureText(coordName).width / 2), y - 12);
+
+		if(coordDist < maxDisplayedDistance){
+			coordDist += "m";
+			ctx.font = "12px Arial";
+			ctx.fillText(coordDist, x - (ctx.measureText(coordDist).width / 2), y + 22);
+		}
 	}
 
 	this.debugMode = function(value){
@@ -188,23 +196,16 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 	}
 
 	function drawGrid(ctx, heading){
-		ctx.font = "16px Arial";
+		ctx.font = "11pt Arial";
 
-		drawFilledCircle(ctx, 1, -8, "#ffffff");
-		drawFilledCircle(ctx, 0.734, -8, "#f8f8f8");
-		drawFilledCircle(ctx, 0.463, -8, "#f2f2f2");
-		drawFilledCircle(ctx, 0.215, -8, "#ededed");
+		for(var i = 0; i < GPSRadar.display.length; i++){
+			var r = canvasRadius * GPSRadar.display[i].r;
+			drawFilledCircle(ctx, r, GPSRadar.display[i].color);
+			drawCircleWithLabel(ctx, r, -6, GPSRadar.display[i].label, "#999", i == 0);
+		}
 
-		 //Radius for "1% of max distance" by default 10m
-		drawCircleWithLabel(ctx, 0.215, -8, maxDisplayedDistance * 0.01 + "m", "#999", false);
-		 //Radius for "10% of max distance" by default 100m
-		drawCircleWithLabel(ctx, 0.463, -8, maxDisplayedDistance * 0.1 + "m", "#999", false);
-		 //Radius for "40% of max distance" by default 400m
-		drawCircleWithLabel(ctx, 0.734, -8, maxDisplayedDistance * 0.4 + "m", "#999", false);
-		 //Radius for "100% of max distance" by default 1000m
-		drawCircleWithLabel(ctx, 1, -8, maxDisplayedDistance + "m", "#999", true);
-
-		ctx.font = "22px Arial";
+		ctx.font = "18pt Arial";
+		ctx.fillStyle = "#30383f";
 		heading = 360 - heading;
 		drawCompass(ctx, "N", heading);
 		drawCompass(ctx, "W", heading - 90);
@@ -212,23 +213,22 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 		drawCompass(ctx, "E", heading - 270);
 	}
 
-	function drawCircleWithLabel(ctx, radiusInPercent, offset, label, color, drawBorder){
+	function drawCircleWithLabel(ctx, radius, offset, label, color, drawBorder){
 		if(drawBorder){
-			drawCircle(ctx, 0, 0, canvasAxisLength * radiusInPercent, color);
+			drawCircle(ctx, 0, 0, radius, color);
 		}
 		ctx.fillStyle = color;
-		ctx.fillText(label, -4 * label.length, canvasAxisLength * radiusInPercent + offset);
+		ctx.fillText(label, 0 - (ctx.measureText(label).width / 2), radius + offset);
 	}
 
-	function drawFilledCircle(ctx, radiusInPercent, offset, color){
-		drawPoint(ctx, 0, 0, canvasAxisLength * radiusInPercent, color);
+	function drawFilledCircle(ctx, radius, color){
+		drawPoint(ctx, 0, 0, radius, color);
 	}
 
 	function drawCompass(ctx, txt, heading){
-		ctx.fillStyle = 'blue';
-		if(heading < 0){heading = 360 + heading;} //note: heading is negative at the moment
-		var point = calculateRelativePoint(heading, canvasAxisLength - 16);
-		ctx.fillText(txt, point[0] - 8, point[1] + 8);
+		if(heading < 0){heading = 360 + heading;}
+		var point = calculateRelativePoint(heading, canvasRadius);
+		ctx.fillText(txt, point[0] - (ctx.measureText(txt).width / 2), point[1] + (parseInt(ctx.font) / 2));
 	}
 
 	function drawPoint(ctx, x, y, r, color){
@@ -258,9 +258,22 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 	}
 
 	function convertDistance2Points(currentDist, maxDist, axisLength){
-		if(currentDist >= maxDist){return axisLength;}
-		// y = 0.215x^0.333
-		return 0.215 * Math.pow((currentDist/maxDist) * 100, 0.333) * axisLength;
+		return convertDistance2PercentOfScreen(currentDist, maxDist) * axisLength;
+	}
+
+	function convertDistance2PercentOfScreen(currentDist, maxDist){
+		if(currentDist >= maxDist){return 1;}
+
+		var d = (currentDist/maxDist);
+		var val;
+		for(var i = 0; i < GPSRadar.translator.length; i++){
+			val = GPSRadar.translator[i];
+			if(d >= val.d){
+				return val.p + ((d - val.d) / 2);
+			}
+		}
+
+		return (d / val.d) * val.p;
 	}
 
 	function calculateRelativePoint(angle, dist){
@@ -272,6 +285,34 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 		return ret;
 	}
 }
+
+/*
+ * m = Distance in m (max. 1000m)
+ * d = Distance in % of max
+ * p = percent of screen
+ *
+ * m | 0m | 40m | 200m | 500m | 1000m
+ * -----------------------------------
+ * d | 0% |  4% |  20% |  50% | 100%
+ * -----------------------------------
+ * p | 0% | 25% |  50% |  75% | 100%
+ */
+
+GPSRadar.translator = [
+	{d: 0.5	, p: 0.75},
+	{d: 0.2	, p: 0.5},
+	{d: 0.04, p: 0.25},
+];
+
+/*
+ * Definition for the circles of the Radar
+ */
+GPSRadar.display = [
+	{r: 1.0	, label: "1000m", color: "#ffffff"},
+	{r: 0.75, label: "500m"	, color: "#f8f8f8"},
+	{r: 0.5	, label: "200m"	, color: "#f2f2f2"},
+	{r: 0.25, label: "40m"	, color: "#ededed"}
+];
 
 GPSRadar.CoordinateIcon = {
     POINT: 0,

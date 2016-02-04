@@ -31,7 +31,7 @@
 	require_once(__DIR__ . "/../app/SessionManager.php");
 
 	try{
-		$locale = JSONLocale::withBrowserLanguage($config);
+		$locale = JSONLocale::withBrowserLanguage();
 		$dbh = DBTools::connectToDatabase($config);
 
 		$accountHandler = new AJAXAccountHandler($dbh, $locale);

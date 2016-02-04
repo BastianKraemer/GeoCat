@@ -8,7 +8,7 @@
 	require_once(__DIR__ . "/../app/JSONLocale.php");
 	require_once(__DIR__ . "/../app/pages/GeoCatPage.php");
 	require_once(__DIR__ . "/../app/SessionManager.php");
-	$locale = JSONLocale::withBrowserLanguage($config);
+	$locale = JSONLocale::withBrowserLanguage();
 	$session = new SessionManager();
 
 	/**
@@ -32,27 +32,29 @@
 	<title>Create Account</title>
 	<!--<link rel="shortcut icon" href="../favicon.ico">-->
 	<link rel="stylesheet" href="../css/jquery.mobile-1.4.5.min.css">
-	<link rel="stylesheet" href="../css/listview-grid.css">
 	<link rel="stylesheet" href="../css/style.css">
-	<link rel="stylesheet" href="../css/animations.css">
 
 	<!-- <## ../lib/jquery_package.min.js ##> -->
 	<script src="../lib/jquery.min.js"></script>
 	<script src="../lib/jquery.mobile-1.4.5.min.js"></script>
 	<!-- </## ../lib/jquery_package.min.js ##> -->
 
-	<script src="../js/tools.js"></script>
+	<!-- <## ../js/geocat.min.js ##> -->
+	<script src="../js/GeoCat.js"></script>
+	<script src="../js/etc/JSONLocale.js"></script>
+	<script src="../js/etc/GuiToolkit.js"></script>
+	<script src="../js/etc/Uplink.js"></script>
+	<script src="../js/etc/LocalCoordinateStore.js"></script>
 	<script src="../js/Logout.js"></script>
-	<script src="../js/LoginController.js"></script>
+	<script src="../js/Substance.js"></script>
+	<!-- </## ../js/geocat.min.js ##> -->
 
 	<script type="text/javascript">
 		var ajaxSent = false;
 
-		LoginController.init("../");
-
 		$(document).on("pagecreate", function(event){
 
-			$("#CreateAccount").click(function(){
+			$("#CreateAccountButton").click(function(){
 				var usrname = $("#Form_CreateAccount_username").val();
 				var email = $("#Form_CreateAccount_email").val();
 				var pw1 = $("#Form_CreateAccount_password").val();
@@ -69,11 +71,11 @@
 									$("Form_CreateAccount_public_email").is(":checked") ? 1 : 0);
 					}
 					else{
-						Tools.showPopup(<?php $locale->writeQuoted("notification"); ?>, <?php $locale->writeQuoted("signup.passwords_not_equal"); ?>,  <?php $locale->writeQuoted("okay"); ?>, null);
+						GuiToolkit.showPopup(<?php $locale->writeQuoted("notification"); ?>, <?php $locale->writeQuoted("signup.passwords_not_equal"); ?>,  <?php $locale->writeQuoted("okay"); ?>, null);
 					}
 				}
 				else{
-					Tools.showPopup(<?php $locale->writeQuoted("notification"); ?>, <?php $locale->writeQuoted("signup.fill_required_fields"); ?>, <?php $locale->writeQuoted("okay"); ?>, null);
+					GuiToolkit.showPopup(<?php $locale->writeQuoted("notification"); ?>, <?php $locale->writeQuoted("signup.fill_required_fields"); ?>, <?php $locale->writeQuoted("okay"); ?>, null);
 				}
 			});
 		});
@@ -95,16 +97,16 @@
 					success: function(response){
 						ajaxSent = false;
 						if(response["result"] == "true"){
-							Tools.showPopup(<?php $locale->writeQuoted("signup.account_created"); ?>, <?php $locale->writeQuoted("signup.account_created_msg"); ?>, <?php $locale->writeQuoted("okay"); ?>,
+							GuiToolkit.showPopup(<?php $locale->writeQuoted("signup.account_created"); ?>, <?php $locale->writeQuoted("signup.account_created_msg"); ?>, <?php $locale->writeQuoted("okay"); ?>,
 											function(){location.href="../index.php";});
 						}
 						else{
-							Tools.showPopup("Error", response["msg"], <?php $locale->writeQuoted("okay"); ?>, null);
+							GuiToolkit.showPopup("Error", response["msg"], <?php $locale->writeQuoted("okay"); ?>, null);
 						}
 					},
 					error: function(xhr, status, error){
 						ajaxSent = false;
-						Tools.showPopup("Error", "Ajax request failed: " + error, <?php $locale->writeQuoted("okay"); ?>, null);
+						GuiToolkit.showPopup("Error", "Ajax request failed: " + error, <?php $locale->writeQuoted("okay"); ?>, null);
 				}});
 			}
 		}
@@ -148,7 +150,7 @@
 						<a id="login-back" href="./../../" role="button" class="ui-btn ui-corner-all"><?php $locale->write("back"); ?></a>
 					</div>
 					<div class="ui-block-b">
-						<input id="CreateAccount" type="button" value="<?php $locale->write("createaccount.confirm"); ?>">
+						<input id="CreateAccountButton" type="button" value="<?php $locale->write("createaccount.confirm"); ?>">
 					</div>
 				</div>
 			</form>

@@ -4,6 +4,11 @@
 	class Page_BrowseChallenges extends GeoCatPage {
 
 		public function printHead($config, $locale, $session, $pathToRoot){
+?>
+	<script type="text/javascript">
+		BrowseChallengesController.init();
+	</script>
+<?php
 		}
 
 		public function printContent($config, $locale, $session, $pathToRoot){

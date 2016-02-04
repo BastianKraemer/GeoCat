@@ -21,9 +21,11 @@
 	abstract class RequestInterface {
 
 		protected $args;
+		protected $locale;
 
-		protected function __construct($args){
+		protected function __construct($args, $locale){
 			$this->args = $args;
+			$this->locale = $locale;
 		}
 
 		public function handle($methodName){
@@ -32,25 +34,29 @@
 
 				// Verify that it is allowed to call this method
 				if (!$reflection->isProtected() || $reflection->isStatic() || $reflection->getNumberOfParameters() != 0) {
-					throw new RuntimeException("Unknown command '" . $methodName . "'.");
+					throw new RuntimeException(sprintf($this->locale->get("query.generic.unknown_command"), $methodName));
 				}
 
 				// Call the method dynamically
 				return $this->$methodName();
 			}
 			else{
-				throw new RuntimeException("Unknown command '" . $methodName . "'.");
+				throw new RuntimeException(sprintf($this->locale->get("query.generic.unknown_command"), $methodName));
 			}
 		}
 
 		public function handleByArgsKey($key){
-			if(!array_key_exists($key, $this->args)){throw new InvalidArgumentException("Key '" . $task ."' is not defined.");}
+			if(!array_key_exists($key, $this->args)){return self::buildResponse(false, array("msg" => sprintf("Required parameter '%s' is not defined"), $key));}
 			return $this->handle($this->args[$key]);
 		}
 
 		public function handleAndSendResponseByArgsKey($key){
-			if(!array_key_exists($key, $this->args)){throw new InvalidArgumentException("Key '" . $task ."' is not defined.");}
-			$this->handleAndSendResponse($this->args[$key]);
+			if(!array_key_exists($key, $this->args)){
+				print(json_encode(self::buildResponse(false, array("msg" => sprintf("Required parameter '%s' is not defined", $key)))));
+			}
+			else{
+				$this->handleAndSendResponse($this->args[$key]);
+			}
 		}
 
 		public function handleAndSendResponse($methodName){
@@ -61,10 +67,10 @@
 				print(json_encode(self::buildResponse(false, array("msg" => $e->getMessage()))));
 			}
 			catch(InvalidArgumentException $e){
-				print(json_encode(self::buildResponse(false, array("msg" => "Invalid request: " . $e->getMessage()))));
+				print(json_encode(self::buildResponse(false, array("msg" => $e->getMessage()))));
 			}
 			catch(MissingSessionException $e){
-				print(json_encode(self::buildResponse(false, array("msg" => "Access denied. Please sign in at first."))));
+				print(json_encode(self::buildResponse(false, array("msg" => $this->locale->get("query.generic.no_login")))));
 			}
 			catch(Exception $e){
 				print(json_encode(self::buildResponse(false, array("msg" => "Internal server error: " . $e->getMessage()))));
@@ -92,14 +98,14 @@
 					// Apply a regular expression to verify thae argument
 					if($value != null){
 						if(!preg_match($value, $this->args[$key])){
-							throw new InvalidArgumentException("Value of parameter '" . $key . "' is invalid.");
+							throw new InvalidArgumentException(sprintf($this->locale->get("query.generic.invalid_value"), $key));
 						}
 					}
 				}
 				else{
 
 					if(!$areOptional){
-						throw new InvalidArgumentException("Required paremeter '" . $key . "' is not defined.");
+						throw new InvalidArgumentException(sprintf("Required parameter '%s' is not defined", $key));
 					}
 				}
 

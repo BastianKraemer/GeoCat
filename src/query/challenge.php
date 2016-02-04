@@ -22,14 +22,14 @@
 	require_once(__DIR__ . "/../app/DBTools.php");
 	require_once(__DIR__ . "/../app/challenge/ChallengeManager.php");
 	require_once(__DIR__ . "/../app/challenge/TeamManager.php");
+	require_once(__DIR__ . "/../app/JSONLocale.php");
 
 	class ChallengeRequestHandler extends RequestInterface {
 
 		private $dbh;
 
 		public function __construct($parameters, $dbh){
-			parent::__construct($parameters);
-			parent::requireParameters(array("task" => null));
+			parent::__construct($parameters, JSONLocale::withBrowserLanguage());
 			$this->dbh = $dbh;
 		}
 
@@ -55,7 +55,7 @@
 				$this->requireParameters(array("key" => "/^[A-Z0-9]{4,8}$/")); //Sessionkey
 				$this->assignOptionalParameter("key", null);
 				if(!ChallengeManager::checkChallengeKey($this->dbh, $challengeId, $this->args["key"])){
-					throw new InvalidArgumentException("Invalid session key.");
+					throw new InvalidArgumentException($this->locale->get("query.challenge.invalid_key"));
 				}
 			}
 		}
@@ -116,21 +116,21 @@
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
-					"id" => "/\d/",
+					"challenge" => "/\d/",
 			));
 
-			$challengeId = $this->args["id"];
+			$challengeId = $this->args["challenge"];
 
 			// Verify that the user is allowed to receive information about this challenge
 			$this->verifyChallengeAccess($challengeId);
-			return ChallengeManager::getTeams($this->dbh, $this->args["id"]);
+			return ChallengeManager::getTeams($this->dbh, $this->args["challenge"]);
 		}
 
 		protected function join_team(){
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
-					"id" => "/\d/",
+					"challenge" => "/\d/",
 					"team_id" => "/\d/"
 			));
 
@@ -139,7 +139,9 @@
 			));
 			$this->assignOptionalParameter("code", null);
 
-			$this->verifyChallengeAccess($this->args["id"]);
+			$this->requireEnabledChallenge($this->args["challenge"]);
+			$this->verifyChallengeAccess($this->args["challenge"]);
+
 			TeamManager::joinTeam($this->dbh, $this->args["team_id"], $session->getAccountId(), $this->args["code"]);
 
 			return self::buildResponse(true);
@@ -150,14 +152,14 @@
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
-					"id" => "/\d/",
+					"challenge" => "/\d/",
 					"name" => self::defaultNameRegEx(1, 32)
 			));
 
-			$challengeId = $this->args["id"];
+			$challengeId = $this->args["challenge"];
 
 			if(!ChallengeManager::challengeExists($this->dbh, $challengeId)){
-				throw new InvalidArgumentException("Challenge does not exist.");
+				throw new InvalidArgumentException($this->locale->get("query.challenge.challenge_does_not_exist"));
 			}
 
 			// Verify that the user is allowed to join the challenge
@@ -168,7 +170,7 @@
 
 			// Check that the user has the right to create teams
 			if($challengeInfo["predefined_teams"] == 1 && !$currentUserIsOwner){
-				throw new InvalidArgumentException("You cannot create own teams in this challenge.");
+				throw new InvalidArgumentException($this->locale->get("query.challenge.no_custom_teams"));
 			}
 
 			// Check optional parameters
@@ -183,6 +185,189 @@
 			$id = TeamManager::createTeam($this->dbh, $challengeId, $this->args["name"], $this->args["color"], $challengeInfo["predefined_teams"], $this->args["code"]);
 
 			return self::buildResponse(true, array("team_id" => $id));
+		}
+
+		// ================ Challenge Navigator ==========================
+
+		// Get the information about this challenge (name, teams, team colors, ...)
+		protected function device_start(){
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+					"challenge" => "/\d/",
+			));
+
+			$challengeId = $this->args["challenge"];
+			$team_id = $this->getTeamId($challengeId, $session);
+
+			$info = ChallengeManager::getChallengeInformation($this->dbh, $challengeId);
+			$info["team"] = $team_id;
+			$info["team_members"] = TeamManager::getTeamMembers($this->dbh, $team_id);
+			$info["team_color"] = TeamManager::getTeamInfo($this->dbh, $team_id)["color"];
+
+			if($info["type_id"] == ChallengeType::CaptureTheFlag){
+				$info["team_list"] = ChallengeManager::getTeams($this->dbh, $challengeId);
+			}
+
+			return self::buildResponse(true, $info);
+		}
+
+		// Get some information about the challenge coordinates
+		protected function info(){
+			require_once(__DIR__ . "/../app/challenge/Checkpoint.php");
+
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+					"challenge" => "/\d/",
+			));
+
+			$challengeId = $this->args["challenge"];
+
+			$this->requireEnabledChallenge($challengeId);
+			$this->requireStartedChallenge($challengeId, false);
+
+			$team_id = $this->getTeamId($challengeId, $session);
+
+			$coords = ChallengeManager::getChallengeCoordinates($this->dbh, $challengeId);
+
+			foreach($coords as &$c){
+				$c["reached"] = Checkpoint::isReachedBy($this->dbh, $c["challenge_coord_id"], $team_id);
+			}
+
+			return self::buildResponse(true, array("coords" => $coords));
+		}
+
+		// Tag a checkpoint as 'reached'
+		protected function checkpoint(){
+			require_once(__DIR__ . "/../app/challenge/Checkpoint.php");
+			require_once(__DIR__ . "/../app/challenge/ChallengeCoord.php");
+
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+					"challenge" => "/\d/",
+					"coord" => "/\d/"
+			));
+
+			$this->assignOptionalParameter("code", null);
+
+			$challengeId = $this->args["challenge"];
+			$this->requireEnabledChallenge($challengeId);
+			$this->requireStartedChallenge($challengeId, true);
+
+			$ccid = $this->args["coord"];
+			$cid = ChallengeCoord::getCoordinate($this->dbh, $this->args["coord"]);
+
+			if($cid == -1){
+				return self::buildResponse(false, array("msg" => $this->locale->get("query.challenge.unknown_coord")));
+			}
+
+			$teamId = $this->getTeamId($challengeId, $session);
+
+			if(ChallengeCoord::hasCode($this->dbh, $ccid)){
+				if($this->args["code"] == null){
+					return self::buildResponse(false, array("msg" => $this->locale->get("query.challenge.no_code")));
+				}
+
+				if(!ChallengeCoord::checkCode($this->dbh, $ccid, $this->args["code"])){
+					return self::buildResponse(false, array("msg" => $this->locale->get("query.challenge.wrong_code")));
+				}
+			}
+
+			if(!Checkpoint::isReachedBy($this->dbh, $ccid, $teamId)){
+				$time = Checkpoint::setReached($this->dbh, $ccid, $teamId);
+				return self::buildResponse(true, array("time" => $time));
+			}
+			else{
+				return self::buildResponse(false, array("msg" => $this->locale->get("query.challenge.already_reached")));
+			}
+		}
+
+		// Tag a checkpoint as 'captured'
+		protected function capture(){
+			require_once(__DIR__ . "/../app/challenge/Checkpoint.php");
+			require_once(__DIR__ . "/../app/challenge/ChallengeCoord.php");
+
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+					"challenge" => "/\d/",
+					"coord" => "/\d/"
+			));
+
+			$challengeId = $this->args["challenge"];
+			$this->requireEnabledChallenge($challengeId);
+
+			$teamId = $this->getTeamId($challengeId, $session);
+
+			$challengeData = ChallengeManager::getChallengeInformation($this->dbh, $challengeId);
+			$this->requireStartedChallenge($challengeId, true, $challengeData);
+
+			if($challengeData["type_id"] != ChallengeType::CaptureTheFlag){
+				return self::buildResponse(false, array("msg" => $this->locale->get("query.challenge.capture_not_allowed")));
+			}
+
+			$ccid = $this->args["coord"];
+			$captureStatus = ChallengeCoord::isCaptured($this->dbh, $ccid);
+
+			if($captureStatus == -1){
+				return self::buildResponse(false, array("msg" => $this->locale->get("query.challenge.unknown_coord")));
+			}
+			else if($captureStatus == 1){
+				return self::buildResponse(false, array("msg" => $this->locale->get("query.challenge.already_captured")));
+			}
+			else{
+				// Check to code
+				if(ChallengeCoord::hasCode($this->dbh, $ccid)){
+					if($this->args["code"] == null){
+						return self::buildResponse(false, array("msg" =>$this->locale->get("query.challenge.no_code")));
+					}
+
+					if(!ChallengeCoord::checkCode($this->dbh, $ccid, $this->args["code"])){
+						return self::buildResponse(false, array("msg" => $this->locale->get("query.challenge.wrong_code")));
+					}
+				}
+
+				ChallengeCoord::capture($this->dbh, $ccid, $teamId);
+				$time = ChallengeCoord::getCaptureTime($this->dbh, $ccid);
+				return self::buildResponse(true, array("time" => $time));
+			}
+		}
+
+		private function requireEnabledChallenge($challengeId){
+			if(!ChallengeManager::isChallengeEnabled($this->dbh, $challengeId)){
+				throw new InvalidArgumentException(false, array("msg" => $this->locale->get("query.challenge.challenge_not_enabled")));
+			}
+		}
+
+		private function requireStartedChallenge($challengeId, $checkEndTimeToo, $challengeData = null){
+			if($challengeData == null){
+				$challengeData = ChallengeManager::getChallengeInformation($this->dbh, $challengeId);
+			}
+
+			$startTime = strtotime($challengeData["start_time"]);
+			$endTimeStr = $challengeData["end_time"];
+			$current_time = time();
+
+			if($current_time < $startTime){
+				throw new InvalidArgumentException(sprintf($this->locale->get("query.challenge.not_started"), date("d.m.y", $startTime),  date("H:i:s", $startTime)));
+			}
+
+
+			if($endTimeStr != null && $checkEndTimeToo){
+				if($current_time > strtotime($endTimeStr)){
+					throw new InvalidArgumentException(sprintf($this->locale->get("query.challenge.has_ended")));
+				}
+			}
+		}
+
+		private function getTeamId($challengeId, $session){
+			$team_id = TeamManager::getTeamOfUser($this->dbh, $challengeId, $session->getAccountId());
+			if($team_id == -1){
+				throw new InvalidArgumentException($this->locale->get("query.challenge.not_a_member"));
+			}
+			return $team_id;
 		}
 	}
 

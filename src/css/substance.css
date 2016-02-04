@@ -4,8 +4,29 @@
 	The styles are inspired by the "Material-Design" of Android
 ============================================================================== */
 
+.substance-foreground {
+	z-Index: 1025;
+}
+
+.substance-notification {
+	left: 0px;
+	right: 0px;
+	width: 100%;
+	position: fixed;
+	text-align: center;
+	bottom: 20%;
+	padding-bottom: 1px;
+	z-index: 1026;
+}
+
+.substance-notification-animated {
+	transition-property: opacity, background-color;
+	transition-duration: 0.5s;
+	opacity: 0;
+}
+
 .substance-footer {
-	left: 0px;g
+	left: 0px;
 	right: 0px;
 	width: 100%;
 	position: fixed;
@@ -14,6 +35,7 @@
 	bottom: -1px;
 	padding-bottom: 1px;
 }
+
 .substance-button {
 	display: inline-block;
 	border-radius: 100%;
@@ -44,26 +66,23 @@
 	margin-bottom: 0em;
 }
 
-.substance-blue {
-	background-color: #098cc9;
-}
+.substance-skyblue {background-color: #63b8d7;}
+.substance-skyblue:hover {background-color: #4f98b3;}
 
-.substance-blue:hover {
-	background-color: #0b6894;
-}
+.substance-blue {background-color: #098cc9;}
+.substance-blue:hover {background-color: #0b6894;}
 
-.substance-lime {
-	background-color: #baef2a;
-}
+.substance-lime {background-color: #baef2a;}
+.substance-lime:hover {background-color: #6bd51d;}
 
-.substance-lime:hover {
-	background-color: #6bd51d;
-}
+.substance-green {background-color: #64d442;}
+.substance-green:hover {background-color: #10b81c;}
 
-.substance-orange {
-	background-color: #ffca3b
-}
+.substance-orange {background-color: #ffca3b;}
+.substance-orange:hover { background-color: #ef952a;}
 
-.substance-orange:hover { 
-	background-color: #ef952a
-}
+.substance-red {background-color: #d20707;}
+.substance-red:hover {background-color: #b30000;}
+
+.substance-purple {background-color: #9c00a6;}
+.substance-purple:hover {background-color: #7c0483;}

@@ -9,7 +9,7 @@
 	require_once(__DIR__ . "/../app/pages/GeoCatPage.php");
 	require_once(__DIR__ . "/../app/SessionManager.php");
 	require_once(__DIR__ . "/../app/pages/InputTemplates.php");
-	$locale = JSONLocale::withBrowserLanguage($config);
+	$locale = JSONLocale::withBrowserLanguage();
 	$session = new SessionManager();
 
 	/**
@@ -57,23 +57,25 @@
 	<title>Create Account</title>
 	<!--<link rel="shortcut icon" href="../favicon.ico">-->
 	<link rel="stylesheet" href="../css/jquery.mobile-1.4.5.min.css">
-	<link rel="stylesheet" href="../css/listview-grid.css">
 	<link rel="stylesheet" href="../css/style.css">
-	<link rel="stylesheet" href="../css/animations.css">
 
 	<!-- <## ../lib/jquery_package.min.js ##> -->
 	<script src="../lib/jquery.min.js"></script>
 	<script src="../lib/jquery.mobile-1.4.5.min.js"></script>
 	<!-- </## ../lib/jquery_package.min.js ##> -->
 
-	<script src="../js/tools.js"></script>
+	<!-- <## ../js/geocat.min.js ##> -->
+	<script src="../js/GeoCat.js"></script>
+	<script src="../js/etc/JSONLocale.js"></script>
+	<script src="../js/etc/GuiToolkit.js"></script>
+	<script src="../js/etc/Uplink.js"></script>
+	<script src="../js/etc/LocalCoordinateStore.js"></script>
 	<script src="../js/Logout.js"></script>
-	<script src="../js/LoginController.js"></script>
+	<script src="../js/Substance.js"></script>
+	<!-- </## ../js/geocat.min.js ##> -->
 
 	<script type="text/javascript">
 		var ajaxSent = false;
-
-		LoginController.init("../");
 
 		$(document).on("pagecreate", function(event){
 
@@ -118,15 +120,15 @@
 						ajaxSent = false;
 						result = JSON.parse(response);
 						if(result.status == "ok"){
-							Tools.showPopup(<?php $locale->writeQuoted("challenge.create.success.title"); ?>, <?php $locale->writeQuoted("challenge.create.success.msg"); ?>, <?php $locale->writeQuoted("okay"); ?>, null);
+							GuiToolkit.showPopup(<?php $locale->writeQuoted("challenge.create.success.title"); ?>, <?php $locale->writeQuoted("challenge.create.success.msg"); ?>, <?php $locale->writeQuoted("okay"); ?>, null);
 						}
 						else{
-							Tools.showPopup("Unable to create challenge", result.msg, <?php $locale->writeQuoted("okay"); ?>, null);
+							GuiToolkit.showPopup("Unable to create challenge", result.msg, <?php $locale->writeQuoted("okay"); ?>, null);
 						}
 					},
 					error: function(xhr, status, error){
 						ajaxSent = false;
-						Tools.showPopup("Error", "Ajax request failed: " + error, <?php $locale->writeQuoted("okay"); ?>, null);
+						GuiToolkit.showPopup("Error", "Ajax request failed: " + error, <?php $locale->writeQuoted("okay"); ?>, null);
 				}});
 			}
 		}

@@ -51,7 +51,7 @@ function Uplink(pathToRootDirectory){
 	this.sendGetRequest = function(getPrivatePlaces, pageIndex, placesPerPage, successCallback){
 		sendHTTPRequest(urlPrefix + "query/places.php",
 						{
-							cmd: getPrivatePlaces ? "get" : "get_public",
+							task: getPrivatePlaces ? "get" : "get_public",
 							limit: placesPerPage,
 							offset: placesPerPage * pageIndex
 						},
@@ -73,8 +73,8 @@ function Uplink(pathToRootDirectory){
 	 */
 	this.sendCountRequest = function(countPrivatePlaces, successCallback){
 		sendHTTPRequest(urlPrefix + "query/places.php",
-						{cmd: countPrivatePlaces ? "count" : "count_public"},
-						false,
+						{task: countPrivatePlaces ? "count" : "count_public"},
+						true,
 						successCallback,
 						null,
 						ajaxERROR);
@@ -98,7 +98,7 @@ function Uplink(pathToRootDirectory){
 	this.sendNewCoordinate = function(placeName, placeDesc, placeLat, placeLon, placeIsPublic, successCallback, errorCallback) {
 		sendHTTPRequest(urlPrefix + "query/places.php",
 						{
-							cmd: "add",
+							task: "add",
 							name: placeName,
 							desc: placeDesc,
 							lat: placeLat,
@@ -124,7 +124,15 @@ function Uplink(pathToRootDirectory){
 	 */
 	this.sendCoordinateUpdate = function(coord, successCallback, errorCallback) {
 		sendHTTPRequest(urlPrefix + "query/places.php",
-						{cmd: "update", data_type: "json", data: JSON.stringify(coord)},
+						{
+							task: "update",
+							coord_id: coord.coord_id,
+							name: coord.name,
+							desc: coord.desc,
+							lat: coord.lat,
+							lon: coord.lon,
+							is_public: coord.is_public ? 1 : 0
+						},
 						true,
 						successCallback,
 						errorCallback,
@@ -144,7 +152,7 @@ function Uplink(pathToRootDirectory){
 	 */
 	this.sendDeleteCoordinate = function(coordId, successCallback, errorCallback) {
 		sendHTTPRequest(urlPrefix + "query/places.php",
-						{cmd: "remove", coord_id: coordId},
+						{task: "remove", coord_id: coordId},
 						true,
 						successCallback,
 						errorCallback,
@@ -164,7 +172,7 @@ function Uplink(pathToRootDirectory){
 	 */
 	this.sendNavList_Add = function(coordId, successCallback, errorCallback){
 		sendHTTPRequest(urlPrefix + "query/places.php",
-						{cmd: "nav_add", coord_id: coordId},
+						{task: "nav_add", coord_id: coordId},
 						true,
 						successCallback,
 						errorCallback,
@@ -188,7 +196,7 @@ function Uplink(pathToRootDirectory){
 	this.sendNavList_Create = function(placeName, placeDesc, placeLat, placeLon, successCallback, errorCallback){
 		sendHTTPRequest(urlPrefix + "query/places.php",
 						{
-							cmd: "nav_create",
+							task: "nav_create",
 							name: placeName,
 							desc: placeDesc,
 							lat: placeLat,
@@ -212,7 +220,7 @@ function Uplink(pathToRootDirectory){
 	 */
 	this.sendNavList_Get = function(successCallback, errorCallback){
 		sendHTTPRequest(urlPrefix + "query/places.php",
-						{cmd: "nav_get"},
+						{task: "nav_get"},
 						false,
 						successCallback,
 						errorCallback,
@@ -232,7 +240,7 @@ function Uplink(pathToRootDirectory){
 	 */
 	this.sendNavList_Remove = function(coordId, successCallback, errorCallback){
 		sendHTTPRequest(urlPrefix + "query/places.php",
-						{cmd: "nav_remove", coord_id: coordId},
+						{task: "nav_remove", coord_id: coordId},
 						true,
 						successCallback,
 						errorCallback,

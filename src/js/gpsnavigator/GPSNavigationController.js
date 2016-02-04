@@ -369,7 +369,7 @@ function GPSNavigationController(){
 
 				if(add2OwnPlaces){
 					// This place will be added to your own places
-					uplink.sendNewCoordinate(name, desc, lat, lon, false,
+					uplink.sendNewCoordinate(name, desc, lat, lon, 0,
 							function(result){
 								var coord = new Coordinate(result["coord_id"], name, lat, lon, desc, false)
 								addCoordToNavList(coord, true);

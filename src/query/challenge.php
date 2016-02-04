@@ -24,7 +24,7 @@
 	require_once(__DIR__ . "/../app/challenge/TeamManager.php");
 	require_once(__DIR__ . "/../app/JSONLocale.php");
 
-	class ChallengeRequestHandler extends RequestInterface {
+	class ChallengeHTTPRequestHandler extends RequestInterface {
 
 		private $dbh;
 
@@ -35,16 +35,6 @@
 
 		public function handleRequest(){
 			$this->handleAndSendResponseByArgsKey("task");
-		}
-
-		private function requireLogin(){
-			require_once(__DIR__ . "/../app/SessionManager.php");
-
-			$session = new SessionManager();
-			if(!$session->isSignedIn()){
-				throw new MissingSessionException();
-			}
-			return $session;
 		}
 
 		private function verifyChallengeAccess($challengeId){
@@ -373,6 +363,6 @@
 
 	$config = require(__DIR__ . "/../config/config.php");
 
-	$requestHandler = new ChallengeRequestHandler($_POST, DBTools::connectToDatabase($config));
+	$requestHandler = new ChallengeHTTPRequestHandler($_POST, DBTools::connectToDatabase($config));
 	$requestHandler->handleRequest();
 ?>

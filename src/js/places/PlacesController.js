@@ -197,22 +197,14 @@ function PlacesController(){
 	function countPlaces(privatePlaces){
 
 		uplink.sendCountRequest(privatePlaces,
-				function(response){
-					try{
-						var result = JSON.parse(response);
-
-						if(result.hasOwnProperty("count")){
-							allPlacesCount = parseInt(result.count);
-							maxPages = Math.floor(allPlacesCount / placesPerPage) + ((allPlacesCount % placesPerPage == 0) ? 0 : 1);
-							updatePageInfo();
-						}
-						else{
-							displayError("An error occured, please try again later.");
-						}
+				function(result){
+					if(result.hasOwnProperty("count")){
+						allPlacesCount = parseInt(result.count);
+						maxPages = Math.floor(allPlacesCount / placesPerPage) + ((allPlacesCount % placesPerPage == 0) ? 0 : 1);
+						updatePageInfo();
 					}
-					catch(e){
-						displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
-												   "Details:\\n{0}", [e.message]));
+					else{
+						displayError("An error occured, please try again later.");
 					}
 				});
 	}
@@ -250,6 +242,7 @@ function PlacesController(){
 						}
 					}
 					catch(e){
+						alert(response);
 						displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
 												   "Details:\\n{0}", [e.message]));
 					}
@@ -381,6 +374,10 @@ function PlacesController(){
 				}
 			});
 		}
+		else{
+			$(htmlElement["field_lat"]).val(latitude);
+			$(htmlElement["field_lon"]).val(longitude);
+		}
 
 		// Insert the values into the HTML form
 		disableSaveButton(false);
@@ -463,7 +460,7 @@ function PlacesController(){
 		var desc = $(htmlElement["field_desc"]).val();
 		var lat = parseFloat($(htmlElement["field_lat"]).val());
 		var lon = parseFloat($(htmlElement["field_lon"]).val());
-		var isPublic = $(htmlElement["field_ispublic"]).is(":checked");
+		var isPublic = $(htmlElement["field_ispublic"]).is(":checked") ? 1 : 0;
 
 		// Verfiy the data
 		if(name == "" || isNaN(lat) || isNaN(lon)){

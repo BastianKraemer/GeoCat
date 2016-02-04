@@ -22,6 +22,7 @@
 
 		protected $args;
 		protected $locale;
+		private $session = null;
 
 		protected function __construct($args, $locale){
 			$this->args = $args;
@@ -91,19 +92,41 @@
 			}
 		}
 
+		/**
+		 * Verifies the parameters in '$this->args'.
+		 * <p>Therefore '<i>$requiredKeys</i>' has to be a map from key -> option.</p>
+		 * <p>Possible 'options':</p>
+		 * <ul>
+		 * <li><b>null</b>: Just check that the parameter exists</li>
+		 * <li><b>string</b>: A regular expression that is used to verify the string</li>
+		 * <li><b>integer</b>: The string will be encoded using 'htmlspecialchars'. This int value represents the maximum length of the string.</li>
+		 * </ul>
+		 *
+		 * @param array<string,mixed> $requiredKeys Map key -> [null | regex | strlengh]
+		 * @param boolean $areOptional If this value is <code>true</code>, this function will throw a <code>InvalidArgumentException</code> if one parameter does not exist.
+		 * @throws InvalidArgumentException
+		 */
 		private function verifyParameters($requiredKeys, $areOptional){
 			foreach ($requiredKeys as $key => $value){
 				// Check if the argument exists
 				if(array_key_exists($key, $this->args)){
 					// Apply a regular expression to verify thae argument
 					if($value != null){
-						if(!preg_match($value, $this->args[$key])){
-							throw new InvalidArgumentException(sprintf($this->locale->get("query.generic.invalid_value"), $key));
+						if(is_int($value)){
+							$str = htmlspecialchars($this->args[$key], ENT_QUOTES);
+							if(strlen($str) > $value){
+								throw new InvalidArgumentException(sprintf($this->locale->get("query.generic.max_str_length"), $key));
+							}
+							$this->args[$key] = $str;
+						}
+						else{
+							if(!preg_match($value, $this->args[$key])){
+								throw new InvalidArgumentException(sprintf($this->locale->get("query.generic.invalid_value"), $key));
+							}
 						}
 					}
 				}
 				else{
-
 					if(!$areOptional){
 						throw new InvalidArgumentException(sprintf("Required parameter '%s' is not defined", $key));
 					}
@@ -112,7 +135,20 @@
 			}
 		}
 
-		protected static function buildResponse($success, $data = null){
+		public function requireLogin(){
+			require_once(__DIR__ . "/../app/SessionManager.php");
+
+			if($this->session == null){
+				$this->session = new SessionManager();
+			}
+
+			if(!$this->session->isSignedIn()){
+				throw new MissingSessionException();
+			}
+			return $this->session;
+		}
+
+		public static function buildResponse($success, $data = null){
 			if($data == null){$data = array();}
 			$data["status"] = $success ? "ok" : "failed";
 			return $data;

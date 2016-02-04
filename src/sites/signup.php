@@ -85,7 +85,7 @@
 				ajaxSent = true;
 
 				$.ajax({type: "POST", url: "../query/account.php",
-					data: { cmd: command,
+					data: { task: command,
 							username: user,
 							password: pw,
 							email: emailAddr,
@@ -96,7 +96,7 @@
 					cache: false,
 					success: function(response){
 						ajaxSent = false;
-						if(response["result"] == "true"){
+						if(response.status == "ok"){
 							GuiToolkit.showPopup(<?php $locale->writeQuoted("signup.account_created"); ?>, <?php $locale->writeQuoted("signup.account_created_msg"); ?>, <?php $locale->writeQuoted("okay"); ?>,
 											function(){location.href="../index.php";});
 						}

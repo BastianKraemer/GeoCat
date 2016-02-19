@@ -127,6 +127,13 @@
 			return DBTools::fetchAll($dbh, "SELECT team_id, name, color FROM ChallengeTeam WHERE challenge_id = :id", array("id" => $challengeId), PDO::FETCH_ASSOC);
 		}
 
+		public static function getTeamsAndMemberCount($dbh, $challengeId){
+			return DBTools::fetchAll($dbh,	"SELECT ChallengeTeam.team_id, ChallengeTeam.name, ChallengeTeam.color, " .
+												"(CASE WHEN access_code IS NULL THEN 0 ELSE 1 END) AS has_code, " .
+												"(SELECT COUNT(*) FROM ChallengeMember WHERE ChallengeMember.team_id = ChallengeTeam.team_id) as member_cnt " .
+											"FROM ChallengeTeam WHERE challenge_id = :id", array("id" => $challengeId), PDO::FETCH_ASSOC);
+		}
+
 		public static function getMaxNumberOfTeams($dbh, $challengeId){
 			$res = DBTools::fetchNum($dbh, "SELECT max_teams FROM Challenge WHERE challenge_id = :id", array("id" => $challengeId));
 			return $res ? $res[0] : -1;

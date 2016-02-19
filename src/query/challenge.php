@@ -179,6 +179,54 @@
 			return self::buildResponse(true, array("team_id" => $id));
 		}
 
+		// ================ Challenge Info ==========================
+
+		protected function about(){
+
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+
+			if($challengeId == -1){
+				return self::buildResponse(false, array("msg" => "Invalid session key."));
+			}
+
+			$info = ChallengeManager::getChallengeInformation($this->dbh, $challengeId);
+			$info["is_enabled"] = ChallengeManager::isChallengeEnabled($this->dbh, $challengeId) ? 1 : 0;
+			$info["team_list"] = ChallengeManager::getTeamsAndMemberCount($this->dbh, $challengeId);
+
+			require_once(__DIR__ . "/../app/SessionManager.php");
+			$session = new SessionManager();
+			if($session->isSignedIn()){
+				$info["your_team"] = TeamManager::getTeamOfUser($this->dbh, $challengeId, $session->getAccountId());
+			}
+			else{
+				$info["your_team"] = -1;
+			}
+			return self::buildResponse(true, $info);
+		}
+
+		protected function coord_info(){
+
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+
+			if($challengeId == -1){
+				return self::buildResponse(false, array("msg" => "Invalid session key."));
+			}
+
+			$this->requireEnabledChallenge($challengeId);
+			$this->requireStartedChallenge($challengeId, false);
+			$coords = ChallengeManager::getChallengeCoordinates($this->dbh, $challengeId);
+
+			return self::buildResponse(true, array("coords" => $coords));
+		}
+
 		// ================ Challenge Navigator ==========================
 
 		// Get the information about this challenge (name, teams, team colors, ...)

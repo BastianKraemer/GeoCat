@@ -69,12 +69,24 @@ body, body div[data-role="page"] {
 	color: #357fb8;
 }
 
-.no-shadow, .no-shadow *{
+.no-shadow, .no-shadow *, table.styled-table * {
    text-shadow:0 0 0 !important;
 }
 
 .white {
 	color: white;
+}
+
+.right {
+	text-align: right;
+}
+
+.center {
+	text-align: center;
+}
+
+.small {
+	font-size: .6em;
 }
 
 table {
@@ -147,3 +159,91 @@ canvas.gpsradar {
 #challenge-navigator-coord-list li.ui-li-divider {
 	cursor: pointer;
 }
+
+/* ==============================================================================
+	Challenge Info
+============================================================================== */
+
+.title {
+	font-size: 2em;
+	border-bottom: 1px solid black;
+	margin-top: 0;
+	margin-bottom: 8px;
+	text-align: center;
+}
+
+.description {
+	margin-top: 0;
+	margin-bottom: 0;
+	text-align: center;
+	font-style: italic;
+	color: #555555;
+}
+
+/* ==============================================================================
+	Styled-Table
+============================================================================== */
+table.styled-table {
+	border-collapse: collapse;
+}
+
+table.styled-table caption {
+	padding: 6px;
+	font-size: 1.1em;
+}
+
+table.styled-table caption {
+	background: linear-gradient(#0c5c76, #2f739a); /* #165b83, */
+	color: white;
+}
+
+table.styled-table thead {
+	background-color: #2f739a;
+	color: white;
+}
+
+table.styled-table td {
+	padding: 2px;
+}
+
+/*table.styled-table tbody tr {
+	line-height: 2.25em;
+}*/
+
+table.styled-table tbody tr:nth-child(even) {
+    background-color: #dedede;
+}
+
+table.styled-table tbody tr:nth-child(odd) {
+    background-color: #efefef;
+}
+
+table.styled-table thead tr th {
+	text-align: left;
+	font-weight: initial;
+	border-bottom: 1px solid black;
+	font-size: 0.9em;
+}
+
+table.styled-table tr:not(:first-child) td {
+	border-top: 1px solid #989898;
+}
+
+table.styled-table th {
+	padding: 4px;
+}
+
+table.styled-table td {
+	padding: 8px 4px 8px 4px;
+}
+
+table.styled-table tbody tr td {
+	margin: 0;
+}
+
+/*table.styled-table tbody tr td:last-child {
+	white-space: nowrap;
+}*/
+
+
+

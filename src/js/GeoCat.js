@@ -65,3 +65,49 @@ GeoCat.getUplink = function(){
 	}
 	return GeoCat.uplink;
 }
+
+/**
+ * Sets the current challenge for further usage (the infrmation is stored in the HTML5 sessionStorage)
+ * @param sessionKey {String} The session key of the challenge
+ * @return {Uplink} Reference to an {@link Uplink} object
+ *
+ * @public
+ * @function setCurrentChallenge
+ * @memberOf GeoCat
+ * @static
+ */
+GeoCat.setCurrentChallenge = function(sessionKey){
+	sessionStorage.setItem("currentChallenge", sessionKey);
+}
+
+/**
+ * Returns the session key of the current challenge
+ * @return {Uplink} Reference to an {@link Uplink} object
+ *
+ * @public
+ * @function getCurrentChallenge
+ * @memberOf GeoCat
+ * @static
+ */
+GeoCat.getCurrentChallenge = function(){
+	var ret = sessionStorage["currentChallenge"];
+	if(ret != undefined){
+		return ret;
+	}
+	else{
+		return "";
+	}
+}
+
+/**
+ * Removes the session key of the current challenge from the HTML5 session store
+ * @return {Uplink} Reference to an {@link Uplink} object
+ *
+ * @public
+ * @function removeCurrentChallenge
+ * @memberOf GeoCat
+ * @static
+ */
+GeoCat.removeCurrentChallenge = function(){
+	sessionStorage.removeItem("currentChallenge");
+}

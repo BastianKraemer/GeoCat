@@ -140,8 +140,22 @@ function ChallengeInfoController(sessionKey){
 
 ChallengeInfoController.currentInstance = null;
 
-ChallengeInfoController.openPage = function(challengeId){
-	ChallengeInfoController.currentInstance = new ChallengeInfoController(challengeId);
+ChallengeInfoController.openPage = function(){
+
+	var key = GeoCat.getCurrentChallenge();
+
+	if(key == ""){
+		key = location.search;
+		if(key != ""){
+			key = key.slice(1);
+		}
+		else{
+			SubstanceTheme.showNotification("<h3>Unknown Sessionkey</h3>", 7, $.mobile.activePage[0], "substance-red no-shadow white")
+			return;
+		}
+	}
+
+	ChallengeInfoController.currentInstance = new ChallengeInfoController(key);
 	ChallengeInfoController.currentInstance.pageOpened();
 };
 
@@ -151,14 +165,6 @@ ChallengeInfoController.closePage = function(){
 };
 
 ChallengeInfoController.init = function(){
-	$(document).on("pageshow", "#ChallengeInfo", function(){
-		var key = location.search; //var id = window.prompt("This feature is not completely implemented yet.\nPlease type in your challenge id:", "");
-		if(key == ""){
-			SubstanceTheme.showNotification("<h3>Invalid Sessionkey</h3>", 7, $.mobile.activePage[0], "substance-red no-shadow white")
-		}
-		else{
-			ChallengeInfoController.openPage(key.slice(1));
-		}
-	});
+	$(document).on("pageshow", "#ChallengeInfo", ChallengeInfoController.openPage);
 	$(document).on("pagebeforehide", "#ChallengeInfo", ChallengeInfoController.closePage);
 };

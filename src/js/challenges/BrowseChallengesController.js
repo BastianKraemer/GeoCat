@@ -159,7 +159,7 @@ function BrowseChallengesController(){
 		if(data.length > 0){
 			for(var i = 0; i < data.length; i++){
 				var c = data[i];
-				list.append(generateChallengeItemCode(c.name, c.owner_name, c.challenge_id, c.description, c.type_name, c.start_time));
+				list.append(generateChallengeItemCode(c.name, c.owner_name, c.sessionkey, c.description, c.type_name, c.start_time));
 			}
 
 			list.listview('refresh');
@@ -191,12 +191,12 @@ function BrowseChallengesController(){
 	 * @memberOf BrowseChallengesController
 	 * @instance
 	 */
-	function generateChallengeItemCode(name, owner, challenge_id, desc, type, start_time){
+	function generateChallengeItemCode(name, owner, sessionKey, desc, type, start_time){
 
 		return 	"<li class=\"challenge-list-item\" data-role=\"list-divider\">" +
 					"<span class=\"listview-left\">" + type + "</span>" +
 					"<span class=\"listview-right\">" + owner + "</span></li>" +
-				"<li class=\"challenge-list-item\" challenge-id=\"" + challenge_id + "\"><a class=\"li-clickable\">" +
+				"<li class=\"challenge-list-item\" data-session-key=\"" + sessionKey + "\"><a class=\"li-clickable\">" +
 					"<h3>"+ name + "</h3>" +
 					"<p>" + desc + "</p>" +
 					"<p class=\"ui-li-aside\"><i>" + locale.get("challenge.start_date", "Start time:") + "</i><br>" + start_time.replace(" ", "<br>") + "</p>" +
@@ -215,7 +215,8 @@ function BrowseChallengesController(){
 	 */
 
 	function challenge_OnClick(el){
-		var cId = $(el).parent().attr("challenge-id");
+		GeoCat.setCurrentChallenge($(el).parent().attr("data-session-key"));
+		$.mobile.pageContainer.pagecontainer("change", "#ChallengeInfo");
 	}
 }
 

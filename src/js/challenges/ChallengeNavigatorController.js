@@ -656,14 +656,21 @@ function ChallengeNavigatorController(challenge_id){
 ChallengeNavigatorController.currentInstance = null;
 
 ChallengeNavigatorController.openPage = function(){
-	var key = location.search;
+	var key = GeoCat.getCurrentChallenge();
+
 	if(key == ""){
-		SubstanceTheme.showNotification("<h3>Invalid Sessionkey</h3>", 7, $.mobile.activePage[0], "substance-red no-shadow white")
+		key = location.search;
+		if(key != ""){
+			key = key.slice(1);
+		}
+		else{
+			SubstanceTheme.showNotification("<h3>Unknown Sessionkey</h3>", 7, $.mobile.activePage[0], "substance-red no-shadow white")
+			return;
+		}
 	}
-	else{
-		ChallengeNavigatorController.currentInstance = new ChallengeNavigatorController(key.slice(1));
-		ChallengeNavigatorController.currentInstance.pageOpened();
-	}
+
+	ChallengeNavigatorController.currentInstance = new ChallengeNavigatorController(key);
+	ChallengeNavigatorController.currentInstance.pageOpened();
 };
 
 ChallengeNavigatorController.closePage = function(){

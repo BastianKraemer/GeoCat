@@ -16,7 +16,7 @@ function ChallengeNavigatorController(challenge_id){
 
 	var minDistanceToSetReached = 20; // In meters
 
-	var challengeId = challenge_id;
+	var challengeKey = challenge_id;
 	var challengeData = null;
 	var isCTF = false;
 	var coordData = null; //The respone from the server
@@ -83,7 +83,7 @@ function ChallengeNavigatorController(challenge_id){
 		$.ajax({
 			type: "POST", url: "./query/challenge.php",
 			encoding: "UTF-8",
-			data: {task: "device_start", challenge: challengeId},
+			data: {task: "device_start", challenge: challengeKey},
 			cache: false,
 			success: function(response){
 				try{
@@ -109,7 +109,7 @@ function ChallengeNavigatorController(challenge_id){
 		$.ajax({
 			type: "POST", url: "./query/challenge.php",
 			encoding: "UTF-8",
-			data: {task: "info", challenge: challengeId},
+			data: {task: "status", challenge: challengeKey},
 			cache: false,
 			success: function(response){
 				try{
@@ -490,7 +490,7 @@ function ChallengeNavigatorController(challenge_id){
 			encoding: "UTF-8",
 			data: {
 				task: "checkpoint",
-				challenge: challengeId,
+				challenge: challengeKey,
 				coord: challengeCoordId,
 				code: cacheCode
 			},
@@ -534,7 +534,7 @@ function ChallengeNavigatorController(challenge_id){
 			encoding: "UTF-8",
 			data: {
 				task: "capture",
-				challenge: challengeId,
+				challenge: challengeKey,
 				coord: challengeCoordId,
 				code: cacheCode
 			},
@@ -655,9 +655,15 @@ function ChallengeNavigatorController(challenge_id){
 
 ChallengeNavigatorController.currentInstance = null;
 
-ChallengeNavigatorController.openPage = function(challengeId){
-	ChallengeNavigatorController.currentInstance = new ChallengeNavigatorController(challengeId);
-	ChallengeNavigatorController.currentInstance.pageOpened();
+ChallengeNavigatorController.openPage = function(){
+	var key = location.search;
+	if(key == ""){
+		SubstanceTheme.showNotification("<h3>Invalid Sessionkey</h3>", 7, $.mobile.activePage[0], "substance-red no-shadow white")
+	}
+	else{
+		ChallengeNavigatorController.currentInstance = new ChallengeNavigatorController(key.slice(1));
+		ChallengeNavigatorController.currentInstance.pageOpened();
+	}
 };
 
 ChallengeNavigatorController.closePage = function(){
@@ -666,9 +672,6 @@ ChallengeNavigatorController.closePage = function(){
 };
 
 ChallengeNavigatorController.init = function(){
-	$(document).on("pageshow", "#ChallengeNavigator", function(){
-		var id = window.prompt("This feature is not completely implemented yet.\nPlease type in your challenge id:", "");
-		ChallengeNavigatorController.openPage(id);
-	});
+	$(document).on("pageshow", "#ChallengeNavigator", ChallengeNavigatorController.openPage);
 	$(document).on("pagebeforehide", "#ChallengeNavigator", ChallengeNavigatorController.closePage);
 };

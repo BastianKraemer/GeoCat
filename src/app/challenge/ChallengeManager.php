@@ -23,7 +23,7 @@
 	class ChallengeManager {
 
 		public static function getChallengeIdBySessionKey($dbh, $sessionKey){
-			$res = DBTools::fetchAll($dbh, "SELECT challenge_id FROM Challenge WHERE sessionkey = :key", array("key" => $sessionKey));
+			$res = DBTools::fetchAll($dbh, "SELECT challenge_id FROM Challenge WHERE sessionkey = :key", array("key" => strtoupper($sessionKey)));
 
 			if(count($res) == 1){
 				return $res[0][0];

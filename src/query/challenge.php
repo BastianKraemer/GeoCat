@@ -106,21 +106,21 @@
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
-					"challenge" => "/\d/",
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
 			));
 
-			$challengeId = $this->args["challenge"];
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
 
 			// Verify that the user is allowed to receive information about this challenge
 			$this->verifyChallengeAccess($challengeId);
-			return ChallengeManager::getTeams($this->dbh, $this->args["challenge"]);
+			return ChallengeManager::getTeams($this->dbh, $challengeId);
 		}
 
 		protected function join_team(){
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
-					"challenge" => "/\d/",
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
 					"team_id" => "/\d/"
 			));
 
@@ -129,8 +129,10 @@
 			));
 			$this->assignOptionalParameter("code", null);
 
-			$this->requireEnabledChallenge($this->args["challenge"]);
-			$this->verifyChallengeAccess($this->args["challenge"]);
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+
+			$this->requireEnabledChallenge($challengeId);
+			$this->verifyChallengeAccess($challengeId);
 
 			TeamManager::joinTeam($this->dbh, $this->args["team_id"], $session->getAccountId(), $this->args["code"]);
 
@@ -142,11 +144,11 @@
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
-					"challenge" => "/\d/",
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
 					"name" => self::defaultNameRegEx(1, 32)
 			));
 
-			$challengeId = $this->args["challenge"];
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
 
 			if(!ChallengeManager::challengeExists($this->dbh, $challengeId)){
 				throw new InvalidArgumentException($this->locale->get("query.challenge.challenge_does_not_exist"));
@@ -184,10 +186,10 @@
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
-					"challenge" => "/\d/",
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
 			));
 
-			$challengeId = $this->args["challenge"];
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
 			$team_id = $this->getTeamId($challengeId, $session);
 
 			$info = ChallengeManager::getChallengeInformation($this->dbh, $challengeId);
@@ -202,17 +204,17 @@
 			return self::buildResponse(true, $info);
 		}
 
-		// Get some information about the challenge coordinates
-		protected function info(){
+		// Returns the status of any challenge you are part of
+		protected function status(){
 			require_once(__DIR__ . "/../app/challenge/Checkpoint.php");
 
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
-					"challenge" => "/\d/",
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
 			));
 
-			$challengeId = $this->args["challenge"];
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
 
 			$this->requireEnabledChallenge($challengeId);
 			$this->requireStartedChallenge($challengeId, false);
@@ -236,13 +238,13 @@
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
-					"challenge" => "/\d/",
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
 					"coord" => "/\d/"
 			));
 
 			$this->assignOptionalParameter("code", null);
 
-			$challengeId = $this->args["challenge"];
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
 			$this->requireEnabledChallenge($challengeId);
 			$this->requireStartedChallenge($challengeId, true);
 
@@ -282,11 +284,11 @@
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
-					"challenge" => "/\d/",
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
 					"coord" => "/\d/"
 			));
 
-			$challengeId = $this->args["challenge"];
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
 			$this->requireEnabledChallenge($challengeId);
 
 			$teamId = $this->getTeamId($challengeId, $session);

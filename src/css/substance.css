@@ -48,9 +48,9 @@
 	
 	background-repeat: no-repeat;
 	background-size: 80% 80%;
-    background-position: center;
-    
-    cursor: pointer;
+	background-position: center;
+
+	cursor: pointer;
 }
 
 .substance-button-animated {
@@ -86,3 +86,44 @@
 
 .substance-purple {background-color: #9c00a6;}
 .substance-purple:hover {background-color: #7c0483;}
+
+/*
+-------------------------------------------------------------------------------
+	Substance Container
+-------------------------------------------------------------------------------
+*/
+
+.substance-container {
+	border: 1px solid #56595a;
+	margin: 4px;
+}
+.substance-vflexcontainer {
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: row;
+	flex-direction: row;
+
+	-webkit-flex-wrap: wrap;
+	flex-wrap: wrap;
+
+	-webkit-align-items: stretch;
+	align-items: stretch;
+
+	-webkit-align-content: flex-end;
+	align-content: flex-end;
+}
+
+.substance-flexitem1 {
+	-webkit-flex: 1 0 0;
+	flex: 1 0 0;
+}
+
+.substance-flexitem2 {
+	-webkit-flex: 2 0 0;
+	flex: 2 0 0;
+}
+
+.substance-flexitem3 {
+	-webkit-flex: 3 0 0;
+	flex: 3 0 0;
+}

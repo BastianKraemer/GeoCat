@@ -12,6 +12,7 @@ function ChallengeNavigatorController(challenge_id){
 	htmlElement["codeinput_ok"] = "#checkpoint-code-input-ok";
 	htmlElement["reached_button"] = "#checkpoint-reached-button";
 	htmlElement["reload_button"] = "#challenge-navigator-update-button";
+	htmlElement["autohide_flipswitch"] = "#challenge-navigator-autohide";
 
 	var minDistanceToSetReached = 20; // In meters
 
@@ -24,6 +25,11 @@ function ChallengeNavigatorController(challenge_id){
 	var colorList;
 	var visibilityList = new Object();
 	var teamMap;
+	var order;
+	var currentPriority = 0;
+
+	var displayCurrentPriorityItemsOnly = true;
+	var showPriorities = false;
 
 	var gpsRadar = null;
 
@@ -46,6 +52,10 @@ function ChallengeNavigatorController(challenge_id){
 
 		$(htmlElement["coord_panel"]).on("panelbeforeopen", updateListPanel);
 
+		$(htmlElement["autohide_flipswitch"]).bind("change", function(event, ui){
+			displayCurrentPriorityItemsOnly = $(htmlElement["autohide_flipswitch"]).is(":checked");
+		});
+
 		getChallengeInformation();
 	};
 
@@ -55,6 +65,7 @@ function ChallengeNavigatorController(challenge_id){
 		$(htmlElement["reload_button"]).unbind();
 		$(htmlElement["reached_button"]).unbind();
 		$(htmlElement["coord_panel"]).unbind();
+		$(htmlElement["autohide_flipswitch"]).unbind();
 
 		// Close any opened notifications
 		if(SubstanceTheme.previousNotification != null){
@@ -129,6 +140,8 @@ function ChallengeNavigatorController(challenge_id){
 	var onCoordinateDataReceived = function(data){
 		coordData = data
 
+		generateOrderByPriority();
+		updateCurrentPriority();
 		updateCoordList();
 		updateStatsPanel();
 
@@ -155,27 +168,98 @@ function ChallengeNavigatorController(challenge_id){
 		}
 
 		for(var i = 0; i < coordData.coords.length; i++){
-			var c = coordData.coords[i];
-			coordList[c.coord_id] = new Coordinate(c.coord_id, c.name, c.latitude, c.longitude, c.decription, false);
 
-			if(isCTF){
-				if(c.captured_by != null){
-					colorList[c.coord_id] = teamMap[c.captured_by].color;
-				}
-				else{
-					iconList[c.coord_id] = GPSRadar.CoordinateIcon.CIRCLE;
-				}
+			var c = coordData.coords[i];
+			if(setCacheStyle(c.coord_id, c)){
+				coordList[c.coord_id] = new Coordinate(c.coord_id, c.name, c.latitude, c.longitude, c.decription, false);
+				visibilityList[c.coord_id] = true;
 			}
 			else{
-				if(c.reached != null){
-					colorList[c.coord_id] = challengeData.team_color;
-				}
-				else{
-					iconList[c.coord_id] = GPSRadar.CoordinateIcon.CIRCLE;
-				}
+				visibilityList[c.coord_id] = false;
 			}
 		}
 	};
+
+	var setCacheStyle = function(id, coord){
+		if(isCTF){
+			if(currentPriority == 0){
+				if(c.priority > 0){
+					return false;
+				}
+			}
+			else{
+				if(coord.captured_by != null){
+					colorList[id] = teamMap[coord.captured_by].color;
+				}
+				else{
+					iconList[id] = GPSRadar.CoordinateIcon.CIRCLE;
+				}
+			}
+		}
+		else{
+			if(coord.priority <= currentPriority){
+				if(coord.reached == null){
+					colorList[id] = "#000";
+					iconList[id] = GPSRadar.CoordinateIcon.CIRCLE;
+				}
+				else{
+					colorList[id] = challengeData.team_color;
+
+					if(displayCurrentPriorityItemsOnly && coord.priority < (currentPriority - 1)){
+						// Hide previously reached caches
+						return false;
+					}
+				}
+			}
+			else {
+				colorList[id] = "#949494";
+				iconList[id] = GPSRadar.CoordinateIcon.CIRCLE;
+
+				if(displayCurrentPriorityItemsOnly && (coord.priority > (currentPriority + 1))){
+					// Hide caches with priority + 2 or more
+					return false;
+				}
+			}
+		}
+		return true; // return value: is this cache visible?
+	};
+
+	var generateOrderByPriority = function(currentPriority){
+		order = new Array();
+		coordData.coords.forEach(function(coord){
+			for(var i = 0; i < order.length; i++){
+				if(coord.priority <= order[i].priority){
+					order.splice(i, 0, coord);
+					return;
+				}
+			}
+			order.push(coord);
+		});
+	}
+
+	var updateCurrentPriority = function(){
+		if(isCTF){
+			if(order.length > 0){
+				if(order[0].reached != null){
+					// This team has reached the start position, there is no further priority in CTF challenges
+					currentPriority = 1;
+				}
+			}
+			else{
+				// The team has to reach the start point at first
+				currentPriority = 0;
+			}
+		}
+		else{
+			for(var i = 0; i < order.length; i++){
+				if(order[i].reached == null){
+					// The new priority is the priority of the first cache that is not reached
+					currentPriority = order[i].priority;
+					return;
+				}
+			}
+		}
+	}
 
 	var updateListPanel = function(){
 		var list = $(htmlElement["coord_list"]);
@@ -184,12 +268,12 @@ function ChallengeNavigatorController(challenge_id){
 		if(coordData != null){
 			var pos = GPS.get();
 
-			for(var i = 0; i < coordData.coords.length; i++){
-				list.append(generateItem(coordData.coords[i].name,
-								isCTF ? coordData.coords[i].capture_time : coordData.coords[i].reached,
-								isCTF ? coordData.coords[i].captured_by : null,
-								(pos == null ? "-" : (GeoTools.calculateDistance(pos.coords.longitude, pos.coords.latitude, coordData.coords[i].longitude, coordData.coords[i].latitude) * 1000).toFixed(1) + " m"),
-								isVisible(coordData.coords[i].coord_id), i));
+			for(var i = 0; i < order.length; i++){
+				list.append(generateItem(order[i].name,
+								isCTF && order[i].priority != 0 ? order[i].capture_time : order[i].reached,
+								isCTF ? order[i].captured_by : null,
+								(pos == null ? "-" : (GeoTools.calculateDistance(pos.coords.longitude, pos.coords.latitude, order[i].longitude, order[i].latitude) * 1000).toFixed(1) + " m"),
+								isVisible(order[i].coord_id), i, order[i].priority, ((isCTF && currentPriority == 0) || (!isCTF && order[i].priority == currentPriority))));
 			}
 
 			$(htmlElement["coord_list"] + " li.li-clickable, " + htmlElement["coord_list"] + " li a.li-clickable").click(function(){
@@ -204,14 +288,58 @@ function ChallengeNavigatorController(challenge_id){
 		}
 	};
 
-	var generateItem = function(name, reachedTime, capturedBy, distance, isVisible, index){
-		return	"<li data-role=\"list-divider\" data-index=\"" + index + "\" class=\"li-clickable\">" +
-				"<span class=\"listview-left\">" + name + "</span>" +
-				"<li data-icon=\"true\"><a class=\"li-clickable\" data-index=\"" + index + "\">" +
-				"<p>" + GeoCat.locale.get("challenge.nav.distance", "Distance") + ": " + distance + "</p>" +
-				"<p>" + GeoCat.locale.get("challenge.nav.reached", "Reached") + ": " + (reachedTime == null ? "-" : reachedTime) + "</p>" +
-				(capturedBy != null ? "<p style=\"color: " + teamMap[capturedBy].color + "\">" + GeoCat.locale.get("challenge.nav.captured_by", "Captured by") + ": " + teamMap[capturedBy].name + "</p>" : "") +
-				"</a><a class=\"" + (isVisible ? "ui-icon-eye " : "") + "show-coord\" data-index=\"" + index + "\">" + GeoCat.locale.get("challenge.nav.show", "Start navigation") + "</a>" +
+	var generateItem = function(name, reachedTime, capturedBy, distance, isVisible, index, priority, highlight){
+
+		var prefix = "", textHighlightClass = "", bgHighlightClass = "";
+		var CacheStyle = {REGULAR: 0, STRIKEOUT: 1, HIGHLIGHTED: 2, REACHED: 3, CAPTURED: 4};
+
+		var style = CacheStyle.REGULAR;
+
+		if(!isCTF || priority == 0){
+				style = (reachedTime == null ? (priority == currentPriority ? CacheStyle.HIGHLIGHTED  : CacheStyle.REGULAR ) : CacheStyle.REACHED);
+		}
+		else if(isCTF){
+			if(capturedBy != null){
+				style = (capturedBy == challengeData.team ? CacheStyle.CAPTURED : CacheStyle.STRIKEOUT);
+			}
+			else{
+				style = CacheStyle.HIGHLIGHTED;
+			}
+		}
+
+		switch(style){
+			case CacheStyle.HIGHLIGHTED:
+				prefix = "&#10148; ";
+				bgHighlightClass = "active-cache ";
+				textHighlightClass = "white ";
+				break;
+			case CacheStyle.CAPTURED:
+				prefix = "<span>&checkmark;&nbsp;</span>";
+				bgHighlightClass = "reached-cache ";
+				break;
+			case CacheStyle.REACHED:
+				prefix = "<span>&checkmark;&nbsp;</span>";
+				bgHighlightClass = "reached-cache ";
+				// no break here
+			case CacheStyle.STRIKEOUT:
+				name = "<strike>" + name + "</strike>"
+				break;
+		}
+
+		return	"<li data-role=\"list-divider\" data-index=\"" + index + "\" class=\"" + bgHighlightClass + "li-clickable\">" +
+					"<span class=\"" + textHighlightClass + " no-shadow listview-left\">" + prefix + name + "</span>" +
+					(showPriorities ? "<span class=\"" + textHighlightClass + " no-shadow listview-right\">" + priority + "</span>" : "") +
+				"</li>" +
+				"<li data-icon=\"true\">" +
+					"<a class=\"li-clickable\" data-index=\"" + index + "\">" +
+						"<p>" + GeoCat.locale.get("challenge.nav.distance", "Distance") + ": " + distance + "</p>" +
+						"<p>" + GeoCat.locale.get("challenge.nav.reached", "Reached") + ": " + (reachedTime == null ? "-" : reachedTime) + "</p>" +
+						(capturedBy != null ? "<p style=\"color: " + teamMap[capturedBy].color + "\">" +
+							GeoCat.locale.get("challenge.nav.captured_by", "Captured by") + ": " + teamMap[capturedBy].name + "</p>" : "") +
+					"</a>" +
+					"<a class=\"" + (isVisible ? "ui-icon-eye " : "") + "show-coord\" data-index=\"" + index + "\">" +
+						GeoCat.locale.get("challenge.nav.show", "Start navigation") +
+					"</a>" +
 				"</li>\n";
 	};
 
@@ -272,6 +400,7 @@ function ChallengeNavigatorController(challenge_id){
 			var coordCount = 0;
 			var stats = new Object();
 			for(var i = 0; i < coordData.coords.length; i++){
+				if(coordData.coords[i].priority == 0){continue;}
 				if(coordData.coords[i].captured_by == null){
 					free++;
 				}
@@ -319,7 +448,7 @@ function ChallengeNavigatorController(challenge_id){
 		list.listview('refresh');
 	};
 
-	var generateDefaultListItem = function(title, content, liAttrib){
+	var generateDefaultListItem = function(title, content){
 		return	"<li data-role=\"list-divider\">" +
 				"<span class=\"listview-left\">" + title + "</span>" +
 				"<li data-icon=\"false\">" + content + "</li>\n";
@@ -339,12 +468,19 @@ function ChallengeNavigatorController(challenge_id){
  * ============================================================================
  */
 
-	var sendCapturedOrReached = function (challengeCoordId, cacheCode){
-		if(isCTF){ // is "Capture the Flag" challenge
-			sendCheckpointCaptured(challengeCoordId, cacheCode);
+	var sendCapturedOrReached = function (coord, cacheCode){
+		if(isCTF && coord.priority > 0){ // is "Capture the Flag" challenge or the start point
+			sendCheckpointCaptured(coord.challenge_coord_id, cacheCode);
 		}
 		else{
-			sendCheckpointReached(challengeCoordId, cacheCode);
+			if(coord.priority == currentPriority){
+				sendCheckpointReached(coord.challenge_coord_id, cacheCode);
+			}
+			else{
+				SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("challenge.nav.priority_violation.title", "Priority violation") + "</h3>" +
+												"<p>" + GeoCat.locale.get("challenge.nav.priority_violation.text", "You have to reach at least one other caches first, before you can set this cache as 'reached'!") + ".</p>",
+												7, $.mobile.activePage[0], "substance-red no-shadow white");
+			}
 		}
 	};
 
@@ -368,6 +504,7 @@ function ChallengeNavigatorController(challenge_id){
 						for(var i = 0; i < coordData.coords.length; i++){
 							if(coordData.coords[i].challenge_coord_id == challengeCoordId){
 								coordData.coords[i].reached = responseData.time;
+								updateCurrentPriority();
 								SubstanceTheme.showNotification("<p>" + GeoCat.locale.get("challenge.nav.tagged", "Checkpoint has been successfully tagged as 'reached'") + "</p>",
 																7, $.mobile.activePage[0], "substance-green no-shadow white");
 								break;
@@ -501,7 +638,7 @@ function ChallengeNavigatorController(challenge_id){
 				$(htmlElement["codeinput_textfield"]).select();
 			}
 			else{
-				sendCapturedOrReached(coord.challenge_coord_id, null);
+				sendCapturedOrReached(coord, null);
 			}
 		}
 		else{

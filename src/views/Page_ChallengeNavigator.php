@@ -38,6 +38,12 @@
 		<div data-role="panel" id="challenge-navigator-stats-panel" data-position="left" data-display="overlay" class="substance-foreground">
 			<ul id="challenge-navigator-stats" data-role="listview">
 			</ul>
+			<p style="font-size: 14px; font-weight: 700; margin-left: -1.143em; margin-right: -1.143em; padding: 0.5em 1.1em; border-radius: 0; background-color: #e9e9e9; cursor: default;">
+				<?php $locale->write("challenge.navigator.preferences"); ?>
+			</p>
+			<label style="font-weight: initial; margin-top: -1em; margin-left: -1em; margin-right: -1em; border-radius: 0; background-color: #ffffff; border-right-style: none;">
+				<input id="challenge-navigator-autohide" type="checkbox" checked><?php $locale->write("challenge.navigator.autohide"); ?>
+			</label>
 		</div>
 
 		<div id="code-input-popup" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all">

@@ -135,6 +135,15 @@ canvas.gpsradar {
 	font-style: italic;
 }
 
+.reached-cache > span > span:first-child {
+	color: #57dc2e;
+}
+
+.active-cache {
+	background-color: #098cc9 !important;
+	/*background-image: linear-gradient(to right, #098cc9 0%, transparent 80%);*/
+}
+
 #challenge-navigator-coord-list li.ui-li-divider {
 	cursor: pointer;
 }

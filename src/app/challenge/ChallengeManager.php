@@ -22,6 +22,8 @@
 
 	class ChallengeManager {
 
+		CONST CHALLENGE_TYPE_ID_MAX = 1; // Max value for a challenge type id
+
 		public static function getChallengeIdBySessionKey($dbh, $sessionKey){
 			$res = DBTools::fetchAll($dbh, "SELECT challenge_id FROM Challenge WHERE sessionkey = :key", array("key" => strtoupper($sessionKey)));
 
@@ -270,7 +272,7 @@
 
 		}
 
-		private static function getSingleValue($dbh, $challengenId, $key){
+		public static function getSingleValue($dbh, $challengenId, $key){
 			$res = DBTools::fetchNum($dbh, "SELECT  " . $key . " FROM Challenge WHERE challenge_id = :challenge_id", array("challenge_id" => $challengenId));
 
 			if($res){
@@ -281,7 +283,7 @@
 			}
 		}
 
-		private static function updateSingleValue($dbh, $challengenId, $key, $value){
+		public static function updateSingleValue($dbh, $challengenId, $key, $value){
 			$res = DBTools::query($dbh, "UPDATE Challenge SET " . $key . " = :value WHERE challenge_id = :challenge_id",
 					array("value" => $value, "challenge_id" => $challengenId));
 

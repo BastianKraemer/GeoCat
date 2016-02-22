@@ -54,8 +54,8 @@
 
 			$session = $this->requireLogin();
 			$this->requireParameters(array(
-				"name" => self::defaultNameRegEx(1, 64),
-				"desc" => self::defaultNameRegEx(1, 512),
+				"name" => self::defaultTextRegEx(1, 64),
+				"desc" => self::defaultTextRegEx(0, 512),
 				"type" => "/^(default|ctf)$/i"
 			));
 
@@ -85,6 +85,71 @@
 			return self::buildResponse(true, array("session_id" => $id));
 		}
 
+		// Modify some data of the challenge
+		protected function modify(){
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+			$this->requireChallengeOwner($challengeId, $session);
+
+			// This parameters can be modified at any time
+			$optionalArgs1 = array(
+				"name" => self::defaultTextRegEx(1, 64),
+				"description" => self::defaultTextRegEx(0, 512),
+				"is_public" => "/[0-1]/",
+			);
+
+			// This parameters can be modified before a challenge is enabled
+			$optionalArgs2 = array(
+					"type_id" => "/[0-" . ChallengeManager::CHALLENGE_TYPE_ID_MAX . "]/i",
+					"start_time" => $this::defaultTimeRegEx(),
+					"end_time" => null,
+					"predefined_teams" =>  "/[0-1]/",
+					"max_teams" => "/\d/",
+					"max_team_members" => "/\d/"
+			);
+
+			$this->verifyOptionalParameters($optionalArgs1);
+			$this->verifyOptionalParameters($optionalArgs2);
+
+			if($this->hasParameter("end_time")){
+				if($this->args["end_time"] != null){
+					if(!preg_match($this::defaultTimeRegEx(), $this->args["end_time"])){
+						return self::buildResponse(false, array(msg => sprintf($this->locale->get("query.generic.invalid_value"), "end_time")));
+					}
+				}
+			}
+
+			$isEnabled = ChallengeManager::isChallengeEnabled($this->dbh, $challengeId);
+
+			foreach ($optionalArgs1 as $key => $value){
+				if($this->hasParameter($key)){
+					ChallengeManager::updateSingleValue($this->dbh, $challengeId, $key, $this->args[$key]);
+				}
+			}
+
+			foreach ($optionalArgs2 as $key => $value){
+				if($this->hasParameter($key)){
+					if($isEnabled){
+						return self::buildResponse(false, array(msg => "You cannot update the following values on an enabled challenge: ". $key));
+					}
+					else{
+						if($key == "type_id"){
+							ChallengeManager::updateSingleValue($this->dbh, $challengeId, "challenge_type_id", $this->args[$key]);
+						}
+						else{
+							ChallengeManager::updateSingleValue($this->dbh, $challengeId, $key, $this->args[$key] == null ? null : $this->args[$key]);
+						}
+					}
+				}
+			}
+
+			return self::buildResponse(true);
+		}
 
 		protected function get_challenges(){
 
@@ -145,7 +210,7 @@
 
 			$this->requireParameters(array(
 					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
-					"name" => self::defaultNameRegEx(1, 32)
+					"name" => self::defaultTextRegEx(1, 32)
 			));
 
 			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
@@ -168,7 +233,7 @@
 			// Check optional parameters
 			$this->verifyOptionalParameters(array(
 					"color" => "/\^#[A-Fa-f0-9]{6}$/",
-					"code" => self::defaultNameRegEx(1,16)
+					"code" => self::defaultTextRegEx(1,16)
 			));
 
 			$this->assignOptionalParameter("color", "0xFF0000"); //TODO: randomize this value
@@ -194,7 +259,8 @@
 			}
 
 			$info = ChallengeManager::getChallengeInformation($this->dbh, $challengeId);
-			$info["is_enabled"] = ChallengeManager::isChallengeEnabled($this->dbh, $challengeId) ? 1 : 0;
+
+			$info["is_enabled"] = (ChallengeManager::isChallengeEnabled($this->dbh, $challengeId) ? 1 : 0);
 			$info["team_list"] = ChallengeManager::getTeamsAndMemberCount($this->dbh, $challengeId);
 
 			require_once(__DIR__ . "/../app/SessionManager.php");
@@ -220,8 +286,18 @@
 				return self::buildResponse(false, array("msg" => "Invalid session key."));
 			}
 
-			$this->requireEnabledChallenge($challengeId);
-			$this->requireStartedChallenge($challengeId, false);
+			$isOwner = false;
+
+			require_once(__DIR__ . "/../app/SessionManager.php");
+			$session = new SessionManager();
+
+			if($session->isSignedIn()){
+				$isOwner = (ChallengeManager::getOwner($this->dbh, $challengeId) == $session->getAccountId());
+			}
+			if(!$isOwner){
+				$this->requireEnabledChallenge($challengeId);
+				$this->requireStartedChallenge($challengeId, false);
+			}
 			$coords = ChallengeManager::getChallengeCoordinates($this->dbh, $challengeId);
 
 			return self::buildResponse(true, array("coords" => $coords));
@@ -375,9 +451,15 @@
 			}
 		}
 
+		private function requireChallengeOwner($challengeId, $session){
+			if(ChallengeManager::getOwner($this->dbh, $challengeId) != $session->getAccountId()){
+				throw new InvalidArgumentException($this->locale->get("query.challenge.unauthorized") . ".");
+			}
+		}
+
 		private function requireEnabledChallenge($challengeId){
 			if(!ChallengeManager::isChallengeEnabled($this->dbh, $challengeId)){
-				throw new InvalidArgumentException(false, array("msg" => $this->locale->get("query.challenge.challenge_not_enabled")));
+				throw new InvalidArgumentException($this->locale->get("query.challenge.challenge_not_enabled"));
 			}
 		}
 

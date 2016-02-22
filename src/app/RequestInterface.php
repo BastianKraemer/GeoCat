@@ -92,6 +92,10 @@
 			}
 		}
 
+		public function hasParameter($key){
+			return array_key_exists($key, $this->args);
+		}
+
 		/**
 		 * Verifies the parameters in '$this->args'.
 		 * <p>Therefore '<i>$requiredKeys</i>' has to be a map from key -> option.</p>
@@ -112,17 +116,17 @@
 				if(array_key_exists($key, $this->args)){
 					// Apply a regular expression to verify thae argument
 					if($value != null){
+						$this->args[$key] = htmlspecialchars($this->args[$key], ENT_QUOTES);
 						if(is_int($value)){
-							$str = htmlspecialchars($this->args[$key], ENT_QUOTES);
-							if(strlen($str) > $value){
+							if(strlen($this->args[$key]) > $value){
 								throw new InvalidArgumentException(sprintf($this->locale->get("query.generic.max_str_length"), $key));
 							}
-							$this->args[$key] = $str;
 						}
 						else{
 							if(!preg_match($value, $this->args[$key])){
 								throw new InvalidArgumentException(sprintf($this->locale->get("query.generic.invalid_value"), $key));
 							}
+
 						}
 					}
 				}
@@ -154,8 +158,8 @@
 			return $data;
 		}
 
-		protected static function defaultNameRegEx($minLength, $maxLength){
-			return "/^[A-Za-z0-9ÄäÖöÜüß_ \,\;\.\:\!\#\-\*\(\)]{" . $minLength . "," . $maxLength . "}$/";
+		protected static function defaultTextRegEx($minLength, $maxLength){
+			return "/^.{" . $minLength . "," . $maxLength . "}$/";
 		}
 
 		protected static function defaultTimeRegEx(){

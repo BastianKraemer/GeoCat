@@ -89,6 +89,10 @@ body, body div[data-role="page"] {
 	font-size: .6em;
 }
 
+.clickable {
+	cursor: pointer;
+}
+
 table {
 	width: 100%;
 }

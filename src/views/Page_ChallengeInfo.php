@@ -6,7 +6,7 @@
 		public function printHead($config, $locale, $session, $pathToRoot){
 ?>
 	<script type="text/javascript">
-		ChallengeInfoController.init();
+		ChallengeInfoController.init("#ChallengeInfo");
 	</script>
 <?php
 		}
@@ -140,6 +140,7 @@
 			</div>
 		</div>
 	</div>
+
 <?php
 		}
 	}

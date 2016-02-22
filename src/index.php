@@ -57,6 +57,7 @@
 	<script src="./js/Logout.js"></script>
 	<script src="./js/Substance.js"></script>
 	<!-- </## ./js/geocat.min.js ##> -->
+	<script src="./js/PagePrototype.js"></script>
 
 	<!-- <## ./js/controller.min.js ##> -->
 	<script src="./js/LoginController.js"></script>

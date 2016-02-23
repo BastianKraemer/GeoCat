@@ -64,9 +64,13 @@
 			return $res ? $res[0] : -1;
 		}
 
-		public static function countPriority0Coords($dbh, $challengeCoordId){
-			$res = DBTools::fetchNum($dbh, "SELECT COUNT(coord_id) FROM ChallengeCoord WHERE challenge_coord_id = :ccid AND priority = 0", array("ccid" => $challengeCoordId));
+		public static function countPriority0Coords($dbh, $challengeId){
+			$res = DBTools::fetchNum($dbh, "SELECT COUNT(coord_id) FROM ChallengeCoord WHERE challenge_id = :cid AND priority = 0", array("cid" => $challengeId));
 			return $res[0];
+		}
+
+		public static function getPriority0Coord($dbh, $challengeId){
+			return DBTools::fetchNum($dbh, "SELECT challenge_coord_id FROM ChallengeCoord WHERE challenge_id = :cid AND priority = 0 LIMIT 1", array("cid" => $challengeId));
 		}
 
 		public static function update($dbh, $challengeCoordId, $priority, $hint, $code){

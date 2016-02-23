@@ -151,6 +151,74 @@
 			return self::buildResponse(true);
 		}
 
+		/**
+		 * Task: 'update_coord'
+		 *
+		 * This will creae or update a challenge coordinate
+		 */
+		protected function update_coord(){
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+				"challenge" => "/^[A-Za-z0-9]{4,16}$/",
+				"ccid" => null,
+				"name" => $this->defaultTextRegEx(1, 64),
+				"lat" => "/-?[0-9]{1,9}[,\.][0-9]+/",
+				"lon" => "/-?[0-9]{1,9}[,\.][0-9]+/",
+				"priority" => "/\d/",
+				"hint" => $this->defaultTextRegEx(0, 256),
+				"code" => $this->defaultTextRegEx(0, 256),
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+			$this->requireChallengeOwner($challengeId, $session);
+
+			require_once(__DIR__ . "/../app/CoordinateManager.php");
+			require_once(__DIR__ . "/../app/challenge/ChallengeCoord.php");
+
+			if($this->args["priority"] == 0){
+				if(ChallengeCoord::countPriority0Coords($this->dbh, $challengeId) > 0){
+					if($this->args["ccid"] == null || ChallengeCoord::getPriority0Coord($this->dbh, $challengeId)[0] != $this->args["ccid"]){
+						return self::buildResponse(false, array("msg" => "You cannot define multiple coordinates with a priority of '0'."));
+					}
+				}
+			}
+
+			$this->setNullIfEmpty("code");
+			$this->setNullIfEmpty("hint");
+
+			if($this->args["ccid"] == null){
+				// New coordinate
+				$coordId = CoordinateManager::createCoordinate($this->dbh, $this->args["name"], $this->args["lat"], $this->args["lon"], "");
+
+				if($coordId == -1){
+					return self::buildResponse(false, array("msg" => "Internal server error: Unable to create coordinate."));
+				}
+				$ccid = ChallengeCoord::create($this->dbh, $challengeId, $coordId, $this->args["priority"], $this->args["hint"], $this->args["code"]);
+			}
+			else{
+				// Update existing coord
+				if(!preg_match("/\d/", $this->args["ccid"])){
+					return self::buildResponse(false, array("msg" => "Parameter 'ccid' is not a valid integer."));
+				}
+
+				// Verify that the coordinate belongs to the challenge
+				$cIdOfCoord = ChallengeCoord::getChallengeOfCoordinate($this->dbh, $this->args["ccid"]);
+				$coordId = ChallengeCoord::getCoordinate($this->dbh, $this->args["ccid"]);
+
+				if($cIdOfCoord == -1 || $coordId == -1){
+					return self::buildResponse(false, array("msg" => "Error: Coordinate does not exist."));
+				}
+				else if($cIdOfCoord != $challengeId){
+					return self::buildResponse(false, array("msg" => "The coordinate is not part this challenge."));
+				}
+
+				CoordinateManager::updateCoordinate($this->dbh, $coordId, $this->args["name"], $this->args["lat"], $this->args["lon"], "");
+				ChallengeCoord::update($this->dbh, $this->args["ccid"], $this->args["priority"], $this->args["hint"], $this->args["code"]);
+			}
+			return self::buildResponse(true);
+		}
+
 		protected function get_challenges(){
 
 			$this->verifyOptionalParameters(array(
@@ -294,11 +362,12 @@
 			if($session->isSignedIn()){
 				$isOwner = (ChallengeManager::getOwner($this->dbh, $challengeId) == $session->getAccountId());
 			}
+
 			if(!$isOwner){
 				$this->requireEnabledChallenge($challengeId);
 				$this->requireStartedChallenge($challengeId, false);
 			}
-			$coords = ChallengeManager::getChallengeCoordinates($this->dbh, $challengeId);
+			$coords = ChallengeManager::getChallengeCoordinates($this->dbh, $challengeId, $isOwner);
 
 			return self::buildResponse(true, array("coords" => $coords));
 		}
@@ -490,6 +559,14 @@
 				throw new InvalidArgumentException($this->locale->get("query.challenge.not_a_member"));
 			}
 			return $team_id;
+		}
+
+		private function setNullIfEmpty($paramName){
+			if($this->hasParameter($paramName)){
+				if(empty($this->args[$paramName])){
+					$this->args[$paramName] = null;
+				}
+			}
 		}
 	}
 

@@ -91,11 +91,11 @@
 			}
 		}
 
-		public static function getChallengeCoordinates($dbh, $challengeId){
+		public static function getChallengeCoordinates($dbh, $challengeId, $includeCacheCodes = false){
 
 			$res = DBTools::fetchAll($dbh,	"SELECT ChallengeCoord.challenge_coord_id, ChallengeCoord.hint, ChallengeCoord.priority, ChallengeCoord.captured_by, ChallengeCoord.capture_time," .
 												"Coordinate.coord_id, Coordinate.name, Coordinate.description, Coordinate.latitude, Coordinate.longitude, " .
-												"(NOT ISNULL(ChallengeCoord.code)) AS code_required " .
+												"(NOT ISNULL(ChallengeCoord.code)) AS code_required" . ($includeCacheCodes ? ", ChallengeCoord.code " : " ") .
 											"FROM ChallengeCoord, Coordinate " .
 											"WHERE ChallengeCoord.challenge_id = :challengeId AND ChallengeCoord.coord_id = Coordinate.coord_id " .
 											"ORDER BY ChallengeCoord.priority ASC",

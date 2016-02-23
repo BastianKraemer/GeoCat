@@ -53,10 +53,32 @@
 			}
 		}
 
+		public static function getChallengeOfCoordinate($dbh, $challengeCoordId){
+			$res = DBTools::fetchNum($dbh, "SELECT challenge_id FROM ChallengeCoord WHERE challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
+			return $res ? $res[0] : -1;
+		}
+
 		public static function getCoordinate($dbh, $challengeCoordId){
 			$res = DBTools::fetchNum($dbh, "SELECT coord_id FROM ChallengeCoord WHERE challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
 
 			return $res ? $res[0] : -1;
+		}
+
+		public static function countPriority0Coords($dbh, $challengeCoordId){
+			$res = DBTools::fetchNum($dbh, "SELECT COUNT(coord_id) FROM ChallengeCoord WHERE challenge_coord_id = :ccid AND priority = 0", array("ccid" => $challengeCoordId));
+			return $res[0];
+		}
+
+		public static function update($dbh, $challengeCoordId, $priority, $hint, $code){
+			$res = DBTools::query($dbh, "UPDATE ChallengeCoord " .
+										"SET priority = :priority, hint = :hint, code = :code " .
+										"WHERE challenge_coord_id = :ccid",
+										 array(	"ccid" => $challengeCoordId, "priority" => $priority,
+												"hint" => $hint, "code" => $code));
+			if(!$res){
+				error_log("Error: Unable to update row in table ChallengeCoord. Database retuned '" . $res . "' (" . __METHOD__ . "@" .__CLASS__ . ")");
+				throw new Exception("Unable to remove coordinate from challenge");
+			}
 		}
 
 		public static function remove($dbh, $challengeCoordId){

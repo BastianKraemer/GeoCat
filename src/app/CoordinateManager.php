@@ -50,6 +50,12 @@
 		const TABLE_CURRENT_NAV = "CurrentNavigation";
 
 		/**
+		 * Represents the number of decimal places for coordinates
+		 * @var integer
+		 */
+		const ROUND_COORDS_TO = 6;
+
+		/**
 		 * Returns a coordinate defined by its id
 		 * @param PDO $dbh Database handler
 		 * @param integer $coordinateId
@@ -217,7 +223,7 @@
 			self::verifyCoordinate($name, $latitude, $longitude, $decription);
 
 			$res = DBTools::query($dbh, "INSERT INTO ". self::TABLE_COORDINATE . " (coord_id, name, description, latitude, longitude) VALUES (NULL, :name, :desc, :lat, :lon)",
-									array("name" => $name, "desc" => $decription, "lat" => $latitude, "lon" => $longitude));
+									array("name" => $name, "desc" => $decription, "lat" => round($latitude, self::ROUND_COORDS_TO), "lon" => round($longitude, self::ROUND_COORDS_TO)));
 
 			if($res){
 				return $dbh->lastInsertId("coord_id");
@@ -295,7 +301,7 @@
 											"SET name = :name, description = :desc, latitude = :lat, longitude = :lon " .
 											"WHERE coord_id = :coordId",
 											array("coordId" => $coordinate_id, "name" => $newName, "desc" => $newDescription,
-												  "lat" => $newLatitude, "lon" => $newLongitude));
+												  "lat" => round($newLongitude, self::ROUND_COORDS_TO), "lon" => round($newLongitude, self::ROUND_COORDS_TO)));
 
 				if(!$res){
 					// ERROR - Write debug information to PHP error log
@@ -392,22 +398,38 @@
 		 * @throws InvalidArgumentException If the account_id is undefined in the database
 		 */
 		public static function isOwnerOfPlace($dbh, $accountId, $coord_id){
-			$result = DBTools::fetchAll($dbh, "SELECT account_id FROM " . self::TABLE_PLACE . " WHERE coord_id = :coordId", array("coordId" => $coord_id));
-			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account_id.");}
-			return $result[0][0] == $accountId;
+
+			// Search for the account id in the "Places" table
+			$accId = self::getAssignedAccountId($dbh, $accountId, $coord_id, true);
+
+			if($accId == -1){
+				// ...maybe the coordinate is mentioned in the "CurrentNavigation" table
+				$accId = self::getAssignedAccountId($dbh, $accountId, $coord_id, false);
+			}
+
+			if($accId == -1){
+				throw new InvalidArgumentException("The coordinate is not assigned to this account.");
+			}
+
+			return $accId == $accountId;
 		}
 
 		/**
-		 * Returns the owner of a place
+		 * Returns the account_id of a coorindate or <code>-1</code> if there is no coordinate with this id
 		 * @param PDO $dbh Database handler
+		 * @param integer $accountId The account_id
 		 * @param integer $coord_id The coordinate id
-		 * @return integer
-		 * @throws InvalidArgumentException If the account_id is undefined in the database
+		 * @param string $checkPlacesTable Specify which table should be selected
 		 */
-		public static function getPlaceOwner($dbh, $coord_id){
-			$result = DBTools::fetchAll($dbh, "SELECT account_id FROM " . self::TABLE_PLACE . " WHERE coord_id = :coordId", array("coordId" => $coord_id));
-			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account_id.");}
-			return $result[0][0];
+		private static function getAssignedAccountId($dbh, $accountId, $coord_id, $checkPlacesTable){
+			$table = $checkPlacesTable ? self::TABLE_PLACE : self::TABLE_CURRENT_NAV;
+			$result = DBTools::fetchNum($dbh, "SELECT account_id FROM " . $table . " WHERE coord_id = :coordId", array("coordId" => $coord_id));
+			if(empty($result) || count($result) != 1){
+				return -1;
+			}
+			else{
+				return $result[0];
+			}
 		}
 
 		/**
@@ -532,7 +554,7 @@
 			if($latitude == "" || $longitude == ""){throw new InvalidArgumentException("Latitude or longitude are undefined.");}
 
 			if(!is_double($latitude)){
-				if(preg_match("/^(-)?[0-9]+\.[0-9]{1,8}$/", $latitude)){
+				if(preg_match("/^(-)?[0-9]+\.[0-9]{1,16}$/", $latitude)){
 					$latitide = floatval($latitude);
 				}
 				else{
@@ -541,7 +563,7 @@
 			}
 
 			if(!is_double($longitude)){
-				if(preg_match("/^(-)?[0-9]+\.[0-9]{1,8}$/", $longitude)){
+				if(preg_match("/^(-)?[0-9]+\.[0-9]{1,16}$/", $longitude)){
 					$longitude = floatval($longitude);
 				}
 				else{

@@ -80,8 +80,6 @@
 			$session = $this->requireLogin();
 			$accId = $session->getAccountId();
 
-			$this->roundLatitudeAndLongitude();
-
 			$coordId = CoordinateManager::createCoordinate($this->dbh, $this->args[self::KEY_NAME], $this->args[self::KEY_LAT], $this->args[self::KEY_LON],
 														   $this->args[self::KEY_DESC]);
 
@@ -123,7 +121,6 @@
 			$this->assignOptionalParameter(self::KEY_DESC, null);
 			$this->assignOptionalParameter(self::KEY_OTHER_ACCOUNT, null);
 
-			$placeOwner = CoordinateManager::getPlaceOwner($this->dbh, $this->args[self::KEY_COORD_ID]);
 			$accId;
 
 			if($this->args[SELF::KEY_OTHER_ACCOUNT] != null){
@@ -132,12 +129,10 @@
 			}
 			else{
 				$accId = $session->getAccountId();
-				if($accId != $placeOwner){
-					throw new InvalidArgumentException("Access denied: You don't have the permission to update this place.");
+				if(!CoordinateManager::isOwnerOfPlace($this->dbh, $accId, $this->args[self::KEY_COORD_ID])){
+					throw new InvalidArgumentException("Access denied: You don't have the permission to update this coordinate.");
 				}
 			}
-
-			$this->roundLatitudeAndLongitude();
 
 			$value = CoordinateManager::updatePlace($this->dbh, $accId, $this->args[self::KEY_COORD_ID], $this->args[self::KEY_NAME],
 													$this->args[self::KEY_LAT], $this->args[self::KEY_LON],
@@ -231,7 +226,6 @@
 
 			$session = $this->requireLogin();
 
-			$placeOwner = CoordinateManager::getPlaceOwner($this->dbh, $this->args[self::KEY_COORD_ID]);
 			$accId;
 
 			if($this->args[SELF::KEY_OTHER_ACCOUNT] != null){
@@ -240,7 +234,7 @@
 			}
 			else{
 				$accId = $session->getAccountId();
-				if($accId != $placeOwner){
+				if(!CoordinateManager::isOwnerOfPlace($this->dbh, $accId, $this->args[self::KEY_COORD_ID])){
 					throw new InvalidArgumentException("Access denied: You don't have the permission to remove this place.");
 				}
 			}
@@ -294,7 +288,6 @@
 			$this->assignOptionalParameter(self::KEY_IS_PUBLIC, 0);
 
 			$session = $this->requireLogin();
-			$this->roundLatitudeAndLongitude();
 
 			$coordId = CoordinateManager::createCoordinate($this->dbh, $this->args[self::KEY_NAME], $this->args[self::KEY_LAT], $this->args[self::KEY_LON],
 														   $this->args[self::KEY_DESC]);
@@ -342,10 +335,6 @@
 			return (array_key_exists("filter", $this->args) ? ("%" . $this->args["filter"] . "%") : null);
 		}
 
-		private function roundLatitudeAndLongitude(){
-			$this->args[self::KEY_LAT] = round($this->args[self::KEY_LAT], 6);
-			$this->args[self::KEY_LON] = round($this->args[self::KEY_LON], 6);
-		}
 	}
 
 	$config = require(__DIR__ . "/../config/config.php");

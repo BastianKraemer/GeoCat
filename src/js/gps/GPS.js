@@ -15,7 +15,7 @@ var GPS = new function(){
 	 */
 	this.getOnce = function(callback){
 		if(currentPosition != null){
-			callback(this.currentPosition);
+			callback(currentPosition);
 		}
 		else{
 			navigator.geolocation.getCurrentPosition(callback, gpsErrorHandler, {enableHighAccuracy: true});
@@ -82,6 +82,7 @@ var GPS = new function(){
 		if(gpsWatchId != -1){
 			navigator.geolocation.clearWatch(gpsWatchId);
 			gpsWatchId = -1;
+			currentPosition = null;
 		}
 	};
 

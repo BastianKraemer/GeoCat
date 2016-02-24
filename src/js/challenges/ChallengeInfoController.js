@@ -2,16 +2,22 @@ function ChallengeInfoController(sessionKey){
 
 	var challengeSessionKey = sessionKey;
 	var challengeData;
+	var coordData;
+
+	var enableCoordEdit = false;
+	var me = this;
 
 	// Id configuration
 
 	var infoElements ={
-			title: "#challengeinfo-title",
-			description: "#challengeinfo-description",
-			owner: "#challengeinfo-owner",
-			type: "#challengeinfo-type",
-			startTime: "#challengeinfo-start-time",
-			endTime: "#challengeinfo-end-time"
+		title: "#challengeinfo-title",
+		description: "#challengeinfo-description",
+		owner: "#challengeinfo-owner",
+		type: "#challengeinfo-type",
+		startTime: "#challengeinfo-start-time",
+		endTime: "#challengeinfo-end-time",
+		cacheList: "#challengeinfo-cache-list",
+		teamList: "#challengeinfo-team-list"
 	}
 
 	var buttons = {
@@ -25,25 +31,25 @@ function ChallengeInfoController(sessionKey){
 	};
 
 	var popups = {
-			editDescriptionPopup: "#challengeinfo-editdesc-popup",
-			editEtcPopup: "#challengeinfo-editetc-popup"
+		editDescriptionPopup: "#challengeinfo-editdesc-popup",
+		editEtcPopup: "#challengeinfo-editetc-popup"
 	};
 
 	var inputElements = {
-			editName: "#challengeinfo-edit-name",
-			editDesc: "#challengeinfo-edit-desc",
-			editIsPublic: "#challengeinfo-edit-ispublic",
-			editType: "#challengeinfo-edit-type",
-			editStartTime: "#challengeinfo-edit-starttime",
-			editEndTime: "#challengeinfo-edit-endtime",
-			editPredefTeams: "#challengeinfo-edit-predefteams",
-			editMaxTeams: "#challengeinfo-edit-maxteams",
-			editMaxTeamMembers: "#challengeinfo-edit-maxteam-members"
+		editName: "#challengeinfo-edit-name",
+		editDesc: "#challengeinfo-edit-desc",
+		editIsPublic: "#challengeinfo-edit-ispublic",
+		editType: "#challengeinfo-edit-type",
+		editStartTime: "#challengeinfo-edit-starttime",
+		editEndTime: "#challengeinfo-edit-endtime",
+		editPredefTeams: "#challengeinfo-edit-predefteams",
+		editMaxTeams: "#challengeinfo-edit-maxteams",
+		editMaxTeamMembers: "#challengeinfo-edit-maxteam-members"
 	};
 
 	var confirmButtons = {
-			editDescriptionConfirm: "#challengeinfo-editdesc-ok",
-			editEtcConfirm: "#challengeinfo-editetc-ok"
+		editDescriptionConfirm: "#challengeinfo-editdesc-ok",
+		editEtcConfirm: "#challengeinfo-editetc-ok"
 	};
 
 	// Public functions
@@ -122,7 +128,7 @@ function ChallengeInfoController(sessionKey){
 				}
 				else{
 					// The only error that could oocur ist that the challenge has not started yet...
-					$("#challengeinfo-cache-list").html("<tr><td colspan=4>" + GeoCat.locale.get("challenge.info.not_started", "The challenge has not started yet.") + "</td></tr>");
+					$(infoElements.cacheList).html("<tr><td colspan=4>" + GeoCat.locale.get("challenge.info.not_started", "The challenge has not started yet.") + "</td></tr>");
 				}
 
 			},
@@ -152,21 +158,28 @@ function ChallengeInfoController(sessionKey){
 	}
 
 	var onCoordinateDataReceived = function(data){
-
+		coordData = {};
 		if(data["coords"].length > 0){
-			$("#challengeinfo-cache-list").html("");
+			$(infoElements.cacheList).html("");
 			data["coords"].forEach(function(coord){
-				$("#challengeinfo-cache-list").append(
-					"<tr>" +
+				$(infoElements.cacheList).append(
+					"<tr data-cc-id=\"" + coord.challenge_coord_id + "\">" +
 						"<td>" + coord.name + "</td>" +
 						"<td>" + (coord.hint == null ? "-" : coord.hint) + "</td>" +
 						"<td>" + (coord.code_required == 1 ? GeoCat.locale.get("yes", "Yes") : GeoCat.locale.get("no", "No")) + "</td>" +
 						"<td>" + coord.latitude + ", " + coord.longitude + "</td>" +
 					"</tr>");
+
+				coordData[coord.challenge_coord_id] = coord;
 			});
+
+			if(enableCoordEdit){;
+				$(infoElements.cacheList + " tr td").click(trOnClick);
+				$(infoElements.cacheList + " tr td").css("cursor", "pointer");
+			}
 		}
 		else{
-			$("#challengeinfo-cache-list").html("<tr><td colspan=4>" + GeoCat.locale.get("challenge.info.no_caches", "There are no caches assigned to this challenge") + ".</td></tr>");
+			$(infoElements.cacheList).html("<tr><td colspan=4>" + GeoCat.locale.get("challenge.info.no_caches", "There are no caches assigned to this challenge") + ".</td></tr>");
 		}
 	};
 
@@ -184,7 +197,7 @@ function ChallengeInfoController(sessionKey){
 	};
 
 	var updateTeamList = function(){
-		$("#challengeinfo-team-list").html("");
+		$(infoElements.teamList).html("");
 
 		challengeData["team_list"].forEach(function(teamData) {
 			var teamName;
@@ -195,7 +208,7 @@ function ChallengeInfoController(sessionKey){
 				teamName = teamData.name + (teamData.has_code == 1 ? "*" : "")
 			}
 
-			$("#challengeinfo-team-list").append(
+			$(infoElements.teamList).append(
 				"<tr>" +
 					"<td style=\"background-color: " + teamData.color + "; width: 0px;\"></td>" +
 					"<td>" + teamName + "</td>" +
@@ -217,22 +230,27 @@ function ChallengeInfoController(sessionKey){
 					showButton(buttons.start, function(){alert("Feature 'start' is not implemented yet.");});
 					showButton(buttons.resetChallenge, function(){alert("Feature 'reset challenge' is not implemented yet.");});
 					showButton(buttons.deleteChallenge, function(){alert("Feature 'delete challenge' is not implemented yet.");});
+
+					enableCoordEdit = false;
 				}
 				else{
 					// The challenge is not enabled yet
-					showButton(buttons.addCache, function(){alert("Feature 'add cache' is not implemented yet.");});
+					showButton(buttons.addCache, handleClickOnAddCache);
 					showButton(buttons.enableChallenge, function(){alert("Feature 'enable challenge' is not implemented yet.");});
 					showButton(buttons.deleteChallenge, function(){alert("Feature 'delete challenge' is not implemented yet.");});
 
 					addClickHandlerToInfoField(infoElements.startTime, handleClickOnEditEtc, true);
 					addClickHandlerToInfoField(infoElements.endTime, handleClickOnEditEtc, true);
 					addClickHandlerToInfoField(infoElements.type, handleClickOnEditEtc, true);
+
+					enableCoordEdit = true;
 				}
 
 				addClickHandlerToInfoField(infoElements.title, handleClickOnEditDescription, false);
 				addClickHandlerToInfoField(infoElements.description, handleClickOnEditDescription, false);
 			}
 			else{
+				enableCoordEdit = false;
 				// The user is NOT the owner of this challenge
 				if(challengeData["your_team"] == -1){
 					// The user is already part of this challenge and has coosen a teamn
@@ -256,7 +274,7 @@ function ChallengeInfoController(sessionKey){
 		$(infoElements.endTime).parent().unbind();
 		$(infoElements.endTime).parent().removeClass("clickable")
 		$(infoElements.type).parent().unbind();
-		$(infoElements.type).parent().removeClass("clickable")
+		$(infoElements.type).parent().removeClass("clickable");
 	}
 
 	var addClickHandlerToInfoField = function(id, callback, useParentElement){
@@ -274,6 +292,26 @@ function ChallengeInfoController(sessionKey){
 		return (GeoCat.loginStatus.username == challengeData["owner_name"]);
 	};
 
+	var showCacheEditDialog = function(ccId, editData){
+		me.enableEvents(false);
+
+		CoordinateEditDialogController.showDialog(
+			$.mobile.activePage.attr("id"),
+			function(){me.enableEvents(true);},
+			function(data, editDialog){
+				sendChallengeCoordUpdateRequest(data, ccId, editDialog);
+			},
+			editData,
+			{
+				showHintField: true,
+				showPriorityField: true,
+				showCodeField: true,
+				hideIsPublicField: true,
+				hideDescriptionField: true,
+				noAutoClose: true,
+				getCurrentPos: (ccId == null)}
+		);
+	}
 
 	/*
 	 * ========================================================================
@@ -298,6 +336,20 @@ function ChallengeInfoController(sessionKey){
 		$(inputElements.editMaxTeams).val(challengeData["max_teams"]).selectmenu('refresh');
 		$(inputElements.editMaxTeamMembers).val(challengeData["max_team_members"]).selectmenu('refresh');
 		$(popups.editEtcPopup).popup("open", {positionTo: "window", transition: "pop"});
+	};
+
+	var handleClickOnAddCache = function(){
+
+		var ccId = $(this).parent().attr("data-cc-id"); //ccId = challenge coord id
+		showCacheEditDialog(null, {priority: 1});
+	};
+
+	var trOnClick = function(){
+		var ccId = $(this).parent().attr("data-cc-id"); //ccId = challenge coord id
+		var coord = coordData[ccId];
+		showCacheEditDialog(ccId, CoordinateEditDialogController.genCacheDataObject(
+									coord.name, coord.description, coord.latitude, coord.longitude,
+									coord.hint, coord.priority, coord.code));
 	};
 
 	/*
@@ -371,6 +423,40 @@ function ChallengeInfoController(sessionKey){
 				}
 
 				$(popupId).popup("close");
+			},
+			error: ajaxError
+		});
+	};
+
+	var sendChallengeCoordUpdateRequest = function(ajaxData, ccid, editDialog){
+		ajaxData["task"] = "update_coord";
+		ajaxData["challenge"] = challengeSessionKey;
+		ajaxData["ccid"] = ccid;
+
+		$.ajax({
+			type: "POST", url: "./query/challenge.php",
+			encoding: "UTF-8",
+			data: ajaxData,
+			cache: false,
+			success: function(response){
+				try{
+					var responseData = JSON.parse(response);
+					if(responseData.status == "ok"){
+						// Download all caches again...
+						editDialog.close();
+						downloadCoordData();
+						SubstanceTheme.showNotification("<p>" + GeoCat.locale.get("challenge.nav.updated", "Update successful.") + "</p>", 7,
+														$.mobile.activePage[0], "substance-skyblue no-shadow white");
+					}
+					else{
+						showError(GeoCat.locale.get("challenge.info.error.unknown", "Error: Update of challenge data failed."), responseData.msg);
+					}
+				}
+				catch(e){
+					console.log("ERROR: " + e);
+					console.log("Server returned: " + response);
+					showError(GeoCat.locale.get("challenge.info.error.unknown", "Error: Update of challenge data failed."));
+				}
 			},
 			error: ajaxError
 		});

@@ -22,14 +22,14 @@
 			<p id="challengeinfo-title" class="title">...</p>
 			<p id="challengeinfo-description" class="description">...</p>
 
-			<div class="substance-vflexcontainer">
+			<div class="substance-horizontal-flexcontainer">
 				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.owner"); ?>:<br><span id="challengeinfo-owner">-</span></p>
 				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.type"); ?>:<br><span id="challengeinfo-type">-</span>
 				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.start"); ?>:<br><span id="challengeinfo-start-time">-</span></p>
 				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.end"); ?>:<br><span id="challengeinfo-end-time">-</span></p>
 			</div>
 
-			<div class="substance-vflexcontainer">
+			<div class="substance-horizontal-flexcontainer">
 				<div class="substance-container substance-flexitem2" style="min-width: 300px; min-height: 200px; max-height: 400px; overflow-y: auto;">
 					<table class="styled-table">
 						<caption><?php $locale->write("challenge.info.cachelist"); ?></caption>
@@ -62,17 +62,27 @@
 						</tbody>
 					</table>
 				</div>
-
-				<div class="substance-footer" id="challengeinfo-footer">
-					<span id="challengeinfo-add-cache" class="substance-button substance-button-animated substance-lime" style="display: none; background-image: url('./img/plus.png'"></span>
-					<span id="challengeinfo-create-team" class="substance-button substance-button-animated substance-green" style="display: none; background-image: url('./img/plus.png'"></span>
-					<span id="challengeinfo-start" class="substance-button substance-button-animated substance-blue" style="display: none; background-image: url('./img/pin.png'"></span>
-					<span id="challengeinfo-leave" class="substance-button substance-button-animated substance-orange" style="display: none; background-image: url('./img/leave.png'"></span>
-					<span id="challengeinfo-reset" class="substance-button substance-button-animated substance-purple" style="display: none; background-image: url('./img/reset.png'"></span>
-					<span id="challengeinfo-enable" class="substance-button substance-button-animated substance-blue" style="display: none; background-image: url('./img/flag.png'"></span>
-					<span id="challengeinfo-delete" class="substance-button substance-button-animated substance-red" style="display: none; background-image: url('./img/delete.png'"></span>
-				</div>
 			</div>
+
+			<p class="substance-footer-offset"></p>
+
+			<div class="substance-footer" id="challengeinfo-footer">
+				<span id="challengeinfo-add-cache" class="substance-button substance-button-animated substance-lime"
+					  title="<?php $locale->write("challenge.info.add_cache"); ?>" style="display: none; background-image: url('./img/plus.png'"></span>
+				<span id="challengeinfo-create-team" class="substance-button substance-button-animated substance-green"
+					  title="<?php $locale->write("challenge.info.create_team"); ?>" style="display: none; background-image: url('./img/plus.png'"></span>
+				<span id="challengeinfo-start" class="substance-button substance-button-animated substance-blue"
+					  title="<?php $locale->write("challenge.info.start"); ?>" style="display: none; background-image: url('./img/pin.png'"></span>
+				<span id="challengeinfo-leave" class="substance-button substance-button-animated substance-orange"
+					  title="<?php $locale->write("challenge.info.leave"); ?>" style="display: none; background-image: url('./img/leave.png'"></span>
+				<span id="challengeinfo-reset" class="substance-button substance-button-animated substance-purple"
+					  title="<?php $locale->write("challenge.info.reset"); ?>" style="display: none; background-image: url('./img/reset.png'"></span>
+				<span id="challengeinfo-enable" class="substance-button substance-button-animated substance-blue"
+					  title="<?php $locale->write("challenge.info.enable"); ?>" style="display: none; background-image: url('./img/flag.png'"></span>
+				<span id="challengeinfo-delete" class="substance-button substance-button-animated substance-red"
+					  title="<?php $locale->write("challenge.info.delete"); ?>" style="display: none; background-image: url('./img/delete.png'"></span>
+			</div>
+
 		</div>
 
 		<!-- Popup: Modify challenge name and description -->

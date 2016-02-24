@@ -41,6 +41,12 @@
 	padding-bottom: 1px;
 }
 
+.substance-footer-offset {
+	height: 4em;
+	margin: 0;
+	padding: 0;
+}
+
 .substance-button {
 	display: inline-block;
 	border-radius: 100%;
@@ -127,7 +133,7 @@
 	justify-content: center;
 }
 
-.substance-vflexcontainer {
+.substance-horizontal-flexcontainer {
 	display: -webkit-flex;
 	display: flex;
 	-webkit-flex-direction: row;

@@ -26,9 +26,13 @@
 				<li><span><?php $locale->write("challenge.browse.loading"); ?>.</span></li>
 			</ul>
 
+			<p class="substance-footer-offset"></p>
+
 			<div class="substance-footer">
-				<a href="./sites/createchallenge.php" data-rel="external" data-ajax="false" class="substance-button substance-button-animated substance-lime" style="background-image: url('./img/plus.png')"></a>
-				<a href="#JoinChallengePopup" data-rel="popup" class="substance-button substance-button-animated substance-blue" style="background-image: url('./img/key.png'"></a>
+				<a href="./sites/createchallenge.php" data-rel="external" data-ajax="false" class="substance-button substance-button-animated substance-lime"
+				   title="<?php $locale->write("challenge.browse.create_challenge"); ?>" style="background-image: url('./img/plus.png')"></a>
+				<a href="#JoinChallengePopup" data-rel="popup" class="substance-button substance-button-animated substance-blue"
+				   title="<?php $locale->write("challenge.browse.join_challenge"); ?>" style="background-image: url('./img/key.png'"></a>
 			</div>
 		</div>
 

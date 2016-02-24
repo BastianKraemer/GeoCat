@@ -4,6 +4,11 @@
 	The styles are inspired by the "Material-Design" of Android
 ============================================================================== */
 
+.substance-half-window {
+	width: 50%;
+	min-width: 320px;
+}
+
 .substance-foreground {
 	z-Index: 1025;
 }
@@ -93,10 +98,35 @@
 -------------------------------------------------------------------------------
 */
 
+.substance-box {
+	-webkit-box-shadow: 1px 1px 5px #646464;
+	box-shadow: 1px 1px 5px #646464;
+	padding: 0 1em;
+	margin: 8px;
+}
+
+.substance-box-header {
+	margin: 0 -1em 0.5em -1em;
+	padding: 0.5em 1em;
+	color: white;
+	background-color: #3a3a3a;
+}
+
+.substance-box-header *{
+	margin: 0;
+}
+
 .substance-container {
 	border: 1px solid #56595a;
 	margin: 4px;
 }
+
+.substance-center-flexcontainer  {
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+}
+
 .substance-vflexcontainer {
 	display: -webkit-flex;
 	display: flex;

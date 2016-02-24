@@ -19,6 +19,7 @@
 	require_once(__DIR__ . "/views/Page_BrowseChallenges.php");
 	require_once(__DIR__ . "/views/Page_ChallengeNavigator.php");
 	require_once(__DIR__ . "/views/Page_ChallengeInfo.php");
+	require_once(__DIR__ . "/views/Page_CoordinateEditDialog.php");
 
 	$allPages = array(
 		new Page_Home(),
@@ -27,7 +28,8 @@
 		new Page_GPSNavigator(),
 		new Page_BrowseChallenges(),
 		new Page_ChallengeNavigator(),
-		new Page_ChallengeInfo()
+		new Page_ChallengeInfo(),
+		new Page_CoordinateEditDialog()
 	);
 ?>
 
@@ -67,6 +69,7 @@
 	<script src="./js/challenges/ChallengeNavigatorController.js"></script>
 	<!-- </## ./js/controller.min.js ##> -->
 	<script src="./js/challenges/ChallengeInfoController.js"></script>
+	<script src="./js/controller/CoordinateEditDialogController.js"></script>
 
 	<!-- <## ./js/gpscat.min.js ##> -->
 	<script src="./js/gps/GPSRadar.js"></script>

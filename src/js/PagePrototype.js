@@ -27,7 +27,7 @@ function PagePrototype(pageId, constructorCallback){
 	};
 
 	var  onPageClosed = function(){
-		if(handleEvents){
+		if(handleEvents && currentInstance != null){
 			currentInstance.pageClosed();
 			currentInstance = null;
 		}

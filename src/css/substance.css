@@ -21,10 +21,25 @@
 	text-align: center;
 	bottom: 20%;
 	padding-bottom: 1px;
+	z-index: 1027;
+}
+
+.substance-cover-dark {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.75);
 	z-index: 1026;
 }
 
-.substance-notification-animated {
+.substance-animated.substance-cover-dark {
+	transition: opacity 0.5s;
+	opacity: 0;
+}
+
+.substance-animated.substance-notification {
 	transition-property: opacity, background-color;
 	transition-duration: 0.5s;
 	opacity: 0;
@@ -52,7 +67,6 @@
 	border-radius: 100%;
 	width: 3.5em;
 	height: 3.5em;
-	background: dodgerblue;
 	line-height: 3.5em;
 	margin-left: 0.4em;
 	margin-right: 0.4em;
@@ -64,13 +78,18 @@
 	cursor: pointer;
 }
 
-.substance-button-animated {
+.substance-small-button {
+	width: 3em;
+	height: 3em;
+}
+
+.substance-button {
 	transition-property: width, height, line-height, margin, background;
 	transition-duration: 0.5s;
 	margin-bottom: 1em;
 }
 
-.substance-button-animated:hover {
+.substance-button-grow:hover {
 	width: 4.5em;
 	height: 4.5em;
 	line-height: 4.5em;
@@ -78,25 +97,28 @@
 }
 
 .substance-skyblue {background-color: #63b8d7;}
-.substance-skyblue:hover {background-color: #4f98b3;}
+.substance-animated.substance-skyblue:hover {background-color: #4f98b3;}
 
 .substance-blue {background-color: #098cc9;}
-.substance-blue:hover {background-color: #0b6894;}
+.substance-animated.substance-blue:hover {background-color: #0b6894;}
 
 .substance-lime {background-color: #baef2a;}
-.substance-lime:hover {background-color: #6bd51d;}
+.substance-animated.substance-lime:hover {background-color: #6bd51d;}
 
 .substance-green {background-color: #64d442;}
-.substance-green:hover {background-color: #10b81c;}
+.substance-animated.substance-green:hover {background-color: #10b81c;}
 
 .substance-orange {background-color: #ffca3b;}
-.substance-orange:hover { background-color: #ef952a;}
+.substance-animated.substance-orange:hover { background-color: #ef952a;}
 
 .substance-red {background-color: #d20707;}
-.substance-red:hover {background-color: #b30000;}
+.substance-animated.substance-red:hover {background-color: #b30000;}
 
 .substance-purple {background-color: #9c00a6;}
-.substance-purple:hover {background-color: #7c0483;}
+.substance-animated.substance-purple:hover {background-color: #7c0483;}
+
+.substance-white {background-color: #f9f9f9;}
+.substance-animated.substance-white:hover {background-color: #d9d9d9;}
 
 /*
 -------------------------------------------------------------------------------

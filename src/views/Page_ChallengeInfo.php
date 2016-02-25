@@ -85,6 +85,13 @@
 
 		</div>
 
+		<div data-role="popup" id="challengeinfo-cache-popup" data-theme="a">
+		        <ul data-role="listview" data-inset="true">
+		            <li><a id="challengeinfo-editcache" class="ui-mini ui-icon-edit">Edit</a></li>
+		            <li><a id="challengeinfo-deletecache" class="ui-mini ui-icon-delete">Delete</a></li>
+		        </ul>
+		</div>
+
 		<!-- Popup: Modify challenge name and description -->
 		<div id="challengeinfo-editdesc-popup" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all">
 			<div data-role="header" data-theme="b">

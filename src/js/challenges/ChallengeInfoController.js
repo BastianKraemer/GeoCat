@@ -32,7 +32,8 @@ function ChallengeInfoController(sessionKey){
 
 	var popups = {
 		editDescriptionPopup: "#challengeinfo-editdesc-popup",
-		editEtcPopup: "#challengeinfo-editetc-popup"
+		editEtcPopup: "#challengeinfo-editetc-popup",
+		cachePopup: "#challengeinfo-cache-popup"
 	};
 
 	var inputElements = {
@@ -49,7 +50,9 @@ function ChallengeInfoController(sessionKey){
 
 	var confirmButtons = {
 		editDescriptionConfirm: "#challengeinfo-editdesc-ok",
-		editEtcConfirm: "#challengeinfo-editetc-ok"
+		editEtcConfirm: "#challengeinfo-editetc-ok",
+		editCache: "#challengeinfo-editcache",
+		deleteCache: "#challengeinfo-deletecache"
 	};
 
 	// Public functions
@@ -59,6 +62,8 @@ function ChallengeInfoController(sessionKey){
 
 		$(confirmButtons.editDescriptionConfirm).click(editDescriptionPopupSaveButtonClicked);
 		$(confirmButtons.editEtcConfirm).click(editEtcPopupSaveButtonClicked);
+		$(confirmButtons.editCache).click(editCacheOnClick);
+		$(confirmButtons.deleteCache).click(deleteCacheOnClick);
 	};
 
 	this.pageClosed = function(){
@@ -228,16 +233,14 @@ function ChallengeInfoController(sessionKey){
 					// The challenge is already enabled - caches cannot be edited anymore
 					showButton(buttons.createTeam, function(){alert("Feature 'create team' is not implemented yet.");});
 					showButton(buttons.start, function(){alert("Feature 'start' is not implemented yet.");});
-					showButton(buttons.resetChallenge, function(){alert("Feature 'reset challenge' is not implemented yet.");});
-					showButton(buttons.deleteChallenge, function(){alert("Feature 'delete challenge' is not implemented yet.");});
+					showButton(buttons.resetChallenge, handleClickOnResetChallenge);
 
 					enableCoordEdit = false;
 				}
 				else{
 					// The challenge is not enabled yet
 					showButton(buttons.addCache, handleClickOnAddCache);
-					showButton(buttons.enableChallenge, function(){alert("Feature 'enable challenge' is not implemented yet.");});
-					showButton(buttons.deleteChallenge, function(){alert("Feature 'delete challenge' is not implemented yet.");});
+					showButton(buttons.enableChallenge, handleClickOnEnableChallenge);
 
 					addClickHandlerToInfoField(infoElements.startTime, handleClickOnEditEtc, true);
 					addClickHandlerToInfoField(infoElements.endTime, handleClickOnEditEtc, true);
@@ -245,6 +248,8 @@ function ChallengeInfoController(sessionKey){
 
 					enableCoordEdit = true;
 				}
+
+				showButton(buttons.deleteChallenge, handleClickOnDeleteChallenge);
 
 				addClickHandlerToInfoField(infoElements.title, handleClickOnEditDescription, false);
 				addClickHandlerToInfoField(infoElements.description, handleClickOnEditDescription, false);
@@ -299,7 +304,7 @@ function ChallengeInfoController(sessionKey){
 			$.mobile.activePage.attr("id"),
 			function(){me.enableEvents(true);},
 			function(data, editDialog){
-				sendChallengeCoordUpdateRequest(data, ccId, editDialog);
+				sendChallengeCacheUpdateRequest(data, ccId, editDialog);
 			},
 			editData,
 			{
@@ -339,18 +344,50 @@ function ChallengeInfoController(sessionKey){
 	};
 
 	var handleClickOnAddCache = function(){
-
 		var ccId = $(this).parent().attr("data-cc-id"); //ccId = challenge coord id
 		showCacheEditDialog(null, {priority: 1});
 	};
 
-	var trOnClick = function(){
-		var ccId = $(this).parent().attr("data-cc-id"); //ccId = challenge coord id
-		var coord = coordData[ccId];
-		showCacheEditDialog(ccId, CoordinateEditDialogController.genCacheDataObject(
-									coord.name, coord.description, coord.latitude, coord.longitude,
-									coord.hint, coord.priority, coord.code));
+	var handleClickOnEnableChallenge = function(){
+		SubstanceTheme.showYesNoDialog(
+			"<h2>" + GeoCat.locale.get("challenge.info.enable.title", "Enable challenge") + "</h2>" +
+			"<p>" + GeoCat.locale.get("challenge.info.enable.text", "Do you want to enable this challenge? After this you won't be able to edit the caches of this challenge anymore.") + "</p>",
+			$.mobile.activePage[0], sendChallengeEnableRequest, null, "substance-white")
 	};
+
+	var handleClickOnResetChallenge = function(){
+		SubstanceTheme.showYesNoDialog(
+				"<h2>" + GeoCat.locale.get("challenge.info.reset.title", "Reset challenge") + "</h2>" +
+				"<p>" + GeoCat.locale.get("challenge.info.reset.text", "Do you really want to reset this challenge? This will delete all teams and the stats.") + "</p>",
+				$.mobile.activePage[0], sendChallengeResetRequest, null, "substance-white")
+	};
+
+	var handleClickOnDeleteChallenge = function(){
+		SubstanceTheme.showYesNoDialog(
+			"<h2>" + GeoCat.locale.get("challenge.info.delete.title", "Delete challenge") + "</h2>" +
+			"<p>" + GeoCat.locale.get("challenge.info.delete.text", "Do you really want to delete this challenge. This operation can't be undone.") + "</p>",
+			$.mobile.activePage[0], sendChallengeDeleteRequest, null, "substance-white")
+	};
+
+	var trOnClick = function(event, ui){
+		var ccId = $(this).parent().attr("data-cc-id"); //ccId = challenge coord id
+		$(popups.cachePopup).attr("data-cc-id", ccId);
+		$(popups.cachePopup).popup("open", {transition: "pop", positionTo: event.target});
+
+	};
+
+	var editCacheOnClick = function(){
+		var ccId = $(popups.cachePopup).attr("data-cc-id"); //ccId = challenge coord id
+		var coord = coordData[ccId];
+
+		showCacheEditDialog(ccId, CoordinateEditDialogController.genCacheDataObject(
+				coord.name, coord.description, coord.latitude, coord.longitude,
+				coord.hint, coord.priority, coord.code));
+	}
+
+	var deleteCacheOnClick = function(){
+		sendChallengeRemoveCacheRequest($(popups.cachePopup).attr("data-cc-id"), popups.cachePopup);
+	}
 
 	/*
 	 * ========================================================================
@@ -392,47 +429,92 @@ function ChallengeInfoController(sessionKey){
 		ajaxData["task"] = "modify";
 		ajaxData["challenge"] = challengeSessionKey;
 
-		$.ajax({
-			type: "POST", url: "./query/challenge.php",
-			encoding: "UTF-8",
-			data: ajaxData,
-			cache: false,
-			success: function(response){
-				try{
-					var responseData = JSON.parse(response);
-					if(responseData.status == "ok"){
-						// Update the new data in the local "database"
-						for(var key in ajaxData){
-							if(key != "task" && key != "challenge"){
-								challengeData[key] = ajaxData[key];
-								if(key == "type_id"){
-									challengeData["type_name"] = ajaxData[key] == 1 ? "Capture the Flag" : "Default Challenge";
-								}
-								updateGUIWithChallengeData();
-							}
+		sendAJAXRequest(
+			ajaxData,
+			function(response){
+				// Update the new data in the local "database"
+				for(var key in ajaxData){
+					if(key != "task" && key != "challenge"){
+						challengeData[key] = ajaxData[key];
+						if(key == "type_id"){
+							challengeData["type_name"] = ajaxData[key] == 1 ? "Capture the Flag" : "Default Challenge";
 						}
-					}
-					else{
-						showError(GeoCat.locale.get("challenge.info.error.unknown", "Error: Update of challenge data failed."), responseData.msg);
+						updateGUIWithChallengeData();
 					}
 				}
-				catch(e){
-					console.log("ERROR: " + e);
-					console.log("Server returned: " + response);
-					showError(GeoCat.locale.get("challenge.info.error.unknown", "Error: Update of challenge data failed."));
-				}
-
-				$(popupId).popup("close");
 			},
-			error: ajaxError
-		});
+			"Error: Update of challenge data failed.",
+			popupId
+		);
 	};
 
-	var sendChallengeCoordUpdateRequest = function(ajaxData, ccid, editDialog){
-		ajaxData["task"] = "update_coord";
+	var sendChallengeCacheUpdateRequest = function(ajaxData, ccid, editDialog){
+		ajaxData["task"] = "update_cache";
 		ajaxData["challenge"] = challengeSessionKey;
 		ajaxData["ccid"] = ccid;
 
+		sendAJAXRequest(
+			ajaxData,
+			function(response){
+				// Download all caches again...
+				editDialog.close();
+				downloadCoordData();
+			},
+			"Error: Update of cache failed.",
+			null);
+	};
+
+	var sendChallengeRemoveCacheRequest = function(challengeCoordId, popupId){
+		sendAJAXRequest({
+				task: "remove_cache",
+				challenge: challengeSessionKey,
+				ccid: challengeCoordId
+			},
+			function(response){
+				$(infoElements.cacheList + " tr[data-cc-id='" + challengeCoordId + "']").remove();
+			},
+			"Error: Unable to delete cache.",
+			popupId);
+	};
+
+	var sendChallengeEnableRequest = function(){
+		sendAJAXRequest({
+				task: "enable",
+				challenge: challengeSessionKey,
+			},
+			function(response){
+				challengeData["is_enabled"] = 1;
+				$(infoElements.cacheList + " tr td").unbind().css("cursor", "default");
+				enableControls();
+			},
+			"Error: Cannot enable challenge",
+			null);
+	};
+
+	var sendChallengeResetRequest = function(){
+		sendAJAXRequest({
+				task: "reset",
+				challenge: challengeSessionKey,
+			},
+			downloadChallengeInfo,
+			"Error: Unable to reset challenge",
+			null);
+	};
+
+	var sendChallengeDeleteRequest = function(){
+		sendAJAXRequest({
+				task: "delete",
+				challenge: challengeSessionKey,
+			},
+			function(){
+				$.mobile.changePage("#ChallengeBrowser");
+			},
+			"Error: Unable to delete challenge",
+			null);
+	};
+
+
+	var sendAJAXRequest = function(ajaxData, successHandler, errorMsg, closePopup){
 		$.ajax({
 			type: "POST", url: "./query/challenge.php",
 			encoding: "UTF-8",
@@ -442,20 +524,20 @@ function ChallengeInfoController(sessionKey){
 				try{
 					var responseData = JSON.parse(response);
 					if(responseData.status == "ok"){
-						// Download all caches again...
-						editDialog.close();
-						downloadCoordData();
-						SubstanceTheme.showNotification("<p>" + GeoCat.locale.get("challenge.nav.updated", "Update successful.") + "</p>", 7,
-														$.mobile.activePage[0], "substance-skyblue no-shadow white");
+						successHandler(responseData);
 					}
 					else{
-						showError(GeoCat.locale.get("challenge.info.error.unknown", "Error: Update of challenge data failed."), responseData.msg);
+						showError(errorMsg, responseData.msg);
 					}
 				}
 				catch(e){
 					console.log("ERROR: " + e);
 					console.log("Server returned: " + response);
-					showError(GeoCat.locale.get("challenge.info.error.unknown", "Error: Update of challenge data failed."));
+					showError(errorMsg);
+				}
+
+				if(closePopup != null){
+					$(closePopup).popup("close");
 				}
 			},
 			error: ajaxError

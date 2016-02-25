@@ -64,8 +64,9 @@
 			return $res ? $res[0] : -1;
 		}
 
-		public static function countPriority0Coords($dbh, $challengeId){
-			$res = DBTools::fetchNum($dbh, "SELECT COUNT(coord_id) FROM ChallengeCoord WHERE challenge_id = :cid AND priority = 0", array("cid" => $challengeId));
+		public static function countCoordsOfChallenge($dbh, $challengeId, $onlyWithPriority0){
+			$res = DBTools::fetchNum($dbh,	"SELECT COUNT(coord_id) FROM ChallengeCoord " .
+											"WHERE challenge_id = :cid" . ($onlyWithPriority0 ? " AND priority = 0" : ""), array("cid" => $challengeId));
 			return $res[0];
 		}
 
@@ -156,6 +157,13 @@
 			else{
 				return $res[0];
 			}
+		}
+
+		public static function resetCaptureFlag($dbh, $challengeId){
+
+			DBTools::query($dbh, "UPDATE ChallengeCoord " .
+								 "SET captured_by = NULL, capture_time = NULL WHERE challenge_id = :cid",
+								 array("cid" => $challengeId));
 		}
 
 		public static function hasCode($dbh, $challengeCoordId){

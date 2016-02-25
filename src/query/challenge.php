@@ -85,7 +85,17 @@
 			return self::buildResponse(true, array("session_id" => $id));
 		}
 
-		// Modify some data of the challenge
+		/*
+		 * ====================================================================
+		 * 	Challenge information page
+		 * ====================================================================
+		 */
+
+		/**
+		 * Task: 'modify'
+		 *
+		 * This will modify any information of a challenge
+		 */
 		protected function modify(){
 			$session = $this->requireLogin();
 
@@ -152,11 +162,11 @@
 		}
 
 		/**
-		 * Task: 'update_coord'
+		 * Task: 'update_cache
 		 *
-		 * This will creae or update a challenge coordinate
+		 * This will create or update a cache
 		 */
-		protected function update_coord(){
+		protected function update_cache(){
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
@@ -177,7 +187,7 @@
 			require_once(__DIR__ . "/../app/challenge/ChallengeCoord.php");
 
 			if($this->args["priority"] == 0){
-				if(ChallengeCoord::countPriority0Coords($this->dbh, $challengeId) > 0){
+				if(ChallengeCoord::countCoordsOfChallenge($this->dbh, $challengeId, true) > 0){
 					if($this->args["ccid"] == null || ChallengeCoord::getPriority0Coord($this->dbh, $challengeId)[0] != $this->args["ccid"]){
 						return self::buildResponse(false, array("msg" => "You cannot define multiple coordinates with a priority of '0'."));
 					}
@@ -218,6 +228,108 @@
 			}
 			return self::buildResponse(true);
 		}
+
+		/**
+		 * Task: 'remove_cache'
+		 *
+		 * Removes a cache from a challenge
+		 */
+		protected function remove_cache(){
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
+					"ccid" => "/\d/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+			$this->requireChallengeOwner($challengeId, $session);
+
+			require_once __DIR__ . "/../app/CoordinateManager.php";
+			require_once __DIR__ . "/../app/challenge/ChallengeCoord.php";
+			require_once __DIR__ . "/../app/challenge/Checkpoint.php";
+
+			// This should never delete any rows (because by default there can't be a checkpoint for a cache in a not enabled challenge)
+			Checkpoint::clearCheckpointsOfChallengeCoord($this->dbh, $this->args["ccid"]);
+
+			$coordId = ChallengeCoord::getCoordinate($this->dbh, $this->args["ccid"]);
+			ChallengeCoord::remove($this->dbh, $this->args["ccid"]);
+			CoordinateManager::tryToRemoveCooridate($this->dbh, $coordId);
+
+			return self::buildResponse(true);
+		}
+
+		/**
+		 * Task: 'enable'
+		 *
+		 * This will enable a challenge
+		 */
+		protected function enable(){
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+			$this->requireChallengeOwner($challengeId, $session);
+
+			require_once __DIR__ . "/../app/challenge/ChallengeCoord.php";
+
+			if(ChallengeCoord::countCoordsOfChallenge($this->dbh, $challengeId, false) == 0){
+				return self::buildResponse(false, array("msg" => "A challenge needs at least one cache to be enabled"));
+			}
+			ChallengeManager::setEnabled($this->dbh, $challengeId, true);
+
+			return self::buildResponse(true);
+		}
+
+		/**
+		 * Task: 'reset'
+		 *
+		 * This resets a challenge. After this all teams and stats of this challenge are removed.
+		 */
+		protected function reset(){
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+			$this->requireChallengeOwner($challengeId, $session);
+
+			ChallengeManager::resetChallenge($this->dbh, $challengeId);
+			ChallengeManager::setEnabled($this->dbh, $challengeId, false);
+
+			return self::buildResponse(true);
+		}
+
+		/**
+		 * Task: 'delete'
+		 *
+		 * This deletes a challenge completely
+		 */
+		protected function delete(){
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+			$this->requireChallengeOwner($challengeId, $session);
+
+			ChallengeManager::deleteChallenge($this->dbh, $challengeId);
+
+			return self::buildResponse(true);
+		}
+
+		/*
+		 * ====================================================================
+		 * 	Challenge Browser
+		 * ====================================================================
+		 */
 
 		protected function get_challenges(){
 

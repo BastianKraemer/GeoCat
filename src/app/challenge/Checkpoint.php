@@ -37,6 +37,16 @@
 			return self::isReachedBy($dbh, $challengeCoordId, $teamId);
 		}
 
+		public static function clearCheckpointsOfChallengeCoord($dbh, $challengeCoordId){
+			$res = DBTools::query($dbh, "DELETE FROM ChallengeCheckpoint WHERE challenge_coord_id = :ccid",
+					array("ccid" => $challengeCoordId));
+
+			if(!$res){
+				error_log("Error: Unable to delete rows in table ChallengeCheckpoint. Database retuned '" . $res . "' (" . __METHOD__ . "@" .__CLASS__ . ")");
+				throw new Exception("Unable to remove checkpoint by chalenge coord id from challenge");
+			}
+		}
+
 		public static function clearCheckpointsOfTeam($dbh, $teamId){
 			$res = DBTools::query($dbh, "DELETE FROM ChallengeCheckpoint WHERE team_id = :team",
 									array("team" => $teamId));

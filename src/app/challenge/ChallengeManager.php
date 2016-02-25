@@ -242,7 +242,7 @@
 			self::updateSingleValue($dbh, $challengenId, "end_time", $newEndTime);
 		}
 
-		public static function deleteChallenge($dbh, $challengeId){
+		public static function resetChallenge($dbh, $challengeId){
 
 			if(!self::challengeExists($dbh, $challengeId)){
 				throw new InvalidArgumentException("The challenge does not exist.");
@@ -254,13 +254,20 @@
 
 			$teams = self::getTeams($dbh, $challengeId);
 
+			ChallengeCoord::resetCaptureFlag($dbh, $challengeId);
+
 			// Remove checkpoints and teams
 			foreach ($teams as $t){
 				Checkpoint::clearCheckpointsOfTeam($dbh, $t["team_id"]);
 				TeamManager::deleteTeam($dbh, $t["team_id"]);
 			}
+		}
 
-			// Remove checkpoints and teams
+		public static function deleteChallenge($dbh, $challengeId){
+
+			self::resetChallenge($dbh, $challengeId);
+
+			require_once(__DIR__ . "/ChallengeCoord.php");
 			ChallengeCoord::removeByChallenge($dbh, $challengeId);
 
 			$res = DBTools::query($dbh, "DELETE FROM Challenge WHERE challenge_id = :challengeId", array("challengeId" => $challengeId));

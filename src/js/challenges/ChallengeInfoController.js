@@ -9,7 +9,7 @@ function ChallengeInfoController(sessionKey){
 
 	// Id configuration
 
-	var infoElements ={
+	var infoElements = {
 		title: "#challengeinfo-title",
 		description: "#challengeinfo-description",
 		owner: "#challengeinfo-owner",
@@ -17,7 +17,8 @@ function ChallengeInfoController(sessionKey){
 		startTime: "#challengeinfo-start-time",
 		endTime: "#challengeinfo-end-time",
 		cacheList: "#challengeinfo-cache-list",
-		teamList: "#challengeinfo-team-list"
+		teamList: "#challengeinfo-team-list",
+		helpSection: "#challengeinfo-help-section"
 	}
 
 	var buttons = {
@@ -69,6 +70,10 @@ function ChallengeInfoController(sessionKey){
 	this.pageClosed = function(){
 		disableControls();
 
+		$(infoElements.teamList).html("");
+		$(infoElements.cacheList).html("");
+		$(infoElements.helpSection).html("");
+
 		for(var key in confirmButtons){
 			$(confirmButtons[key].editDescriptionConfirm).unbind();
 		}
@@ -102,8 +107,12 @@ function ChallengeInfoController(sessionKey){
 						onChallengeDataReceived(responseData);
 					}
 					else{
-						SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("challenge.nav.error.download_info", "Unable to download challenge information") + "</h3>" +
-														"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
+						$.mobile.changePage("#ChallengeBrowser");
+
+						setTimeout(function(){
+							SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("challenge.nav.error.download_info", "Unable to download challenge information") + "</h3>" +
+															"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
+						}, 750);
 					}
 
 			},
@@ -232,7 +241,7 @@ function ChallengeInfoController(sessionKey){
 				if(challengeData["is_enabled"] == 1){
 					// The challenge is already enabled - caches cannot be edited anymore
 					showButton(buttons.createTeam, function(){alert("Feature 'create team' is not implemented yet.");});
-					showButton(buttons.start, function(){alert("Feature 'start' is not implemented yet.");});
+					showButton(buttons.start, handleClickOnGoToNavigator);
 					showButton(buttons.resetChallenge, handleClickOnResetChallenge);
 
 					enableCoordEdit = false;
@@ -253,15 +262,21 @@ function ChallengeInfoController(sessionKey){
 
 				addClickHandlerToInfoField(infoElements.title, handleClickOnEditDescription, false);
 				addClickHandlerToInfoField(infoElements.description, handleClickOnEditDescription, false);
+
+				var txt = GeoCat.locale.get("challenge.info.sessionkey", "The sessionkey for this challenge is {0}");
+				$(infoElements.helpSection).append("<p class=\"center\">" + GuiToolkit.sprintf(txt, ["<b>" + challengeSessionKey.toUpperCase() + "</b>"]) + "</p>");
 			}
 			else{
 				enableCoordEdit = false;
 				// The user is NOT the owner of this challenge
 				if(challengeData["your_team"] == -1){
-					// The user is already part of this challenge and has coosen a teamn
+					// The user is already part of this challenge and has coosen a team
+					showButton(buttons.start, handleClickOnGoToNavigator);
+					showButton(buttons.leaveChallenge, function(){alert("Feature 'leave' challenge is not implemented yet");});
 				}
 				else{
 					// The user does not have a team yet
+					showButton(buttons.createTeam, function(){alert("Feature 'create team' is not implemented yet.");});
 				}
 			}
 		}
@@ -346,6 +361,11 @@ function ChallengeInfoController(sessionKey){
 	var handleClickOnAddCache = function(){
 		var ccId = $(this).parent().attr("data-cc-id"); //ccId = challenge coord id
 		showCacheEditDialog(null, {priority: 1});
+	};
+
+	var handleClickOnGoToNavigator = function(){
+		GeoCat.setCurrentChallenge(challengeSessionKey);
+		$.mobile.changePage("#ChallengeNavigator");
 	};
 
 	var handleClickOnEnableChallenge = function(){

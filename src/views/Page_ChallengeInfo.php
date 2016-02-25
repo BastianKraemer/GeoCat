@@ -64,6 +64,7 @@
 				</div>
 			</div>
 
+			<div id="challengeinfo-help-section"></div>
 			<p class="substance-footer-offset"></p>
 
 			<div class="substance-footer" id="challengeinfo-footer">
@@ -87,8 +88,8 @@
 
 		<div data-role="popup" id="challengeinfo-cache-popup" data-theme="a">
 		        <ul data-role="listview" data-inset="true">
-		            <li><a id="challengeinfo-editcache" class="ui-mini ui-icon-edit">Edit</a></li>
-		            <li><a id="challengeinfo-deletecache" class="ui-mini ui-icon-delete">Delete</a></li>
+		            <li><a id="challengeinfo-editcache" class="ui-mini ui-icon-edit"><?php $locale->write("challenge.info.edit_cache"); ?></a></li>
+		            <li><a id="challengeinfo-deletecache" class="ui-mini ui-icon-delete"><?php $locale->write("challenge.info.delete_cache"); ?></a></li>
 		        </ul>
 		</div>
 

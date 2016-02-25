@@ -31,13 +31,17 @@ function BrowseChallengesController(){
 	var uplink = GeoCat.getUplink();
 	var locale = GeoCat.locale;
 
-	// Collection (Map) of all important HTML elements (defeined by their id)
+	// Collection of all important HTML elements (defined by their id)
 
-	var htmlElement = new Object();
-	htmlElement["listview"] = "#ChallengeListView";
-	htmlElement["page_info"] = "#ChallengePageInformation";
-	htmlElement["button_next_page"] = "#Browse_Next";
-	htmlElement["button_prev_page"] = "#Browse_Prev";
+	var htmlElement = {
+		listview: "#ChallengeListView",
+		pageInfo: "#ChallengePageInformation",
+		nextPageButton: "#Browse_Next",
+		prevPageButton:	"#Browse_Prev",
+		keyInputField: "#ChallengeKeyInput",
+		keyInputOK: "#ChallengeKeyInput-OK",
+		joinChallengePopup: "#JoinChallengePopup"
+	}
 
 	/*
 	 * ============================================================================================
@@ -55,23 +59,35 @@ function BrowseChallengesController(){
 	 */
 	this.onPageOpened = function(){
 
-		$(htmlElement["listview"]).listview('refresh');
+		$(htmlElement.listview).listview('refresh');
 		countPublicChallenges();
 		loadPublicChallengeListFromServer();
 
-		$(htmlElement["button_next_page"]).click(function(){
+		$(htmlElement.nextPageButton).click(function(){
 			if(currentPage < maxPages - 1){
 				currentPage++;
 				loadPublicChallengeListFromServer();
 			}
 		});
 
-		$(htmlElement["button_prev_page"]).click(function(){
+		$(htmlElement.prevPageButton).click(function(){
 			if(currentPage > 0){
 				currentPage--;
 				loadPublicChallengeListFromServer();
 			}
 		});
+
+		$(htmlElement.keyInputOK).click(function(){
+			var key = $(htmlElement.keyInputField).val();
+			if(key != ""){
+				$(htmlElement.joinChallengePopup).popup("close");
+				setTimeout(function(){
+					$(htmlElement.keyInputField).val("");
+					GeoCat.setCurrentChallenge(key)
+					$.mobile.changePage("#ChallengeInfo");
+				}, 150);
+			}
+		})
 	}
 
 	/**
@@ -83,8 +99,8 @@ function BrowseChallengesController(){
 	 * @instance
 	 */
 	this.onPageClosed = function(){
-		$(htmlElement["button_next_page"]).unbind();
-		$(htmlElement["button_prev_page"]).unbind();
+		$(htmlElement.nextPageButton).unbind();
+		$(htmlElement.prevPageButton).unbind();
 	}
 
 	/*
@@ -153,7 +169,7 @@ function BrowseChallengesController(){
 	 * @instance
 	 */
 	function updateList(data){
-		var list = $(htmlElement["listview"]);
+		var list = $(htmlElement.listview);
 		list.empty();
 
 		if(data.length > 0){
@@ -163,7 +179,7 @@ function BrowseChallengesController(){
 			}
 
 			list.listview('refresh');
-			$(htmlElement["listview"] + " li a.li-clickable").click(function(){
+			$(htmlElement.listview + " li a.li-clickable").click(function(){
 				challenge_OnClick(this);
 			});
 		}
@@ -205,7 +221,7 @@ function BrowseChallengesController(){
 
 	function updatePageInfo(){
 		var numPages = maxPages > 0 ? maxPages : 1;
-		$(htmlElement["page_info"]).html(GuiToolkit.sprintf(locale.get("page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]));
+		$(htmlElement.pageInfo).html(GuiToolkit.sprintf(locale.get("page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]));
 	}
 
 	/*

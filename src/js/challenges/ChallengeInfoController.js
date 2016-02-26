@@ -264,7 +264,7 @@ function ChallengeInfoController(sessionKey){
 				addClickHandlerToInfoField(infoElements.description, handleClickOnEditDescription, false);
 
 				var txt = GeoCat.locale.get("challenge.info.sessionkey", "The sessionkey for this challenge is {0}");
-				$(infoElements.helpSection).append("<p class=\"center\">" + GuiToolkit.sprintf(txt, ["<b>" + challengeSessionKey.toUpperCase() + "</b>"]) + "</p>");
+				$(infoElements.helpSection).html("<p class=\"center\">" + GuiToolkit.sprintf(txt, ["<b>" + challengeSessionKey.toUpperCase() + "</b>"]) + "</p>");
 			}
 			else{
 				enableCoordEdit = false;

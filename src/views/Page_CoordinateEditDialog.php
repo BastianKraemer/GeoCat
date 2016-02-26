@@ -81,8 +81,8 @@
 					</div>
 
 					 <div class="center">
-						<span id="EditCoordinate-cancel" class="substance-button substance-small-button substance-red" style="background-image: url('./img/delete.png'"></span>
-						<span id="EditCoordinate-confirm" class="substance-button substance-small-button substance-green"  style="background-image: url('./img/check.png'"></span>
+						<span id="EditCoordinate-cancel" class="substance-button substance-small-button substance-red" style="background-image: url('./img/delete.png');"></span>
+						<span id="EditCoordinate-confirm" class="substance-button substance-small-button substance-green"  style="background-image: url('./img/check.png');"></span>
 					</div>
 				</div>
 			</div>

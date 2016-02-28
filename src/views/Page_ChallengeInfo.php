@@ -73,7 +73,7 @@
 				<span id="challengeinfo-create-team" class="substance-button substance-button-grow substance-animated substance-green"
 					  title="<?php $locale->write("challenge.info.create_team"); ?>" style="display: none; background-image: url('./img/plus.png');"></span>
 				<span id="challengeinfo-start" class="substance-button substance-button-grow substance-animated substance-blue"
-					  title="<?php $locale->write("challenge.info.start"); ?>" style="display: none; background-image: url('./img/pin.png');"></span>
+					  title="<?php $locale->write("challenge.info.start_challenge"); ?>" style="display: none; background-image: url('./img/pin.png');"></span>
 				<span id="challengeinfo-leave" class="substance-button substance-button-grow substance-animated substance-orange"
 					  title="<?php $locale->write("challenge.info.leave"); ?>" style="display: none; background-image: url('./img/leave.png');"></span>
 				<span id="challengeinfo-reset" class="substance-button substance-button-grow substance-animated substance-purple"

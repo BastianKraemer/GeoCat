@@ -51,6 +51,11 @@
 			$res = DBTools::fetch($dbh,	"SELECT COUNT(Challenge.challenge_id) FROM Challenge WHERE is_public = 1 AND Challenge.is_enabled = 1", null, PDO::FETCH_NUM);
 			return $res[0];
 		}
+		
+		public static function countUnenabledChallenges($dbh){
+			$res = DBTools::fetch($dbh, "SELECT COUNT(Challenge.challenge_id) FROM Challenge WHERE Challenge.is_enabled = 0", null, PDO::FETCH_NUM);
+			return $res[0];
+		}
 
 		public static function challengeExists($dbh, $challengeId){
 			$res = DBTools::fetchAll($dbh, "SELECT COUNT(challenge_id) FROM Challenge WHERE challenge_id = :id", array("id" => $challengeId));
@@ -188,7 +193,7 @@
 										"predefined_teams, max_teams, max_team_members, " .
 										"start_time, end_time, is_public, is_enabled) " .
 										"VALUES " .
-											"(null, :type_id, :owner, :key, :name, :desc, :predefTeams, :maxTeams, :maxMembers, " .
+											"(DEFAULT, :type_id, :owner, :key, :name, :desc, :predefTeams, :maxTeams, :maxMembers, " .
 											":startTime, :endTime, :isPublic, 0)",
 									array(	"type_id" => $challengeType, "owner" => $owner_accId, "key" => $sessionkey, "name" => $name, "desc" => $description,
 											"predefTeams" => $predefinedTeams, "maxTeams" => $max_teams, "maxMembers" => $maxTeamMembers,

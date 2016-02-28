@@ -23,7 +23,7 @@
 			</div>
 
 			<ul id="ChallengeListView" data-role="listview" data-inset="true">
-				<li><span><?php $locale->write("challenge.browse.loading"); ?>.</span></li>
+				<li><span><?php $locale->write("challenge.browse.loading"); ?></span></li>
 			</ul>
 
 			<p class="substance-footer-offset"></p>

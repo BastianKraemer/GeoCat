@@ -77,7 +77,6 @@ GeoCat.getUplink = function(){
  * @static
  */
 GeoCat.setCurrentChallenge = function(sessionKey){
-	console.log(sessionKey);
 	sessionStorage.setItem("currentChallenge", sessionKey);
 }
 

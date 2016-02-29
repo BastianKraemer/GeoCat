@@ -64,10 +64,7 @@
 		public static function countMyChallenges($dbh, $session){
 			$res = DBTools::fetch($dbh, "SELECT COUNT(Challenge.challenge_id) " .
 								  "FROM Challenge " .
-								  "JOIN Account ON (Challenge.owner = Account.account_id) " .
-								  "JOIN ChallengeType ON (Challenge.challenge_type_id = ChallengeType.challenge_type_id) " .
-								  "WHERE Challenge.is_enabled = 0 " .
-								  "AND Challenge.owner = " . $session->getAccountId() . ";" , null, PDO::FETCH_NUM);
+								  "WHERE Challenge.owner = " . $session->getAccountId() . ";" , null, PDO::FETCH_NUM);
 			return $res[0];
 		}
 

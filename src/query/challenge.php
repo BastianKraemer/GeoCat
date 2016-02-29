@@ -342,9 +342,17 @@
 			$this->assignOptionalParameter("offset", 0);
 			return ChallengeManager::getPublicChallengs($this->dbh, $this->args["limit"], $this->args["offset"]);
 		}
+		
+		protected function get_my_challenges(){
+			return ChallengeManager::getMyChallenges($this->dbh, $this->requireLogin());
+		}
 
 		protected function count_challenges(){
 			return array("count" => ChallengeManager::countPublicChallenges($this->dbh));
+		}
+		
+		protected function count_my_challenges(){
+			return array("count" => ChallengeManager::countMyChallenges($this->dbh, $this->requireLogin()));
 		}
 
 		protected function get_teams(){

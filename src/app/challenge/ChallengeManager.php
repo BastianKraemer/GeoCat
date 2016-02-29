@@ -46,14 +46,28 @@
 
 			return $res;
 		}
+		
+		public static function getMyChallenges($dbh, $session){
+			$res = DBTools::fetchAll($dbh, "SELECT Account.username, Challenge.name, Challenge.description, ChallengeType.full_name, Challenge.sessionkey, Challenge.start_time, Challenge.is_enabled " .
+									 "FROM Challenge " .
+									 "JOIN Account ON (Challenge.owner = Account.account_id) " .
+									 "JOIN ChallengeType ON (Challenge.challenge_type_id = ChallengeType.challenge_type_id) " .
+									 "WHERE Challenge.owner = " . $session->getAccountId() . ";", null, PDO::FETCH_ASSOC);
+			return $res; 
+		}
 
 		public static function countPublicChallenges($dbh){
 			$res = DBTools::fetch($dbh,	"SELECT COUNT(Challenge.challenge_id) FROM Challenge WHERE is_public = 1 AND Challenge.is_enabled = 1", null, PDO::FETCH_NUM);
 			return $res[0];
 		}
 		
-		public static function countUnenabledChallenges($dbh){
-			$res = DBTools::fetch($dbh, "SELECT COUNT(Challenge.challenge_id) FROM Challenge WHERE Challenge.is_enabled = 0", null, PDO::FETCH_NUM);
+		public static function countMyChallenges($dbh, $session){
+			$res = DBTools::fetch($dbh, "SELECT COUNT(Challenge.challenge_id) " .
+								  "FROM Challenge " .
+								  "JOIN Account ON (Challenge.owner = Account.account_id) " .
+								  "JOIN ChallengeType ON (Challenge.challenge_type_id = ChallengeType.challenge_type_id) " .
+								  "WHERE Challenge.is_enabled = 0 " .
+								  "AND Challenge.owner = " . $session->getAccountId() . ";" , null, PDO::FETCH_NUM);
 			return $res[0];
 		}
 

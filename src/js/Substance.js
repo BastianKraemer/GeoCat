@@ -2,14 +2,24 @@ function SubstanceTheme(){}
 
 SubstanceTheme.previousNotification = null;
 
-SubstanceTheme.showYesNoDialog = function(htmlContent, container, yesCallback, noCallback, styleClasses){
+SubstanceTheme.showYesNoDialog = function(htmlContent, container, yesCallback, noCallback, styleClasses, autoHide){
+
+	if(autoHide != false){
+		autoHide = true;
+	}
 
 	var darkBg = document.createElement("div");
 	darkBg.setAttribute("class", "substance-cover-dark substance-animated");
 
 	var el = document.createElement("div");
 	el.setAttribute("class", "substance-notification " + styleClasses);
-	el.innerHTML = htmlContent;
+
+	if(typeof htmlContent === 'string' || htmlContent instanceof String){
+		el.innerHTML = htmlContent;
+	}
+	else{
+		el.appendChild(htmlContent);
+	}
 
 	SubstanceTheme.hideCurrentNotification();
 	var handler = new SubstanceNotificationHandler(darkBg);
@@ -21,7 +31,7 @@ SubstanceTheme.showYesNoDialog = function(htmlContent, container, yesCallback, n
 	yesBtn.setAttribute("class", "substance-button substance-small-button substance-lime substance-animated");
 	yesBtn.style.backgroundImage= "url('./img/check.png')";
 	yesBtn.onclick = function(){
-		handler.hide();
+		if(autoHide){handler.hide();}
 		if(yesCallback != null){yesCallback();}
 	}
 
@@ -44,8 +54,11 @@ SubstanceTheme.showYesNoDialog = function(htmlContent, container, yesCallback, n
 	SubstanceTheme.previousNotification = handler;
 
 	setTimeout(function(){
-		var pxPerPercentOfScreen = 100 / window.outerHeight;
-		el.style.bottom = (50 - (el.offsetHeight / 2) * pxPerPercentOfScreen) + "%";
+		var pxPerPercentOfScreen = 100 / window.innerHeight;
+		var value = (100 - ((el.offsetHeight) * pxPerPercentOfScreen)) / 2;
+		if(value < 0){value = 0};
+		el.style.bottom = "auto";
+		el.style.top = value + "%";
 		darkBg.style.opacity = 1;
 	}, 100);
 

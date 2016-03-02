@@ -114,6 +114,66 @@ td {
 }
 
 /* ==============================================================================
+	Login dialog
+============================================================================== */
+
+.login-dialog {
+	display: inline-block;
+	margin: 8px;
+	min-width: 300px;
+	width: 40%;
+}
+
+.login-dialog > h3 {
+	color: black;
+	margin-bottom: 8px;
+}
+
+.login-dialog > label {
+	color: black;
+	text-align: left;
+}
+
+.login-dialog > input {
+	color: black;
+	text-align: left;
+	width: 100%;
+	color: black;
+	background-color: rgba(128,128,128,0.1);
+	margin: 0 0 8px 0;
+
+	font-size: 14pt;
+
+	border: solid 2px #646464;
+	transition-property: border, color;
+	transition-duration: 0.6s;
+}
+
+.login-dialog > input:focus {
+	border: solid 2px #145c74; /* #099fd7 | #067199 */
+	color: #145c74;
+}
+
+.login-dialog > p {
+	margin: 0 0 28px 0;
+}
+
+.login-dialog > p.small-margin {
+	margin: 0 0 8px 0;
+}
+
+.login-dialog > p > span {
+	transition: color 0.5s;
+	color: #099fd7;
+	cursor: pointer;
+	font-weight: 500;
+}
+
+.login-dialog > p > span:hover {
+	color: #067199;
+}
+
+/* ==============================================================================
 	GPS Radar
 ============================================================================== */
 

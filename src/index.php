@@ -13,7 +13,6 @@
 	$pathToRoot = "./";
 
 	require_once(__DIR__ . "/views/Page_Home.php");
-	require_once(__DIR__ . "/views/Page_Login.php");
 	require_once(__DIR__ . "/views/Page_Places.php");
 	require_once(__DIR__ . "/views/Page_GPSNavigator.php");
 	require_once(__DIR__ . "/views/Page_BrowseChallenges.php");
@@ -23,7 +22,6 @@
 
 	$allPages = array(
 		new Page_Home(),
-		new Page_Login(),
 		new Page_Places(),
 		new Page_GPSNavigator(),
 		new Page_BrowseChallenges(),
@@ -56,13 +54,12 @@
 	<script src="./js/etc/GuiToolkit.js"></script>
 	<script src="./js/etc/Uplink.js"></script>
 	<script src="./js/etc/LocalCoordinateStore.js"></script>
-	<script src="./js/Logout.js"></script>
 	<script src="./js/Substance.js"></script>
 	<!-- </## ./js/geocat.min.js ##> -->
 	<script src="./js/PagePrototype.js"></script>
+	<script src="./js/Dialogs.js"></script>
 
 	<!-- <## ./js/controller.min.js ##> -->
-	<script src="./js/LoginController.js"></script>
 	<script src="./js/places/PlacesController.js"></script>
 	<script src="./js/gpsnavigator/GPSNavigationController.js"></script>
 	<script src="./js/challenges/BrowseChallengesController.js"></script>
@@ -76,7 +73,6 @@
 	<script src="./js/gps/GPS.js"></script>
 	<script src="./js/gps/GeoTools.js"></script>
 	<!-- </## ./js/gpscat.min.js ##> -->
-
 
 	<script type="text/javascript">
 		GeoCat.init("de", "./");

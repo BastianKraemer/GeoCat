@@ -111,3 +111,75 @@ GeoCat.getCurrentChallenge = function(){
 GeoCat.removeCurrentChallenge = function(){
 	sessionStorage.removeItem("currentChallenge");
 }
+
+GeoCat.login = function(username, paswd, callback, pathToRoot){
+	$.ajax({
+		type: "POST", url: pathToRoot + "/query/login.php",
+		data: {
+			user: username,
+			password: paswd
+		},
+		cache: false,
+		success: function(response){
+			try{
+				var jsonData = JSON.parse(response);
+
+				if(jsonData.status.toLowerCase() == "true"){
+					GeoCat.loginStats = {isSignedIn: true, username: jsonData.username};
+					$(".login-button").text(jsonData.username);
+					$(".login-button").attr("onclick", "GeoCat.logout(null, '" + pathToRoot + "');");
+					callback(true);
+					return;
+				}
+			}
+			catch(e){console.log("ERROR: " + e);}
+			callback(false);
+		},
+		error: function(xhr, status, error){alert("ERROR"); callback(false);}
+	});
+};
+
+GeoCat.logout = function(callback, pathToRoot){
+	$.ajax({
+		type: "POST", url: pathToRoot + "/query/logout.php",
+		data: {logout: "true"},
+		cache: false,
+		success: function(response){
+			if(response.toLowerCase() == "true"){
+				GeoCat.loginStats = {isSignedIn: false, username: null};
+				$(".login-button").text("Login");
+				$(".login-button").attr("onclick", "Dialogs.showLoginDialog('" + pathToRoot + "');");
+				if(callback != null){callback(true);}
+			}
+			else{
+				if(callback != null){callback(false);}
+			}
+		},
+		error: function(xhr, status, error){callback(false);}
+	});
+};
+
+GeoCat.createAccount = function(userName, email, pw, callback, pathToRoot){
+	$.ajax({type: "POST", url: pathToRoot + "/query/account.php",
+		data: { task: "create",
+				username: userName,
+				email: email,
+				password: pw,
+		},
+		cache: false,
+		success: function(response){
+			ajaxSent = false;
+			if(response.status == "ok"){
+				GeoCat.loginStats = {isSignedIn: true, username: userName};
+				$(".login-button").text(userName);
+				$(".login-button").attr("onclick", "GeoCat.logout(null, '" + pathToRoot + "');");
+				callback(true, "");
+			}
+			else{
+				callback(false, response["msg"]);
+			}
+		},
+		error: function(xhr, status, error){
+			callback(false, "Server unreachable.");
+	}});
+};

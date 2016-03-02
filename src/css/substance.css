@@ -22,6 +22,9 @@
 	bottom: 20%;
 	padding-bottom: 1px;
 	z-index: 1027;
+
+	max-height: 100%;
+	overflow-y: auto;
 }
 
 .substance-cover-dark {

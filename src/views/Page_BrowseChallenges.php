@@ -29,10 +29,24 @@
 			<p class="substance-footer-offset"></p>
 
 			<div class="substance-footer">
-				<a href="./sites/createchallenge.php" data-rel="external" data-ajax="false" class="substance-button substance-button-grow substance-animated substance-lime"
+				<a href="#create-challenge-popup" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-lime"
 				   title="<?php $locale->write("challenge.browse.create_challenge"); ?>" style="background-image: url('./img/plus.png');"></a>
 				<a href="#JoinChallengePopup" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-blue"
 				   title="<?php $locale->write("challenge.browse.join_challenge"); ?>" style="background-image: url('./img/key.png');"></a>
+			</div>
+		</div>
+
+		<div id="create-challenge-popup" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all">
+			<div data-role="header" data-theme="b">
+				<h3><?php $locale->write("challenge.create.title"); ?></h3>
+				<a href="#" data-role="button" data-rel="back" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-delete ui-btn-icon-notext">Close Window</a>
+			</div>
+
+			<div role="main" class="ui-content">
+				<label for="create-challenge-input"><?php $locale->write("challenge.create.label"); ?></label>
+				<input id="create-challenge-input" placeholder="<?php $locale->write("challenge.create.name"); ?>" data-theme="a" type="text">
+				<p id="create-challenge-errorinfo" style="color: red;"></p>
+				<button id="create-challenge-confirm" class="ui-btn ui-corner-all ui-shadow"><?php $locale->write("okay"); ?></button>
 			</div>
 		</div>
 

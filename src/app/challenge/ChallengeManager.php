@@ -183,8 +183,8 @@
 
 		public static function createChallenge($dbh, $name, $challengeType, $owner_accId, $description, $isPublic = 0, $startTime = null, $endTime = null, $predefinedTeams = 0, $max_teams = 4, $maxTeamMembers = 4){
 
-			if(!self::isValidChallengeName($name, 64, false)){throw new InvalidArgumentException("Invalid challenge name");}
-			if(!self::isValidChallengeName($description, 512, false)){throw new InvalidArgumentException("Invalid challenge description");}
+			if(strlen($name) > 64){throw new InvalidArgumentException("The challenge name is too long.");}
+			if(strlen($description) > 512){throw new InvalidArgumentException("The challenge description is too long.");}
 
 			$sessionkey = self::generateSessionKey($dbh);
 
@@ -204,12 +204,12 @@
 				throw new Exception("Unable to access database.");
 			}
 
-			return self::getChallengeIdBySessionKey($dbh, $sessionkey);
+			return $sessionkey;
 		}
 
 		public static function updateName($dbh, $challengenId, $name){
 
-			if(!self::isValidChallengeName($name, 64, false)){throw new InvalidArgumentException("Invalid challenge name");}
+			if(strlen($name) > 64){throw new InvalidArgumentException("The challenge name is too long.");}
 			$res = DBTools::query($dbh, "UPDATE Challenge SET name = :name WHERE challenge_id = :challenge_id",
 									array("name" => $name, "challenge_id" => $challengenId));
 
@@ -221,7 +221,7 @@
 
 		public static function updateDescription($dbh, $challengenId, $description){
 
-			if(!self::isValidChallengeName($description, 512, false)){throw new InvalidArgumentException("Invalid challenge description");}
+			if(strlen($description) > 512){throw new InvalidArgumentException("The challenge description is too long.");}
 			$res = DBTools::query($dbh, "UPDATE Challenge SET description = :desc WHERE challenge_id = :challenge_id",
 									array("desc" => $description, "challenge_id" => $challengenId));
 
@@ -331,20 +331,6 @@
 				return $code;
 			}
 		}
-
-
-		/**
-		 * Verifies thata challenge name is calid
-		 * This function returns <code>true</code> if the string does not contain "<" or ">" and has less than $maxLength characters.
-		 * @param string str
-		 * @return boolean
-		 */
-		public static function isValidChallengeName($str, $maxLength, $allowEmptyStr){
-			if($str == null || $str == ""){return $allowEmptyStr;}
-
-			return preg_match("/^[^<>]{1," . $maxLength . "}$/", $str);
-		}
-
 	}
 
 	abstract class ChallengeType

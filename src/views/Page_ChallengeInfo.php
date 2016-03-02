@@ -25,8 +25,8 @@
 			<div class="substance-horizontal-flexcontainer">
 				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.owner"); ?>:<br><span id="challengeinfo-owner">-</span></p>
 				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.type"); ?>:<br><span id="challengeinfo-type">-</span>
-				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.start"); ?>:<br><span id="challengeinfo-start-time">-</span></p>
-				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.end"); ?>:<br><span id="challengeinfo-end-time">-</span></p>
+				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.starttime"); ?>:<br><span id="challengeinfo-start-time">-</span></p>
+				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.endtime"); ?>:<br><span id="challengeinfo-end-time">-</span></p>
 			</div>
 
 			<div class="substance-horizontal-flexcontainer">

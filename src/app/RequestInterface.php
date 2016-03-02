@@ -114,9 +114,9 @@
 			foreach ($requiredKeys as $key => $value){
 				// Check if the argument exists
 				if(array_key_exists($key, $this->args)){
-					// Apply a regular expression to verify thae argument
+					// Apply a regular expression to verify the parameters
+					$this->args[$key] = htmlspecialchars($this->args[$key], ENT_QUOTES);
 					if($value != null){
-						$this->args[$key] = htmlspecialchars($this->args[$key], ENT_QUOTES);
 						if(is_int($value)){
 							if(strlen($this->args[$key]) > $value){
 								throw new InvalidArgumentException(sprintf($this->locale->get("query.generic.max_str_length"), $key));

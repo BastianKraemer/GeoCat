@@ -55,11 +55,11 @@
 			$session = $this->requireLogin();
 			$this->requireParameters(array(
 				"name" => self::defaultTextRegEx(1, 64),
-				"desc" => self::defaultTextRegEx(0, 512),
-				"type" => "/^(default|ctf)$/i"
 			));
 
 			$this->verifyOptionalParameters(array(
+				"desc" => self::defaultTextRegEx(0, 512),
+				"type" => "/^(default|ctf)$/i",
 				"is_public" => "/[0-1]/",
 				"start_time" => $this::defaultTimeRegEx(),
 				"end_time" => $this::defaultTimeRegEx(),
@@ -68,6 +68,8 @@
 				"max_team_members" => "/\d/"
 			));
 
+			$this->assignOptionalParameter("desc", "");
+			$this->assignOptionalParameter("type", "default");
 			$this->assignOptionalParameter("is_public", 0);
 			$this->assignOptionalParameter("start_time", null);
 			$this->assignOptionalParameter("end_time", null);
@@ -82,7 +84,7 @@
 													$this->args["is_public"], $this->args["start_time"], $this->args["end_time"],
 													$this->args["predefined_teams"], $this->args["max_teams"],  $this->args["max_team_members"]);
 
-			return self::buildResponse(true, array("session_id" => $id));
+			return self::buildResponse(true, array("sessionkey" => $id));
 		}
 
 		/*

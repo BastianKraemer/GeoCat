@@ -40,7 +40,11 @@ function BrowseChallengesController(){
 		prevPageButton:	"#Browse_Prev",
 		keyInputField: "#ChallengeKeyInput",
 		keyInputOK: "#ChallengeKeyInput-OK",
-		joinChallengePopup: "#JoinChallengePopup"
+		joinChallengePopup: "#JoinChallengePopup",
+		createChallengePopup: "#create-challenge-popup",
+		createChallengeInput: "#create-challenge-input",
+		createChallengeErrorInfo: "#create-challenge-errorinfo",
+		createChallengeConfirm: "#create-challenge-confirm"
 	}
 
 	/*
@@ -75,6 +79,21 @@ function BrowseChallengesController(){
 				currentPage--;
 				loadPublicChallengeListFromServer();
 			}
+		});
+
+		$(htmlElement.createChallengeConfirm).click(function(){
+			sendCreateChallengeRequest($(htmlElement.createChallengeInput).val(), function(status, msg, key){
+				if(status){
+					$(htmlElement.createChallengePopup).popup("close");
+					setTimeout(function(){
+						GeoCat.setCurrentChallenge(key)
+						$.mobile.changePage("#ChallengeInfo");
+					}, 150);
+				}
+				else{
+					$(htmlElement.createChallengeErrorInfo).text(msg);
+				}
+			});
 		});
 
 		$(htmlElement.keyInputOK).click(function(){
@@ -222,6 +241,28 @@ function BrowseChallengesController(){
 	function updatePageInfo(){
 		var numPages = maxPages > 0 ? maxPages : 1;
 		$(htmlElement.pageInfo).html(GuiToolkit.sprintf(locale.get("page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]));
+	}
+
+	function sendCreateChallengeRequest(challengeName, callback){
+		$.ajax({type: "POST", url: "./query/challenge.php",
+			data: {
+				task: "create_challenge",
+				name: challengeName
+			},
+			cache: false,
+			success: function(response){
+				ajaxSent = false;
+				result = JSON.parse(response);
+				if(result.status == "ok"){
+					callback(true, "", result.sessionkey);
+				}
+				else{
+					callback(false, result.msg, null);
+				}
+			},
+			error: function(xhr, status, error){
+				callback(false, "Server unreachable.", null);
+		}});
 	}
 
 	/*

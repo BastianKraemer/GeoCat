@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS `ChallengeCheckpoint`;
 DROP TABLE IF EXISTS `ChallengeCoord`;
 DROP TABLE IF EXISTS `Coordinate`;
 DROP TABLE IF EXISTS `Friends`;
+DROP TABLE IF EXISTS `ChallengeStats`;
 DROP TABLE IF EXISTS `ChallengeMember`;
 DROP TABLE IF EXISTS `ChallengeTeam`;
 DROP TABLE IF EXISTS `Challenge`;

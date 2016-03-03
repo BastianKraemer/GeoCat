@@ -77,7 +77,7 @@ CREATE TABLE ChallengeCoord (
 challenge_coord_id  SERIAL NOT NULL ,
 challenge_id INTEGER NOT NULL ,
 coord_id INTEGER NOT NULL ,
-priority INTEGER NOT NULL DEFAULT 0 ,
+priority INTEGER NOT NULL DEFAULT 1 ,
 hint VARCHAR(256) ,
 code VARCHAR(32) ,
 captured_by INTEGER ,
@@ -135,6 +135,13 @@ token VARCHAR(64) NOT NULL ,
 PRIMARY KEY (account_id)
 );
 
+CREATE TABLE ChallengeStats (
+challenge_id INTEGER NOT NULL ,
+team_id INTEGER NOT NULL ,
+total_time INTEGER NOT NULL ,
+PRIMARY KEY (challenge_id, team_id)
+);
+
 ALTER TABLE Account ADD FOREIGN KEY (type) REFERENCES AccountType (acc_type_id);
 ALTER TABLE Place ADD FOREIGN KEY (coord_id) REFERENCES Coordinate (coord_id);
 ALTER TABLE Place ADD FOREIGN KEY (account_id) REFERENCES Account (account_id);
@@ -155,3 +162,5 @@ ALTER TABLE ChallengeTeam ADD FOREIGN KEY (challenge_id) REFERENCES Challenge (c
 ALTER TABLE ChallengeCheckpoint ADD FOREIGN KEY (challenge_coord_id) REFERENCES ChallengeCoord (challenge_coord_id);
 ALTER TABLE ChallengeCheckpoint ADD FOREIGN KEY (team_id) REFERENCES ChallengeTeam (team_id);
 ALTER TABLE LoginToken ADD FOREIGN KEY (account_id) REFERENCES Account (account_id);
+ALTER TABLE ChallengeStats ADD FOREIGN KEY (challenge_id) REFERENCES Challenge (challenge_id);
+ALTER TABLE ChallengeStats ADD FOREIGN KEY (team_id) REFERENCES ChallengeTeam (team_id);

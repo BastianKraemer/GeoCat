@@ -129,12 +129,12 @@ td {
 	margin-bottom: 8px;
 }
 
-.login-dialog > label {
+.login-dialog label {
 	color: black;
 	text-align: left;
 }
 
-.login-dialog > input {
+.login-dialog input {
 	color: black;
 	text-align: left;
 	width: 100%;
@@ -149,7 +149,7 @@ td {
 	transition-duration: 0.6s;
 }
 
-.login-dialog > input:focus {
+.login-dialog input:focus {
 	border: solid 2px #145c74; /* #099fd7 | #067199 */
 	color: #145c74;
 }

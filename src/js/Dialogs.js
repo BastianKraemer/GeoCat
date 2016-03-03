@@ -16,6 +16,11 @@ var Dialogs = (function(){
 		return label;
 	};
 
+	var simulatePageReload = function(){
+		$.mobile.activePage.trigger("pagebeforehide");
+		$.mobile.activePage.trigger("pageshow");
+	}
+
 	// Public function
 	return {
 		showLoginDialog: function(pathToRoot){
@@ -25,6 +30,14 @@ var Dialogs = (function(){
 			var h = document.createElement("h3");
 			h.className = "no-shadow";
 			h.innerHTML = "GeoCat Login"
+
+			var form = document.createElement("form");
+			form.setAttribute("action", "#");
+			form.setAttribute("target", "formtarget");
+
+			var iframe = document.createElement("iframe");
+			iframe.name= "formtarget";
+			iframe.style.display = "none";
 
 			var userInput = createTextInputField("login-username", "text");
 			var pwInput = createTextInputField("login-password", "password");
@@ -41,25 +54,24 @@ var Dialogs = (function(){
 				SubstanceTheme.hideCurrentNotification();
 				setTimeout(function(){Dialogs.showCreateAccountDialog(pathToRoot);}, 400);
 			};
-			span1.style.float = "left";
-
-			var span2 = document.createElement("span");
-			span2.textContent = GeoCat.locale.get("login.guest_account", "Login as guest");
-			span2.style.float = "right";
+			span1.style.float = "right";
 
 			p.appendChild(span1);
-			p.appendChild(span2);
 
 			container.appendChild(h);
-			container.appendChild(userLabel);
-			container.appendChild(userInput);
-			container.appendChild(pwLabel);
-			container.appendChild(pwInput);
+			form.appendChild(userLabel);
+			form.appendChild(userInput);
+			form.appendChild(pwLabel);
+			form.appendChild(pwInput);
+			container.appendChild(form);
+			container.appendChild(iframe);
 			container.appendChild(p);
 
 			var callback = function(success){
 				if(success){
+					form.submit();
 					SubstanceTheme.hideCurrentNotification();
+					simulatePageReload();
 				}
 				else{
 					container.classList.add('shake-horizontal');
@@ -72,17 +84,28 @@ var Dialogs = (function(){
 						$("#login-username, #login-password").removeAttr('style');
 					}, 1500);
 				}
+			};
+
+			var onAcceptFunction = function(){
+				GeoCat.login($("#login-username").val(), $("#login-password").val(), callback, pathToRoot)
+			};
+
+			var onKeyDownFunction = function(event){
+				var key = event.keyCode;
+				if(key == 13){
+					onAcceptFunction();
+				}
 			}
+
+			userInput.onkeydown = onKeyDownFunction;
+			pwInput.onkeydown = onKeyDownFunction;
 
 			SubstanceTheme.showYesNoDialog(
 				container, $.mobile.activePage[0],
-				function(){
-					GeoCat.login($("#login-username").val(), $("#login-password").val(), callback, pathToRoot)
-				},
-				null, "substance-white", false);
+				onAcceptFunction, null, "substance-white", false);
 		},
 
-		showCreateAccountDialog:  function(pathToRoot){
+		showCreateAccountDialog: function(pathToRoot){
 			var container = document.createElement("div");
 			container.className = "login-dialog";
 
@@ -117,6 +140,7 @@ var Dialogs = (function(){
 			var callback = function(success, responseMsg){
 				if(success){
 					SubstanceTheme.hideCurrentNotification();
+					simulatePageReload();
 				}
 				else{
 					p.textContent = responseMsg;

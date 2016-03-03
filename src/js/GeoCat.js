@@ -125,7 +125,7 @@ GeoCat.login = function(username, paswd, callback, pathToRoot){
 				var jsonData = JSON.parse(response);
 
 				if(jsonData.status.toLowerCase() == "true"){
-					GeoCat.loginStats = {isSignedIn: true, username: jsonData.username};
+					GeoCat.loginStatus = {isSignedIn: true, username: jsonData.username};
 					$(".login-button").text(jsonData.username);
 					$(".login-button").attr("onclick", "GeoCat.logout(null, '" + pathToRoot + "');");
 					callback(true);
@@ -146,7 +146,7 @@ GeoCat.logout = function(callback, pathToRoot){
 		cache: false,
 		success: function(response){
 			if(response.toLowerCase() == "true"){
-				GeoCat.loginStats = {isSignedIn: false, username: null};
+				GeoCat.loginStatus = {isSignedIn: false, username: null};
 				$(".login-button").text("Login");
 				$(".login-button").attr("onclick", "Dialogs.showLoginDialog('" + pathToRoot + "');");
 				if(callback != null){callback(true);}
@@ -170,7 +170,7 @@ GeoCat.createAccount = function(userName, email, pw, callback, pathToRoot){
 		success: function(response){
 			ajaxSent = false;
 			if(response.status == "ok"){
-				GeoCat.loginStats = {isSignedIn: true, username: userName};
+				GeoCat.loginStatus = {isSignedIn: true, username: userName};
 				$(".login-button").text(userName);
 				$(".login-button").attr("onclick", "GeoCat.logout(null, '" + pathToRoot + "');");
 				callback(true, "");

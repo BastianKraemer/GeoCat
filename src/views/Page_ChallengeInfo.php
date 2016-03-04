@@ -7,6 +7,15 @@
 ?>
 	<script type="text/javascript">
 		ChallengeInfoController.init("#ChallengeInfo");
+		$(document).on('pageshow', "#ChallengeInfo", function(){
+			$('#team-access-password-wrap').hide();
+			$('#team-color').minicolors({
+				theme: 'bootstrap' 
+			});
+			$('#team-access-checkbox').click(function(){
+				$('#team-access-password-wrap').toggle();
+			});
+		});
 	</script>
 <?php
 		}
@@ -111,6 +120,75 @@
 			    </label>
 				<hr>
 				<button id="challengeinfo-editdesc-ok" class="ui-btn ui-corner-all ui-shadow"><?php $locale->write("save"); ?></button>
+			</div>
+		</div>
+		
+		<!-- popup create team -->
+		<div id="create-team" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all" style="width: 75vw;">
+			<div data-role="header" data-theme="b">
+				<h1><?php $locale->write("challenge.info.create_team"); ?></h1>
+			</div>
+			
+			<div data-role="main" class="ui-content">
+				<?php
+				InputTemplates::printTextField("team-name", false, $locale->get("challenge.info.teamname"), false, 30);
+				?>
+				<div class="ui-field-contain">
+					<label for="team-color"><?php $locale->write("challenge.info.teamcolor"); ?>:</label>
+					<input id="team-color" name="team-color" type="text" value="#ff0000" maxlength="30" />
+				</div>
+				<div class="ui-checkbox">
+					<label for="team-access-checkbox" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left"><?php $locale->write("challenge.info.teamaccess"); ?></label>
+					<input id="team-access-checkbox" type="checkbox" name="team-access-checkbox" data-enhanced="true">
+				</div>
+				<div id="team-access-password-wrap">
+					<input id="team-access-password" type="text" placeholder="<?php $locale->write('challenge.info.teamaccess'); ?>" maxlength="25" />
+				</div>
+				<?php
+				InputTemplates::printFlipswitch("team-ispredefined", $locale->get("challenge.info.ispredefined"), false, false);
+				?>
+				<input id="team-button-create" type="button" class="ui-btn ui-corner-all ui-shadow" value="<?php $locale->write("challenge.info.team_create"); ?>" />
+			</div>
+		</div>
+		
+		<!-- popup join team -->
+		<div id="join-team" data-role="popup" data-theme="a" data-position-to="window" data-transition="pop" class="ui-corner-all" style="width: 75vw;">
+			<div data-role="header" data-theme="b">
+				<h1><?php $locale->write("challenge.info.join_team"); ?></h1>
+			</div>
+			
+			<div data-role="main" class="ui-content" style="text-align: center;">
+				<h2><?php $locale->write("challenge.info.q.join_this_team"); ?></h2>
+				<div>
+					<table class="styled-table">
+						<caption id="join-team-name"></caption>
+						<thead>
+							<tr>
+								<th style="text-align: center;"><?php $locale->write("challenge.info.members"); ?>:</th>
+							</tr>
+						</thead>
+						<tbody id="join-team-members">
+							<tr><td><?php $locale->write("challenge.info.loading"); ?></td></tr>
+						</tbody>
+					</table>
+				</div>
+				<p>
+					<div id="join-team-wrap-password">
+						<?php
+						InputTemplates::printTextField("join-team-field-password", true, $locale->get("challenge.info.enterpassword"), false, 20);
+						?>
+					</div>
+				</p>
+				<p>
+					<div class="ui-grid-a">
+						<div class="ui-block-a">
+							<input id="join-team-no" type="button" class="ui-btn ui-corner-all ui-shadow" value="<?php $locale->write("no"); ?>" />	
+						</div>
+						<div class="ui-block-b">
+							<input id="join-team-yes" type="button" class="ui-btn ui-corner-all ui-shadow" value="<?php $locale->write("yes"); ?>" />
+						</div>
+					</div>
+				</p>
 			</div>
 		</div>
 

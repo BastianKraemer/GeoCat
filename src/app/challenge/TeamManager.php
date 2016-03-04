@@ -34,7 +34,7 @@
 			if($access_code == ""){$access_code = null;}
 
 			$res = DBTools::query($dbh, "INSERT INTO ChallengeTeam (team_id, challenge_id, name, color, is_predefined, access_code) " .
-										"VALUES (null, :id, :name, :color, :predef, :code)",
+										"VALUES (DEFAULT, :id, :name, :color, :predef, :code)",
 									array("id" => $challengeId, "name" => $teamName, "color" => $teamColor, "predef" => $isPredefinedTeam ? 1 : 0, "code" => $access_code));
 
 			if(!$res){
@@ -42,7 +42,7 @@
 				throw new Exception("Unable to create team.");
 			}
 
-			return $dbh->lastInsertId("team_id");
+			return $dbh->lastInsertId("challengeteam_team_id_seq");
 		}
 
 		public static function teamExists($dbh, $teamId){
@@ -125,7 +125,7 @@
 
 			// Verify that the user is not already a member of one team of this challenge
 			if(in_array($challengeId, $challenges)){
-				throw new InvalidArgumentException("The user has already jonied a team of this challenge.");
+				throw new InvalidArgumentException("The user has already joined a team of this challenge.");
 			}
 
 			// Verify 'access_code'

@@ -378,7 +378,7 @@
 			));
 
 			$this->verifyOptionalParameters(array(
-					"code" => "/\d/" // Code that is maybe required to join a team
+					"code" => self::defaultTextRegEx(0,16)
 			));
 			$this->assignOptionalParameter("code", null);
 
@@ -388,6 +388,24 @@
 			$this->verifyChallengeAccess($challengeId);
 
 			TeamManager::joinTeam($this->dbh, $this->args["team_id"], $session->getAccountId(), $this->args["code"]);
+
+			return self::buildResponse(true);
+		}
+		
+		protected function leave_team(){
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
+					"team_id" => "/\d/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+
+			$this->requireEnabledChallenge($challengeId);
+			$this->verifyChallengeAccess($challengeId);
+			
+			TeamManager::leaveTeam($this->dbh, $this->args["team_id"], $session->getAccountId());
 
 			return self::buildResponse(true);
 		}
@@ -420,8 +438,8 @@
 
 			// Check optional parameters
 			$this->verifyOptionalParameters(array(
-					"color" => "/\^#[A-Fa-f0-9]{6}$/",
-					"code" => self::defaultTextRegEx(1,16)
+					"color" => "/^#[A-Fa-f0-9]{6}$/",
+					"code" => self::defaultTextRegEx(0,16)
 			));
 
 			$this->assignOptionalParameter("color", "0xFF0000"); //TODO: randomize this value
@@ -459,6 +477,51 @@
 			else{
 				$info["your_team"] = -1;
 			}
+			return self::buildResponse(true, $info);
+		}
+		
+		protected function get_memberlist(){
+			
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+
+			if($challengeId == -1){
+				return self::buildResponse(false, array("msg" => "Invalid session key."));
+			}
+			
+			$info["memberlist"] = ChallengeManager::getTeamlistById($this->dbh, $this->args["teamid"]);
+			
+			return self::buildResponse(true, $info);
+		}
+		
+		protected function user_has_team(){
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+
+			if($challengeId == -1){
+				return self::buildResponse(false, array("msg" => "Invalid session key."));
+			}
+			
+			require_once(__DIR__ . "/../app/SessionManager.php");
+			$session = new SessionManager();
+			if($session->isSignedIn()){
+				$info["has_team"] = TeamManager::getTeamOfUser($this->dbh, $challengeId, $session->getAccountId());
+			} else {
+				$info["has_team"] = -1; 
+			}
+			$info["has_team"] = ($info["has_team"] == -1 ? false : true);
+			if($info["has_team"] == false){
+				$info["teamid"] = 0;
+			} else {
+				$info["teamid"] = TeamManager::getTeamOfUser($this->dbh, $challengeId, $session->getAccountId());
+			}
+			
 			return self::buildResponse(true, $info);
 		}
 

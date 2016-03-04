@@ -44,11 +44,14 @@
 	<link rel="stylesheet" href="./css/style.css">
 	<link rel="stylesheet" href="./css/animations.css">
 	<link rel="stylesheet" href="./css/substance.css">
+	<link rel="stylesheet" href="./css/jquery.minicolors.css" />
 
 	<!-- <## ./lib/jquery_package.min.js ##> -->
 	<script src="./lib/jquery.min.js"></script>
 	<script src="./lib/jquery.mobile-1.4.5.min.js"></script>
 	<!-- </## ./lib/jquery_package.min.js ##> -->
+	
+	<script src="./lib/jquery.minicolors.min.js"></script>
 
 	<!-- <## ./js/geocat.min.js ##> -->
 	<script src="./js/GeoCat.js"></script>

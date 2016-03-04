@@ -140,6 +140,14 @@
 			$res = DBTools::fetchNum($dbh, "SELECT owner FROM Challenge WHERE challenge_id = :id", array("id" => $challengeId));
 			return $res ? $res[0] : -1;
 		}
+		
+		public static function getTeamlistById($dbh, $teamid){
+			$res = DBTools::fetchAll($dbh, "SELECT Account.username " . 
+									 "FROM Account " . 
+									 "JOIN Challengemember ON (Account.account_id = Challengemember.account_id) " . 
+									 "WHERE team_id = :id", array("id" => $teamid));
+			return $res; 
+		}
 
 		public static function getTeams($dbh, $challengeId){
 			return DBTools::fetchAll($dbh, "SELECT team_id, name, color FROM ChallengeTeam WHERE challenge_id = :id", array("id" => $challengeId), PDO::FETCH_ASSOC);

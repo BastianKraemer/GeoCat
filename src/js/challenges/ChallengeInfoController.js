@@ -3,6 +3,8 @@ function ChallengeInfoController(sessionKey){
 	var challengeSessionKey = sessionKey;
 	var challengeData;
 	var coordData;
+	
+	var clickedTeam = 0;
 
 	var enableCoordEdit = false;
 	var me = this;
@@ -18,7 +20,9 @@ function ChallengeInfoController(sessionKey){
 		endTime: "#challengeinfo-end-time",
 		cacheList: "#challengeinfo-cache-list",
 		teamList: "#challengeinfo-team-list",
-		helpSection: "#challengeinfo-help-section"
+		helpSection: "#challengeinfo-help-section",
+		
+		memberList: "#join-team-members"
 	}
 
 	var buttons = {
@@ -34,7 +38,10 @@ function ChallengeInfoController(sessionKey){
 	var popups = {
 		editDescriptionPopup: "#challengeinfo-editdesc-popup",
 		editEtcPopup: "#challengeinfo-editetc-popup",
-		cachePopup: "#challengeinfo-cache-popup"
+		cachePopup: "#challengeinfo-cache-popup",
+		
+		createNewTeam: "#create-team",
+		joinTeam: "#join-team"
 	};
 
 	var inputElements = {
@@ -46,14 +53,26 @@ function ChallengeInfoController(sessionKey){
 		editEndTime: "#challengeinfo-edit-endtime",
 		editPredefTeams: "#challengeinfo-edit-predefteams",
 		editMaxTeams: "#challengeinfo-edit-maxteams",
-		editMaxTeamMembers: "#challengeinfo-edit-maxteam-members"
+		editMaxTeamMembers: "#challengeinfo-edit-maxteam-members",
+		
+		teamname: "#team-name",
+		teamcolor: "#team-color",
+		teamaccess: "#team-access-checkbox",
+		teampassword: "#team-access-password",
+		teampredefined: "#team-ispredefined",
+		joinTeamCodeWrap: "#join-team-wrap-password",
+		joinTeamCode: "#join-team-field-password"
 	};
 
 	var confirmButtons = {
 		editDescriptionConfirm: "#challengeinfo-editdesc-ok",
 		editEtcConfirm: "#challengeinfo-editetc-ok",
 		editCache: "#challengeinfo-editcache",
-		deleteCache: "#challengeinfo-deletecache"
+		deleteCache: "#challengeinfo-deletecache",
+		
+		teamcreate: "#team-button-create",
+		joinYes: "#join-team-yes",
+		joinNo: "#join-team-no"
 	};
 
 	// Public functions
@@ -65,6 +84,10 @@ function ChallengeInfoController(sessionKey){
 		$(confirmButtons.editEtcConfirm).click(editEtcPopupSaveButtonClicked);
 		$(confirmButtons.editCache).click(editCacheOnClick);
 		$(confirmButtons.deleteCache).click(deleteCacheOnClick);
+		
+		$(confirmButtons.teamcreate).click(createTeamClicked);
+		$(confirmButtons.joinYes).click(joinTeamYesClicked);
+		$(confirmButtons.joinNo).click(joinTeamNoClicked);
 	};
 
 	this.pageClosed = function(){
@@ -212,7 +235,7 @@ function ChallengeInfoController(sessionKey){
 
 	var updateTeamList = function(){
 		$(infoElements.teamList).html("");
-
+		
 		challengeData["team_list"].forEach(function(teamData) {
 			var teamName;
 			if(teamData.team_id == challengeData["your_team"]){
@@ -223,12 +246,14 @@ function ChallengeInfoController(sessionKey){
 			}
 
 			$(infoElements.teamList).append(
-				"<tr>" +
+				"<tr id=\"" + teamData.team_id + "\">" + 
 					"<td style=\"background-color: " + teamData.color + "; width: 0px;\"></td>" +
 					"<td>" + teamName + "</td>" +
 					"<td>" + teamData.member_cnt + "/" + challengeData["max_team_members"] + "</td>" +
 				"</tr>");
+			$("#" + teamData.team_id).addClass('teamlist');
 		});
+		$(".teamlist").click(handleClickOnJoinTeam);
 	};
 
 	var enableControls = function(){
@@ -240,9 +265,15 @@ function ChallengeInfoController(sessionKey){
 
 				if(challengeData["is_enabled"] == 1){
 					// The challenge is already enabled - caches cannot be edited anymore
-					showButton(buttons.createTeam, function(){alert("Feature 'create team' is not implemented yet.");});
 					showButton(buttons.start, handleClickOnGoToNavigator);
-					showButton(buttons.resetChallenge, handleClickOnResetChallenge);
+					sendRequestHasJoined(function(response){
+						if(response.has_team == true){
+							showButton(buttons.leaveChallenge, handleClickOnLeaveTeam);
+							$(buttons.leaveChallenge).attr("data-teamid", response.teamid);
+						} else {
+							showButton(buttons.resetChallenge, handleClickOnResetChallenge);
+						}
+					}); 
 
 					enableCoordEdit = false;
 				}
@@ -269,15 +300,14 @@ function ChallengeInfoController(sessionKey){
 			else{
 				enableCoordEdit = false;
 				// The user is NOT the owner of this challenge
-				if(challengeData["your_team"] == -1){
+				if(challengeData["your_team"] != -1){
 					// The user is already part of this challenge and has coosen a team
 					showButton(buttons.start, handleClickOnGoToNavigator);
-					showButton(buttons.leaveChallenge, function(){alert("Feature 'leave' challenge is not implemented yet");});
+					showButton(buttons.leaveChallenge, handleClickOnLeaveTeam);
 				}
-				else{
-					// The user does not have a team yet
-					showButton(buttons.createTeam, function(){alert("Feature 'create team' is not implemented yet.");});
-				}
+			}
+			if((userIsChallengeOwner() && challengeData["is_enabled"] == 1) || (!userIsChallengeOwner() && challengeData["your_team"] == -1)){
+				showButton(buttons.createTeam, handleClickOnCreateTeam);
 			}
 		}
 
@@ -332,12 +362,60 @@ function ChallengeInfoController(sessionKey){
 				getCurrentPos: (ccId == null)}
 		);
 	}
+	
+	var showJoinTeamPopup = function(teamid){
+		$(popups.joinTeam).popup('open');
+		var teamData = challengeData['team_list'];
+		teamData.forEach(function(team){
+			if(team.team_id == teamid){
+				if(team.has_code == 0){
+					$(inputElements.joinTeamCodeWrap).hide();
+				} else {
+					$(inputElements.joinTeamCodeWrap).show();
+				}
+				if(team.member_cnt > 0){
+					sendGetTeamMemberlist(teamid);
+				} else {
+					$(infoElements.memberList).html(GeoCat.locale.get("challenge.info.teamempty"));
+				}
+				$(confirmButtons.joinYes).attr("name", teamid);
+			}
+		}); 
+	}
 
 	/*
 	 * ========================================================================
 	 *	Click handler
 	 * ========================================================================
 	 */
+	
+	var handleClickOnCreateTeam = function(){
+		$(popups.createNewTeam).popup("open", {positionTo: "window", transition: "pop"});
+	}
+	
+	var handleClickOnJoinTeam = function(){
+		clickedTeam = this.id;
+		sendRequestHasJoined(function(response){
+			if(response.has_team == false){
+				showJoinTeamPopup(clickedTeam);
+				clickedTeam = 0;
+			}
+		});
+	}
+	
+	var handleClickOnLeaveTeam = function(){
+		var teamname = "";
+		challengeData['team_list'].forEach(function(team){
+			if(team.team_id == $(buttons.leaveChallenge).attr("data-teamid")){
+				teamname = team.name;
+			}
+		});
+		SubstanceTheme.showYesNoDialog(
+				"<h2>" + GeoCat.locale.get("challenge.info.leave.team", "Leave Team") + "</h2>" +
+				"<p>" + GeoCat.locale.get("challenge.info.leave.text", "Do you really want to leave this team?") + "</p>" +
+				"<p><b>" + teamname + "</b></p>",
+				$.mobile.activePage[0], sendLeaveTeam, null, "substance-white")
+	}
 
 	var handleClickOnEditDescription = function(){
 		$(inputElements.editName).val(challengeData["name"]);
@@ -414,6 +492,38 @@ function ChallengeInfoController(sessionKey){
 	 *	Popup click handler
 	 * ========================================================================
 	 */
+	
+	var createTeamClicked = function(){
+		var name = $(inputElements.teamname).val();
+		var color = $(inputElements.teamcolor).val();
+		var code = "";
+		if($(inputElements.teamaccess).is(":checked")){
+			code = $(inputElements.teampassword).val();
+		}
+		var predefined_teams = $(inputElements.teampredefined).is(":checked");
+		
+		sendCreateTeam({name, color, code, predefined_teams});
+	}
+	
+	var joinTeamYesClicked = function(){
+		var teamid = this.name;
+		
+		var teamData = challengeData['team_list'];
+		teamData.forEach(function(team){
+			if(team.team_id == teamid){
+				var code = "";
+				if(team.has_code == 1){
+					code = $(inputElements.joinTeamCode).val();
+				}
+				sendJoinTeam({teamid, code});
+				$(popups.joinTeam).popup('close');
+			}
+		});
+	}
+	
+	var joinTeamNoClicked = function(){
+		$(popups.joinTeam).popup('close');
+	}
 
 	var editDescriptionPopupSaveButtonClicked = function(){
 
@@ -444,6 +554,97 @@ function ChallengeInfoController(sessionKey){
 	 *	AJAX functions
 	 * ========================================================================
 	 */
+	
+	var sendRequestHasJoined = function(successCallback){
+		var ajaxData = {};
+		
+		ajaxData["task"] = "user_has_team";
+		ajaxData["challenge"] = challengeSessionKey;
+		
+		sendAJAXRequest(
+			ajaxData,
+			function(response){
+				successCallback(response);
+			},
+			"Error: request 'has team' failed",
+			null);
+	}
+	
+	var sendCreateTeam = function(ajaxData){
+		ajaxData["task"] = "create_team";
+		ajaxData["challenge"] = challengeSessionKey;
+		
+		$(popups.createNewTeam).popup('close');
+		
+		sendAJAXRequest(
+				ajaxData,
+			function(response){
+				downloadChallengeInfo();
+			},
+			"Error: request 'create team' failed",
+			null);
+	};
+	
+	var sendGetTeamMemberlist = function(teamid){
+		var ajaxData = {};
+		ajaxData["task"] = "get_memberlist";
+		ajaxData["challenge"] = challengeSessionKey;
+		ajaxData["teamid"] = teamid; 
+		
+		sendAJAXRequest(
+			ajaxData,
+			function(response){
+				var responseData; 
+				try{
+					$(infoElements.memberList).html("");
+					response['memberlist'].forEach(function(member){
+						$(infoElements.memberList).append(
+						"<tr>" + 
+							"<td>" + member.username + "</td>" +
+						"</tr>");
+					});
+				}
+				catch(e){
+					$(popups.joinTeam).popup('close');
+					SubstanceTheme.showNotification("<h3>Unable to download member list</h3><p>Server returned:<br>" + response + "</p>", 7,
+													$.mobile.activePage[0], "substance-red no-shadow white");
+					return;
+				}
+			},
+			"Error: request 'get memberlist' failed",
+			null);
+	}
+	
+	var sendJoinTeam = function(data){
+		var ajaxData = {};
+		ajaxData["task"] = "join_team";
+		ajaxData["challenge"] = challengeSessionKey;
+		ajaxData["team_id"] = data.teamid;
+		ajaxData["code"] = data.code;
+		
+		sendAJAXRequest(
+				ajaxData,
+			function(response){
+				downloadChallengeInfo();
+			},
+			"Error: request 'join team' failed",
+			null);
+	}
+	
+	var sendLeaveTeam = function(){
+		var ajaxData = {};
+		ajaxData["task"] = "leave_team";
+		ajaxData["challenge"] = challengeSessionKey;
+		ajaxData["team_id"] = $(buttons.leaveChallenge).attr("data-teamid");
+		
+		sendAJAXRequest(
+				ajaxData,
+			function(response){
+				downloadChallengeInfo();
+			},
+			"Error: request 'leave team' failed",
+			null);
+	}
 
 	var sendModifiedChallengeInfo = function(ajaxData, popupId){
 		ajaxData["task"] = "modify";

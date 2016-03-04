@@ -1,4 +1,4 @@
-function ChallengeInfoController(sessionKey){
+function ChallengeInfoController(sessionKey) {
 
 	var challengeSessionKey = sessionKey;
 	var challengeData;
@@ -23,7 +23,7 @@ function ChallengeInfoController(sessionKey){
 		helpSection: "#challengeinfo-help-section",
 		
 		memberList: "#join-team-members"
-	}
+	};
 
 	var buttons = {
 		addCache: "#challengeinfo-add-cache",
@@ -266,14 +266,12 @@ function ChallengeInfoController(sessionKey){
 				if(challengeData["is_enabled"] == 1){
 					// The challenge is already enabled - caches cannot be edited anymore
 					showButton(buttons.start, handleClickOnGoToNavigator);
-					sendRequestHasJoined(function(response){
-						if(response.has_team == true){
-							showButton(buttons.leaveChallenge, handleClickOnLeaveTeam);
-							$(buttons.leaveChallenge).attr("data-teamid", response.teamid);
-						} else {
-							showButton(buttons.resetChallenge, handleClickOnResetChallenge);
-						}
-					}); 
+					
+					if(challengeData['your_team'] != -1){
+						showButton(buttons.leaveChallenge, handleClickOnLeaveTeam);
+					} else {
+						showButton(buttons.resetChallenge, handleClickOnResetChallenge);
+					}
 
 					enableCoordEdit = false;
 				}
@@ -378,7 +376,7 @@ function ChallengeInfoController(sessionKey){
 				} else {
 					$(infoElements.memberList).html(GeoCat.locale.get("challenge.info.teamempty"));
 				}
-				$(confirmButtons.joinYes).attr("name", teamid);
+				$(confirmButtons.joinYes).attr("data-teamid", teamid);
 			}
 		}); 
 	}
@@ -395,18 +393,16 @@ function ChallengeInfoController(sessionKey){
 	
 	var handleClickOnJoinTeam = function(){
 		clickedTeam = this.id;
-		sendRequestHasJoined(function(response){
-			if(response.has_team == false){
-				showJoinTeamPopup(clickedTeam);
-				clickedTeam = 0;
-			}
-		});
+		if(challengeData['your_team'] == -1){
+			showJoinTeamPopup(clickedTeam);
+			clickedTeam = 0;
+		}
 	}
 	
 	var handleClickOnLeaveTeam = function(){
 		var teamname = "";
 		challengeData['team_list'].forEach(function(team){
-			if(team.team_id == $(buttons.leaveChallenge).attr("data-teamid")){
+			if(team.team_id == challengeData['your_team']){
 				teamname = team.name;
 			}
 		});
@@ -502,11 +498,11 @@ function ChallengeInfoController(sessionKey){
 		}
 		var predefined_teams = $(inputElements.teampredefined).is(":checked");
 		
-		sendCreateTeam({name, color, code, predefined_teams});
+		sendCreateTeam({name: name, color: color, code: code, predefined_teams: predefined_teams});
 	}
 	
 	var joinTeamYesClicked = function(){
-		var teamid = this.name;
+		var teamid = $(confirmButtons.joinYes).attr("data-teamid");
 		
 		var teamData = challengeData['team_list'];
 		teamData.forEach(function(team){
@@ -554,21 +550,6 @@ function ChallengeInfoController(sessionKey){
 	 *	AJAX functions
 	 * ========================================================================
 	 */
-	
-	var sendRequestHasJoined = function(successCallback){
-		var ajaxData = {};
-		
-		ajaxData["task"] = "user_has_team";
-		ajaxData["challenge"] = challengeSessionKey;
-		
-		sendAJAXRequest(
-			ajaxData,
-			function(response){
-				successCallback(response);
-			},
-			"Error: request 'has team' failed",
-			null);
-	}
 	
 	var sendCreateTeam = function(ajaxData){
 		ajaxData["task"] = "create_team";
@@ -635,7 +616,7 @@ function ChallengeInfoController(sessionKey){
 		var ajaxData = {};
 		ajaxData["task"] = "leave_team";
 		ajaxData["challenge"] = challengeSessionKey;
-		ajaxData["team_id"] = $(buttons.leaveChallenge).attr("data-teamid");
+		ajaxData["team_id"] = challengeData['your_team'];
 		
 		sendAJAXRequest(
 				ajaxData,

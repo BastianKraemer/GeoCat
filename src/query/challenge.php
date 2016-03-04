@@ -496,34 +496,6 @@
 			
 			return self::buildResponse(true, $info);
 		}
-		
-		protected function user_has_team(){
-			$this->requireParameters(array(
-					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
-			));
-
-			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
-
-			if($challengeId == -1){
-				return self::buildResponse(false, array("msg" => "Invalid session key."));
-			}
-			
-			require_once(__DIR__ . "/../app/SessionManager.php");
-			$session = new SessionManager();
-			if($session->isSignedIn()){
-				$info["has_team"] = TeamManager::getTeamOfUser($this->dbh, $challengeId, $session->getAccountId());
-			} else {
-				$info["has_team"] = -1; 
-			}
-			$info["has_team"] = ($info["has_team"] == -1 ? false : true);
-			if($info["has_team"] == false){
-				$info["teamid"] = 0;
-			} else {
-				$info["teamid"] = TeamManager::getTeamOfUser($this->dbh, $challengeId, $session->getAccountId());
-			}
-			
-			return self::buildResponse(true, $info);
-		}
 
 		protected function coord_info(){
 

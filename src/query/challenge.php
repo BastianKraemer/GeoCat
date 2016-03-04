@@ -575,8 +575,16 @@
 			}
 
 			if(!Checkpoint::isReachedBy($this->dbh, $ccid, $teamId)){
+				require_once(__DIR__ . "/../app/challenge/ChallengeStats.php");
 				$time = Checkpoint::setReached($this->dbh, $ccid, $teamId);
-				return self::buildResponse(true, array("time" => $time));
+				$ret = array("time" => $time);
+
+				$totalTime = ChallengeStats::calculateStats($dbh, $challengeId, $teamId);
+				if($totalTime > 0){
+					$ret = array("total_time" => $totalTime);
+				}
+
+				return self::buildResponse(true, $ret);
 			}
 			else{
 				return self::buildResponse(false, array("msg" => $this->locale->get("query.challenge.already_reached")));
@@ -653,6 +661,8 @@
 			));
 
 			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+			$this->requireEnabledChallenge($challengeId);
+
 			$stats = ChallengeStats::getStats($this->dbh, $challengeId);
 			return self::buildResponse(true, array("stats" => $stats));
 		}

@@ -76,7 +76,7 @@ function ChallengeInfoController(sessionKey){
 		$(infoElements.helpSection).html("");
 
 		for(var key in confirmButtons){
-			$(confirmButtons[key].editDescriptionConfirm).unbind();
+			$(confirmButtons[key]).unbind();
 		}
 	};
 
@@ -170,6 +170,9 @@ function ChallengeInfoController(sessionKey){
 				if(responseData.status == "ok"){
 					onStatsDataReceived(responseData);
 				}
+				else{
+					printNoStatsAvailable();
+				}
 			},
 			error: ajaxError});
 	};
@@ -179,7 +182,13 @@ function ChallengeInfoController(sessionKey){
 		challengeData = data;
 
 		downloadCoordData();
-		downloadStats();
+		if(data["is_enabled" == 1]){
+			downloadStats();
+		}
+		else{
+			printNoStatsAvailable();
+		}
+
 
 		updateGUIWithChallengeData();
 		updateTeamList();
@@ -224,14 +233,12 @@ function ChallengeInfoController(sessionKey){
 
 	var onStatsDataReceived = function(data){
 		if(Object.keys(data.stats).length == 0){
-
-			$(infoElements.statsTable).html("<td colspan='3'>" + GeoCat.locale.get("challenge.info.no_stats", "No stats available.") + "</td>");
+			printNoStatsAvailable();
 			return;
 		}
 		else{
 			$(infoElements.statsTable).html("");
 		}
-
 
 		var keyName;
 		var translator;
@@ -267,6 +274,10 @@ function ChallengeInfoController(sessionKey){
 			i++;
 		}
 	};
+
+	var printNoStatsAvailable = function(){
+		$(infoElements.statsTable).html("<td colspan='3'>" + GeoCat.locale.get("challenge.info.no_stats", "No stats available.") + "</td>");
+	}
 
 	var updateCacheList = function(data){
 		$(infoElements.teamList).html("");

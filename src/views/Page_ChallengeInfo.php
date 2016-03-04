@@ -63,7 +63,7 @@
 					</table>
 				</div>
 
-				<div class="substance-container substance-flexitem3" style="margin-top: 40px; min-width: 100%; min-height: 200px; max-height: 400px; overflow-y: auto;">
+				<div id="challengeinfo-stats-container" class="substance-container substance-flexitem3" style="margin-top: 40px; min-width: 100%; min-height: 200px; max-height: 400px; overflow-y: auto;">
 					<table class="styled-table">
 						<caption><?php $locale->write("challenge.info.stats"); ?></caption>
 						<thead>

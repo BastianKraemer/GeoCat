@@ -29,6 +29,14 @@ class ChallengeStats {
 		if(!self::isCTFChallenge($dbh, $challengeId)){
 			$coordCnt = ChallengeCoord::countCoordsOfChallenge($dbh, $challengeId, false);
 
+			$check = DBTools::fetchNum($dbh,	"SELECT total_time FROM ChallengeStats " .
+												"WHERE challenge_id = :cid AND team_id = :teamId",
+												array("cid" => $challengeId, "teamId" => $teamId));
+
+			if(!empty($check)){
+				return -2;
+			}
+
 			$res = DBTools::fetchAll($dbh,	"SELECT ChallengeCheckpoint.time, ChallengeCoord.challenge_coord_id AS ccid, ChallengeCoord.priority " .
 											"FROM ChallengeCheckpoint " .
 											"JOIN ChallengeCoord ON (ChallengeCheckpoint.challenge_coord_id = ChallengeCoord.challenge_coord_id) " .
@@ -36,7 +44,7 @@ class ChallengeStats {
 											array("team" => $teamId), PDO::FETCH_ASSOC);
 
 			if(count($res) != $coordCnt){
-				throw new InvalidArgumentException("This team has not finished the challenge yet.");
+				return -3;
 			}
 
 			$starttime = 0;

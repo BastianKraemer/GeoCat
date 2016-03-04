@@ -634,6 +634,29 @@
 			}
 		}
 
+		/*
+		 * ====================================================================
+		 * 	Challenge stats
+		 * ====================================================================
+		 */
+
+		/**
+		 * Task: 'get_stats'
+		 *
+		 * Get the stats of a challenge
+		 */
+		protected function get_stats(){
+			require_once(__DIR__ . "/../app/challenge/ChallengeStats.php");
+
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+			$stats = ChallengeStats::getStats($this->dbh, $challengeId);
+			return self::buildResponse(true, array("stats" => $stats));
+		}
+
 		private function requireChallengeOwner($challengeId, $session){
 			if(ChallengeManager::getOwner($this->dbh, $challengeId) != $session->getAccountId()){
 				throw new InvalidArgumentException($this->locale->get("query.challenge.unauthorized") . ".");

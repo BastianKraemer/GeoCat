@@ -18,7 +18,8 @@ function ChallengeInfoController(sessionKey){
 		endTime: "#challengeinfo-end-time",
 		cacheList: "#challengeinfo-cache-list",
 		teamList: "#challengeinfo-team-list",
-		helpSection: "#challengeinfo-help-section"
+		helpSection: "#challengeinfo-help-section",
+		statsTable: "#challengeinfo-stats-table"
 	}
 
 	var buttons = {
@@ -141,10 +142,34 @@ function ChallengeInfoController(sessionKey){
 					onCoordinateDataReceived(responseData);
 				}
 				else{
-					// The only error that could oocur ist that the challenge has not started yet...
+					// The only error that could occur ist that the challenge has not started yet...
 					$(infoElements.cacheList).html("<tr><td colspan=4>" + GeoCat.locale.get("challenge.info.not_started", "The challenge has not started yet.") + "</td></tr>");
 				}
 
+			},
+			error: ajaxError});
+	};
+
+	var downloadStats = function(){
+		$.ajax({
+			type: "POST", url: "./query/challenge.php",
+			encoding: "UTF-8",
+			data: {task: "get_stats", challenge: challengeSessionKey},
+			cache: false,
+			success: function(response){
+				var responseData;
+				try{
+					responseData = JSON.parse(response);
+				}
+				catch(e){
+					SubstanceTheme.showNotification("<h3>Unable to download challenge stats</h3><p>Server returned:<br>" + response + "</p>", 7,
+													$.mobile.activePage[0], "substance-red no-shadow white");
+					return;
+				}
+
+				if(responseData.status == "ok"){
+					onStatsDataReceived(responseData);
+				}
 			},
 			error: ajaxError});
 	};
@@ -153,8 +178,8 @@ function ChallengeInfoController(sessionKey){
 
 		challengeData = data;
 
-		// If the challenge is not enabled then the user must be the owner
 		downloadCoordData();
+		downloadStats();
 
 		updateGUIWithChallengeData();
 		updateTeamList();
@@ -197,11 +222,57 @@ function ChallengeInfoController(sessionKey){
 		}
 	};
 
+	var onStatsDataReceived = function(data){
+		if(Object.keys(data.stats).length == 0){
+
+			$(infoElements.statsTable).html("<td colspan='3'>" + GeoCat.locale.get("challenge.info.no_stats", "No stats available.") + "</td>");
+			return;
+		}
+		else{
+			$(infoElements.statsTable).html("");
+		}
+
+
+		var keyName;
+		var translator;
+		if(challengeData.type_id == 1){
+			// Capture the flag
+			keyName = "caches";
+			translator = function(value){return value;};
+		}
+		else{
+			// Race (Default Challenge)
+			keyName = "total_time";
+			translator = function(value){
+				var h = 0;
+				var m = (value / 60).toFixed(0);
+				if(m > 60){
+					h = (m / 60).toFixed(0);
+					m = m % 60;
+				}
+
+				var s = value % 60;
+				return (h < 9 ? "0" + h : h) + ":" + (m < 9 ? "0" + m : m) + ":" + (s < 9 ? "0" + s : s);
+			};
+		}
+
+		var i = 1;
+		for(var key in data.stats){
+			$(infoElements.statsTable).append(
+				"<tr>" +
+					"<td>" + i + ".</td>" +
+					"<td>" + data.stats[key].team + "</td>" +
+					"<td>" + translator(data.stats[key][keyName]) + "</td>" +
+				"</tr>");
+			i++;
+		}
+	};
+
 	var updateCacheList = function(data){
-		$("#challengeinfo-team-list").html("");
+		$(infoElements.teamList).html("");
 
 		data["team_list"].forEach(function(teamData) {
-			$("#challengeinfo-team-list").append(
+			$(infoElements.teamList).append(
 				"<tr>" +
 					"<td style=\"background-color: " + teamData.color + "; width: 0px;\"></td>" +
 					"<td>" + teamData.name + (teamData.has_code == 1 ? "*" : "") + "</td>" +

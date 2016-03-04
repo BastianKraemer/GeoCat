@@ -62,6 +62,22 @@
 						</tbody>
 					</table>
 				</div>
+
+				<div class="substance-container substance-flexitem3" style="margin-top: 40px; min-width: 100%; min-height: 200px; max-height: 400px; overflow-y: auto;">
+					<table class="styled-table">
+						<caption><?php $locale->write("challenge.info.stats"); ?></caption>
+						<thead>
+							<tr>
+								<th><?php $locale->write("challenge.info.position"); ?></th>
+								<th><?php $locale->write("challenge.info.team"); ?></th>
+								<th><?php $locale->write("challenge.info.caches_or_time"); ?></th>
+							</tr>
+						</thead>
+						<tbody id="challengeinfo-stats-table">
+							<tr><td colspan=3><?php $locale->write("challenge.info.loading"); ?></td></tr>
+						</tbody>
+					</table>
+				</div>
 			</div>
 
 			<div id="challengeinfo-help-section"></div>

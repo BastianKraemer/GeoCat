@@ -37,19 +37,6 @@
 			$this->handleAndSendResponseByArgsKey("task");
 		}
 
-		private function verifyChallengeAccess($challengeId){
-			$isPublic = ChallengeManager::isChallengePublic($this->dbh, $challengeId);
-
-			if(!$isPublic){
-				// TODO: Allow lower case characters and convert them
-				$this->requireParameters(array("key" => "/^[A-Z0-9]{4,8}$/")); //Sessionkey
-				$this->assignOptionalParameter("key", null);
-				if(!ChallengeManager::checkChallengeKey($this->dbh, $challengeId, $this->args["key"])){
-					throw new InvalidArgumentException($this->locale->get("query.challenge.invalid_key"));
-				}
-			}
-		}
-
 		protected function create_challenge(){
 
 			$session = $this->requireLogin();
@@ -342,7 +329,7 @@
 			$this->assignOptionalParameter("offset", 0);
 			return ChallengeManager::getPublicChallengs($this->dbh, $this->args["limit"], $this->args["offset"]);
 		}
-		
+
 		protected function get_my_challenges(){
 			return ChallengeManager::getMyChallenges($this->dbh, $this->requireLogin());
 		}
@@ -350,7 +337,7 @@
 		protected function count_challenges(){
 			return array("count" => ChallengeManager::countPublicChallenges($this->dbh));
 		}
-		
+
 		protected function count_my_challenges(){
 			return array("count" => ChallengeManager::countMyChallenges($this->dbh, $this->requireLogin()));
 		}
@@ -364,8 +351,6 @@
 
 			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
 
-			// Verify that the user is allowed to receive information about this challenge
-			$this->verifyChallengeAccess($challengeId);
 			return ChallengeManager::getTeams($this->dbh, $challengeId);
 		}
 
@@ -385,13 +370,12 @@
 			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
 
 			$this->requireEnabledChallenge($challengeId);
-			$this->verifyChallengeAccess($challengeId);
 
 			TeamManager::joinTeam($this->dbh, $this->args["team_id"], $session->getAccountId(), $this->args["code"]);
 
 			return self::buildResponse(true);
 		}
-		
+
 		protected function leave_team(){
 			$session = $this->requireLogin();
 
@@ -403,8 +387,7 @@
 			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
 
 			$this->requireEnabledChallenge($challengeId);
-			$this->verifyChallengeAccess($challengeId);
-			
+
 			TeamManager::leaveTeam($this->dbh, $this->args["team_id"], $session->getAccountId());
 
 			return self::buildResponse(true);
@@ -424,9 +407,6 @@
 			if(!ChallengeManager::challengeExists($this->dbh, $challengeId)){
 				throw new InvalidArgumentException($this->locale->get("query.challenge.challenge_does_not_exist"));
 			}
-
-			// Verify that the user is allowed to join the challenge
-			$this->verifyChallengeAccess($challengeId);
 
 			$challengeInfo = ChallengeManager::getChallengeInformation($this->dbh, $challengeId);
 			$currentUserIsOwner = ($challengeInfo["owner"] == $session->getAccountId());
@@ -479,9 +459,9 @@
 			}
 			return self::buildResponse(true, $info);
 		}
-		
+
 		protected function get_memberlist(){
-			
+
 			$this->requireParameters(array(
 					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
 			));
@@ -491,9 +471,9 @@
 			if($challengeId == -1){
 				return self::buildResponse(false, array("msg" => "Invalid session key."));
 			}
-			
+
 			$info["memberlist"] = ChallengeManager::getTeamlistById($this->dbh, $this->args["teamid"]);
-			
+
 			return self::buildResponse(true, $info);
 		}
 

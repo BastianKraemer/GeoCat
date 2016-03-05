@@ -182,13 +182,12 @@ function ChallengeInfoController(sessionKey){
 		challengeData = data;
 
 		downloadCoordData();
-		if(data["is_enabled" == 1]){
+		if(data["is_enabled"] == 1){
 			downloadStats();
 		}
 		else{
 			printNoStatsAvailable();
 		}
-
 
 		updateGUIWithChallengeData();
 		updateTeamList();

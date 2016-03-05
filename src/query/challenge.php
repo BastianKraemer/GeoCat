@@ -579,9 +579,9 @@
 				$time = Checkpoint::setReached($this->dbh, $ccid, $teamId);
 				$ret = array("time" => $time);
 
-				$totalTime = ChallengeStats::calculateStats($dbh, $challengeId, $teamId);
+				$totalTime = ChallengeStats::calculateStats($this->dbh, $challengeId, $teamId);
 				if($totalTime > 0){
-					$ret = array("total_time" => $totalTime);
+					$ret["total_time"] = $totalTime;
 				}
 
 				return self::buildResponse(true, $ret);

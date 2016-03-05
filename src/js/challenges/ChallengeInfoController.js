@@ -3,7 +3,7 @@ function ChallengeInfoController(sessionKey) {
 	var challengeSessionKey = sessionKey;
 	var challengeData;
 	var coordData;
-	
+
 	var clickedTeam = 0;
 
 	var enableCoordEdit = false;
@@ -21,7 +21,7 @@ function ChallengeInfoController(sessionKey) {
 		cacheList: "#challengeinfo-cache-list",
 		teamList: "#challengeinfo-team-list",
 		helpSection: "#challengeinfo-help-section",
-		
+
 		memberList: "#join-team-members"
 	};
 
@@ -39,7 +39,7 @@ function ChallengeInfoController(sessionKey) {
 		editDescriptionPopup: "#challengeinfo-editdesc-popup",
 		editEtcPopup: "#challengeinfo-editetc-popup",
 		cachePopup: "#challengeinfo-cache-popup",
-		
+
 		createNewTeam: "#create-team",
 		joinTeam: "#join-team"
 	};
@@ -54,7 +54,7 @@ function ChallengeInfoController(sessionKey) {
 		editPredefTeams: "#challengeinfo-edit-predefteams",
 		editMaxTeams: "#challengeinfo-edit-maxteams",
 		editMaxTeamMembers: "#challengeinfo-edit-maxteam-members",
-		
+
 		teamname: "#team-name",
 		teamcolor: "#team-color",
 		teamaccess: "#team-access-checkbox",
@@ -69,7 +69,7 @@ function ChallengeInfoController(sessionKey) {
 		editEtcConfirm: "#challengeinfo-editetc-ok",
 		editCache: "#challengeinfo-editcache",
 		deleteCache: "#challengeinfo-deletecache",
-		
+
 		teamcreate: "#team-button-create",
 		joinYes: "#join-team-yes",
 		joinNo: "#join-team-no"
@@ -84,7 +84,7 @@ function ChallengeInfoController(sessionKey) {
 		$(confirmButtons.editEtcConfirm).click(editEtcPopupSaveButtonClicked);
 		$(confirmButtons.editCache).click(editCacheOnClick);
 		$(confirmButtons.deleteCache).click(deleteCacheOnClick);
-		
+
 		$(confirmButtons.teamcreate).click(createTeamClicked);
 		$(confirmButtons.joinYes).click(joinTeamYesClicked);
 		$(confirmButtons.joinNo).click(joinTeamNoClicked);
@@ -235,7 +235,7 @@ function ChallengeInfoController(sessionKey) {
 
 	var updateTeamList = function(){
 		$(infoElements.teamList).html("");
-		
+
 		challengeData["team_list"].forEach(function(teamData) {
 			var teamName;
 			if(teamData.team_id == challengeData["your_team"]){
@@ -246,7 +246,7 @@ function ChallengeInfoController(sessionKey) {
 			}
 
 			$(infoElements.teamList).append(
-				"<tr id=\"" + teamData.team_id + "\">" + 
+				"<tr id=\"" + teamData.team_id + "\">" +
 					"<td style=\"background-color: " + teamData.color + "; width: 0px;\"></td>" +
 					"<td>" + teamName + "</td>" +
 					"<td>" + teamData.member_cnt + "/" + challengeData["max_team_members"] + "</td>" +
@@ -266,7 +266,7 @@ function ChallengeInfoController(sessionKey) {
 				if(challengeData["is_enabled"] == 1){
 					// The challenge is already enabled - caches cannot be edited anymore
 					showButton(buttons.start, handleClickOnGoToNavigator);
-					
+
 					if(challengeData['your_team'] != -1){
 						showButton(buttons.leaveChallenge, handleClickOnLeaveTeam);
 					} else {
@@ -360,7 +360,7 @@ function ChallengeInfoController(sessionKey) {
 				getCurrentPos: (ccId == null)}
 		);
 	}
-	
+
 	var showJoinTeamPopup = function(teamid){
 		$(popups.joinTeam).popup('open');
 		var teamData = challengeData['team_list'];
@@ -378,7 +378,7 @@ function ChallengeInfoController(sessionKey) {
 				}
 				$(confirmButtons.joinYes).attr("data-teamid", teamid);
 			}
-		}); 
+		});
 	}
 
 	/*
@@ -386,11 +386,11 @@ function ChallengeInfoController(sessionKey) {
 	 *	Click handler
 	 * ========================================================================
 	 */
-	
+
 	var handleClickOnCreateTeam = function(){
 		$(popups.createNewTeam).popup("open", {positionTo: "window", transition: "pop"});
 	}
-	
+
 	var handleClickOnJoinTeam = function(){
 		clickedTeam = this.id;
 		if(challengeData['your_team'] == -1){
@@ -398,7 +398,7 @@ function ChallengeInfoController(sessionKey) {
 			clickedTeam = 0;
 		}
 	}
-	
+
 	var handleClickOnLeaveTeam = function(){
 		var teamname = "";
 		challengeData['team_list'].forEach(function(team){
@@ -410,7 +410,7 @@ function ChallengeInfoController(sessionKey) {
 				"<h2>" + GeoCat.locale.get("challenge.info.leave.team", "Leave Team") + "</h2>" +
 				"<p>" + GeoCat.locale.get("challenge.info.leave.text", "Do you really want to leave this team?") + "</p>" +
 				"<p><b>" + teamname + "</b></p>",
-				$.mobile.activePage[0], sendLeaveTeam, null, "substance-white")
+				$.mobile.activePage[0], sendLeaveTeam, null, "substance-white");
 	}
 
 	var handleClickOnEditDescription = function(){
@@ -488,7 +488,7 @@ function ChallengeInfoController(sessionKey) {
 	 *	Popup click handler
 	 * ========================================================================
 	 */
-	
+
 	var createTeamClicked = function(){
 		var name = $(inputElements.teamname).val();
 		var color = $(inputElements.teamcolor).val();
@@ -497,13 +497,13 @@ function ChallengeInfoController(sessionKey) {
 			code = $(inputElements.teampassword).val();
 		}
 		var predefined_teams = $(inputElements.teampredefined).is(":checked");
-		
+
 		sendCreateTeam({name: name, color: color, code: code, predefined_teams: predefined_teams});
 	}
-	
+
 	var joinTeamYesClicked = function(){
 		var teamid = $(confirmButtons.joinYes).attr("data-teamid");
-		
+
 		var teamData = challengeData['team_list'];
 		teamData.forEach(function(team){
 			if(team.team_id == teamid){
@@ -511,12 +511,12 @@ function ChallengeInfoController(sessionKey) {
 				if(team.has_code == 1){
 					code = $(inputElements.joinTeamCode).val();
 				}
-				sendJoinTeam({teamid, code});
+				sendJoinTeam({teamid: teamid, code: code});
 				$(popups.joinTeam).popup('close');
 			}
 		});
 	}
-	
+
 	var joinTeamNoClicked = function(){
 		$(popups.joinTeam).popup('close');
 	}
@@ -550,13 +550,13 @@ function ChallengeInfoController(sessionKey) {
 	 *	AJAX functions
 	 * ========================================================================
 	 */
-	
+
 	var sendCreateTeam = function(ajaxData){
 		ajaxData["task"] = "create_team";
 		ajaxData["challenge"] = challengeSessionKey;
-		
+
 		$(popups.createNewTeam).popup('close');
-		
+
 		sendAJAXRequest(
 				ajaxData,
 			function(response){
@@ -565,22 +565,22 @@ function ChallengeInfoController(sessionKey) {
 			"Error: request 'create team' failed",
 			null);
 	};
-	
+
 	var sendGetTeamMemberlist = function(teamid){
 		var ajaxData = {};
 		ajaxData["task"] = "get_memberlist";
 		ajaxData["challenge"] = challengeSessionKey;
-		ajaxData["teamid"] = teamid; 
-		
+		ajaxData["teamid"] = teamid;
+
 		sendAJAXRequest(
 			ajaxData,
 			function(response){
-				var responseData; 
+				var responseData;
 				try{
 					$(infoElements.memberList).html("");
 					response['memberlist'].forEach(function(member){
 						$(infoElements.memberList).append(
-						"<tr>" + 
+						"<tr>" +
 							"<td>" + member.username + "</td>" +
 						"</tr>");
 					});
@@ -595,14 +595,14 @@ function ChallengeInfoController(sessionKey) {
 			"Error: request 'get memberlist' failed",
 			null);
 	}
-	
+
 	var sendJoinTeam = function(data){
 		var ajaxData = {};
 		ajaxData["task"] = "join_team";
 		ajaxData["challenge"] = challengeSessionKey;
 		ajaxData["team_id"] = data.teamid;
 		ajaxData["code"] = data.code;
-		
+
 		sendAJAXRequest(
 				ajaxData,
 			function(response){
@@ -611,13 +611,13 @@ function ChallengeInfoController(sessionKey) {
 			"Error: request 'join team' failed",
 			null);
 	}
-	
+
 	var sendLeaveTeam = function(){
 		var ajaxData = {};
 		ajaxData["task"] = "leave_team";
 		ajaxData["challenge"] = challengeSessionKey;
 		ajaxData["team_id"] = challengeData['your_team'];
-		
+
 		sendAJAXRequest(
 				ajaxData,
 			function(response){

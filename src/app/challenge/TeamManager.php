@@ -151,11 +151,13 @@
 				}
 
 				// Remove team if empty
-				if(self::countTeamMembers($dbh, $teamId) == 0){self::cleanupEmptyTeam($dbh, $teamId, false);}
+				if(self::countTeamMembers($dbh, $teamId) == 0){
+					self::cleanupEmptyTeam($dbh, $teamId, false);
+				}
 			}
 		}
 
-		public static function isFinalized($dbh, $teamId){
+		public static function isPredefinedTeam($dbh, $teamId){
 			$res = DBTools::fetchAll($dbh, "SELECT is_predefined FROM ChallengeTeam WHERE team_id = :team", array("team" => $teamId));
 
 			if($res){
@@ -179,8 +181,12 @@
 			self::cleanupEmptyTeam($dbh, $teamId, true);
 		}
 
-		protected static function cleanupEmptyTeam($dbh, $teamId, $force){
-			if($force || !self::isFinalized($dbh, $teamId)){
+		private static function cleanupEmptyTeam($dbh, $teamId, $force){
+			if($force || !self::isPredefinedTeam($dbh, $teamId)){
+
+				require_once(__DIR__ . "/Checkpoint.php");
+
+				Checkpoint::clearCheckpointsOfTeam($dbh, $teamId);
 				DBTools::query($dbh, "DELETE FROM ChallengeTeam WHERE team_id = :team", array("team" => $teamId));
 			}
 		}

@@ -366,6 +366,7 @@ function ChallengeInfoController(sessionKey) {
 		var teamData = challengeData['team_list'];
 		teamData.forEach(function(team){
 			if(team.team_id == teamid){
+				$(inputElements.joinTeamCode).val("");
 				if(team.has_code == 0){
 					$(inputElements.joinTeamCodeWrap).hide();
 				} else {
@@ -389,7 +390,12 @@ function ChallengeInfoController(sessionKey) {
 
 	var handleClickOnCreateTeam = function(){
 		if(userIsChallengeOwner() || challengeData['predefined_teams'] == 0){
-			$(popups.createNewTeam).popup("open", {positionTo: "window", transition: "pop"});	
+			$(popups.createNewTeam).popup("open", {positionTo: "window", transition: "pop"});
+			$(inputElements.teamname).val("");
+			$(inputElements.teampassword).val("");
+			//not working: (test: set checkbox to 'checked')
+			//$(inputElements.teamaccess).prop('checked', true);
+			//$(inputElements.teampredefined).prop('checked', true);
 		} else {
 			SubstanceTheme.showNotification(
 				"<h3>" + GeoCat.locale.get("challenge.info.create_team_no_permission_title") + "</h3>" +

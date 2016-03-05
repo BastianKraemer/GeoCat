@@ -55,6 +55,10 @@
 									 "WHERE Challenge.owner = " . $session->getAccountId() . ";", null, PDO::FETCH_ASSOC);
 			return $res; 
 		}
+		
+		public static function getParticipatedChallenges($dbh){
+			
+		}
 
 		public static function countPublicChallenges($dbh){
 			$res = DBTools::fetch($dbh,	"SELECT COUNT(Challenge.challenge_id) FROM Challenge WHERE is_public = 1 AND Challenge.is_enabled = 1", null, PDO::FETCH_NUM);

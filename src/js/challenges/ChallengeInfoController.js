@@ -388,7 +388,16 @@ function ChallengeInfoController(sessionKey) {
 	 */
 
 	var handleClickOnCreateTeam = function(){
-		$(popups.createNewTeam).popup("open", {positionTo: "window", transition: "pop"});
+		if(userIsChallengeOwner() || challengeData['predefined_teams'] == 0){
+			$(popups.createNewTeam).popup("open", {positionTo: "window", transition: "pop"});	
+		} else {
+			SubstanceTheme.showNotification(
+				"<h3>" + GeoCat.locale.get("challenge.info.create_team_no_permission_title") + "</h3>" +
+				"<p>" + GeoCat.locale.get("challenge.info.create_team_no_permission_text") + "</p>", 
+				7,
+				$.mobile.activePage[0],
+				"substance-red no-shadow white");
+		}
 	}
 
 	var handleClickOnJoinTeam = function(){

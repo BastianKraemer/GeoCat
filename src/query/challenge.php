@@ -408,16 +408,27 @@
 				throw new InvalidArgumentException($this->locale->get("query.challenge.challenge_does_not_exist"));
 			}
 
+			if($this->hasParameter("predefined_team")){
+				$this->requireChallengeOwner($challengeId, $session);
+			}
+
 			// Check optional parameters
 			$this->verifyOptionalParameters(array(
 					"color" => "/^#[A-Fa-f0-9]{6}$/",
-					"code" => self::defaultTextRegEx(0,16)
+					"code" => self::defaultTextRegEx(0,16),
+					"predefined_team" => "/^(true|false|0|1)$/"
 			));
 
 			$this->assignOptionalParameter("color", "0xFF0000"); //TODO: randomize this value
 			$this->assignOptionalParameter("code", null);
+			$this->assignOptionalParameter("predefined_team", false);
 
-			$id = TeamManager::createTeam($this->dbh, $challengeId, $this->args["name"], $this->args["color"], $this->args["predefined_teams"], $this->args["code"]);
+			$predefTeamVal = false;
+			if(strcasecmp($this->args["predefined_team"], "true") == 0 || strcasecmp($this->args["predefined_team"], "1") == 0){
+				$predefTeamVal = true;
+			}
+
+			$id = TeamManager::createTeam($this->dbh, $challengeId, $this->args["name"], $this->args["color"], $predefTeamVal, $this->args["code"]);
 
 			return self::buildResponse(true, array("team_id" => $id));
 		}

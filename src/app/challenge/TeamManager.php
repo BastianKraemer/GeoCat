@@ -35,7 +35,7 @@
 
 			$res = DBTools::query($dbh, "INSERT INTO ChallengeTeam (team_id, challenge_id, name, color, is_predefined, access_code) " .
 										"VALUES (DEFAULT, :id, :name, :color, :predef, :code)",
-									array("id" => $challengeId, "name" => $teamName, "color" => $teamColor, "predef" => ($isPredefinedTeam == "true" ? 1 : 0), "code" => $access_code));
+									array("id" => $challengeId, "name" => $teamName, "color" => $teamColor, "predef" => ($isPredefinedTeam ? 1 : 0), "code" => $access_code));
 
 			if(!$res){
 				error_log("Unable to insert into table ChallengeTeam. Database returned: " . $res);

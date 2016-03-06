@@ -61,7 +61,9 @@ function ChallengeInfoController(sessionKey) {
 		teampassword: "#team-access-password",
 		teampredefined: "#team-ispredefined",
 		joinTeamCodeWrap: "#join-team-wrap-password",
-		joinTeamCode: "#join-team-field-password"
+		joinTeamCode: "#join-team-field-password",
+		teamCodeContainer: "#team-access-password-wrap",
+		isPredefinedTeamContainer: "#team-ispredefined-container"
 	};
 
 	var confirmButtons = {
@@ -78,7 +80,16 @@ function ChallengeInfoController(sessionKey) {
 	// Public functions
 
 	this.pageOpened = function(){
+
 		downloadChallengeInfo();
+
+		$(inputElements.teamcolor).minicolors({
+			theme: 'bootstrap'
+		});
+
+		$(inputElements.teamaccess).click(function(){
+			$(inputElements.teamCodeContainer).toggle();
+		});
 
 		$(confirmButtons.editDescriptionConfirm).click(editDescriptionPopupSaveButtonClicked);
 		$(confirmButtons.editEtcConfirm).click(editEtcPopupSaveButtonClicked);
@@ -92,6 +103,9 @@ function ChallengeInfoController(sessionKey) {
 
 	this.pageClosed = function(){
 		disableControls();
+
+		$(inputElements.teamaccess).unbind();
+		$(inputElements.teamcolor).unbind();
 
 		$(infoElements.teamList).html("");
 		$(infoElements.cacheList).html("");
@@ -391,15 +405,24 @@ function ChallengeInfoController(sessionKey) {
 	var handleClickOnCreateTeam = function(){
 		if(userIsChallengeOwner() || challengeData['predefined_teams'] == 0){
 			$(popups.createNewTeam).popup("open", {positionTo: "window", transition: "pop"});
+			$(inputElements.teamCodeContainer).hide();
 			$(inputElements.teamname).val("");
 			$(inputElements.teampassword).val("");
-			//not working: (test: set checkbox to 'checked')
-			//$(inputElements.teamaccess).prop('checked', true);
-			//$(inputElements.teampredefined).prop('checked', true);
+
+			$(inputElements.teamaccess).prop('checked', false).checkboxradio('refresh');
+			$(inputElements.teampredefined).prop('checked', false).flipswitch('refresh');
+
+			if(userIsChallengeOwner()){
+				$(inputElements.isPredefinedTeamContainer).show();
+			}
+			else{
+				$(inputElements.isPredefinedTeamContainer).hide();
+			}
+
 		} else {
 			SubstanceTheme.showNotification(
 				"<h3>" + GeoCat.locale.get("challenge.info.create_team_no_permission_title") + "</h3>" +
-				"<p>" + GeoCat.locale.get("challenge.info.create_team_no_permission_text") + "</p>", 
+				"<p>" + GeoCat.locale.get("challenge.info.create_team_no_permission_text") + "</p>",
 				7,
 				$.mobile.activePage[0],
 				"substance-red no-shadow white");
@@ -511,9 +534,14 @@ function ChallengeInfoController(sessionKey) {
 		if($(inputElements.teamaccess).is(":checked")){
 			code = $(inputElements.teampassword).val();
 		}
-		var predefined_teams = $(inputElements.teampredefined).is(":checked");
+		var isPredefinedTeam = $(inputElements.teampredefined).is(":checked");
 
-		sendCreateTeam({name: name, color: color, code: code, predefined_teams: predefined_teams});
+		var ajaxData = {name: name, color: color, code: code};
+		if(isPredefinedTeam){
+			ajaxData["predefined_team"] = isPredefinedTeam;
+		}
+
+		sendCreateTeam(ajaxData);
 	}
 
 	var joinTeamYesClicked = function(){

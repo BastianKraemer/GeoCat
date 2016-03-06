@@ -7,15 +7,6 @@
 ?>
 	<script type="text/javascript">
 		ChallengeInfoController.init("#ChallengeInfo");
-		$(document).on('pageshow', "#ChallengeInfo", function(){
-			$('#team-access-password-wrap').hide();
-			$('#team-color').minicolors({
-				theme: 'bootstrap' 
-			});
-			$('#team-access-checkbox').click(function(){
-				$('#team-access-password-wrap').toggle();
-			});
-		});
 	</script>
 <?php
 		}
@@ -122,13 +113,13 @@
 				<button id="challengeinfo-editdesc-ok" class="ui-btn ui-corner-all ui-shadow"><?php $locale->write("save"); ?></button>
 			</div>
 		</div>
-		
+
 		<!-- popup create team -->
 		<div id="create-team" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all" style="width: 75vw;">
 			<div data-role="header" data-theme="b">
 				<h1><?php $locale->write("challenge.info.create_team"); ?></h1>
 			</div>
-			
+
 			<div data-role="main" class="ui-content">
 				<?php
 				InputTemplates::printTextField("team-name", false, $locale->get("challenge.info.teamname"), false, 30);
@@ -145,18 +136,18 @@
 					<input id="team-access-password" type="text" placeholder="<?php $locale->write('challenge.info.teamaccess'); ?>" maxlength="25" />
 				</div>
 				<?php
-				InputTemplates::printFlipswitch("team-ispredefined", $locale->get("challenge.info.ispredefined"), false, false);
+				InputTemplates::printFlipswitch("team-ispredefined", $locale->get("challenge.info.ispredefined"), false, false, "team-ispredefined-container");
 				?>
 				<input id="team-button-create" type="button" class="ui-btn ui-corner-all ui-shadow" value="<?php $locale->write("challenge.info.team_create"); ?>" />
 			</div>
 		</div>
-		
+
 		<!-- popup join team -->
 		<div id="join-team" data-role="popup" data-theme="a" data-position-to="window" data-transition="pop" class="ui-corner-all" style="width: 75vw;">
 			<div data-role="header" data-theme="b">
 				<h1><?php $locale->write("challenge.info.join_team"); ?></h1>
 			</div>
-			
+
 			<div data-role="main" class="ui-content" style="text-align: center;">
 				<h2><?php $locale->write("challenge.info.q.join_this_team"); ?></h2>
 				<div>
@@ -172,23 +163,19 @@
 						</tbody>
 					</table>
 				</div>
-				<p>
-					<div id="join-team-wrap-password">
-						<?php
-						InputTemplates::printTextField("join-team-field-password", true, $locale->get("challenge.info.enterpassword"), false, 20);
-						?>
+				<div id="join-team-wrap-password">
+					<?php
+					InputTemplates::printTextField("join-team-field-password", true, $locale->get("challenge.info.enterpassword"), false, 20);
+					?>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a">
+						<input id="join-team-no" type="button" class="ui-btn ui-corner-all ui-shadow" value="<?php $locale->write("no"); ?>" />
 					</div>
-				</p>
-				<p>
-					<div class="ui-grid-a">
-						<div class="ui-block-a">
-							<input id="join-team-no" type="button" class="ui-btn ui-corner-all ui-shadow" value="<?php $locale->write("no"); ?>" />	
-						</div>
-						<div class="ui-block-b">
-							<input id="join-team-yes" type="button" class="ui-btn ui-corner-all ui-shadow" value="<?php $locale->write("yes"); ?>" />
-						</div>
+					<div class="ui-block-b">
+						<input id="join-team-yes" type="button" class="ui-btn ui-corner-all ui-shadow" value="<?php $locale->write("yes"); ?>" />
 					</div>
-				</p>
+				</div>
 			</div>
 		</div>
 

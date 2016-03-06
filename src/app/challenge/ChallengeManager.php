@@ -56,8 +56,14 @@
 			return $res; 
 		}
 		
-		public static function getParticipatedChallenges($dbh){
-			
+		public static function getParticipatedChallenges($dbh, $session){
+			$res = DBTools::fetchAll($dbh, "SELECT challenge.owner AS username, challenge.name, challenge.description, challengetype.full_name, challenge.sessionkey, challenge.start_time, challenge.is_enabled " . 
+									"FROM challengemember " . 
+									"JOIN challengeteam ON (challengemember.team_id = challengeteam.team_id) " .
+									"JOIN challenge ON (challengeteam.challenge_id = challenge.challenge_id) " .
+									"JOIN challengetype ON (challenge.challenge_type_id = challengetype.challenge_type_id) " .
+									"WHERE challengemember.account_id = " . $session->getAccountId() . ";", null, PDO::FETCH_ASSOC);
+			return $res;
 		}
 
 		public static function countPublicChallenges($dbh){
@@ -143,6 +149,10 @@
 		public static function getOwner($dbh, $challengeId){
 			$res = DBTools::fetchNum($dbh, "SELECT owner FROM Challenge WHERE challenge_id = :id", array("id" => $challengeId));
 			return $res ? $res[0] : -1;
+		}
+		
+		public static function getOwnerName($dbh, $ownerId){
+			return DBTools::fetchAll($dbh, "SELECT account.username FROM Account where account.account_id = :id", array("id" => $ownerId), PDO::FETCH_ASSOC);
 		}
 		
 		public static function getTeamlistById($dbh, $teamid){

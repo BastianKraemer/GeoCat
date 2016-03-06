@@ -333,6 +333,15 @@
 		protected function get_my_challenges(){
 			return ChallengeManager::getMyChallenges($this->dbh, $this->requireLogin());
 		}
+		
+		protected function get_participated_challenges(){
+			$res = ChallengeManager::getParticipatedChallenges($this->dbh, $this->requireLogin());
+			foreach($res as $key => $value){
+				$value['username'] = ChallengeManager::getOwnerName($this->dbh, $value['username'])[0]['username'];
+				$res[$key] = $value; 
+			}
+			return $res; 
+		}
 
 		protected function count_challenges(){
 			return array("count" => ChallengeManager::countPublicChallenges($this->dbh));

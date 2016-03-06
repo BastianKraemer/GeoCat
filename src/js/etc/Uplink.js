@@ -263,10 +263,10 @@ function Uplink(pathToRootDirectory){
 						ajaxERROR);
 	}
 	
-	this.sendChallenge_GetMyChallenges = function(successCallback){
+	this.sendChallenge_GetMyChallenges = function(targetfunction, successCallback){
 		sendHTTPRequest(urlPrefix + "query/challenge.php",
 						{
-							task: "get_my_challenges"
+							task: targetfunction
 						},
 						false,
 						successCallback,

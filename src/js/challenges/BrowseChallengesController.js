@@ -199,15 +199,32 @@ function BrowseChallengesController(){
 	 * @instance
 	 */
 	function loadMyChallengeListFromServer(){
+		$(htmlElement.enabled).empty();
+		$(htmlElement.notenabled).empty();
+		$(htmlElement.joined).empty();
+		
 		uplink.sendChallenge_GetMyChallenges(
+			"get_my_challenges",
 			function(response){
 				try{
-					updateMyList(JSON.parse(response));
+					updateMyList(JSON.parse(response), false);
 				}
 				catch(e){
 					displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
 											   "Details:\\n{0}", [e.message]));
 				}
+				uplink.sendChallenge_GetMyChallenges(
+					"get_participated_challenges",
+					function(response){
+						try{
+							updateMyList(JSON.parse(response), true);
+						}
+						catch(e){
+							displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
+													   "Details:\\n{0}", [e.message]));
+						}
+					}
+				);
 			});
 	}
 
@@ -269,22 +286,24 @@ function BrowseChallengesController(){
 	/**
 	 * Updates the own challenges list with the data of the ajax request
 	 * @param data {Object}
+	 * @param participated {boolean}
 	 *
 	 * @private
 	 * @memberOf BrowseChallengesController
 	 * @instance
 	 */
-	function updateMyList(data){
-		$(htmlElement.enabled).empty();
-		$(htmlElement.notenabled).empty();
-		$(htmlElement.joined).empty();
-
+	function updateMyList(data, participated = false){
+		
 		if(data.length > 0){
 			for(var i = 0; i < data.length; i++){
 				var c = data[i];
-				var path = (c.is_enabled == "1" ? $(htmlElement.enabled) : $(htmlElement.notenabled)); 
+				var path;
+				if(participated){
+					path = $(htmlElement.joined)
+				} else {
+					path = (c.is_enabled == "1" ? $(htmlElement.enabled) : $(htmlElement.notenabled)); 
+				}
 				path.append(generateChallengeItemCode(c.name, c.username, c.sessionkey, c.description, c.full_name, c.start_time));
-				//TODO: joined
 			}
 
 			$(htmlElement.enabled).listview('refresh');

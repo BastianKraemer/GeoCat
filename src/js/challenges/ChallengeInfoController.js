@@ -4,8 +4,6 @@ function ChallengeInfoController(sessionKey) {
 	var challengeData;
 	var coordData;
 
-	var clickedTeam = 0;
-
 	var enableCoordEdit = false;
 	var me = this;
 
@@ -250,6 +248,8 @@ function ChallengeInfoController(sessionKey) {
 	var updateTeamList = function(){
 		$(infoElements.teamList).html("");
 
+		var addDeleteTeamOption = userIsChallengeOwner();
+
 		challengeData["team_list"].forEach(function(teamData) {
 			var teamName;
 			if(teamData.team_id == challengeData["your_team"]){
@@ -260,14 +260,19 @@ function ChallengeInfoController(sessionKey) {
 			}
 
 			$(infoElements.teamList).append(
-				"<tr id=\"" + teamData.team_id + "\">" +
+				"<tr data-team-id=\"" + teamData.team_id + "\">" +
 					"<td style=\"background-color: " + teamData.color + "; width: 0px;\"></td>" +
 					"<td>" + teamName + "</td>" +
 					"<td>" + teamData.member_cnt + "/" + challengeData["max_team_members"] + "</td>" +
+					(addDeleteTeamOption ? "<td class=\"delete-team-col\"><span>&#x2716;</span></td>" : "") +
 				"</tr>");
-			$("#" + teamData.team_id).addClass('teamlist');
 		});
-		$(".teamlist").click(handleClickOnJoinTeam);
+
+		$(infoElements.teamList + " tr td:not(:last-child)").click(handleClickOnJoinTeam);
+		$(infoElements.teamList + " tr td:last-child").click(handleClickOnDeleteTeam);
+
+		var cursor = (challengeData['your_team'] == -1 || userIsChallengeOwner()) ? "pointer" : "default";
+		$(infoElements.teamList + " tr td").css("cursor", cursor);
 	};
 
 	var enableControls = function(){
@@ -430,10 +435,9 @@ function ChallengeInfoController(sessionKey) {
 	}
 
 	var handleClickOnJoinTeam = function(){
-		clickedTeam = this.id;
 		if(challengeData['your_team'] == -1){
+			var clickedTeam = $(this).parent().attr("data-team-id");
 			showJoinTeamPopup(clickedTeam);
-			clickedTeam = 0;
 		}
 	}
 
@@ -449,6 +453,10 @@ function ChallengeInfoController(sessionKey) {
 				"<p>" + GeoCat.locale.get("challenge.info.leave.text", "Do you really want to leave this team?") + "</p>" +
 				"<p><b>" + teamname + "</b></p>",
 				$.mobile.activePage[0], sendLeaveTeam, null, "substance-white");
+	}
+
+	var handleClickOnDeleteTeam = function(){
+		sendDeleteTeam($(this).parent().attr("data-team-id"));
 	}
 
 	var handleClickOnEditDescription = function(){
@@ -606,6 +614,20 @@ function ChallengeInfoController(sessionKey) {
 				downloadChallengeInfo();
 			},
 			"Error: request 'create team' failed",
+			null);
+	};
+
+	var sendDeleteTeam = function(teamId){
+		sendAJAXRequest(
+			{
+				task: "delete_team",
+				challenge: challengeSessionKey,
+				team_id: teamId
+			},
+			function(response){
+				downloadChallengeInfo();
+			},
+			"Error: Unable to delete team",
 			null);
 	};
 

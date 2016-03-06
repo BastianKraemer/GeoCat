@@ -437,6 +437,24 @@
 			return self::buildResponse(true, array("team_id" => $id));
 		}
 
+		protected function delete_team(){
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
+					"team_id" => "/\d/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+
+			$this->requireEnabledChallenge($challengeId);
+			$this->requireChallengeOwner($challengeId, $session);
+
+			TeamManager::deleteTeam($this->dbh, $this->args["team_id"]);
+
+			return self::buildResponse(true);
+		}
+
 		// ================ Challenge Info ==========================
 
 		protected function about(){

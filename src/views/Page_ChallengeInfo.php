@@ -54,7 +54,7 @@
 							<tr>
 								<th></th>
 								<th><?php $locale->write("challenge.info.team"); ?></th>
-								<th><?php $locale->write("challenge.info.members"); ?></th>
+								<th colspan=2><?php $locale->write("challenge.info.members"); ?></th>
 							</tr>
 						</thead>
 						<tbody id="challengeinfo-team-list">

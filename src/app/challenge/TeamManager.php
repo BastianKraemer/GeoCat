@@ -50,6 +50,14 @@
 			return $res[0][0] == 1;
 		}
 
+		public static function teamWithNameExists($dbh, $challengeId, $teamName){
+			$res = DBTools::fetchNum($dbh,	"SELECT COUNT(challenge_id) " .
+											"FROM ChallengeTeam " .
+											"WHERE challenge_id = :cid AND name = :name",
+											array("cid" => $challengeId, "name" => $teamName));
+			return $res[0] >= 1;
+		}
+
 		public static function getTeamInfo($dbh, $teamId){
 			return DBTools::fetchAssoc($dbh, "SELECT ChallengeTeam.name, ChallengeTeam.color, ChallengeTeam.starttime " .
 											 "FROM ChallengeTeam WHERE ChallengeTeam.team_id = :teamId",

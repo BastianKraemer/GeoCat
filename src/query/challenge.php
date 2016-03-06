@@ -408,6 +408,10 @@
 				throw new InvalidArgumentException($this->locale->get("query.challenge.challenge_does_not_exist"));
 			}
 
+			if(TeamManager::teamWithNameExists($this->dbh, $challengeId, $this->args["name"])){
+				throw new InvalidArgumentException($this->locale->get("query.challenge.teamname_in_use"));
+			}
+
 			if($this->hasParameter("predefined_team")){
 				$this->requireChallengeOwner($challengeId, $session);
 			}

@@ -321,10 +321,6 @@ function BrowseChallengesController(){
 			});
 			
 		}
-		else{
-			list.append("<li><span>" + locale.get("challenge.browse.empty", "There is no public challenge at the moment.") + "</span></li>");
-			list.listview('refresh');
-		}
 	}
 	
 	function displayError(message){

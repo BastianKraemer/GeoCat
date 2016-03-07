@@ -119,6 +119,11 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 			inputElements["code"] = {id: "#EditCoordinate-code", isCheckbox: false};
 		}
 
+		if(optionIsActive("showAddToOwnPlaces")){
+			$("#EditCoordinate-add-to-own-places-container").show();
+			inputElements["add2ownplaces"] = {id: "#EditCoordinate-add-to-own-places", isCheckbox: true};
+		}
+
 		if(optionIsActive("hideIsPublicField")){
 			$(containter.isPublicContainer).hide();
 			delete inputElements.desc;
@@ -168,8 +173,10 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 			}
 		}
 
-		$("#EditCoordinate-starting-point").prop('checked', false).checkboxradio('refresh');
-		$(inputElements["priority"].id).textinput('enable');
+		if(inputElements.hasOwnProperty("priority")){
+			$("#EditCoordinate-starting-point").prop('checked', false).checkboxradio('refresh');
+			$(inputElements["priority"].id).textinput('enable');
+		}
 	}
 }
 

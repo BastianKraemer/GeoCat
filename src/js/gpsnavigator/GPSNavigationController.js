@@ -24,29 +24,20 @@
 function GPSNavigationController(){
 
 	// Private variables
-
 	var localCoordStore = GeoCat.getLocalCoordStore();
 	var uplink = GeoCat.getUplink();
 	var gpsRadar = null;
 	var updateTimer = null; // Interval to update the gps Radar
+	var me = this;
 
 	// Collection (Map) of all important HTML elements (defeined by their id)
-	var htmlElement = new Object();
-	htmlElement["coordinate_list"] = "#CurrentDestinationList";
-	htmlElement["coordinate_panel"] = "#CurrentDesitionListPanel";
-	htmlElement["popup"] = "#GPSNavDestListPopup";
-	htmlElement["popup_button_save"] = "#GPSNavDestListPopup_Save";
-	htmlElement["popup_button_close"] = "#GPSNavDestListPopup_Close";
-	htmlElement["popup_checkbox_ownplaces"]  = "#GPSNavDestListPopup_Add2OwnPlaces";
-	htmlElement["button_add_coordinate"] = "#GPSNavigator_AddCoordinate";
-	htmlElement["field_name"] = "#GPSNavDestListPopup_Name";
-	htmlElement["field_lat"] = "#GPSNavDestListPopup_Lat";
-	htmlElement["field_lon"] = "#GPSNavDestListPopup_Lon";
-	htmlElement["field_desc"] = "#GPSNavDestListPopup_Desc";
-	htmlElement["preferences_panel"] = "#GPSNavigatorPreferencesPanel";
-	htmlElement["flipswitch_pref_rotate"] = "#GPSNavDisableRotation";
-	htmlElement["flipswitch_pref_debuginfo"] = "#GPSNavShowDebugInfo";
-	htmlElement["flipswitch_offline_mode"] = "#GPSNavOfflineMode";
+	var htmlElements = {
+			contentDiv: "#gpsnav-content",
+			canvas: "#gpsnav-canvas",
+			coordinateList: "#gpsnav-destination-list",
+			coordinatePanel: "#gpsnav-destination-list-panel",
+			addCoordButton: "#gpsnavigagtor-add-place"
+	}
 
 	/*
 	 * ============================================================================================
@@ -62,53 +53,27 @@ function GPSNavigationController(){
 	 * @memberOf GPSNavigationController
 	 * @instance
 	 */
-	this.onPageOpened = function(){
+	this.pageOpened = function(){
 
 		// Download the latest navigation list from the server
 		downloadNavListFromServer();
 
-		// Append some event handler
-
-		$(htmlElement["coordinate_panel"]).on("panelbeforeopen", function(){
+		$(htmlElements.coordinatePanel).on("panelbeforeopen", function(){
 			updateCurrentDestinationList();
 		});
 
-		// Button "Add coordinate"
-		$(htmlElement["button_add_coordinate"]).click(function(e){
+		$(htmlElements.addCoordButton).click(function(e){
 			var lastGPSPos = GPS.get();
 			if(lastGPSPos != null){
 				showCoordinateEditDialog(null, "", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude, true);
 			}
 			else{
-				GuiToolkit.showPopup("Notification", "Unable to get current GPS position.", "OK", function(){resetActiveButtonState(htmlElement["button_add_coordinate"]);});
+				SubstanceTheme.showNotification("<p>" + GeoCat.local.get("gpsnav.no_gps_fix", "Unable to get current GPS position") + ".</p>", 7,
+						$.mobile.activePage[0], "substance-skyblue no-shadow white");
 			}
 		});
 
-		// When button "Save" is clicked
-		$(htmlElement["popup_button_save"]).click(editDialog_SaveButton_OnClick);
-
-		// When button "Close dialog" is closed
-		$(htmlElement["popup_button_close"]).click(function(){
-			$(htmlElement["popup"]).popup("close");
-		});
-
-		// When the edit dialog has been closed
-		$(htmlElement["popup"]).on("popupafterclose", function(event, ui){
-			resetActiveButtonState(htmlElement["button_add_coordinate"]);
-		});
-
-		// When the preferences panel is opened
-		/*$(htmlElement["preferences_panel"]).on("panelafteropen", function(){
-			$(htmlElement["flipswitch_pref_rotate"]).val(getPreference("rotate")).slider("refresh");
-			$(htmlElement["flipswitch_pref_debuginfo"]).val(getPreference("debug_info")).slider("refresh");
-			$(htmlElement["flipswitch_offline_mode"]).val(getPreference("offline_mode")).slider("refresh");
-		});*/
-
-		/*bindPreferenceChangeEvent(htmlElement["flipswitch_pref_rotate"], "rotate");
-		bindPreferenceChangeEvent(htmlElement["flipswitch_pref_debuginfo"], "debug_info");
-		bindPreferenceChangeEvent(htmlElement["flipswitch_offline_mode"], "offline_mode");*/
-
-		gpsRadar = new GPSRadar($("#gpsnavigator_content")[0], $("#NavigatorCanvas")[0]);
+		gpsRadar = new GPSRadar($(htmlElements.contentDiv)[0], $(htmlElements.canvas)[0]);
 		gpsRadar.start();
 		startTimer();
 	}
@@ -121,20 +86,14 @@ function GPSNavigationController(){
 	 * @memberOf GPSNavigationController
 	 * @instance
 	 */
-	this.onPageClosed = function(){
+	this.pageClosed = function(){
 
 		stopTimer();
 		gpsRadar.stop();
 
 		// Remove all event handler
-		$(htmlElement["coordinate_panel"]).off();
-		$(htmlElement["popup"]).off();
-		$(htmlElement["popup_button_save"]).unbind();
-		$(htmlElement["popup_button_close"]).unbind();
-		/*$(htmlElement["flipswitch_pref_rotate"]).unbind();
-		$(htmlElement["flipswitch_pref_debuginfo"]).unbind();
-		$(htmlElement["flipswitch_offline_mode"]).unbind();*/
-		$(htmlElement["button_add_coordinate"]).unbind();
+		$(htmlElements.coordinatePanel).off();
+		$(htmlElements.addCoordButton).unbind();
 	}
 
 	function startTimer(){
@@ -211,37 +170,9 @@ function GPSNavigationController(){
 	}
 
 	function uplinkOnError(response){
-		alert(GuiToolkit.sprintf("Unable to perform this operation. (Status {0})\n" +
-				"Server returned: {1}", [response["status"], response["msg"]]));
-	}
-
-	/*
-	/**
-	 * Reads a preference from the {@link GPSNavigator}
-	 * @param key {String} Identifier for this preference
-	 * @returns {String} Value "On" or "Off"
-	 *
-	 * @private
-	 * @function
-	 * @memberOf GPSNavigationController
-	 * @instance
-	 */
-	/*function getPreference(key){
-		var val = pages["gpsnavigator"].getPreference(key);
-		if(val != undefined){
-			return val == true ? "on" : "off";
-		}
-		return false;
-	}*/
-
-	/*function bindPreferenceChangeEvent(id, preferenceKey){
-		$(id).bind( "change", function(event, ui) {
-			pages["gpsnavigator"].setPreference(preferenceKey, $(id).is(":checked"));
-		});
-	}*/
-
-	function resetActiveButtonState(buttonId){
-		$(buttonId).removeClass($.mobile.activeBtnClass);
+		SubstanceTheme.showNotification(GuiToolkit.sprintf(	"Unable to perform this operation. (Status {0})<br>" +
+															"Server returned: {1}", [response["status"], response["msg"]]), 10,
+															$.mobile.activePage[0], "substance-red no-shadow white");
 	}
 
 	/**
@@ -260,22 +191,28 @@ function GPSNavigationController(){
 	 */
 	function showCoordinateEditDialog(id, name, description, latitude, longitude, showAdd2OwnPlaces){
 
-		// Fill the input fields with the values
-		$(htmlElement["field_name"]).val(name);
-		$(htmlElement["field_desc"]).val(description);
-		$(htmlElement["field_lat"]).val(latitude);
-		$(htmlElement["field_lon"]).val(longitude);
+		me.enableEvents(false);
 
-		if(id == null){
-			$(htmlElement["popup"]).removeAttr("dest-id");
-		}
-		else{
-			$(htmlElement["popup"]).attr("dest-id", id);
-		}
-
-		$(htmlElement["popup_checkbox_ownplaces"]).parent().css("display", showAdd2OwnPlaces ? "block" : "none" );
-
-		$(htmlElement["popup"]).popup("open", {positionTo: "window", transition: "pop"});
+		CoordinateEditDialogController.showDialog(
+			$.mobile.activePage.attr("id"),
+			function(){me.enableEvents(true);},
+			function(data, editDialog){
+				sendCoordUpdate(id, data.name, data.lat, data.lon, data.add2ownplaces)
+			},
+			{
+				name: name,
+				dest: description,
+				lat: latitude,
+				lon: longitude,
+				isPublic: false
+			},
+			{
+				hideIsPublicField: true,
+				showAddToOwnPlaces: showAdd2OwnPlaces,
+				hideDescriptionField: true,
+				getCurrentPos: false
+			}
+		);
 	}
 
 	/**
@@ -287,7 +224,7 @@ function GPSNavigationController(){
 	 * @instance
 	 */
 	function updateCurrentDestinationList(){
-		var destList = $(htmlElement["coordinate_list"]);
+		var destList = $(htmlElements.coordinateList);
 		destList.empty()
 
 		var list = localCoordStore.getCurrentNavigation();
@@ -298,8 +235,8 @@ function GPSNavigationController(){
 							"</li>");
 		}
 
-		$(htmlElement["coordinate_list"] + " li a:first-child").click(function(){coordinateListItem_OnClick(this);});
-		$(htmlElement["coordinate_list"] + " li a.ui-icon-delete").click(function(){deleteListItem_OnClick(this);});
+		$(htmlElements.coordinateList + " li a:first-child").click(function(){coordinateListItem_OnClick(this);});
+		$(htmlElements.coordinateList + " li a.ui-icon-delete").click(function(){deleteListItem_OnClick(this);});
 
 		destList.listview('refresh');
 	}
@@ -331,61 +268,35 @@ function GPSNavigationController(){
 		}
 	}
 
-	function editDialog_SaveButton_OnClick(){
+	/*
+	 * ============================================================================================
+	 * "Uplink" handler
+	 * ============================================================================================
+	 */
 
-		// The id of the coordinate is stored as attribute in the HTML element
-		var id = $(htmlElement["popup"]).attr("dest-id");
-
-		var name = $(htmlElement["field_name"]).val();
-		var desc = $(htmlElement["field_desc"]).val();
-
-		// Verify the values of "name" and "description"
-		var msg = "%s enthält ungültige Zeichen. Bitte verwenden Sie nur 'A-Z', '0-9' sowie einige Sonderzeichen ('!,;.#_-*')."
-		if(!localCoordStore.verifyString(name)){
-			alert(msg.replace("%s", "Der Name"));
-			return;
-		}
-
-		if(desc != ""){
-			if(!localCoordStore.verifyDescriptionString(desc)){
-				alert(msg.replace("%s", "Die Beschreibung"));
-				return;
-			}
-		}
-
-		var lat = parseFloat($(htmlElement["field_lat"]).val());
-		var lon = parseFloat($(htmlElement["field_lon"]).val());
-
-		// Verify the values of "latitude" and "longitude"
-		if(name == "" || isNaN(lat) || isNaN(lon)){
-			alert("Please enter a valid name and values for latitude and longitude.");
-		}
-		else if(GeoCat.loginStatus.isSignedIn){
-			// Everything ok
-
+	function sendCoordUpdate(id, name, lat, lon, add2OwnPlaces){
+		if(GeoCat.loginStatus.isSignedIn){
 			if(id == undefined){
 				// It is a new place
-				var add2OwnPlaces = $(htmlElement["popup_checkbox_ownplaces"]).is(":checked");
 
 				if(add2OwnPlaces){
 					// This place will be added to your own places
-					uplink.sendNewCoordinate(name, desc, lat, lon, 0,
+					uplink.sendNewCoordinate(name, "", lat, lon, 0,
 							function(result){
-								var coord = new Coordinate(result["coord_id"], name, lat, lon, desc, false)
+								var coord = new Coordinate(result["coord_id"], name, lat, lon, "", false)
 								addCoordToNavList(coord, true);
 							},
 							uplinkOnError);
 				}
 				else{
 					// This place has to be added to the navigation list only
-					addCoordToNavList(new Coordinate.create(name, lat, lon, desc), false);
+					addCoordToNavList(new Coordinate.create(name, lat, lon, ""), false);
 				}
 			}
 			else{
 				if(id > 0){
 					var coord = localCoordStore.get(id);
 					coord.name = name;
-					coord.desc = desc;
 					coord.lat = lat;
 					coord.lon = lon;
 
@@ -394,7 +305,7 @@ function GPSNavigationController(){
 								localCoordStore.storePlace(coord);
 
 								// Update label text
-								$(htmlElement["coordinate_list"] + " li[dest-id=" + id + "] a[href='#']").text($(htmlElement["field_name"]).val());
+								$(htmlElements.coordinateList + " li[dest-id=" + id + "] a[href='#']").text(name);
 							},
 							uplinkOnError);
 				}
@@ -403,9 +314,6 @@ function GPSNavigationController(){
 					localCoordStore.storePlace(coord);
 				}
 			}
-
-			// Close popup
-			$(htmlElement["popup"]).popup("close");
 		}
 		else{
 			// The user is not signed in - just add the coordinate to the navigation
@@ -414,16 +322,8 @@ function GPSNavigationController(){
 	}
 }
 
-GPSNavigationController.currentInstance = null;
-
-GPSNavigationController.init = function(){
-	$(document).on("pageshow", "#GPSNavigator", function(){
-		GPSNavigationController.currentInstance = new GPSNavigationController();
-		GPSNavigationController.currentInstance.onPageOpened();
-	});
-
-	$(document).on("pagebeforehide", "#GPSNavigator", function(){
-		GPSNavigationController.currentInstance.onPageClosed();
-		GPSNavigationController.currentInstance = null
+GPSNavigationController.init = function(myPageId){
+	GPSNavigationController.prototype = new PagePrototype(myPageId, function(){
+		return new GPSNavigationController();
 	});
 };

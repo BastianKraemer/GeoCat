@@ -35,18 +35,18 @@
 						<tr>
 							<td>
 								<label for="EditCoordinate-lat"><?php $locale->write("latitude"); ?>:</label>
-								<input id="EditCoordinate-lat" name="EditPlacePopup_Lat" placeholder="50.0000">
+								<input id="EditCoordinate-lat" placeholder="50.0000">
 							</td>
 							<td>
 								<label for="EditCoordinate-lon"><?php $locale->write("longitude"); ?>:</label>
-								<input id="EditCoordinate-lon" name="EditPlacePopup_Lon" placeholder="8.0000">
+								<input id="EditCoordinate-lon" placeholder="8.0000">
 							</td>
 						</tr>
 					</table>
 
 					<div id="EditCoordinate-ispublic-container">
 					    <label>
-					        <input id="EditCoordinate-ispublic" name="EditPlacePopup_Public" type="checkbox"><?php $locale->write("places.popup_edit.ispublic"); ?>
+					        <input id="EditCoordinate-ispublic"  type="checkbox"><?php $locale->write("places.popup_edit.ispublic"); ?>
 					    </label>
 					</div>
 
@@ -67,12 +67,11 @@
 								</td>
 								<td>
 									<label class="regular">
-								        <input id="EditCoordinate-starting-point" name="EditPlacePopup_Public" type="checkbox" data-mini="true"><?php $locale->write("dialog.editcoord.starting_point"); ?>
+								        <input id="EditCoordinate-starting-point" type="checkbox" data-mini="true"><?php $locale->write("dialog.editcoord.starting_point"); ?>
 								    </label>
 								</td>
 							</tr>
 						</table>
-
 					</div>
 
 					<div id="EditCoordinate-code-container" style="display: none">
@@ -80,7 +79,13 @@
 						<input id="EditCoordinate-code" data-theme="a" type="text">
 					</div>
 
-					 <div class="center">
+					<div id="EditCoordinate-add-to-own-places-container" style="display: none">
+						<label class="regular">
+					        <input id="EditCoordinate-add-to-own-places" type="checkbox" data-mini="true"><?php $locale->write("dialog.editcoord.add2ownplaces"); ?>
+					    </label>
+					</div>
+
+					<div class="center">
 						<span id="EditCoordinate-cancel" class="substance-button substance-small-button substance-red img-delete"></span>
 						<span id="EditCoordinate-confirm" class="substance-button substance-small-button substance-green img-check"></span>
 					</div>

@@ -43,6 +43,7 @@
 	<link rel="stylesheet" href="./css/animations.css">
 	<link rel="stylesheet" href="./css/substance.css">
 	<link rel="stylesheet" href="./css/jquery.minicolors.css" />
+	<link rel="stylesheet" href="./css/geocat-images.css" />
 
 	<!-- <## ./lib/jquery_package.min.js ##> -->
 	<script src="./lib/jquery.min.js"></script>

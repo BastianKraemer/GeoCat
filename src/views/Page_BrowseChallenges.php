@@ -16,9 +16,9 @@
 	<div data-role="page" id="ChallengeBrowser" data-theme="a">
 <?php self::printHeader($locale->get("challenge.browse.title"), true, false, $config, $session); ?>
 		<div role="main" class="ui-content">
-			
+
 			<a id="my-challenges" href="#popup-my-challenges" data-rel="popup" data-position-to="window" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a ui-state-disabled" data-transition="pop" style="float: right;"><?php $locale->write("challenge.browse.my_challenges"); ?></a>
-			
+
 			<div class="ui-field-contain listview-header">
 				<p id="ChallengePageInformation" class="page-number-info"></p>
 				<button id="Browse_Prev" class="ui-btn ui-btn-inline ui-icon-arrow-l ui-btn-icon-left ui-btn-icon-notext" title="<?php $locale->write("prev_page") ?>"><?php $locale->write("prev_page") ?></button >
@@ -32,10 +32,10 @@
 			<p class="substance-footer-offset"></p>
 
 			<div class="substance-footer">
-				<a href="#create-challenge-popup" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-lime"
-				   title="<?php $locale->write("challenge.browse.create_challenge"); ?>" style="background-image: url('./img/plus.png');"></a>
-				<a href="#JoinChallengePopup" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-blue"
-				   title="<?php $locale->write("challenge.browse.join_challenge"); ?>" style="background-image: url('./img/key.png');"></a>
+				<a href="#create-challenge-popup" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-lime img-plus"
+				   title="<?php $locale->write("challenge.browse.create_challenge"); ?>"></a>
+				<a href="#JoinChallengePopup" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-blue img-key"
+				   title="<?php $locale->write("challenge.browse.join_challenge"); ?>"></a>
 			</div>
 		</div>
 
@@ -65,13 +65,13 @@
 				<button id="ChallengeKeyInput-OK" class="ui-btn ui-corner-all ui-shadow"><?php $locale->write("challenge.browse.joinpopup.ok"); ?></button>
 			</div>
 		</div>
-		
+
 		<!-- POPUP MY CHALLENGES -->
 		<div id="popup-my-challenges" data-role="popup" data-theme="a" class="ui-corner-all" style="width: 85vw;">
 			<div data-role="header" data-theme="b">
 				<h1><?php $locale->write("challenge.browse.my_challenges"); ?></h1>
 			</div>
-			
+
 			<div role="main" class="ui-content">
 				<div data-role="tabs">
 					<div id="my-challenges-nav" data-role="navbar">
@@ -96,10 +96,10 @@
 							<li><span><?php $locale->write("challenge.browse.loading"); ?></span></li>
 						</ul>
 					</div>
-				</div>	
+				</div>
 			</div>
 		</div>
-		
+
 	</div>
 <?php
 		}

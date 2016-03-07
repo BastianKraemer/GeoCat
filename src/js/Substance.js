@@ -28,16 +28,14 @@ SubstanceTheme.showYesNoDialog = function(htmlContent, container, yesCallback, n
 	btnContainer.setAttribute("class", "center");
 
 	var yesBtn = document.createElement("span");
-	yesBtn.setAttribute("class", "substance-button substance-small-button substance-lime substance-animated");
-	yesBtn.style.backgroundImage= "url('./img/check.png')";
+	yesBtn.setAttribute("class", "substance-button substance-small-button substance-lime substance-animated img-check");
 	yesBtn.onclick = function(){
 		if(autoHide){handler.hide();}
 		if(yesCallback != null){yesCallback();}
 	}
 
 	var noBtn = document.createElement("span");
-	noBtn.setAttribute("class", "substance-button substance-small-button substance-red substance-animated");
-	noBtn.style.backgroundImage= "url('./img/delete.png')";
+	noBtn.setAttribute("class", "substance-button substance-small-button substance-red substance-animated img-delete");
 	noBtn.onclick = function(){
 		handler.hide();
 		if(noCallback != null){noCallback();};

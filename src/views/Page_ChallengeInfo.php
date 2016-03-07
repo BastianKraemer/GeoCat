@@ -84,20 +84,20 @@
 			<p class="substance-footer-offset"></p>
 
 			<div class="substance-footer" id="challengeinfo-footer">
-				<span id="challengeinfo-add-cache" class="substance-button substance-button-grow substance-animated substance-lime"
-					  title="<?php $locale->write("challenge.info.add_cache"); ?>" style="display: none; background-image: url('./img/plus.png');"></span>
-				<span id="challengeinfo-create-team" class="substance-button substance-button-grow substance-animated substance-green"
-					  title="<?php $locale->write("challenge.info.create_team"); ?>" style="display: none; background-image: url('./img/plus.png');"></span>
-				<span id="challengeinfo-start" class="substance-button substance-button-grow substance-animated substance-blue"
-					  title="<?php $locale->write("challenge.info.start_challenge"); ?>" style="display: none; background-image: url('./img/pin.png');"></span>
-				<span id="challengeinfo-leave" class="substance-button substance-button-grow substance-animated substance-orange"
-					  title="<?php $locale->write("challenge.info.leave"); ?>" style="display: none; background-image: url('./img/leave.png');"></span>
-				<span id="challengeinfo-reset" class="substance-button substance-button-grow substance-animated substance-purple"
-					  title="<?php $locale->write("challenge.info.reset"); ?>" style="display: none; background-image: url('./img/reset.png');"></span>
-				<span id="challengeinfo-enable" class="substance-button substance-button-grow substance-animated substance-blue"
-					  title="<?php $locale->write("challenge.info.enable"); ?>" style="display: none; background-image: url('./img/flag.png');"></span>
-				<span id="challengeinfo-delete" class="substance-button substance-button-grow substance-animated substance-red"
-					  title="<?php $locale->write("challenge.info.delete"); ?>" style="display: none; background-image: url('./img/delete.png');"></span>
+				<span id="challengeinfo-add-cache" class="substance-button substance-button-grow substance-animated substance-lime img-plus"
+					  title="<?php $locale->write("challenge.info.add_cache"); ?>" style="display: none;"></span>
+				<span id="challengeinfo-create-team" class="substance-button substance-button-grow substance-animated substance-green img-plus"
+					  title="<?php $locale->write("challenge.info.create_team"); ?>" style="display: none;"></span>
+				<span id="challengeinfo-start" class="substance-button substance-button-grow substance-animated substance-blue img-pin"
+					  title="<?php $locale->write("challenge.info.start_challenge"); ?>" style="display: none;"></span>
+				<span id="challengeinfo-leave" class="substance-button substance-button-grow substance-animated substance-orange img-leave"
+					  title="<?php $locale->write("challenge.info.leave"); ?>" style="display: none;"></span>
+				<span id="challengeinfo-reset" class="substance-button substance-button-grow substance-animated substance-purple img-reset"
+					  title="<?php $locale->write("challenge.info.reset"); ?>" style="display: none;"></span>
+				<span id="challengeinfo-enable" class="substance-button substance-button-grow substance-animated substance-blue img-flag"
+					  title="<?php $locale->write("challenge.info.enable"); ?>" style="display: none;"></span>
+				<span id="challengeinfo-delete" class="substance-button substance-button-grow substance-animated substance-red img-delete"
+					  title="<?php $locale->write("challenge.info.delete"); ?>" style="display: none;"></span>
 			</div>
 
 		</div>

@@ -18,9 +18,11 @@
 				}
 			}
 
-			$hint = htmlspecialchars($hint, ENT_QUOTES);
-			if(strlen($hint) > 256){
-				throw new InvalidArgumentException("The maximum length for the hint field is limited to 256 characters.");
+			if($hint != null){
+				$hint = htmlspecialchars($hint, ENT_QUOTES);
+				if(strlen($hint) > 256){
+					throw new InvalidArgumentException("The maximum length for the hint field is limited to 256 characters.");
+				}
 			}
 
 			if(!CoordinateManager::coordinateExists($dbh, $coordId)){

@@ -46,19 +46,19 @@
 
 			return $res;
 		}
-		
+
 		public static function getMyChallenges($dbh, $session){
 			$res = DBTools::fetchAll($dbh, "SELECT Account.username, Challenge.name, Challenge.description, ChallengeType.full_name, Challenge.sessionkey, Challenge.start_time, Challenge.is_enabled " .
 									 "FROM Challenge " .
 									 "JOIN Account ON (Challenge.owner = Account.account_id) " .
 									 "JOIN ChallengeType ON (Challenge.challenge_type_id = ChallengeType.challenge_type_id) " .
 									 "WHERE Challenge.owner = " . $session->getAccountId() . ";", null, PDO::FETCH_ASSOC);
-			return $res; 
+			return $res;
 		}
-		
+
 		public static function getParticipatedChallenges($dbh, $session){
-			$res = DBTools::fetchAll($dbh, "SELECT challenge.owner AS username, challenge.name, challenge.description, challengetype.full_name, challenge.sessionkey, challenge.start_time, challenge.is_enabled " . 
-									"FROM challengemember " . 
+			$res = DBTools::fetchAll($dbh, "SELECT challenge.owner AS username, challenge.name, challenge.description, challengetype.full_name, challenge.sessionkey, challenge.start_time, challenge.is_enabled " .
+									"FROM challengemember " .
 									"JOIN challengeteam ON (challengemember.team_id = challengeteam.team_id) " .
 									"JOIN challenge ON (challengeteam.challenge_id = challenge.challenge_id) " .
 									"JOIN challengetype ON (challenge.challenge_type_id = challengetype.challenge_type_id) " .
@@ -70,7 +70,7 @@
 			$res = DBTools::fetch($dbh,	"SELECT COUNT(Challenge.challenge_id) FROM Challenge WHERE is_public = 1 AND Challenge.is_enabled = 1", null, PDO::FETCH_NUM);
 			return $res[0];
 		}
-		
+
 		public static function countMyChallenges($dbh, $session){
 			$res = DBTools::fetch($dbh, "SELECT COUNT(Challenge.challenge_id) " .
 								  "FROM Challenge " .
@@ -121,9 +121,10 @@
 
 			$res = DBTools::fetchAll($dbh,	"SELECT ChallengeCoord.challenge_coord_id, ChallengeCoord.hint, ChallengeCoord.priority, ChallengeCoord.captured_by, ChallengeCoord.capture_time," .
 												"Coordinate.coord_id, Coordinate.name, Coordinate.description, Coordinate.latitude, Coordinate.longitude, " .
-												"ChallengeCoord.code AS code_required" . ($includeCacheCodes ? ", ChallengeCoord.code " : " ") .
+												"(CASE WHEN ChallengeCoord.code IS NULL THEN 0 ELSE 1 END) AS code_required" .
+												($includeCacheCodes ? ", ChallengeCoord.code " : " ") .
 											"FROM ChallengeCoord, Coordinate " .
-											"WHERE ChallengeCoord.challenge_id = :challengeId AND ChallengeCoord.coord_id = Coordinate.coord_id AND ChallengeCoord.code IS NOT NULL " .
+											"WHERE ChallengeCoord.challenge_id = :challengeId AND ChallengeCoord.coord_id = Coordinate.coord_id " .
 											"ORDER BY ChallengeCoord.priority ASC",
 										array("challengeId" => $challengeId), PDO::FETCH_ASSOC);
 			return $res;
@@ -150,17 +151,17 @@
 			$res = DBTools::fetchNum($dbh, "SELECT owner FROM Challenge WHERE challenge_id = :id", array("id" => $challengeId));
 			return $res ? $res[0] : -1;
 		}
-		
+
 		public static function getOwnerName($dbh, $ownerId){
 			return DBTools::fetchAll($dbh, "SELECT account.username FROM Account where account.account_id = :id", array("id" => $ownerId), PDO::FETCH_ASSOC);
 		}
-		
+
 		public static function getTeamlistById($dbh, $teamid){
-			$res = DBTools::fetchAll($dbh, "SELECT Account.username " . 
-									 "FROM Account " . 
-									 "JOIN Challengemember ON (Account.account_id = Challengemember.account_id) " . 
+			$res = DBTools::fetchAll($dbh, "SELECT Account.username " .
+									 "FROM Account " .
+									 "JOIN Challengemember ON (Account.account_id = Challengemember.account_id) " .
 									 "WHERE team_id = :id", array("id" => $teamid));
-			return $res; 
+			return $res;
 		}
 
 		public static function getTeams($dbh, $challengeId){
@@ -214,11 +215,10 @@
 			return $ret;
 		}
 
-		public static function createChallenge($dbh, $name, $challengeType, $owner_accId, $description, $isPublic = 0, $startTime = null, $endTime = null, $predefinedTeams = 0, $max_teams = 4, $maxTeamMembers = 4){
+		public static function createChallenge($dbh, $name, $challengeType, $owner_accId, $description, $isPublic = 0, $predefinedTeams = 0, $max_teams = 4, $maxTeamMembers = 4){
 
 			if(strlen($name) > 64){throw new InvalidArgumentException("The challenge name is too long.");}
 			if(strlen($description) > 512){throw new InvalidArgumentException("The challenge description is too long.");}
-
 			$sessionkey = self::generateSessionKey($dbh);
 
 			$res = DBTools::query($dbh, "INSERT INTO Challenge " .
@@ -227,10 +227,9 @@
 										"start_time, end_time, is_public, is_enabled) " .
 										"VALUES " .
 											"(DEFAULT, :type_id, :owner, :key, :name, :desc, :predefTeams, :maxTeams, :maxMembers, " .
-											":startTime, :endTime, :isPublic, 0)",
+											"DEFAULT, NULL, :isPublic, 0)",
 									array(	"type_id" => $challengeType, "owner" => $owner_accId, "key" => $sessionkey, "name" => $name, "desc" => $description,
-											"predefTeams" => $predefinedTeams, "maxTeams" => $max_teams, "maxMembers" => $maxTeamMembers,
-											"startTime" => $startTime, "endTime" => $endTime, "isPublic" => $isPublic ? 1 : 0));
+											"predefTeams" => $predefinedTeams, "maxTeams" => $max_teams, "maxMembers" => $maxTeamMembers, "isPublic" => $isPublic ? 1 : 0));
 
 			if(!$res){
 				error_log("Unable to INSERT into table Challenge. Database returned: " . $res);

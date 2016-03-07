@@ -48,20 +48,14 @@
 				"desc" => self::defaultTextRegEx(0, 512),
 				"type" => "/^(default|ctf)$/i",
 				"is_public" => "/[0-1]/",
-				"start_time" => $this::defaultTimeRegEx(),
-				"end_time" => $this::defaultTimeRegEx(),
 				"predefined_teams" =>  "/[0-1]/",
 				"max_teams" => "/\d/",
 				"max_team_members" => "/\d/"
 			));
-			
-			$defaultTime = time() + (7 * 24 * 60 * 60); 
 
 			$this->assignOptionalParameter("desc", "");
 			$this->assignOptionalParameter("type", "default");
 			$this->assignOptionalParameter("is_public", 0);
-			$this->assignOptionalParameter("start_time", date('Y-m-d H:i:s', $defaultTime));
-			$this->assignOptionalParameter("end_time", date('Y-m-d H:i:s', $defaultTime));
 			$this->assignOptionalParameter("predefined_teams", 0);
 			$this->assignOptionalParameter("max_teams", 4);
 			$this->assignOptionalParameter("max_team_members", 4);
@@ -70,8 +64,7 @@
 			if($this->args["type"] == "ctf"){$challengeType = ChallengeType::CaptureTheFlag;}
 
 			$id = ChallengeManager::createChallenge($this->dbh, $this->args["name"], $challengeType, $session->getAccountId(), $this->args["desc"],
-													$this->args["is_public"], $this->args["start_time"], $this->args["end_time"],
-													$this->args["predefined_teams"], $this->args["max_teams"],  $this->args["max_team_members"]);
+													$this->args["is_public"], $this->args["predefined_teams"], $this->args["max_teams"],  $this->args["max_team_members"]);
 
 			return self::buildResponse(true, array("sessionkey" => $id));
 		}
@@ -337,14 +330,14 @@
 		protected function get_my_challenges(){
 			return ChallengeManager::getMyChallenges($this->dbh, $this->requireLogin());
 		}
-		
+
 		protected function get_participated_challenges(){
 			$res = ChallengeManager::getParticipatedChallenges($this->dbh, $this->requireLogin());
 			foreach($res as $key => $value){
 				$value['username'] = ChallengeManager::getOwnerName($this->dbh, $value['username'])[0]['username'];
-				$res[$key] = $value; 
+				$res[$key] = $value;
 			}
-			return $res; 
+			return $res;
 		}
 
 		protected function count_challenges(){

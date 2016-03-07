@@ -27,20 +27,21 @@ module.exports = function(grunt) {
 						[
 							'src/js/GeoCat.js',
 							'src/js/etc/*.js',
-							'src/js/Logout.js',
-							'src/js/Substance.js'
+							'src/js/Substance.js',
+							'src/js/PagePrototype.js',
+							'src/js/Dialogs.js'
 						],
 
-					 'dest/js/gpscat.min.js':
+					'dest/js/gpscat.min.js':
 						[
 							'src/js/gps/*.js'
 						],
 
 					'dest/js/controller.min.js':
 						[
-							'src/js/LoginController.js',
 							'src/js/places/PlacesController.js',
 							'src/js/gpsnavigator/GPSNavigationController.js',
+							'src/js/controller/CoordinateEditDialogController.js',
 							'src/js/challenges/*.js'
 						]
 				}
@@ -50,37 +51,41 @@ module.exports = function(grunt) {
 		copy: {
 			main: {
 				cwd: 'src/',
-				src: ['app/**', 'config/config.php', 'css/**', 'img/**', 'js/**', 'lib/*.min.js', 'locale/*.json'],
+				src: [	'app/**',  'query/**', 'views/**', 'config/config.php', 'locale/*.json',
+						'lib/jquery_package.min.js', 'lib/jquery.minicolors.min.js'],
 				dest: 'dest/',
 				expand: true
 			},
+		},
 
-			ReferenceMinimizedFiles: {
-				cwd: 'src/',
-				src: ['query/**', 'sites/**', 'views/**', 'index.php'],
-				dest: 'dest/',
-				expand: true,
-				options: {
-					process: function (content, srcpath) {
-						// Check if the file has a ".html" or ".php" extenson
-						if(new RegExp(".*\.[html|php]$").test(srcpath)){
-							var regEx = /<!-- <## (.*\.js) ##> --\>[\s\S]*?<!-- <\/## (.*\.js) ##> -->/;
-							while(true){
-								var match = regEx.exec(content);
-								if(match != null){
-									if(match[1] != match[2]){
-										console.log("WARNING: Replacement missmatch in file '" + srcpath + "'. Assuming '" + match[1] + "' as desired replacement.");
-									}
-									var replaceRegEx = new RegExp(match[0],"g");
-									content = content.replace(replaceRegEx, "<script type=\"text/javascript\" src=\"" + match[1] + "\"><\/script>");
-								}
-								else{
-									break;
-								}
-							}
-						}
-						return content;
-					}
+		processhtml: {
+			main: {
+				files: {
+					'dest/index.php': ['src/index.php']
+				}
+			},
+		},
+
+		cssmin: {
+			options: {
+				shorthandCompacting: false,
+				roundingPrecision: -1
+			},
+			target: {
+				files: {
+					'dest/css/geocat.min.css':
+						[
+							'src/css/style.css',
+							'src/css/animations.css',
+							'src/css/substance.css',
+							'src/css/geocat-images.css'
+						],
+					'dest/css/jquery_package.min.css':
+						[
+							'src/css/jquery.mobile-1.4.5.css',
+							'src/css/jquery.minicolors.css',
+							'src/css/listview-grid.css'
+						]
 				}
 			}
 		},
@@ -112,6 +117,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-processhtml');
+	grunt.loadNpmTasks('grunt-contrib-cssmin');
 	grunt.loadNpmTasks('grunt-jsdoc');
 	grunt.loadNpmTasks('grunt-phpdoc');
 
@@ -119,5 +126,5 @@ module.exports = function(grunt) {
 	grunt.registerTask('default', ['propertiesToJSON']);
 	grunt.registerTask('translate', ['propertiesToJSON']);
 	grunt.registerTask('doc', ['jsdoc', 'phpdoc']);
-	grunt.registerTask('build', ['propertiesToJSON', 'clean', 'copy', 'uglify']);
+	grunt.registerTask('build', ['propertiesToJSON', 'clean', 'copy', 'processhtml', 'cssmin', 'uglify']);
 };

@@ -110,7 +110,7 @@ function BrowseChallengesController(){
 					$.mobile.changePage("#ChallengeInfo");
 				}, 150);
 			}
-		})
+		});
 	}
 
 	/**
@@ -311,7 +311,7 @@ function BrowseChallengesController(){
 	 * @memberOf BrowseChallengesController
 	 * @instance
 	 */
-	function updateMyList(data, participated = false){
+	function updateMyList(data, participated){
 
 		if(data.length > 0){
 			for(var i = 0; i < data.length; i++){

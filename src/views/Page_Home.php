@@ -38,11 +38,8 @@
 		}
 
 		public function printHead($config, $locale, $session, $pathToRoot){
-?>
-	<link rel="stylesheet" href="./css/listview-grid.css">
-<?php
-
 		}
+
 		public function printContent($config, $locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="Home" data-theme="b">

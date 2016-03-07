@@ -38,45 +38,50 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>GeoCat</title>
 
+	<!-- build:css ./css/jquery_package.min.css -->
 	<link rel="stylesheet" href="./css/jquery.mobile-1.4.5.css">
+	<link rel="stylesheet" href="./css/jquery.minicolors.css" />
+	<link rel="stylesheet" href="./css/listview-grid.css" />
+	<!-- /build -->
+
+	<!-- build:css ./css/geocat.min.css -->
 	<link rel="stylesheet" href="./css/style.css">
 	<link rel="stylesheet" href="./css/animations.css">
 	<link rel="stylesheet" href="./css/substance.css">
-	<link rel="stylesheet" href="./css/jquery.minicolors.css" />
 	<link rel="stylesheet" href="./css/geocat-images.css" />
+	<!-- /build -->
 
-	<!-- <## ./lib/jquery_package.min.js ##> -->
+	<!-- build:js ./lib/jquery_package.min.js -->
 	<script src="./lib/jquery.min.js"></script>
 	<script src="./lib/jquery.mobile-1.4.5.min.js"></script>
-	<!-- </## ./lib/jquery_package.min.js ##> -->
-
+	<!-- /build -->
 	<script src="./lib/jquery.minicolors.min.js"></script>
 
-	<!-- <## ./js/geocat.min.js ##> -->
+	<!-- build:js ./js/geocat.min.js -->
 	<script src="./js/GeoCat.js"></script>
 	<script src="./js/etc/JSONLocale.js"></script>
 	<script src="./js/etc/GuiToolkit.js"></script>
 	<script src="./js/etc/Uplink.js"></script>
 	<script src="./js/etc/LocalCoordinateStore.js"></script>
 	<script src="./js/Substance.js"></script>
-	<!-- </## ./js/geocat.min.js ##> -->
 	<script src="./js/PagePrototype.js"></script>
 	<script src="./js/Dialogs.js"></script>
+	<!-- /build -->
 
-	<!-- <## ./js/controller.min.js ##> -->
+	<!-- build:js ./js/controller.min.js -->
 	<script src="./js/places/PlacesController.js"></script>
 	<script src="./js/gpsnavigator/GPSNavigationController.js"></script>
 	<script src="./js/challenges/BrowseChallengesController.js"></script>
 	<script src="./js/challenges/ChallengeNavigatorController.js"></script>
-	<!-- </## ./js/controller.min.js ##> -->
 	<script src="./js/challenges/ChallengeInfoController.js"></script>
 	<script src="./js/controller/CoordinateEditDialogController.js"></script>
+	<!-- /build -->
 
-	<!-- <## ./js/gpscat.min.js ##> -->
+	<!-- build:js ./js/gpscat.min.js -->
 	<script src="./js/gps/GPSRadar.js"></script>
 	<script src="./js/gps/GPS.js"></script>
 	<script src="./js/gps/GeoTools.js"></script>
-	<!-- </## ./js/gpscat.min.js ##> -->
+	<!-- /build -->
 
 	<script type="text/javascript">
 		GeoCat.init("de", "./");

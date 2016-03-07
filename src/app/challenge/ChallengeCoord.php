@@ -40,12 +40,12 @@
 
 			$res = DBTools::query($dbh, "INSERT INTO ChallengeCoord " .
 											"(challenge_coord_id, challenge_id, coord_id, priority, hint, code) " .
-										"VALUES (null, :challengeId, :coordId, :priority, :hint, :code)",
+										"VALUES (DEFAULT, :challengeId, :coordId, :priority, :hint, :code)",
 									array(	"challengeId" => $challengeId, "coordId" => $coordId, "priority" => $priority,
 											"hint" => $hint, "code" => $code));
 
 			if($res){
-				return $dbh->lastInsertId("challenge_coord_id");
+				return $dbh->lastInsertId("challengecoord_challenge_coord_id_seq");
 			}
 			else{
 				error_log("Error: Unable to insert into table ChallengeCoord. Database retuned '" . $res . "' (" . __METHOD__ . "@" .__CLASS__ . ")");
@@ -167,7 +167,7 @@
 		}
 
 		public static function hasCode($dbh, $challengeCoordId){
-			$res = DBTools::fetchNum($dbh, "SELECT (NOT ISNULL(code)) FROM ChallengeCoord WHERE challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
+			$res = DBTools::fetchNum($dbh, "SELECT code FROM ChallengeCoord WHERE code IS NOT NULL AND challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
 			return $res[0] == 1;
 		}
 

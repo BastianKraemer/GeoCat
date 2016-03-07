@@ -222,11 +222,11 @@
 		public static function createCoordinate($dbh, $name, $latitude, $longitude, $decription){
 			self::verifyCoordinate($name, $latitude, $longitude, $decription);
 
-			$res = DBTools::query($dbh, "INSERT INTO ". self::TABLE_COORDINATE . " (coord_id, name, description, latitude, longitude) VALUES (NULL, :name, :desc, :lat, :lon)",
+			$res = DBTools::query($dbh, "INSERT INTO ". self::TABLE_COORDINATE . " (coord_id, name, description, latitude, longitude) VALUES (DEFAULT, :name, :desc, :lat, :lon)",
 									array("name" => $name, "desc" => $decription, "lat" => round($latitude, self::ROUND_COORDS_TO), "lon" => round($longitude, self::ROUND_COORDS_TO)));
 
 			if($res){
-				return $dbh->lastInsertId("coord_id");
+				return $dbh->lastInsertId("coordinate_coord_id_seq");
 			}
 			else{
 				self::printError("ERROR: Cannot insert into table '". self::TABLE_COORDINATE . "'",

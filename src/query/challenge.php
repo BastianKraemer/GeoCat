@@ -54,12 +54,14 @@
 				"max_teams" => "/\d/",
 				"max_team_members" => "/\d/"
 			));
+			
+			$defaultTime = time() + (7 * 24 * 60 * 60); 
 
 			$this->assignOptionalParameter("desc", "");
 			$this->assignOptionalParameter("type", "default");
 			$this->assignOptionalParameter("is_public", 0);
-			$this->assignOptionalParameter("start_time", null);
-			$this->assignOptionalParameter("end_time", null);
+			$this->assignOptionalParameter("start_time", date('Y-m-d H:i:s', $defaultTime));
+			$this->assignOptionalParameter("end_time", date('Y-m-d H:i:s', $defaultTime));
 			$this->assignOptionalParameter("predefined_teams", 0);
 			$this->assignOptionalParameter("max_teams", 4);
 			$this->assignOptionalParameter("max_team_members", 4);

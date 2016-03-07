@@ -121,9 +121,9 @@
 
 			$res = DBTools::fetchAll($dbh,	"SELECT ChallengeCoord.challenge_coord_id, ChallengeCoord.hint, ChallengeCoord.priority, ChallengeCoord.captured_by, ChallengeCoord.capture_time," .
 												"Coordinate.coord_id, Coordinate.name, Coordinate.description, Coordinate.latitude, Coordinate.longitude, " .
-												"(NOT ISNULL(ChallengeCoord.code)) AS code_required" . ($includeCacheCodes ? ", ChallengeCoord.code " : " ") .
+												"ChallengeCoord.code AS code_required" . ($includeCacheCodes ? ", ChallengeCoord.code " : " ") .
 											"FROM ChallengeCoord, Coordinate " .
-											"WHERE ChallengeCoord.challenge_id = :challengeId AND ChallengeCoord.coord_id = Coordinate.coord_id " .
+											"WHERE ChallengeCoord.challenge_id = :challengeId AND ChallengeCoord.coord_id = Coordinate.coord_id AND ChallengeCoord.code IS NOT NULL " .
 											"ORDER BY ChallengeCoord.priority ASC",
 										array("challengeId" => $challengeId), PDO::FETCH_ASSOC);
 			return $res;

@@ -1,5 +1,5 @@
 /*	GeoCat - Geolocation caching and tracking platform
-	Copyright (C) 2015 Bastian Kraemer
+	Copyright (C) 2015-2016 Bastian Kraemer
 
 	GPSNavigationController.js
 
@@ -20,17 +20,15 @@
 /**
  * Event handling for the "GPS Navigtor" page
  * @class GPSNavigationController
- * @param localCoordinateStore {LocalCoordinateStore} Reference to a {@link LocalCoordinateStore} object
- * @param login_Status {Object} Reference to a login status object
- * @param myuplink {Uplink} Reference to an {@link Uplink} object
  */
-function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
+function GPSNavigationController(){
 
 	// Private variables
 
-	var localCoordStore = localCoordinateStore;
-	var uplink = myuplink;
-	var login_status = login_Status;
+	var localCoordStore = GeoCat.getLocalCoordStore();
+	var uplink = GeoCat.getUplink();
+	var gpsRadar = null;
+	var updateTimer = null; // Interval to update the gps Radar
 
 	// Collection (Map) of all important HTML elements (defeined by their id)
 	var htmlElement = new Object();
@@ -50,34 +48,11 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 	htmlElement["flipswitch_pref_debuginfo"] = "#GPSNavShowDebugInfo";
 	htmlElement["flipswitch_offline_mode"] = "#GPSNavOfflineMode";
 
-	// Download the latest navigation list from the server
-	downloadNavListFromServer();
-
 	/*
 	 * ============================================================================================
 	 * Public methods
 	 * ============================================================================================
 	 */
-
-
-	this.getNavigatorInstance = getNavigatorInstance;
-
-	/**
-	 * Returns a instance of the {@link GPSNavigator}
-	 * @returns {GPSNavigator}
-	 *
-	 * @public
-	 * @function
-	 * @memberOf GPSNavigationController
-	 * @instance
-	 */
-	function getNavigatorInstance(){
-		if(pages["gpsnavigator"] == null){
-			pages["gpsnavigator"] = new GPSNavigator($("#gpsnavigator_content")[0]);
-		}
-
-		return pages["gpsnavigator"];
-	}
 
 	/**
 	 * This function should be called when the "GPS navigator" page is opened
@@ -89,8 +64,8 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 	 */
 	this.onPageOpened = function(){
 
-		var nav = getNavigatorInstance();
-		nav.startNavigator(localCoordStore);
+		// Download the latest navigation list from the server
+		downloadNavListFromServer();
 
 		// Append some event handler
 
@@ -100,14 +75,12 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 
 		// Button "Add coordinate"
 		$(htmlElement["button_add_coordinate"]).click(function(e){
-			if(pages["gpsnavigator"] == null){return;}
-
-			var lastGPSPos = pages["gpsnavigator"].getGPSPos();
+			var lastGPSPos = GPS.get();
 			if(lastGPSPos != null){
 				showCoordinateEditDialog(null, "", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude, true);
 			}
 			else{
-				Tools.showPopup("Notification", "Unable to get current GPS position.", "OK", function(){resetActiveButtonState(htmlElement["button_add_coordinate"]);});
+				GuiToolkit.showPopup("Notification", "Unable to get current GPS position.", "OK", function(){resetActiveButtonState(htmlElement["button_add_coordinate"]);});
 			}
 		});
 
@@ -125,16 +98,19 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 		});
 
 		// When the preferences panel is opened
-		$(htmlElement["preferences_panel"]).on("panelafteropen", function(){
+		/*$(htmlElement["preferences_panel"]).on("panelafteropen", function(){
 			$(htmlElement["flipswitch_pref_rotate"]).val(getPreference("rotate")).slider("refresh");
 			$(htmlElement["flipswitch_pref_debuginfo"]).val(getPreference("debug_info")).slider("refresh");
 			$(htmlElement["flipswitch_offline_mode"]).val(getPreference("offline_mode")).slider("refresh");
-		});
+		});*/
 
-
-		bindPreferenceChangeEvent(htmlElement["flipswitch_pref_rotate"], "rotate");
+		/*bindPreferenceChangeEvent(htmlElement["flipswitch_pref_rotate"], "rotate");
 		bindPreferenceChangeEvent(htmlElement["flipswitch_pref_debuginfo"], "debug_info");
-		bindPreferenceChangeEvent(htmlElement["flipswitch_offline_mode"], "offline_mode");
+		bindPreferenceChangeEvent(htmlElement["flipswitch_offline_mode"], "offline_mode");*/
+
+		gpsRadar = new GPSRadar($("#gpsnavigator_content")[0], $("#NavigatorCanvas")[0]);
+		gpsRadar.start();
+		startTimer();
 	}
 
 	/**
@@ -146,21 +122,33 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 	 * @instance
 	 */
 	this.onPageClosed = function(){
-		if(pages["gpsnavigator"] != null){
 
-			// Remove all event handler
-			$(htmlElement["coordinate_panel"]).off();
-			$(htmlElement["popup"]).off();
-			$(htmlElement["popup_button_save"]).unbind();
-			$(htmlElement["popup_button_close"]).unbind();
-			$(htmlElement["flipswitch_pref_rotate"]).unbind();
-			$(htmlElement["flipswitch_pref_debuginfo"]).unbind();
-			$(htmlElement["flipswitch_offline_mode"]).unbind();
-			$(htmlElement["button_add_coordinate"]).unbind();
+		stopTimer();
+		gpsRadar.stop();
 
-			pages["gpsnavigator"].stopNavigator();
+		// Remove all event handler
+		$(htmlElement["coordinate_panel"]).off();
+		$(htmlElement["popup"]).off();
+		$(htmlElement["popup_button_save"]).unbind();
+		$(htmlElement["popup_button_close"]).unbind();
+		/*$(htmlElement["flipswitch_pref_rotate"]).unbind();
+		$(htmlElement["flipswitch_pref_debuginfo"]).unbind();
+		$(htmlElement["flipswitch_offline_mode"]).unbind();*/
+		$(htmlElement["button_add_coordinate"]).unbind();
+	}
 
-			pageHeightOffset = 80; // global variable
+	function startTimer(){
+		if(updateTimer == null){
+			updateTimer = setInterval(function(){
+				gpsRadar.update(localCoordStore.getCurrentNavigation(), {}, {});
+			}, 2000);
+		}
+	}
+
+	function stopTimer(){
+		if(updateTimer != null){
+			clearInterval(updateTimer);
+			updateTimer = null;
 		}
 	}
 
@@ -179,7 +167,7 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 	 * @instance
 	 */
 	function downloadNavListFromServer(){
-		if(login_status.isSignedIn){
+		if(GeoCat.loginStatus.isSignedIn){
 			uplink.sendNavList_Get(
 						function(response){
 							var result = JSON.parse(response);
@@ -223,10 +211,11 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 	}
 
 	function uplinkOnError(response){
-		alert(Tools.sprintf("Unable to perform this operation. (Status {0})\n" +
+		alert(GuiToolkit.sprintf("Unable to perform this operation. (Status {0})\n" +
 				"Server returned: {1}", [response["status"], response["msg"]]));
 	}
 
+	/*
 	/**
 	 * Reads a preference from the {@link GPSNavigator}
 	 * @param key {String} Identifier for this preference
@@ -237,19 +226,19 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 	 * @memberOf GPSNavigationController
 	 * @instance
 	 */
-	function getPreference(key){
+	/*function getPreference(key){
 		var val = pages["gpsnavigator"].getPreference(key);
 		if(val != undefined){
 			return val == true ? "on" : "off";
 		}
 		return false;
-	}
+	}*/
 
-	function bindPreferenceChangeEvent(id, preferenceKey){
+	/*function bindPreferenceChangeEvent(id, preferenceKey){
 		$(id).bind( "change", function(event, ui) {
 			pages["gpsnavigator"].setPreference(preferenceKey, $(id).is(":checked"));
 		});
-	}
+	}*/
 
 	function resetActiveButtonState(buttonId){
 		$(buttonId).removeClass($.mobile.activeBtnClass);
@@ -328,7 +317,7 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 
 	function deleteListItem_OnClick(element){
 		var key = $(element).parent().attr("dest-id");
-		if(login_status.isSignedIn){
+		if(GeoCat.loginStatus.isSignedIn){
 			uplink.sendNavList_Remove(key,
 						function(response){
 							localCoordStore.removeFromNavigationById(key);
@@ -371,7 +360,7 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 		if(name == "" || isNaN(lat) || isNaN(lon)){
 			alert("Please enter a valid name and values for latitude and longitude.");
 		}
-		else if(login_status.isSignedIn){
+		else if(GeoCat.loginStatus.isSignedIn){
 			// Everything ok
 
 			if(id == undefined){
@@ -380,7 +369,7 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 
 				if(add2OwnPlaces){
 					// This place will be added to your own places
-					uplink.sendNewCoordinate(name, desc, lat, lon, false,
+					uplink.sendNewCoordinate(name, desc, lat, lon, 0,
 							function(result){
 								var coord = new Coordinate(result["coord_id"], name, lat, lon, desc, false)
 								addCoordToNavList(coord, true);
@@ -424,3 +413,17 @@ function GPSNavigationController(localCoordinateStore, login_Status, myuplink ){
 		}
 	}
 }
+
+GPSNavigationController.currentInstance = null;
+
+GPSNavigationController.init = function(){
+	$(document).on("pageshow", "#GPSNavigator", function(){
+		GPSNavigationController.currentInstance = new GPSNavigationController();
+		GPSNavigationController.currentInstance.onPageOpened();
+	});
+
+	$(document).on("pagebeforehide", "#GPSNavigator", function(){
+		GPSNavigationController.currentInstance.onPageClosed();
+		GPSNavigationController.currentInstance = null
+	});
+};

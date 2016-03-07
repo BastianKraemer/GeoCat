@@ -5,27 +5,23 @@ require_once("../app/SessionManager.php");
 require_once("../app/AccountManager.php");
 
 $session = new SessionManager();
-$account = new AccountManager();
 
-if(isset($_REQUEST['useremail']) && isset($_REQUEST['userpassword'])):
-    $useremail = $_REQUEST['useremail'];
-    $userpassword = $_REQUEST['userpassword'];
+if(isset($_POST['user']) && isset($_POST['password'])){
+    $useremail = $_POST['user'];
+    $userpassword = $_POST['password'];
     $config = require("../config/config.php");
     $dbh = DBTools::connectToDatabase($config);
-    $sql = "SELECT * FROM Account WHERE ";
-    $isValid = $account->isValidEMailAddr($useremail);
-    $sql = $sql . ($isValid ? "email = :email;" : "username = :username;");
-    $res = DBTools::fetchAll($dbh, $sql, array(($isValid ? ':email' : ':username') => $useremail));
-    foreach ($res as $row):
-        if($session->login($dbh, $row['account_id'], $userpassword)):
-            if(isset($_REQUEST['rememberme']) && $_REQUEST['rememberme'] == 'on'):
-                $session->createCookie("GEOCAT", array("email" => $useremail, "pass" => $account->getPBKDF2Hash($userpassword)[0]), (60*60*24*30));
-            endif;
-            echo json_encode(array("login" => true));
+
+    $isValid = AccountManager::isValidEMailAddr($useremail);
+    $sql = "SELECT account_id, username FROM Account WHERE " . ($isValid ? "email = :email;" : "username = :username;");
+    $res = DBTools::fetchAssoc($dbh, $sql, array(($isValid ? ':email' : ':username') => $useremail));
+    if(!empty($res)){
+        if($session->login($dbh, $res['account_id'], $userpassword)){
+            echo json_encode(array("status" => "true", "username" => $res['username']));
             return;
-        endif;
-    endforeach;
-endif;
-echo json_encode(array("login" => false));
+        }
+    }
+}
+echo json_encode(array("status" => "false"));
 
 ?>

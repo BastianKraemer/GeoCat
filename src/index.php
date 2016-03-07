@@ -8,22 +8,26 @@
 	require_once(__DIR__ . "/app/SessionManager.php");
 	require_once(__DIR__ . "/app/pages/GeoCatPage.php");
 
-	$locale = JSONLocale::withBrowserLanguage($config);
+	$locale = JSONLocale::withBrowserLanguage();
 	$session = new SessionManager();
 	$pathToRoot = "./";
 
 	require_once(__DIR__ . "/views/Page_Home.php");
-	require_once(__DIR__ . "/views/Page_Login.php");
 	require_once(__DIR__ . "/views/Page_Places.php");
 	require_once(__DIR__ . "/views/Page_GPSNavigator.php");
 	require_once(__DIR__ . "/views/Page_BrowseChallenges.php");
+	require_once(__DIR__ . "/views/Page_ChallengeNavigator.php");
+	require_once(__DIR__ . "/views/Page_ChallengeInfo.php");
+	require_once(__DIR__ . "/views/Page_CoordinateEditDialog.php");
 
 	$allPages = array(
 		new Page_Home(),
-		new Page_Login(),
 		new Page_Places(),
 		new Page_GPSNavigator(),
-		new Page_BrowseChallenges()
+		new Page_BrowseChallenges(),
+		new Page_ChallengeNavigator(),
+		new Page_ChallengeInfo(),
+		new Page_CoordinateEditDialog()
 	);
 ?>
 
@@ -34,98 +38,54 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>GeoCat</title>
 
-	<link rel="stylesheet" href="./css/jquery.mobile-1.4.5.min.css">
+	<!-- build:css ./css/jquery_package.min.css -->
+	<link rel="stylesheet" href="./css/jquery.mobile-1.4.5.css">
+	<link rel="stylesheet" href="./css/jquery.minicolors.css" />
+	<link rel="stylesheet" href="./css/listview-grid.css" />
+	<!-- /build -->
+
+	<!-- build:css ./css/geocat.min.css -->
 	<link rel="stylesheet" href="./css/style.css">
 	<link rel="stylesheet" href="./css/animations.css">
+	<link rel="stylesheet" href="./css/substance.css">
+	<link rel="stylesheet" href="./css/geocat-images.css" />
+	<!-- /build -->
 
-	<!-- <## ./lib/jquery_package.min.js ##> -->
+	<!-- build:js ./lib/jquery_package.min.js -->
 	<script src="./lib/jquery.min.js"></script>
 	<script src="./lib/jquery.mobile-1.4.5.min.js"></script>
-	<!-- </## ./lib/jquery_package.min.js ##> -->
+	<!-- /build -->
+	<script src="./lib/jquery.minicolors.min.js"></script>
 
-	<!-- <## ./js/geocat.min.js ##> -->
-	<script src="./js/locale.js"></script>
-	<script src="./js/tools.js"></script>
-	<script src="./js/Uplink.js"></script>
-	<script src="./js/LocalCoordinateStore.js"></script>
+	<!-- build:js ./js/geocat.min.js -->
+	<script src="./js/GeoCat.js"></script>
+	<script src="./js/etc/JSONLocale.js"></script>
+	<script src="./js/etc/GuiToolkit.js"></script>
+	<script src="./js/etc/Uplink.js"></script>
+	<script src="./js/etc/LocalCoordinateStore.js"></script>
+	<script src="./js/Substance.js"></script>
+	<script src="./js/PagePrototype.js"></script>
+	<script src="./js/Dialogs.js"></script>
+	<!-- /build -->
+
+	<!-- build:js ./js/controller.min.js -->
 	<script src="./js/places/PlacesController.js"></script>
-	<!-- </## ./js/geocat.min.js ##> -->
+	<script src="./js/gpsnavigator/GPSNavigationController.js"></script>
+	<script src="./js/challenges/BrowseChallengesController.js"></script>
+	<script src="./js/challenges/ChallengeNavigatorController.js"></script>
+	<script src="./js/challenges/ChallengeInfoController.js"></script>
+	<script src="./js/controller/CoordinateEditDialogController.js"></script>
+	<!-- /build -->
 
-	<!-- <## ./js/gpscat.min.js ##> -->
-        <script src="./js/gpsnavigator/GPSNavigator.js"></script>
-        <script src="./js/gpsnavigator/GPSNavigationController.js"></script>
-        <script src="./js/gpsnavigator/GPSRadar.js"></script>
-        <script src="./js/geotools.js"></script>
-	<!-- </## ./js/gpscat.min.js ##> -->
-
-	<script src="./js/LoginController.js"></script>
-	<script src="./js/Logout.js"></script>
-	<script src="./js/challenges/browse.js"></script>
-	<link rel="stylesheet" href="./css/substance.css">
+	<!-- build:js ./js/gpscat.min.js -->
+	<script src="./js/gps/GPSRadar.js"></script>
+	<script src="./js/gps/GPS.js"></script>
+	<script src="./js/gps/GeoTools.js"></script>
+	<!-- /build -->
 
 	<script type="text/javascript">
-
-		// Global variales
-
-		var loginStatus = <?php $session->printLoginStatusAsJSON(); ?>;
-
-		var pages = new Object();
-		var locale = new JSONLocale("de", "./");
-		//Workaround: The function "getPageHeight" will return different results after the first page chage
-		var pageHeightOffset = 0;
-		var isFirstCreatedPage = true;
-
-		var uplink = new Uplink("./");
-		var localCoordStore = new LocalCoordinateStore();
-
-		var gpsNavigationController = new GPSNavigationController(localCoordStore, loginStatus, uplink);
-		var placesController = new PlacesController(localCoordStore, loginStatus, uplink, gpsNavigationController);
-		var challengeBrowserController = new BrowseChallengesController(loginStatus, uplink);
-
-		// Some useful (public) methods
-		function getPageHeight(){
-			var screen = $.mobile.getScreenHeight();
-			var header = $(".ui-header").hasClass("ui-header-fixed") ? $(".ui-header").outerHeight() - 1 : $(".ui-header").outerHeight();
-			var footer = $(".ui-footer").hasClass("ui-footer-fixed") ? $(".ui-footer").outerHeight() - 1 : $(".ui-footer").outerHeight();
-
-			var content = screen - header - footer - pageHeightOffset;
-			return content;
-		}
-
-		$(document).on("pagecreate",function(event){
-			if(isFirstCreatedPage){
-				isFirstCreatedPage = false;
-				if(window.location.hash != "#gpsnavigator"){
-					pageHeightOffset = 80; // Change the pageHeightOffset, so the height will be calculated correctly
-				}
-			}
-		});
-
-		/* ====================================================================
-			 GPS Navigator Eventhandling
-		 ==================================================================== */
-
-		// When page "gpsnavigator" is opened
-		$(document).on("pageshow","#GPSNavigator", gpsNavigationController.onPageOpened);
-
-		// When page "gpsnavigator" is closed
-		$(document).on("pagebeforehide","#GPSNavigator", gpsNavigationController.onPageClosed);
-
-		/* ====================================================================
-			Places Eventhandling
-		==================================================================== */
-
-		// When page "Places" is opened
-		$(document).on("pageshow","#Places", placesController.onPageOpened);
-		$(document).on("pagebeforehide","#Places", placesController.onPageClosed);
-
-		/* ====================================================================
-		Challenges event handling
-		==================================================================== */
-
-		// When page "Places" is opened
-		$(document).on("pageshow","#ChallengeBrowser", challengeBrowserController.onPageOpened);
-		$(document).on("pagebeforehide","#ChallengeBrowser", challengeBrowserController.onPageClosed);
+		GeoCat.init("de", "./");
+		GeoCat.loginStatus = <?php $session->printLoginStatusAsJSON(); ?>;
 	</script>
 
 <?php

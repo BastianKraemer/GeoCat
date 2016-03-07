@@ -34,15 +34,15 @@
 			if($access_code == ""){$access_code = null;}
 
 			$res = DBTools::query($dbh, "INSERT INTO ChallengeTeam (team_id, challenge_id, name, color, is_predefined, access_code) " .
-										"VALUES (null, :id, :name, :color, :predef, :code)",
-									array("id" => $challengeId, "name" => $teamName, "color" => $teamColor, "predef" => $isPredefinedTeam ? 1 : 0, "code" => $access_code));
+										"VALUES (DEFAULT, :id, :name, :color, :predef, :code)",
+									array("id" => $challengeId, "name" => $teamName, "color" => $teamColor, "predef" => ($isPredefinedTeam ? 1 : 0), "code" => $access_code));
 
 			if(!$res){
 				error_log("Unable to insert into table ChallengeTeam. Database returned: " . $res);
 				throw new Exception("Unable to create team.");
 			}
 
-			return $dbh->lastInsertId("team_id");
+			return $dbh->lastInsertId("challengeteam_team_id_seq");
 		}
 
 		public static function teamExists($dbh, $teamId){
@@ -50,8 +50,36 @@
 			return $res[0][0] == 1;
 		}
 
+		public static function teamWithNameExists($dbh, $challengeId, $teamName){
+			$res = DBTools::fetchNum($dbh,	"SELECT COUNT(challenge_id) " .
+											"FROM ChallengeTeam " .
+											"WHERE challenge_id = :cid AND name = :name",
+											array("cid" => $challengeId, "name" => $teamName));
+			return $res[0] >= 1;
+		}
+
+		public static function getTeamInfo($dbh, $teamId){
+			return DBTools::fetchAssoc($dbh, "SELECT ChallengeTeam.name, ChallengeTeam.color, ChallengeTeam.starttime " .
+											 "FROM ChallengeTeam WHERE ChallengeTeam.team_id = :teamId",
+											 array("teamId" => $teamId));
+		}
+
+		public static function getTeamMembers($dbh, $teamId){
+			$res = DBTools::fetchAll($dbh,	"SELECT Account.username " .
+											"FROM Account, ChallengeMember " .
+											"WHERE Account.account_id = ChallengeMember.account_id AND ChallengeMember.team_id = :teamId",
+											array("teamId" => $teamId), PDO::FETCH_NUM);
+
+			$ret = array();
+			for($i = 0; $i < count($res); $i++){
+				$ret[] = $res[$i][0];
+			}
+
+			return $ret;
+		}
+
 		public static function getChallengeIdOfTeam($dbh, $teamId){
-			$res = DBTools::fetchAll($dbh, "SELECT challenge_id FROM ChallengeTeam WHERE team_id = :id", array("id" => $teamId));
+			$res = DBTools::fetchAll($dbh, "SELECT challenge_id FROM ChallengeTeam WHERE team_id = :teamId", array("teamId" => $teamId));
 
 			if($res){
 				return $res[0][0];
@@ -59,6 +87,16 @@
 			else{
 				return -1;
 			}
+		}
+
+		public static function getTeamOfUser($dbh, $challengeId, $accId){
+			$res = DBTools::fetchNum($dbh,	"SELECT ChallengeTeam.team_id " .
+											"FROM ChallengeTeam, ChallengeMember, Account " .
+											"WHERE ChallengeMember.team_id = ChallengeTeam.team_id AND ChallengeMember.account_id = Account.account_id " .
+												"AND ChallengeTeam.challenge_id = :challengeId AND ChallengeMember.account_id = :accId",
+											array("challengeId" => $challengeId, "accId" => $accId));
+
+			return ($res[0] != "" ? $res[0] : -1);
 		}
 
 		public static function isMemberOfTeam($dbh, $teamId, $accountId){
@@ -95,7 +133,7 @@
 
 			// Verify that the user is not already a member of one team of this challenge
 			if(in_array($challengeId, $challenges)){
-				throw new InvalidArgumentException("The user has already jonied a team of this challenge.");
+				throw new InvalidArgumentException("The user has already joined a team of this challenge.");
 			}
 
 			// Verify 'access_code'
@@ -121,11 +159,13 @@
 				}
 
 				// Remove team if empty
-				if(self::countTeamMembers($dbh, $teamId) == 0){self::cleanupEmptyTeam($dbh, $teamId, false);}
+				if(self::countTeamMembers($dbh, $teamId) == 0){
+					self::cleanupEmptyTeam($dbh, $teamId, false);
+				}
 			}
 		}
 
-		public static function isFinalized($dbh, $teamId){
+		public static function isPredefinedTeam($dbh, $teamId){
 			$res = DBTools::fetchAll($dbh, "SELECT is_predefined FROM ChallengeTeam WHERE team_id = :team", array("team" => $teamId));
 
 			if($res){
@@ -149,8 +189,12 @@
 			self::cleanupEmptyTeam($dbh, $teamId, true);
 		}
 
-		protected static function cleanupEmptyTeam($dbh, $teamId, $force){
-			if($force || !self::isFinalized($dbh, $teamId)){
+		private static function cleanupEmptyTeam($dbh, $teamId, $force){
+			if($force || !self::isPredefinedTeam($dbh, $teamId)){
+
+				require_once(__DIR__ . "/Checkpoint.php");
+
+				Checkpoint::clearCheckpointsOfTeam($dbh, $teamId);
 				DBTools::query($dbh, "DELETE FROM ChallengeTeam WHERE team_id = :team", array("team" => $teamId));
 			}
 		}

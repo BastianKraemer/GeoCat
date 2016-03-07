@@ -53,10 +53,37 @@
 			}
 		}
 
+		public static function getChallengeOfCoordinate($dbh, $challengeCoordId){
+			$res = DBTools::fetchNum($dbh, "SELECT challenge_id FROM ChallengeCoord WHERE challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
+			return $res ? $res[0] : -1;
+		}
+
 		public static function getCoordinate($dbh, $challengeCoordId){
 			$res = DBTools::fetchNum($dbh, "SELECT coord_id FROM ChallengeCoord WHERE challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
 
 			return $res ? $res[0] : -1;
+		}
+
+		public static function countCoordsOfChallenge($dbh, $challengeId, $onlyWithPriority0){
+			$res = DBTools::fetchNum($dbh,	"SELECT COUNT(coord_id) FROM ChallengeCoord " .
+											"WHERE challenge_id = :cid" . ($onlyWithPriority0 ? " AND priority = 0" : ""), array("cid" => $challengeId));
+			return $res[0];
+		}
+
+		public static function getPriority0Coord($dbh, $challengeId){
+			return DBTools::fetchNum($dbh, "SELECT challenge_coord_id FROM ChallengeCoord WHERE challenge_id = :cid AND priority = 0 LIMIT 1", array("cid" => $challengeId));
+		}
+
+		public static function update($dbh, $challengeCoordId, $priority, $hint, $code){
+			$res = DBTools::query($dbh, "UPDATE ChallengeCoord " .
+										"SET priority = :priority, hint = :hint, code = :code " .
+										"WHERE challenge_coord_id = :ccid",
+										 array(	"ccid" => $challengeCoordId, "priority" => $priority,
+												"hint" => $hint, "code" => $code));
+			if(!$res){
+				error_log("Error: Unable to update row in table ChallengeCoord. Database retuned '" . $res . "' (" . __METHOD__ . "@" .__CLASS__ . ")");
+				throw new Exception("Unable to remove coordinate from challenge");
+			}
 		}
 
 		public static function remove($dbh, $challengeCoordId){
@@ -97,19 +124,57 @@
 		public static function capture($dbh, $challengeCoordId, $teamId){
 
 			$res = DBTools::query($dbh, "UPDATE ChallengeCoord " .
-										"SET captured_by = CASE WHEN captured_by = NULL THEN captured_by = :team ELSE captured_by END, " .
-										"SET capture_time = CASE WHEN capture_time = NULL THEN capture_time = CURRENT_TIMESTAMP ELSE capture_time END " .
+										"SET captured_by = CASE WHEN captured_by IS NULL THEN :team ELSE captured_by END, " .
+										"capture_time = CASE WHEN capture_time IS NULL THEN CURRENT_TIMESTAMP ELSE capture_time END " .
 										"WHERE challenge_coord_id = :ccid",
 									array("team" => $teamId, "ccid" => $challengeCoordId));
 		}
 
-		public static function checkCode($dbh, $challengeCoordId, $code){
-			// TODO: function checkCode
+		public static function isCaptured($dbh, $challengeCoordId){
+
+			$res = DBTools::fetchNum($dbh,	"SELECT ChallengeCoord.captured_by " .
+											"FROM ChallengeCoord " .
+											"WHERE ChallengeCoord.challenge_coord_id = :ccid",
+										array("ccid" => $challengeCoordId));
+
+			if($res == null){
+				return -1;
+			}
+			else{
+				return $res[0] != null ? 1 : 0;
+			}
 		}
 
-		public static function checkUserPosition($dbh, $challengeCoordId, $userLat, $userLon){
-			// TODO: function checkUserPosition
+		public static function getCaptureTime($dbh, $challengeCoordId){
+
+			$res = DBTools::fetchNum($dbh,	"SELECT ChallengeCoord.capture_time " .
+											"FROM ChallengeCoord " .
+											"WHERE ChallengeCoord.challenge_coord_id = :ccid",
+											array("ccid" => $challengeCoordId));
+			if($res == null){
+				return null;
+			}
+			else{
+				return $res[0];
+			}
+		}
+
+		public static function resetCaptureFlag($dbh, $challengeId){
+
+			DBTools::query($dbh, "UPDATE ChallengeCoord " .
+								 "SET captured_by = NULL, capture_time = NULL WHERE challenge_id = :cid",
+								 array("cid" => $challengeId));
+		}
+
+		public static function hasCode($dbh, $challengeCoordId){
+			$res = DBTools::fetchNum($dbh, "SELECT (NOT ISNULL(code)) FROM ChallengeCoord WHERE challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
+			return $res[0] == 1;
+		}
+
+		public static function checkCode($dbh, $challengeCoordId, $code){
+			$res = DBTools::fetchNum($dbh, "SELECT code FROM ChallengeCoord WHERE challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
+
+			return (strcasecmp($res[0], $code) == 0);
 		}
 	}
-
 ?>

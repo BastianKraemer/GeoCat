@@ -69,16 +69,120 @@ body, body div[data-role="page"] {
 	color: #357fb8;
 }
 
+.no-shadow, .no-shadow *, table.styled-table * {
+   text-shadow:0 0 0 !important;
+}
+
+.regular {
+	font-weight: initial !important;
+}
+
+.white {
+	color: white;
+}
+
+.right {
+	text-align: right;
+}
+
+.center {
+	text-align: center;
+}
+
+.small {
+	font-size: .6em;
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+.full-screen {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	padding: 0px;
+	margin: 0px;
+}
+
+table {
+	width: 100%;
+}
+
+td {
+	font-size: .75em;
+}
+
 /* ==============================================================================
-	GPS Navigator
+	Login dialog
 ============================================================================== */
 
-#NavigatorCanvas {
+.login-dialog {
+	display: inline-block;
+	margin: 8px;
+	min-width: 300px;
+	width: 40%;
+}
+
+.login-dialog > h3 {
+	color: black;
+	margin-bottom: 8px;
+}
+
+.login-dialog label {
+	color: black;
+	text-align: left;
+}
+
+.login-dialog input {
+	color: black;
+	text-align: left;
+	width: 100%;
+	color: black;
+	background-color: rgba(128,128,128,0.1);
+	margin: 0 0 8px 0;
+
+	font-size: 14pt;
+
+	border: solid 2px #646464;
+	transition-property: border, color;
+	transition-duration: 0.6s;
+}
+
+.login-dialog input:focus {
+	border: solid 2px #145c74; /* #099fd7 | #067199 */
+	color: #145c74;
+}
+
+.login-dialog > p {
+	margin: 0 0 28px 0;
+}
+
+.login-dialog > p.small-margin {
+	margin: 0 0 8px 0;
+}
+
+.login-dialog > p > span {
+	transition: color 0.5s;
+	color: #099fd7;
+	cursor: pointer;
+	font-weight: 500;
+}
+
+.login-dialog > p > span:hover {
+	color: #067199;
+}
+
+/* ==============================================================================
+	GPS Radar
+============================================================================== */
+
+canvas.gpsradar {
 	width: 100%;
 	height: 100%;
 }
 
-#CanvasFrame{
+.gpsradar-container {
 	margin: 0px auto;
 }
 
@@ -109,3 +213,126 @@ body, body div[data-role="page"] {
 		display: none;
 	}
 }
+
+/* ==============================================================================
+	Challenge Navigator
+============================================================================== */
+
+.hint {
+	color: #777777;
+	font-style: italic;
+}
+
+.reached-cache > span > span:first-child {
+	color: #57dc2e;
+}
+
+.active-cache {
+	background-color: #098cc9 !important;
+	/*background-image: linear-gradient(to right, #098cc9 0%, transparent 80%);*/
+}
+
+#challenge-navigator-coord-list li.ui-li-divider {
+	cursor: pointer;
+}
+
+/* ==============================================================================
+	Challenge Info
+============================================================================== */
+
+.title {
+	font-size: 2em;
+	border-bottom: 1px solid black;
+	margin-top: 0;
+	margin-bottom: 8px;
+	text-align: center;
+}
+
+.description {
+	margin-top: 0;
+	margin-bottom: 0;
+	text-align: center;
+	font-style: italic;
+	color: #555555;
+}
+
+.delete-team-col {
+	width: 16px;
+}
+
+.delete-team-col span {
+	cursor: pointer;
+}
+
+.delete-team-col span:hover {
+	color: red;
+}
+
+
+/* ==============================================================================
+	Styled-Table
+============================================================================== */
+table.styled-table {
+	border-collapse: collapse;
+}
+
+table.styled-table caption {
+	padding: 6px;
+	font-size: 1.1em;
+}
+
+table.styled-table caption {
+	background: linear-gradient(#0c5c76, #2f739a); /* #165b83, */
+	color: white;
+}
+
+table.styled-table thead {
+	background-color: #2f739a;
+	color: white;
+}
+
+table.styled-table td {
+	padding: 2px;
+}
+
+/*table.styled-table tbody tr {
+	line-height: 2.25em;
+}*/
+
+table.styled-table tbody tr:nth-child(even) {
+    background-color: #dedede;
+}
+
+table.styled-table tbody tr:nth-child(odd) {
+    background-color: #efefef;
+}
+
+table.styled-table thead tr th {
+	text-align: left;
+	font-weight: initial;
+	border-bottom: 1px solid black;
+	font-size: 0.9em;
+}
+
+table.styled-table tr:not(:first-child) td {
+	border-top: 1px solid #989898;
+}
+
+table.styled-table th {
+	padding: 4px;
+}
+
+table.styled-table td {
+	padding: 8px 4px 8px 4px;
+}
+
+table.styled-table tbody tr td {
+	margin: 0;
+}
+
+/*table.styled-table tbody tr td:last-child {
+	white-space: nowrap;
+}*/
+
+
+

@@ -43,41 +43,33 @@
 
 		/**
 		 * Checks if username and email address are valid and if this username is already in use.
-		 *
-		 * <u>Possible return values:</u><br />
-		 * Return value > 0: Username and email address are valid<br />
-		 * Return value < 0: Username or email address is invalid<br />
-		 * <ul>
-		 * <li>2 = OK: E-Mail address is already assigned to another user</li>
-		 * <li>1 = OK: Everything okay</li>
-		 * <li>0 = Username is already in use</li>
-		 * <li>-1 = Username or email address is invalid</li>
-		 * <li>-2 = Username or email address is empty</li>
-		 * </ul>
 		 * @param PDO $dbh Database handler
 		 * @param string $username The username
 		 * @param string $email The users email address
-		 * @return integer Value > 0 if the check was sucessfull, <= 0 if not
+		 * @return AccountStatus
 		 */
 		public static function accountExists($dbh, $username, $email){
-			if(empty($username) || empty($email)){return -2;}
-			if(!self::isValidUsername($username) || !self::isValidEMailAddr($email)){return -1;}
+			if(empty($username) || !self::isValidUsername($username)){return AccountStatus::InvalidUsername;}
+			if(empty($email) || !self::isValidEMailAddr($email)){return AccountStatus::InvalidEMailAddress;}
 
 			$result = DBTools::fetchAll($dbh, "SELECT account_id FROM " . self::TABLE_ACCOUNT . " WHERE username = :user", array(":user" => $username));
 			$retval = false;
 			if(empty($result)){
-				$result = DBTools::fetchAll($dbh, "SELECT account_id FROM " . self::TABLE_ACCOUNT . " WHERE email = :email", array(":email" => $email));
-
-				if(empty($result)){
-					return 1;
+				if(self::isEMailAddressAlreadyInUse($dbh, $email)){
+					return AccountStatus::EMailAddressAlreadyInUse;
 				}
 				else{
-					return 2;
+					return AccountStatus::AccountDoesNotExist;
 				}
 			}
 			else{
-				return 0;
+				return AccountStatus::UsernameAlreadyInUse;
 			}
+		}
+
+		public static function isEMailAddressAlreadyInUse($dbh, $email){
+			$result = DBTools::fetchNum($dbh, "SELECT account_id FROM " . self::TABLE_ACCOUNT . " WHERE email = :email", array(":email" => $email));
+			return !(empty($result));
 		}
 
 		/**
@@ -107,8 +99,18 @@
 			if(empty($password)){throw new InvalidArgumentException("Password is empty");}
 
 			$accountCheck = self::accountExists($dbh, $username, $email);
-			if($accountCheck == 0){throw new InvalidArgumentException("An account with this username already exists.");}
-			if($accountCheck < 0){throw new InvalidArgumentException("E-mail address or username are invalid.");}
+			if($accountCheck == AccountStatus::UsernameAlreadyInUse){
+				throw new InvalidArgumentException("An account with this username already exists.");
+			}
+
+			if($accountCheck == AccountStatus::EMailAddressAlreadyInUse){
+				throw new InvalidArgumentException("An account with this email address already exists.");
+			}
+
+			if($accountCheck == AccountStatus::InvalidUsername || $accountCheck == AccountStatus::InvalidEMailAddress){
+				throw new InvalidArgumentException("E-mail address or username are invalid.");
+			}
+
 			$lastname = self::getOrDefault("lastname", $details, null);
 			$firstname = self::getOrDefault("firstname", $details, null);
 			$publicemail = self::getOrDefault("public_email", $details, 0);
@@ -322,5 +324,15 @@
 			if($name == null || $name == ""){return true;}
 			return preg_match("/^[A-Za-zÄäÖöÜüß \-]{1,63}$/", $name);
 		}
+	}
+
+	abstract class AccountStatus
+	{
+		//Usage: $type = ChallengeType::DefaultChallenge;
+		const AccountDoesNotExist = 1;
+		const UsernameAlreadyInUse = 0;
+		const EMailAddressAlreadyInUse = -1;
+		const InvalidUsername = -2;
+		const InvalidEMailAddress = -3;
 	}
 ?>

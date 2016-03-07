@@ -50,6 +50,12 @@
 		const TABLE_CURRENT_NAV = "CurrentNavigation";
 
 		/**
+		 * Represents the number of decimal places for coordinates
+		 * @var integer
+		 */
+		const ROUND_COORDS_TO = 6;
+
+		/**
 		 * Returns a coordinate defined by its id
 		 * @param PDO $dbh Database handler
 		 * @param integer $coordinateId
@@ -217,7 +223,7 @@
 			self::verifyCoordinate($name, $latitude, $longitude, $decription);
 
 			$res = DBTools::query($dbh, "INSERT INTO ". self::TABLE_COORDINATE . " (coord_id, name, description, latitude, longitude) VALUES (NULL, :name, :desc, :lat, :lon)",
-									array("name" => $name, "desc" => $decription, "lat" => $latitude, "lon" => $longitude));
+									array("name" => $name, "desc" => $decription, "lat" => round($latitude, self::ROUND_COORDS_TO), "lon" => round($longitude, self::ROUND_COORDS_TO)));
 
 			if($res){
 				return $dbh->lastInsertId("coord_id");
@@ -272,6 +278,46 @@
 		}
 
 		/**
+		 * Update coordinate
+		 * @param PDO $dbh Database handler
+		 * @param integer $coordinate_id
+		 * @param string $newName
+		 * @param string $newLatitude
+		 * @param string $newLongitude
+		 * @param string $newDescription
+		 * @throws InvalidArgumentException If $name or $descripton are not valid names or the coordinate does not exist
+		 * @see self::isValidCoordinateName()
+		 * Function isValidCoordinateName()
+		 * @see self::isValidCoordinateDescription()
+		 * Function isValidCoordinateDescription()
+		 * @see self::coordinateExists()
+		 * Function coordinateExists()
+		 */
+		public static function updateCoordinate($dbh, $coordinate_id, $newName, $newLatitude, $newLongitude, $newDescription){
+			self::verifyCoordinate($newName, $newLatitude, $newLongitude, $newDescription);
+
+			if(self::coordinateExists($dbh, $coordinate_id)){
+				$res = DBTools::query($dbh, "UPDATE ". self::TABLE_COORDINATE . " " .
+											"SET name = :name, description = :desc, latitude = :lat, longitude = :lon " .
+											"WHERE coord_id = :coordId",
+											array("coordId" => $coordinate_id, "name" => $newName, "desc" => $newDescription,
+												  "lat" => round($newLongitude, self::ROUND_COORDS_TO), "lon" => round($newLongitude, self::ROUND_COORDS_TO)));
+
+				if(!$res){
+					// ERROR - Write debug information to PHP error log
+					self::printError("ERROR: Cannot update coordinate table '". self::TABLE_COORDINATE . "'",
+							array("\$res" => json_encode($res), "\$accountid" => $accountid, "\$coordinate_id" => $coordinate_id,
+									"\$newName" => $newName, "\$newLatitude" => $newLatitude, "\$newLongitude" => $newLongitude,
+									"\$newDescription" => $newDescription, "\$isPublic" => $isPublic));
+							throw new InvalidArgumentException("Internal server error.");
+				}
+			}
+			else{
+				throw new InvalidArgumentException("Coordinate does not exist.");
+			}
+		}
+
+		/**
 		 * Updates a place
 		 * @param PDO $dbh Database handler
 		 * @param integer $account_id
@@ -291,50 +337,32 @@
 		 * Function coordinateExists()
 		 */
 		public static function updatePlace($dbh, $account_id, $coordinate_id, $newName, $newLatitude, $newLongitude, $newDescription, $isPublic){
-			if(self::isValidCoordinateName($newName) && self::isValidCoordinateDescription($newDescription)){
-				if(self::coordinateExists($dbh, $coordinate_id)){
-					if(self::isOwnerOfPlace($dbh, $account_id, $coordinate_id)){
+			if(self::isOwnerOfPlace($dbh, $account_id, $coordinate_id)){
 
-						self::verifyCoordinate($newName, $newLatitude, $newLongitude, $newDescription);
+				self::updateCoordinate($dbh, $coordinate_id, $newName, $newLatitude, $newLongitude, $newDescription);
 
-						$res1 = DBTools::query($dbh, "UPDATE ". self::TABLE_COORDINATE . " " .
-													 "SET name = :name, description = :desc, latitude = :lat, longitude = :lon " .
-													 "WHERE coord_id = :coordId",
-													  array("coordId" => $coordinate_id, "name" => $newName, "desc" => $newDescription,
-															"lat" => $newLatitude, "lon" => $newLongitude));
 
-						if(!$res1){
-							// ERROR - Write debug information to PHP error log
-							self::printError("ERROR: Cannot update coordinate table '". self::TABLE_COORDINATE . "'",
-											  array("\$res" => json_encode($res), "\$accountid" => $accountid, "\$coordinate_id" => $coordinate_id,
-													"\$newName" => $newName, "\$newLatitude" => $newLatitude, "\$newLongitude" => $newLongitude,
-													"\$newDescription" => $newDescription, "\$isPublic" => $isPublic));
-							return false;
-						}
+				$res = DBTools::query($dbh, "UPDATE ". self::TABLE_PLACE . " SET is_public = :isPublic, modification_date = CURRENT_TIMESTAMP " .
+											"WHERE account_id = :accid AND coord_id = :coordId",
+											  array("accid" => $account_id, "coordId" => $coordinate_id, "isPublic" => $isPublic ? 1 : 0));
 
-						$res2 = DBTools::query($dbh, "UPDATE ". self::TABLE_PLACE . " SET is_public = :isPublic, modification_date = CURRENT_TIMESTAMP " .
-													 "WHERE account_id = :accid AND coord_id = :coordId",
-													  array("accid" => $account_id, "coordId" => $coordinate_id, "isPublic" => $isPublic ? 1 : 0));
-
-						if($res2){
-							return true;
-						}
-						else{
-							self::printError("ERROR: Cannot update place in table '". self::TABLE_PLACE . "'",
-									array("\$res" => json_encode($res), "\$accountid" => $accountid, "\$coordinate_id" => $coordinate_id));
-							return false;
-						}
-					}
-					else{
-						throw new InvalidArgumentException("You don't have the permission to modify this entry.");
-					}
+				if($res){
+					return true;
 				}
 				else{
-					throw new InvalidArgumentException("Coordinate does not exist.");
+					self::printError("ERROR: Cannot update place in table '". self::TABLE_PLACE . "'",
+							array("\$res" => json_encode($res), "\$accountid" => $accountid, "\$coordinate_id" => $coordinate_id));
+					return false;
 				}
 			}
 			else{
-				throw new InvalidArgumentException("Invalid coordinate name or description");
+				if(self::coordinateExists($dbh, $coordinate_id)){
+					throw new InvalidArgumentException("Coordinate does not exist.");
+				}
+				else{
+					throw new InvalidArgumentException("You don't have the permission to modify this entry.");
+
+				}
 			}
 		}
 
@@ -370,22 +398,38 @@
 		 * @throws InvalidArgumentException If the account_id is undefined in the database
 		 */
 		public static function isOwnerOfPlace($dbh, $accountId, $coord_id){
-			$result = DBTools::fetchAll($dbh, "SELECT account_id FROM " . self::TABLE_PLACE . " WHERE coord_id = :coordId", array("coordId" => $coord_id));
-			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account_id.");}
-			return $result[0][0] == $accountId;
+
+			// Search for the account id in the "Places" table
+			$accId = self::getAssignedAccountId($dbh, $accountId, $coord_id, true);
+
+			if($accId == -1){
+				// ...maybe the coordinate is mentioned in the "CurrentNavigation" table
+				$accId = self::getAssignedAccountId($dbh, $accountId, $coord_id, false);
+			}
+
+			if($accId == -1){
+				throw new InvalidArgumentException("The coordinate is not assigned to this account.");
+			}
+
+			return $accId == $accountId;
 		}
 
 		/**
-		 * Returns the owner of a place
+		 * Returns the account_id of a coorindate or <code>-1</code> if there is no coordinate with this id
 		 * @param PDO $dbh Database handler
+		 * @param integer $accountId The account_id
 		 * @param integer $coord_id The coordinate id
-		 * @return integer
-		 * @throws InvalidArgumentException If the account_id is undefined in the database
+		 * @param string $checkPlacesTable Specify which table should be selected
 		 */
-		public static function getPlaceOwner($dbh, $coord_id){
-			$result = DBTools::fetchAll($dbh, "SELECT account_id FROM " . self::TABLE_PLACE . " WHERE coord_id = :coordId", array("coordId" => $coord_id));
-			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account_id.");}
-			return $result[0][0];
+		private static function getAssignedAccountId($dbh, $accountId, $coord_id, $checkPlacesTable){
+			$table = $checkPlacesTable ? self::TABLE_PLACE : self::TABLE_CURRENT_NAV;
+			$result = DBTools::fetchNum($dbh, "SELECT account_id FROM " . $table . " WHERE coord_id = :coordId", array("coordId" => $coord_id));
+			if(empty($result) || count($result) != 1){
+				return -1;
+			}
+			else{
+				return $result[0];
+			}
 		}
 
 		/**
@@ -419,7 +463,7 @@
 		 */
 		public static function isValidCoordinateDescription($desc){
 			if($desc == null){return true;}
-			return preg_match("/^[^<>]{1,255}$/", $desc);
+			return preg_match("/^[^<>]{0,255}$/", $desc);
 		}
 
 		/**
@@ -510,7 +554,7 @@
 			if($latitude == "" || $longitude == ""){throw new InvalidArgumentException("Latitude or longitude are undefined.");}
 
 			if(!is_double($latitude)){
-				if(preg_match("/^(-)?[0-9]+\.[0-9]{1,8}$/", $latitude)){
+				if(preg_match("/^(-)?[0-9]+\.[0-9]{1,16}$/", $latitude)){
 					$latitide = floatval($latitude);
 				}
 				else{
@@ -519,7 +563,7 @@
 			}
 
 			if(!is_double($longitude)){
-				if(preg_match("/^(-)?[0-9]+\.[0-9]{1,8}$/", $longitude)){
+				if(preg_match("/^(-)?[0-9]+\.[0-9]{1,16}$/", $longitude)){
 					$longitude = floatval($longitude);
 				}
 				else{
@@ -528,7 +572,7 @@
 			}
 
 			if(!self::isValidCoordinateName($name) || !self::isValidCoordinateDescription($decription)){
-				throw new InvalidArgumentException("Latitude or longitude are undefined.");
+				throw new InvalidArgumentException("Invalid coordinate name or description");
 			}
 		}
 

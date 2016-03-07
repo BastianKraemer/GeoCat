@@ -4,8 +4,52 @@
 	The styles are inspired by the "Material-Design" of Android
 ============================================================================== */
 
+.substance-half-window {
+	width: 50%;
+	min-width: 320px;
+}
+
+.substance-foreground {
+	z-Index: 1025;
+}
+
+.substance-notification {
+	left: 0px;
+	right: 0px;
+	width: 100%;
+	position: fixed;
+	text-align: center;
+	bottom: 20%;
+	padding-bottom: 1px;
+	z-index: 1027;
+
+	max-height: 100%;
+	overflow-y: auto;
+}
+
+.substance-cover-dark {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.75);
+	z-index: 1026;
+}
+
+.substance-animated.substance-cover-dark {
+	transition: opacity 0.5s;
+	opacity: 0;
+}
+
+.substance-animated.substance-notification {
+	transition-property: opacity, background-color;
+	transition-duration: 0.5s;
+	opacity: 0;
+}
+
 .substance-footer {
-	left: 0px;g
+	left: 0px;
 	right: 0px;
 	width: 100%;
 	position: fixed;
@@ -14,56 +58,133 @@
 	bottom: -1px;
 	padding-bottom: 1px;
 }
+
+.substance-footer-offset {
+	height: 4em;
+	margin: 0;
+	padding: 0;
+}
+
 .substance-button {
 	display: inline-block;
 	border-radius: 100%;
 	width: 3.5em;
 	height: 3.5em;
-	background: dodgerblue;
 	line-height: 3.5em;
 	margin-left: 0.4em;
 	margin-right: 0.4em;
 	
 	background-repeat: no-repeat;
 	background-size: 80% 80%;
-    background-position: center;
-    
-    cursor: pointer;
+	background-position: center;
+
+	cursor: pointer;
 }
 
-.substance-button-animated {
+.substance-small-button {
+	width: 3em;
+	height: 3em;
+}
+
+.substance-button {
 	transition-property: width, height, line-height, margin, background;
 	transition-duration: 0.5s;
 	margin-bottom: 1em;
 }
 
-.substance-button-animated:hover {
+.substance-button-grow:hover {
 	width: 4.5em;
 	height: 4.5em;
 	line-height: 4.5em;
 	margin-bottom: 0em;
 }
 
-.substance-blue {
-	background-color: #098cc9;
+.substance-skyblue {background-color: #63b8d7;}
+.substance-animated.substance-skyblue:hover {background-color: #4f98b3;}
+
+.substance-blue {background-color: #098cc9;}
+.substance-animated.substance-blue:hover {background-color: #0b6894;}
+
+.substance-lime {background-color: #baef2a;}
+.substance-animated.substance-lime:hover {background-color: #6bd51d;}
+
+.substance-green {background-color: #64d442;}
+.substance-animated.substance-green:hover {background-color: #10b81c;}
+
+.substance-orange {background-color: #ffca3b;}
+.substance-animated.substance-orange:hover { background-color: #ef952a;}
+
+.substance-red {background-color: #d20707;}
+.substance-animated.substance-red:hover {background-color: #b30000;}
+
+.substance-purple {background-color: #9c00a6;}
+.substance-animated.substance-purple:hover {background-color: #7c0483;}
+
+.substance-white {background-color: #f9f9f9;}
+.substance-animated.substance-white:hover {background-color: #d9d9d9;}
+
+/*
+-------------------------------------------------------------------------------
+	Substance Container
+-------------------------------------------------------------------------------
+*/
+
+.substance-box {
+	-webkit-box-shadow: 1px 1px 5px #646464;
+	box-shadow: 1px 1px 5px #646464;
+	padding: 0 1em;
+	margin: 8px;
 }
 
-.substance-blue:hover {
-	background-color: #0b6894;
+.substance-box-header {
+	margin: 0 -1em 0.5em -1em;
+	padding: 0.5em 1em;
+	color: white;
+	background-color: #3a3a3a;
 }
 
-.substance-lime {
-	background-color: #baef2a;
+.substance-box-header *{
+	margin: 0;
 }
 
-.substance-lime:hover {
-	background-color: #6bd51d;
+.substance-container {
+	border: 1px solid #56595a;
+	margin: 4px;
 }
 
-.substance-orange {
-	background-color: #ffca3b
+.substance-center-flexcontainer  {
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
 }
 
-.substance-orange:hover { 
-	background-color: #ef952a
+.substance-horizontal-flexcontainer {
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: row;
+	flex-direction: row;
+
+	-webkit-flex-wrap: wrap;
+	flex-wrap: wrap;
+
+	-webkit-align-items: stretch;
+	align-items: stretch;
+
+	-webkit-align-content: flex-end;
+	align-content: flex-end;
+}
+
+.substance-flexitem1 {
+	-webkit-flex: 1 0 0;
+	flex: 1 0 0;
+}
+
+.substance-flexitem2 {
+	-webkit-flex: 2 0 0;
+	flex: 2 0 0;
+}
+
+.substance-flexitem3 {
+	-webkit-flex: 3 0 0;
+	flex: 3 0 0;
 }

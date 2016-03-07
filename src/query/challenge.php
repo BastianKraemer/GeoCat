@@ -37,19 +37,6 @@
 			$this->handleAndSendResponseByArgsKey("task");
 		}
 
-		private function verifyChallengeAccess($challengeId){
-			$isPublic = ChallengeManager::isChallengePublic($this->dbh, $challengeId);
-
-			if(!$isPublic){
-				// TODO: Allow lower case characters and convert them
-				$this->requireParameters(array("key" => "/^[A-Z0-9]{4,8}$/")); //Sessionkey
-				$this->assignOptionalParameter("key", null);
-				if(!ChallengeManager::checkChallengeKey($this->dbh, $challengeId, $this->args["key"])){
-					throw new InvalidArgumentException($this->locale->get("query.challenge.invalid_key"));
-				}
-			}
-		}
-
 		protected function create_challenge(){
 
 			$session = $this->requireLogin();
@@ -345,8 +332,25 @@
 			return ChallengeManager::getPublicChallengs($this->dbh, $this->args["limit"], $this->args["offset"]);
 		}
 
+		protected function get_my_challenges(){
+			return ChallengeManager::getMyChallenges($this->dbh, $this->requireLogin());
+		}
+		
+		protected function get_participated_challenges(){
+			$res = ChallengeManager::getParticipatedChallenges($this->dbh, $this->requireLogin());
+			foreach($res as $key => $value){
+				$value['username'] = ChallengeManager::getOwnerName($this->dbh, $value['username'])[0]['username'];
+				$res[$key] = $value; 
+			}
+			return $res; 
+		}
+
 		protected function count_challenges(){
 			return array("count" => ChallengeManager::countPublicChallenges($this->dbh));
+		}
+
+		protected function count_my_challenges(){
+			return array("count" => ChallengeManager::countMyChallenges($this->dbh, $this->requireLogin()));
 		}
 
 		protected function get_teams(){
@@ -358,8 +362,6 @@
 
 			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
 
-			// Verify that the user is allowed to receive information about this challenge
-			$this->verifyChallengeAccess($challengeId);
 			return ChallengeManager::getTeams($this->dbh, $challengeId);
 		}
 
@@ -372,16 +374,32 @@
 			));
 
 			$this->verifyOptionalParameters(array(
-					"code" => "/\d/" // Code that is maybe required to join a team
+					"code" => self::defaultTextRegEx(0,16)
 			));
 			$this->assignOptionalParameter("code", null);
 
 			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
 
 			$this->requireEnabledChallenge($challengeId);
-			$this->verifyChallengeAccess($challengeId);
 
 			TeamManager::joinTeam($this->dbh, $this->args["team_id"], $session->getAccountId(), $this->args["code"]);
+
+			return self::buildResponse(true);
+		}
+
+		protected function leave_team(){
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
+					"team_id" => "/\d/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+
+			$this->requireEnabledChallenge($challengeId);
+
+			TeamManager::leaveTeam($this->dbh, $this->args["team_id"], $session->getAccountId());
 
 			return self::buildResponse(true);
 		}
@@ -401,29 +419,51 @@
 				throw new InvalidArgumentException($this->locale->get("query.challenge.challenge_does_not_exist"));
 			}
 
-			// Verify that the user is allowed to join the challenge
-			$this->verifyChallengeAccess($challengeId);
+			if(TeamManager::teamWithNameExists($this->dbh, $challengeId, $this->args["name"])){
+				throw new InvalidArgumentException($this->locale->get("query.challenge.teamname_in_use"));
+			}
 
-			$challengeInfo = ChallengeManager::getChallengeInformation($this->dbh, $challengeId);
-			$currentUserIsOwner = ($challengeInfo["owner"] == $session->getAccountId());
-
-			// Check that the user has the right to create teams
-			if($challengeInfo["predefined_teams"] == 1 && !$currentUserIsOwner){
-				throw new InvalidArgumentException($this->locale->get("query.challenge.no_custom_teams"));
+			if($this->hasParameter("predefined_team")){
+				$this->requireChallengeOwner($challengeId, $session);
 			}
 
 			// Check optional parameters
 			$this->verifyOptionalParameters(array(
-					"color" => "/\^#[A-Fa-f0-9]{6}$/",
-					"code" => self::defaultTextRegEx(1,16)
+					"color" => "/^#[A-Fa-f0-9]{6}$/",
+					"code" => self::defaultTextRegEx(0,16),
+					"predefined_team" => "/^(true|false|0|1)$/"
 			));
 
 			$this->assignOptionalParameter("color", "0xFF0000"); //TODO: randomize this value
 			$this->assignOptionalParameter("code", null);
+			$this->assignOptionalParameter("predefined_team", false);
 
-			$id = TeamManager::createTeam($this->dbh, $challengeId, $this->args["name"], $this->args["color"], $challengeInfo["predefined_teams"], $this->args["code"]);
+			$predefTeamVal = false;
+			if(strcasecmp($this->args["predefined_team"], "true") == 0 || strcasecmp($this->args["predefined_team"], "1") == 0){
+				$predefTeamVal = true;
+			}
+
+			$id = TeamManager::createTeam($this->dbh, $challengeId, $this->args["name"], $this->args["color"], $predefTeamVal, $this->args["code"]);
 
 			return self::buildResponse(true, array("team_id" => $id));
+		}
+
+		protected function delete_team(){
+			$session = $this->requireLogin();
+
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
+					"team_id" => "/\d/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+
+			$this->requireEnabledChallenge($challengeId);
+			$this->requireChallengeOwner($challengeId, $session);
+
+			TeamManager::deleteTeam($this->dbh, $this->args["team_id"]);
+
+			return self::buildResponse(true);
 		}
 
 		// ================ Challenge Info ==========================
@@ -453,6 +493,23 @@
 			else{
 				$info["your_team"] = -1;
 			}
+			return self::buildResponse(true, $info);
+		}
+
+		protected function get_memberlist(){
+
+			$this->requireParameters(array(
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
+			));
+
+			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
+
+			if($challengeId == -1){
+				return self::buildResponse(false, array("msg" => "Invalid session key."));
+			}
+
+			$info["memberlist"] = ChallengeManager::getTeamlistById($this->dbh, $this->args["teamid"]);
+
 			return self::buildResponse(true, $info);
 		}
 

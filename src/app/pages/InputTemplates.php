@@ -27,9 +27,9 @@
 			print("</select>\n</div>\n");
 		}
 
-		public static function printFlipswitch($nameAndId, $labelText, $isRequiredField, $isChecked){
+		public static function printFlipswitch($nameAndId, $labelText, $isRequiredField, $isChecked, $containerId = null){
 
-			print("<div class=\"ui-field-contain\">\n" .
+			print("<div " . ($containerId != null ? "id=\"" . $containerId . "\" " : "") . "class=\"ui-field-contain\">\n" .
 					self::getDefaultLabel($nameAndId, $labelText, $isRequiredField) .
 					"<input id=\"" . $nameAndId . "\" name=\"" . $nameAndId . "\" data-role=\"flipswitch\" type=\"checkbox\"" . ($isChecked ? " checked" : "") . ">" .
 				  "</div>\n");

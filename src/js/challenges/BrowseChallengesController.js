@@ -44,7 +44,10 @@ function BrowseChallengesController(){
 		createChallengePopup: "#create-challenge-popup",
 		createChallengeInput: "#create-challenge-input",
 		createChallengeErrorInfo: "#create-challenge-errorinfo",
-		createChallengeConfirm: "#create-challenge-confirm"
+		createChallengeConfirm: "#create-challenge-confirm",
+		enabled: "#MyChallengesEnabled",
+		notenabled: "#MyChallengesNotEnabled",
+		joined: "#MyChallengesJoined"
 	}
 
 	/*
@@ -66,6 +69,7 @@ function BrowseChallengesController(){
 		$(htmlElement.listview).listview('refresh');
 		countPublicChallenges();
 		loadPublicChallengeListFromServer();
+		countMyChallenges();
 
 		$(htmlElement.nextPageButton).click(function(){
 			if(currentPage < maxPages - 1){
@@ -129,27 +133,6 @@ function BrowseChallengesController(){
 	 */
 
 	/**
-	 * Sends a request to the server to get the first page of the challenge list
-	 *
-	 * @private
-	 * @memberOf BrowseChallengesController
-	 * @instance
-	 */
-	function loadPublicChallengeListFromServer(){
-		uplink.sendChallenge_GetPublic(
-			function(response){
-				try{
-					updateList(JSON.parse(response));
-				}
-				catch(e){
-					displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
-											   "Details:\\n{0}", [e.message]));
-				}
-			}, itemsPerPage, currentPage * itemsPerPage);
-	}
-
-
-	/**
 	 * Sends a <b>COUNT_CHALLENGES</b> command to the server
 	 *
 	 * @private
@@ -177,6 +160,91 @@ function BrowseChallengesController(){
 												   "Details:\\n{0}", [e.message]));
 					}
 				});
+	}
+
+	/**
+	 * Sends a request to the server to get the first page of the challenge list
+	 *
+	 * @private
+	 * @memberOf BrowseChallengesController
+	 * @instance
+	 */
+	function loadPublicChallengeListFromServer(){
+		uplink.sendChallenge_GetPublic(
+			function(response){
+				try{
+					updateList(JSON.parse(response));
+				}
+				catch(e){
+					displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
+											   "Details:\\n{0}", [e.message]));
+				}
+			}, itemsPerPage, currentPage * itemsPerPage);
+	}
+
+	/**
+	 * Sends a <b>COUNT_CHALLENGES</b> command to the server
+	 *
+	 * @private
+	 * @memberOf BrowseChallengesController
+	 * @instance
+	 */
+	function countMyChallenges(){
+
+		uplink.sendChallenge_CountMyChallenges(
+				function(response){
+					try{
+						var result = JSON.parse(response);
+
+						if(result.hasOwnProperty("count")){
+							if(parseInt(result.count) > 0){
+								$('#my-challenges').removeClass('ui-state-disabled');
+								loadMyChallengeListFromServer();
+							}
+						}
+					}
+					catch(e){
+						displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
+												   "Details:\\n{0}", [e.message]));
+					}
+				});
+	}
+
+	/**
+	 * Sends a request to the server to get all own (including not enabled) challenges
+	 *
+	 * @private
+	 * @memberOf BrowseChallengesController
+	 * @instance
+	 */
+	function loadMyChallengeListFromServer(){
+		$(htmlElement.enabled).empty();
+		$(htmlElement.notenabled).empty();
+		$(htmlElement.joined).empty();
+
+		uplink.sendChallenge_GetMyChallenges(
+			"get_my_challenges",
+			function(response){
+				try{
+					updateMyList(JSON.parse(response), false);
+				}
+				catch(e){
+					displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
+											   "Details:\\n{0}", [e.message]));
+				}
+				uplink.sendChallenge_GetMyChallenges(
+					"get_participated_challenges",
+					function(response){
+						try{
+							updateMyList(JSON.parse(response), true);
+						}
+						catch(e){
+							displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
+													   "Details:\\n{0}", [e.message]));
+						}
+					}
+				);
+			});
 	}
 
 	/**
@@ -209,10 +277,6 @@ function BrowseChallengesController(){
 		updatePageInfo();
 	}
 
-	function displayError(message){
-		GuiToolkit.showPopup("Error", message, "OK", null);
-	}
-
 	/**
 	 * Generates the HTML-Code for a single list item
 	 * @param name {String} Challenge name
@@ -236,6 +300,50 @@ function BrowseChallengesController(){
 					"<p>" + desc + "</p>" +
 					"<p class=\"ui-li-aside\"><i>" + locale.get("challenge.start_date", "Start time:") + "</i><br>" + start_time.replace(" ", "<br>") + "</p>" +
 				"</li>\n";
+	}
+
+	/**
+	 * Updates the own challenges list with the data of the ajax request
+	 * @param data {Object}
+	 * @param participated {boolean}
+	 *
+	 * @private
+	 * @memberOf BrowseChallengesController
+	 * @instance
+	 */
+	function updateMyList(data, participated = false){
+
+		if(data.length > 0){
+			for(var i = 0; i < data.length; i++){
+				var c = data[i];
+				var path;
+				if(participated){
+					path = $(htmlElement.joined)
+				} else {
+					path = (c.is_enabled == "1" ? $(htmlElement.enabled) : $(htmlElement.notenabled));
+				}
+				path.append(generateChallengeItemCode(c.name, c.username, c.sessionkey, c.description, c.full_name, c.start_time));
+			}
+
+			$(htmlElement.enabled).listview('refresh');
+			$(htmlElement.notenabled).listview('refresh');
+			$(htmlElement.joined).listview('refresh');
+
+			$(htmlElement.enabled + " li a.li-clickable").click(function(){
+				challenge_OnClick(this);
+			});
+			$(htmlElement.notenabled + " li a.li-clickable").click(function(){
+				challenge_OnClick(this);
+			});
+			$(htmlElement.joined + " li a.li-clickable").click(function(){
+				challenge_OnClick(this);
+			});
+
+		}
+	}
+
+	function displayError(message){
+		GuiToolkit.showPopup("Error", message, "OK", null);
 	}
 
 	function updatePageInfo(){

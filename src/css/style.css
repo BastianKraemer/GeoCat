@@ -256,6 +256,19 @@ canvas.gpsradar {
 	color: #555555;
 }
 
+.delete-team-col {
+	width: 16px;
+}
+
+.delete-team-col span {
+	cursor: pointer;
+}
+
+.delete-team-col span:hover {
+	color: red;
+}
+
+
 /* ==============================================================================
 	Styled-Table
 ============================================================================== */

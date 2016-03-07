@@ -262,10 +262,30 @@ function Uplink(pathToRootDirectory){
 						null,
 						ajaxERROR);
 	}
+	
+	this.sendChallenge_GetMyChallenges = function(targetfunction, successCallback){
+		sendHTTPRequest(urlPrefix + "query/challenge.php",
+						{
+							task: targetfunction
+						},
+						false,
+						successCallback,
+						null,
+						ajaxERROR);
+	}
 
 	this.sendChallenge_CountPublic = function(successCallback){
 		sendHTTPRequest(urlPrefix + "query/challenge.php",
 						{task: "count_challenges"},
+						false,
+						successCallback,
+						null,
+						ajaxERROR);
+	}
+	
+	this.sendChallenge_CountMyChallenges = function(successCallback){
+		sendHTTPRequest(urlPrefix + "query/challenge.php",
+						{task: "count_my_challenges"},
 						false,
 						successCallback,
 						null,

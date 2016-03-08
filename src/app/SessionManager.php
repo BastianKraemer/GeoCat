@@ -112,7 +112,7 @@
 			}
 			while(true){
 				$accId = self::getAccountId();
-				$token = base64_encode(mcrypt_create_iv(40, MCRYPT_DEV_URANDOM));
+				$token = urlencode(base64_encode(mcrypt_create_iv(30, MCRYPT_DEV_URANDOM)));
 				// check if new token already exists
 				$res = DBTools::fetch($dbh, "SELECT count(*) " .
 									  "FROM logintoken " .
@@ -136,7 +136,7 @@
 		}
 		
 		public function verifyCookie($dbh, $data){
-			$decodedCookie = urldecode(str_replace("%22", "", $data));
+			$decodedCookie = str_replace("%22", "", $data);
 			$res = DBTools::fetchAssoc($dbh, "SELECT * FROM logintoken WHERE token = :token", array("token" => $decodedCookie));
 			if($res > 0) {
 				$username = AccountManager::getUserNameByAccountId($dbh, $res['account_id']);

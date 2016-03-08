@@ -17,11 +17,35 @@
 		 * @throws PDOException If the connection couldn't be established
 		 */
 		public static function connectToDatabase($config){
+			return self::connect($config, false, false);
+		}
+
+		/**
+		 * Create a PDO database object by using the default configuration
+		 * @param array $config Application configuration (see "config/config.php")
+		 * @param boolean $verbose
+		 * @param boolean $withoutDatabaseName
+		 *
+		 * @throws PDOException If the connection couldn't be established
+		 */
+		public static function connect($config, $verbose, $withoutDatabaseName){
 			$port = ($config["database.port"] != "" ? ";port=" . $config["database.port"] : "");
+			$dbName = ($withoutDatabaseName ? "" : ";dbname=" . $config["database.name"]);
+			$charsetOption = ($config["database.type"] == "mysql" ? ";charset=utf8" : "");
+
+			if($verbose){
+				printf("Connecting to %s://%s@%s%s%s...\n", $config["database.type"], $config["database.username"], $config["database.host"],
+						($config["database.port"] != "" ? ":" . $config["database.port"] : ""),
+						($withoutDatabaseName ||($config["database.name"] == "") ? "" : " (database: " . $config["database.name"] . ")"));
+			}
+
 			// Establish connection to database
-			$dbh = new PDO($config["database.type"] . ":host=" . $config["database.host"] . $port . ";dbname=" . $config["database.name"] . ( $config['database.type'] != 'pgsql' ? ";charset=utf8" : "" ), $config["database.username"], $config["database.password"]);
+			$dbh = new PDO($config["database.type"] . ":host=" . $config["database.host"] . $port . $dbName . $charsetOption, $config["database.username"], $config["database.password"]);
 			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			if($config["database.type"] == 'pgsql'): self::query($dbh, "SET CLIENT_ENCODING TO 'UTF8';"); endif;
+			if($config["database.type"] != 'mysql'){
+				self::query($dbh, "SET CLIENT_ENCODING TO 'UTF8';");
+			}
+
 			return $dbh;
 		}
 

@@ -224,17 +224,6 @@ CREATE TABLE `ChallengeType` (
 );
 
 -- ---
--- Table 'GuestAccount'
--- 
--- ---
-
-DROP TABLE IF EXISTS `GuestAccount`;
-		
-CREATE TABLE `GuestAccount` (
-  `next_number` INTEGER NOT NULL
-);
-
--- ---
 -- Table 'LoginToken'
 -- 
 -- ---
@@ -245,6 +234,18 @@ CREATE TABLE `LoginToken` (
   `account_id` INTEGER NOT NULL,
   `token` VARCHAR(64) NOT NULL,
   PRIMARY KEY (`account_id`)
+);
+
+-- ---
+-- Table 'GeoCat'
+-- 
+-- ---
+
+DROP TABLE IF EXISTS `GeoCat`;
+		
+CREATE TABLE `GeoCat` (
+  `db_version` VARCHAR(16) NOT NULL DEFAULT 'NULL',
+  `db_revision` INTEGER NOT NULL
 );
 
 -- ---

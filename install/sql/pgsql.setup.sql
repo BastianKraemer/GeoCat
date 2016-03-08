@@ -125,14 +125,15 @@ full_name VARCHAR(32) NOT NULL ,
 PRIMARY KEY (challenge_type_id)
 );
 
-CREATE TABLE GuestAccount (
-next_number INTEGER NOT NULL 
-);
-
 CREATE TABLE LoginToken (
 account_id INTEGER NOT NULL ,
 token VARCHAR(64) NOT NULL ,
 PRIMARY KEY (account_id)
+);
+
+CREATE TABLE GeoCat (
+db_version VARCHAR(16) NOT NULL DEFAULT 'NULL' ,
+db_revision INTEGER NOT NULL 
 );
 
 CREATE TABLE ChallengeStats (

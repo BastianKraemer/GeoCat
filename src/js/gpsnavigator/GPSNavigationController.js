@@ -68,7 +68,7 @@ function GPSNavigationController(){
 				showCoordinateEditDialog(null, "", "", lastGPSPos.coords.latitude, lastGPSPos.coords.longitude, true);
 			}
 			else{
-				SubstanceTheme.showNotification("<p>" + GeoCat.local.get("gpsnav.no_gps_fix", "Unable to get current GPS position") + ".</p>", 7,
+				SubstanceTheme.showNotification("<p>" + GeoCat.locale.get("gpsnav.no_gps_fix", "Unable to get current GPS position") + ".</p>", 7,
 						$.mobile.activePage[0], "substance-skyblue no-shadow white");
 			}
 		});
@@ -191,11 +191,11 @@ function GPSNavigationController(){
 	 */
 	function showCoordinateEditDialog(id, name, description, latitude, longitude, showAdd2OwnPlaces){
 
-		me.enableEvents(false);
+		me.ignoreNextEvent();
 
 		CoordinateEditDialogController.showDialog(
 			$.mobile.activePage.attr("id"),
-			function(){me.enableEvents(true);},
+			null,
 			function(data, editDialog){
 				sendCoordUpdate(id, data.name, data.lat, data.lon, data.add2ownplaces)
 			},
@@ -317,7 +317,7 @@ function GPSNavigationController(){
 		}
 		else{
 			// The user is not signed in - just add the coordinate to the navigation
-			localCoordStore.addCoordinateToNavigation(new Coordinate.create(name, lat, lon, desc));
+			localCoordStore.addCoordinateToNavigation(new Coordinate.create(name, lat, lon, ""));
 		}
 	}
 }

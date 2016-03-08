@@ -301,7 +301,7 @@
 											"SET name = :name, description = :desc, latitude = :lat, longitude = :lon " .
 											"WHERE coord_id = :coordId",
 											array("coordId" => $coordinate_id, "name" => $newName, "desc" => $newDescription,
-												  "lat" => round($newLongitude, self::ROUND_COORDS_TO), "lon" => round($newLongitude, self::ROUND_COORDS_TO)));
+												  "lat" => round($newLatitude, self::ROUND_COORDS_TO), "lon" => round($newLongitude, self::ROUND_COORDS_TO)));
 
 				if(!$res){
 					// ERROR - Write debug information to PHP error log

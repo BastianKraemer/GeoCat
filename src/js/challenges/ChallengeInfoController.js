@@ -364,9 +364,9 @@ function ChallengeInfoController(sessionKey) {
 
 				if(challengeData["is_enabled"] == 1){
 					// The challenge is already enabled - caches cannot be edited anymore
-					showButton(buttons.start, handleClickOnGoToNavigator);
 
 					if(challengeData['your_team'] != -1){
+						showButton(buttons.start, handleClickOnGoToNavigator);
 						showButton(buttons.leaveChallenge, handleClickOnLeaveTeam);
 					} else {
 						showButton(buttons.resetChallenge, handleClickOnResetChallenge);
@@ -440,11 +440,10 @@ function ChallengeInfoController(sessionKey) {
 	};
 
 	var showCacheEditDialog = function(ccId, editData){
-		me.enableEvents(false);
-
+		me.ignoreNextEvent();
 		CoordinateEditDialogController.showDialog(
 			$.mobile.activePage.attr("id"),
-			function(){me.enableEvents(true);},
+			null,
 			function(data, editDialog){
 				sendChallengeCacheUpdateRequest(data, ccId, editDialog);
 			},

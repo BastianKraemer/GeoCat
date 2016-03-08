@@ -13,6 +13,7 @@ function PagePrototype(pageId, constructorCallback){
 
 	var currentInstance = null;
 	var handleEvents = true;
+	var ignoreNextPageChange = false;
 
 	var onPageOpened = function(){
 		if(handleEvents){
@@ -23,6 +24,10 @@ function PagePrototype(pageId, constructorCallback){
 			if(currentInstance != null){
 				currentInstance.pageOpened();
 			}
+		}
+		else if(ignoreNextPageChange){
+			ignoreNextPageChange = false;
+			handleEvents = true;
 		}
 	};
 
@@ -44,6 +49,11 @@ function PagePrototype(pageId, constructorCallback){
 	 */
 	this.enableEvents = function(value){
 		handleEvents = value;
+	};
+
+	this.ignoreNextEvent = function(){
+		handleEvents = false;
+		ignoreNextPageChange = true;
 	};
 
 	/**

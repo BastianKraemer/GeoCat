@@ -89,6 +89,9 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 			$(containter.hintContainer).show();
 			inputElements["hint"] = {id: "#EditCoordinate-hint", isCheckbox: false};
 		}
+		else{
+			$(containter.hintContainer).hide();
+		}
 
 		if(optionIsActive("showPriorityField")){
 
@@ -113,25 +116,40 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 				}
 			}
 		}
+		else{
+			$(containter.priorityContainer).hide();
+		}
 
 		if(optionIsActive("showCodeField")){
 			$(containter.codeContainer).show();
 			inputElements["code"] = {id: "#EditCoordinate-code", isCheckbox: false};
+		}
+		else{
+			$(containter.codeContainer).hide();
 		}
 
 		if(optionIsActive("showAddToOwnPlaces")){
 			$("#EditCoordinate-add-to-own-places-container").show();
 			inputElements["add2ownplaces"] = {id: "#EditCoordinate-add-to-own-places", isCheckbox: true};
 		}
+		else{
+			$("#EditCoordinate-add-to-own-places-container").hide();
+		}
 
 		if(optionIsActive("hideIsPublicField")){
 			$(containter.isPublicContainer).hide();
 			delete inputElements.desc;
 		}
+		else{
+			$(containter.isPublicContainer).show();
+		}
 
 		if(optionIsActive("hideDescriptionField")){
 			$(containter.descriptionContainer).hide();
 			delete inputElements.isPublic;
+		}
+		else{
+			$(containter.descriptionContainer).show();
 		}
 
 		if(optionIsActive("noAutoClose")){

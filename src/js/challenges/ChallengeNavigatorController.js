@@ -32,6 +32,7 @@ function ChallengeNavigatorController(challenge_id){
 	var showPriorities = false;
 
 	var gpsRadar = null;
+	var updateInterval = null;
 
 	this.pageOpened = function(){
 
@@ -60,6 +61,9 @@ function ChallengeNavigatorController(challenge_id){
 	};
 
 	this.pageClosed = function(){
+
+		stop();
+
 		$(htmlElement["codeinput_ok"]).unbind();
 		$(htmlElement["codeinput_textfield"]).unbind();
 		$(htmlElement["reload_button"]).unbind();
@@ -580,7 +584,19 @@ function ChallengeNavigatorController(challenge_id){
 	var start = function(){
 		gpsRadar = new GPSRadar($(htmlElement["canvas_container"])[0], $(htmlElement["canvas"])[0]);
 		gpsRadar.start();
-		setInterval(updateGPSRadar, 2000);
+		updateInterval = setInterval(updateGPSRadar, 2000);
+	};
+
+	var stop = function(){
+		if(gpsRadar != null){
+			gpsRadar.stop();
+			gpsRadar == null;
+		}
+
+		if(updateInterval != null){
+			clearInterval(updateInterval);
+			updateInterval = null;
+		}
 	};
 
 	var updateGPSRadar = function(){

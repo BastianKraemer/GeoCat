@@ -135,7 +135,7 @@ GeoCat.login = function(username, paswd, callback, pathToRoot){
 			catch(e){console.log("ERROR: " + e);}
 			callback(false);
 		},
-		error: function(xhr, status, error){alert("ERROR"); callback(false);}
+		error: function(xhr, status, error){console.log("AJAX request failed."); callback(false);}
 	});
 };
 

@@ -32,7 +32,7 @@ var Dialogs = (function(){
 			h.innerHTML = "GeoCat Login"
 
 			var form = document.createElement("form");
-			form.setAttribute("action", "#");
+			form.setAttribute("action", "./app/GeoCat.php");
 			form.setAttribute("target", "formtarget");
 
 			var iframe = document.createElement("iframe");
@@ -68,6 +68,7 @@ var Dialogs = (function(){
 			container.appendChild(p);
 
 			var callback = function(success){
+
 				if(success){
 					form.submit();
 					SubstanceTheme.hideCurrentNotification();

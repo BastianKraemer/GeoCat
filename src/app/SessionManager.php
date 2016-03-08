@@ -102,9 +102,59 @@
 		 * @param int expire		lifetime of cookie, default: expires at end of session
 		 * @param string path		available domain-level (and below), default: entire domain
 		 */
-		public function createCookie($name, $data, $expire = 0, $path = "/"){
+		public function createCookie($name, $data, $jsonencode = true, $expire = 0, $path = "/"){
 			return setcookie($name, json_encode($data), ($expire > 0 ? time()+$expire : $expire), $path);
 		}
+		
+		public function createLoginToken($dbh, $setcookie = true){
+			if(!self::isSignedIn()){
+				throw new InvalidArgumentException('an error occured while creating login-token');
+			}
+			while(true){
+				$accId = self::getAccountId();
+				$token = base64_encode(mcrypt_create_iv(40, MCRYPT_DEV_URANDOM));
+				// check if new token already exists
+				$res = DBTools::fetch($dbh, "SELECT count(*) " .
+									  "FROM logintoken " .
+									  "WHERE token = :token ", array("token" => $token), PDO::FETCH_NUM);
+				if($res[0] > 0){ continue; }
+				// check if user already has a login-token
+				unset($res);
+				$res = DBTools::fetch($dbh,	"SELECT count(*) " .
+									  "FROM logintoken " .
+									  "WHERE account_id = :accid", array("accid" => $accId), PDO::FETCH_NUM);
+				if($res[0] > 0){
+					DBTools::query($dbh, "DELETE FROM logintoken WHERE account_id = :accid;", array("accid" => $accId)); 
+				} 
+				DBTools::query($dbh, "INSERT INTO logintoken (account_id, token) VALUES (:accid, :token); ", array("accid" => $accId, "token" => $token));
+				break; 
+			} 
+			if($setcookie){
+				// expires in 30 days
+				self::createCookie("GEOCAT_LOGIN", $token, false, (30 * 24 * 60 * 60)); 
+			}
+		}
+		
+		public function verifyCookie($dbh, $data){
+			$decodedCookie = urldecode(str_replace("%22", "", $data));
+			$res = DBTools::fetchAssoc($dbh, "SELECT * FROM logintoken WHERE token = :token", array("token" => $decodedCookie));
+			if($res > 0) {
+				$username = AccountManager::getUserNameByAccountId($dbh, $res['account_id']);
+				self::performLogin($dbh, $res['account_id'], $username);
+			}
+			if(self::isSignedIn()){
+				return true; 
+			}
+			return false; 
+		}
+		
+		public function deleteCookie($dbh){
+			if(self::isSignedIn()){
+				$accId = self::getAccountId();
+				DBTools::query($dbh, "DELETE FROM logintoken WHERE account_id = :accid;", array("accid" => $accId)); 
+			}
+		}
+		
 	}
 
 	/**

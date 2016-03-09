@@ -15,14 +15,15 @@ var Dialogs = (function(){
 		label.setAttribute("for", forId);
 		return label;
 	};
-	
-	var createCheckbox = function(id, checked = false){
+
+	var createCheckbox = function(id, checked){
 		var input = document.createElement("input");
 		input.id = id;
+		input.className = "substance-checkbox substance-animated";
 		input.name = id;
 		input.type = "checkbox";
 		input.checked = (checked ? "checked" : "");
-		return input; 
+		return input;
 	}
 
 	var simulatePageReload = function(){
@@ -56,14 +57,16 @@ var Dialogs = (function(){
 
 			var p = document.createElement("p");
 			p.className = "no-shadow";
-			
+
 			var checkboxContainer = document.createElement("div");
-			checkboxContainer.className = "ui-checkbox";
+			checkboxContainer.setAttribute("data-role", "none");
 			var checkboxLabel = createLabel(GeoCat.locale.get("login.stayloggedin", "Stay logged in"), "rememberme");
 			var checkbox = createCheckbox("rememberme", GeoCat.hasCookie('GEOCAT_LOGIN'));
-			checkboxContainer.appendChild(checkboxLabel);
 			checkboxContainer.appendChild(checkbox);
-			
+			checkboxContainer.appendChild(checkboxLabel);
+			checkbox.setAttribute("data-role", "none");
+			checkboxLabel.setAttribute("data-role", "none");
+
 			var span1 = document.createElement("span");
 			span1.textContent = GeoCat.locale.get("login.create_account", "Create an account");
 			span1.onclick = function(){

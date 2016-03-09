@@ -71,7 +71,7 @@ class GeoCatCLI {
 	}
 
 	public function run($args){
-		if(count($args) <= 2){
+		if(count($args) < 2){
 			printf("Invalid command line option. Use '--help' for more information.\n");
 			exit(1);
 		}

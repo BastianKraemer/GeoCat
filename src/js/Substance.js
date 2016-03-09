@@ -53,11 +53,6 @@ SubstanceTheme.showYesNoDialog = function(htmlContent, container, yesCallback, n
 		SubstanceTheme.calculateVerticalCenter(el);
 		darkBg.style.opacity = 1;
 	}, 100);
-
-	SubstanceTheme.hideCurrentNotification();
-	var handler = new SubstanceNotificationHandler(darkBg);
-
-	return handler;
 }
 
 SubstanceTheme.showWaitScreen = function(msg, container){

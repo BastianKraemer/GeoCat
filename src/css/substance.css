@@ -123,6 +123,9 @@
 .substance-white {background-color: #f9f9f9;}
 .substance-animated.substance-white:hover {background-color: #d9d9d9;}
 
+.substance-black {background-color: #161616;}
+.substance-animated.substance-black:hover {background-color: #323232;}
+
 /*
 -------------------------------------------------------------------------------
 	Substance Container

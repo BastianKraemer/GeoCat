@@ -115,7 +115,7 @@
 				// Check if the argument exists
 				if(array_key_exists($key, $this->args)){
 					// Apply a regular expression to verify the parameters
-					$this->args[$key] = htmlspecialchars($this->args[$key], ENT_QUOTES);
+					$this->args[$key] = htmlspecialchars($this->args[$key]);
 					if($value != null){
 						if(is_int($value)){
 							if(strlen($this->args[$key]) > $value){
@@ -158,8 +158,8 @@
 			return $data;
 		}
 
-		protected static function defaultTextRegEx($minLength, $maxLength){
-			return "/^.{" . $minLength . "," . $maxLength . "}$/";
+		protected static function defaultTextRegEx($minLength, $maxLength, $allowMultipleLines = false){
+			return "/^.{" . $minLength . "," . $maxLength . "}$/" . ($allowMultipleLines ? "m" : "");
 		}
 
 		protected static function defaultTimeRegEx(){

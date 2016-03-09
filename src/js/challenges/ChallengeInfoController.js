@@ -230,7 +230,7 @@ function ChallengeInfoController(sessionKey) {
 
 	var updateGUIWithChallengeData = function(){
 		$(infoElements.title).html(challengeData["name"]);
-		$(infoElements.description).html(challengeData["description"]);
+		$(infoElements.description).html(challengeData["description"].replace(/\n/, "<br />")); // No global match to avoid more than two lines
 
 		$(infoElements.owner).html(challengeData["owner_name"]);
 		$(infoElements.type).html(challengeData["type_name"]);
@@ -657,7 +657,7 @@ function ChallengeInfoController(sessionKey) {
 		var newDesc = $(inputElements.editDesc).val();
 		var isPubic = $(inputElements.editIsPublic).is(":checked");
 
-		sendModifiedChallengeInfo({name: newName, description: newDesc, is_Public: isPubic}, popups.editDescriptionPopup);
+		sendModifiedChallengeInfo({name: newName, description: newDesc, is_public: isPubic ? 1 : 0}, popups.editDescriptionPopup);
 	}
 
 	var editEtcPopupSaveButtonClicked = function(){
@@ -665,7 +665,7 @@ function ChallengeInfoController(sessionKey) {
 		var endTime = $(inputElements.editEndTime).val();
 
 		sendModifiedChallengeInfo({
-				type_id: 				$(inputElements.editType)[0].value,
+				type_id: 			$(inputElements.editType)[0].value,
 				start_time: 		$(inputElements.editStartTime).val().replace("T", " "),
 				end_time: 			endTime == "" ? null : $(inputElements.editEndTime).val().replace("T", " "),
 				predefined_teams: 	$(inputElements.editPredefTeams).is(":checked") ? 1 : 0,
@@ -688,10 +688,11 @@ function ChallengeInfoController(sessionKey) {
 		$(popups.createNewTeam).popup('close');
 
 		sendAJAXRequest(
-				ajaxData,
+			ajaxData,
 			function(response){
 				downloadChallengeInfo();
 			},
+			null,
 			"Error: request 'create team' failed",
 			null);
 	};
@@ -706,6 +707,7 @@ function ChallengeInfoController(sessionKey) {
 			function(response){
 				downloadChallengeInfo();
 			},
+			null,
 			"Error: Unable to delete team",
 			null);
 	};
@@ -736,6 +738,7 @@ function ChallengeInfoController(sessionKey) {
 					return;
 				}
 			},
+			null,
 			"Error: request 'get memberlist' failed",
 			null);
 	}
@@ -748,10 +751,11 @@ function ChallengeInfoController(sessionKey) {
 		ajaxData["code"] = data.code;
 
 		sendAJAXRequest(
-				ajaxData,
+			ajaxData,
 			function(response){
 				downloadChallengeInfo();
 			},
+			null,
 			"Error: request 'join team' failed",
 			null);
 	}
@@ -763,10 +767,11 @@ function ChallengeInfoController(sessionKey) {
 		ajaxData["team_id"] = challengeData['your_team'];
 
 		sendAJAXRequest(
-				ajaxData,
+			ajaxData,
 			function(response){
 				downloadChallengeInfo();
 			},
+			null,
 			"Error: request 'leave team' failed",
 			null);
 	}
@@ -789,6 +794,7 @@ function ChallengeInfoController(sessionKey) {
 					}
 				}
 			},
+			null,
 			"Error: Update of challenge data failed.",
 			popupId
 		);
@@ -798,13 +804,15 @@ function ChallengeInfoController(sessionKey) {
 		ajaxData["task"] = "update_cache";
 		ajaxData["challenge"] = challengeSessionKey;
 		ajaxData["ccid"] = ccid;
-
 		sendAJAXRequest(
 			ajaxData,
 			function(response){
 				// Download all caches again...
 				editDialog.close();
 				downloadCoordData();
+			},
+			function(){
+				editDialog.hideWaitScreen();
 			},
 			"Error: Update of cache failed.",
 			null);
@@ -819,6 +827,7 @@ function ChallengeInfoController(sessionKey) {
 			function(response){
 				$(infoElements.cacheList + " tr[data-cc-id='" + challengeCoordId + "']").remove();
 			},
+			null,
 			"Error: Unable to delete cache.",
 			popupId);
 	};
@@ -833,6 +842,7 @@ function ChallengeInfoController(sessionKey) {
 				$(infoElements.cacheList + " tr td").unbind().css("cursor", "default");
 				enableControls();
 			},
+			null,
 			"Error: Cannot enable challenge",
 			null);
 	};
@@ -843,6 +853,7 @@ function ChallengeInfoController(sessionKey) {
 				challenge: challengeSessionKey,
 			},
 			downloadChallengeInfo,
+			null,
 			"Error: Unable to reset challenge",
 			null);
 	};
@@ -855,12 +866,13 @@ function ChallengeInfoController(sessionKey) {
 			function(){
 				$.mobile.changePage("#ChallengeBrowser");
 			},
+			null,
 			"Error: Unable to delete challenge",
 			null);
 	};
 
 
-	var sendAJAXRequest = function(ajaxData, successHandler, errorMsg, closePopup){
+	var sendAJAXRequest = function(ajaxData, successHandler, errorHandler, errorMsg, closePopup){
 		$.ajax({
 			type: "POST", url: "./query/challenge.php",
 			encoding: "UTF-8",
@@ -873,12 +885,14 @@ function ChallengeInfoController(sessionKey) {
 						successHandler(responseData);
 					}
 					else{
+						if(errorHandler != null){errorHandler();}
 						showError(errorMsg, responseData.msg);
 					}
 				}
 				catch(e){
 					console.log("ERROR: " + e);
 					console.log("Server returned: " + response);
+					if(errorHandler != null){errorHandler();}
 					showError(errorMsg);
 				}
 
@@ -886,7 +900,7 @@ function ChallengeInfoController(sessionKey) {
 					$(closePopup).popup("close");
 				}
 			},
-			error: ajaxError
+			error: function(){if(errorHandler != null){errorHandler();} ajaxError();}
 		});
 	};
 

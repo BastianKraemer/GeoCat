@@ -93,8 +93,8 @@
 			// This parameters can be modified at any time
 			$optionalArgs1 = array(
 				"name" => self::defaultTextRegEx(1, 64),
-				"description" => self::defaultTextRegEx(0, 512),
-				"is_public" => "/[0-1]/",
+				"description" => self::defaultTextRegEx(0, 512, true),
+				"is_public" => "/^[0-1]$/",
 			);
 
 			// This parameters can be modified before a challenge is enabled

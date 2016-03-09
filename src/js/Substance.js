@@ -41,8 +41,6 @@ SubstanceTheme.showYesNoDialog = function(htmlContent, container, yesCallback, n
 		if(noCallback != null){noCallback();};
 	}
 
-
-
 	btnContainer.appendChild(noBtn);
 	btnContainer.appendChild(yesBtn);
 	el.appendChild(btnContainer);
@@ -52,14 +50,32 @@ SubstanceTheme.showYesNoDialog = function(htmlContent, container, yesCallback, n
 	SubstanceTheme.previousNotification = handler;
 
 	setTimeout(function(){
-		var pxPerPercentOfScreen = 100 / window.innerHeight;
-		var value = (100 - ((el.offsetHeight) * pxPerPercentOfScreen)) / 2;
-		if(value < 0){value = 0};
-		el.style.bottom = "auto";
-		el.style.top = value + "%";
+		SubstanceTheme.calculateVerticalCenter(el);
 		darkBg.style.opacity = 1;
 	}, 100);
 
+	SubstanceTheme.hideCurrentNotification();
+	var handler = new SubstanceNotificationHandler(darkBg);
+
+	return handler;
+}
+
+SubstanceTheme.showWaitScreen = function(msg, container){
+	var darkBg = document.createElement("div");
+	darkBg.setAttribute("class", "substance-cover-dark");
+
+	var el = document.createElement("div");
+	el.setAttribute("class", "substance-notification substance-black");
+	el.innerHTML = "<p class=\"white\">" + msg + "</p>";
+
+	darkBg.appendChild(el);
+	container.appendChild(darkBg);
+
+	SubstanceTheme.calculateVerticalCenter(el);
+
+	SubstanceTheme.hideCurrentNotification();
+	var handler = new SubstanceNotificationHandler(darkBg);
+	SubstanceTheme.previousNotification = handler;
 	return handler;
 }
 
@@ -91,6 +107,14 @@ SubstanceTheme.showNotification = function(htmlContent, durationInSeconds, conta
 
 	SubstanceTheme.previousNotification = handler;
 	return handler;
+};
+
+SubstanceTheme.calculateVerticalCenter = function(el){
+	var pxPerPercentOfScreen = 100 / window.innerHeight;
+	var value = (100 - ((el.offsetHeight) * pxPerPercentOfScreen)) / 2;
+	if(value < 0){value = 0};
+	el.style.bottom = "auto";
+	el.style.top = value + "%";
 };
 
 SubstanceTheme.hideCurrentNotification = function(){

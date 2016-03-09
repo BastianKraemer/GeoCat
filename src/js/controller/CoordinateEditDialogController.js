@@ -23,6 +23,7 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 
 	var me = this;
 	var autoClose = true;
+	var waitScreen = null;
 
 	this.pageOpened = function(){
 
@@ -43,12 +44,15 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 
 		$(buttons.confirm).click(function(){
 			var data = genDataObject();
-			var ret = confirmCallback(data, me);
+			waitScreen = SubstanceTheme.showWaitScreen(GeoCat.locale.get("saving_data", "Please wait..."), $.mobile.activePage[0]);
 
-			if(autoClose){
-				returnToPreviousPage();
-			}
+			setTimeout(function(){
+				confirmCallback(data, me);
 
+				if(autoClose){
+					returnToPreviousPage();
+				}
+			}, 200);
 		});
 
 		$(buttons.cancel).click(returnToPreviousPage);
@@ -63,6 +67,13 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 		returnToPreviousPage();
 	}
 
+	this.hideWaitScreen = function(){
+		if(waitScreen != null){
+			waitScreen.hide();
+			waitScreen = null;
+		}
+	}
+
 	this.pageClosed = function(){
 		for(var key in buttons){
 			$(buttons[key]).unbind();
@@ -70,6 +81,7 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 		$("#EditCoordinate-starting-point").unbind();
 		clearForms();
 
+		this.hideWaitScreen();
 		setTimeout(returnCallback, 500);
 	};
 

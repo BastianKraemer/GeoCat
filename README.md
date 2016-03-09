@@ -9,7 +9,7 @@ Note: Currently GeoCat has been tested with PHP 5.6 only.
 ### Environment
 
 - Webserver like Apache or nginx
-- PHP Environment with enabled "mcrypt" module
+- PHP Environment with enabled 'mcrypt' module
 - MariaDB/MySQL or PostgreSQL database
 
 ### Grunt
@@ -32,21 +32,22 @@ Last but not least, run Grunt to build GeoCat
 grunt build
 ```
 
-You will find the new files in the "dest" folder.
+You will find the new files in the 'dest' folder.
 
-If you want to generate php- or JavaScript documentation simply run "grunt doc".
+If you want to generate PHP- or JavaScript documentation simply run 'grunt doc'.
 
 ### Database setup
 
-The geocat database can be set up by the php script "setup.php"
+First of all you have to create the GeoCat configuration file called 'config.php' in the 'config' directory.
+You will find a sample configuration in the 'sample_config.php' file.
 
-To create the database the first time you can use the following parameters:
+After this you can set up the database by using the GeoCat command line interface:
 ```
 cd [/path/to/geocat]/install
-php setup.php --install --type [mysql|pgsql] --user [database_username] --pw [database_password] --create [database_name]
+php geocat.php --install
 ```
 
-For more information use "php setup.php --help"
+For more information use 'php geocat.php --help'
 
 ## License
 GeoCat is release under GNU GPL v3 License

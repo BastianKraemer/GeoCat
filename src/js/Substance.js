@@ -27,11 +27,22 @@ SubstanceTheme.showYesNoDialog = function(htmlContent, container, yesCallback, n
 	var btnContainer = document.createElement("div");
 	btnContainer.setAttribute("class", "center");
 
+
 	var yesBtn = document.createElement("span");
+	var yesButtonEnableFx = function(enable){yesBtn.setAttribute("data-disabled", enable ? 0 : 1);}
+
 	yesBtn.setAttribute("class", "substance-button substance-small-button substance-lime substance-animated img-check");
 	yesBtn.onclick = function(){
-		if(autoHide){handler.hide();}
-		if(yesCallback != null){yesCallback();}
+
+		if(yesBtn.getAttribute("data-disabled") != "1"){
+			if(autoHide){
+				handler.hide();
+			}
+			else{
+				yesButtonEnableFx(false);
+			}
+			if(yesCallback != null){yesCallback(yesButtonEnableFx);}
+		}
 	}
 
 	var noBtn = document.createElement("span");
@@ -53,6 +64,8 @@ SubstanceTheme.showYesNoDialog = function(htmlContent, container, yesCallback, n
 		SubstanceTheme.calculateVerticalCenter(el);
 		darkBg.style.opacity = 1;
 	}, 100);
+
+	return yesBtn.onclick;
 }
 
 SubstanceTheme.showWaitScreen = function(msg, container){

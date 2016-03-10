@@ -81,12 +81,17 @@
 	cursor: pointer;
 }
 
+.substance-button[data-disabled="1"] {
+	background-color: #969696 !important;
+	cursor: default;
+}
+
 .substance-small-button {
 	width: 3em;
 	height: 3em;
 }
 
-.substance-button {
+.substance-animated.substance-button {
 	transition-property: width, height, line-height, margin, background;
 	transition-duration: 0.5s;
 	margin-bottom: 1em;

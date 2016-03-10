@@ -531,7 +531,7 @@ function ChallengeInfoController(sessionKey) {
 				"<h2>" + GeoCat.locale.get("challenge.info.leave.team", "Leave Team") + "</h2>" +
 				"<p>" + GeoCat.locale.get("challenge.info.leave.text", "Do you really want to leave this team?") + "</p>" +
 				"<p><b>" + teamname + "</b></p>",
-				$.mobile.activePage[0], sendLeaveTeam, null, "substance-white");
+				$.mobile.activePage[0], sendLeaveTeam, null, "substance-white", true);
 	}
 
 	var handleClickOnDeleteTeam = function(){
@@ -571,21 +571,21 @@ function ChallengeInfoController(sessionKey) {
 		SubstanceTheme.showYesNoDialog(
 			"<h2>" + GeoCat.locale.get("challenge.info.enable.title", "Enable challenge") + "</h2>" +
 			"<p>" + GeoCat.locale.get("challenge.info.enable.text", "Do you want to enable this challenge? After this you won't be able to edit the caches of this challenge anymore.") + "</p>",
-			$.mobile.activePage[0], sendChallengeEnableRequest, null, "substance-white")
+			$.mobile.activePage[0], sendChallengeEnableRequest, null, "substance-white", true)
 	};
 
 	var handleClickOnResetChallenge = function(){
 		SubstanceTheme.showYesNoDialog(
 				"<h2>" + GeoCat.locale.get("challenge.info.reset.title", "Reset challenge") + "</h2>" +
 				"<p>" + GeoCat.locale.get("challenge.info.reset.text", "Do you really want to reset this challenge? This will delete all teams and the stats.") + "</p>",
-				$.mobile.activePage[0], sendChallengeResetRequest, null, "substance-white")
+				$.mobile.activePage[0], sendChallengeResetRequest, null, "substance-white", true)
 	};
 
 	var handleClickOnDeleteChallenge = function(){
 		SubstanceTheme.showYesNoDialog(
 			"<h2>" + GeoCat.locale.get("challenge.info.delete.title", "Delete challenge") + "</h2>" +
 			"<p>" + GeoCat.locale.get("challenge.info.delete.text", "Do you really want to delete this challenge. This operation can't be undone.") + "</p>",
-			$.mobile.activePage[0], sendChallengeDeleteRequest, null, "substance-white")
+			$.mobile.activePage[0], sendChallengeDeleteRequest, null, "substance-white", true)
 	};
 
 	var trOnClick = function(event, ui){
@@ -605,7 +605,8 @@ function ChallengeInfoController(sessionKey) {
 	}
 
 	var deleteCacheOnClick = function(){
-		sendChallengeRemoveCacheRequest($(popups.cachePopup).attr("data-cc-id"), popups.cachePopup);
+		sendChallengeRemoveCacheRequest($(popups.cachePopup).attr("data-cc-id"));
+		$(popups.cachePopup).popup("close");
 	}
 
 	/*
@@ -657,7 +658,8 @@ function ChallengeInfoController(sessionKey) {
 		var newDesc = $(inputElements.editDesc).val();
 		var isPubic = $(inputElements.editIsPublic).is(":checked");
 
-		sendModifiedChallengeInfo({name: newName, description: newDesc, is_public: isPubic ? 1 : 0}, popups.editDescriptionPopup);
+		sendModifiedChallengeInfo({name: newName, description: newDesc, is_public: isPubic ? 1 : 0});
+		$(popups.editDescriptionPopup).popup('close');
 	}
 
 	var editEtcPopupSaveButtonClicked = function(){
@@ -671,8 +673,8 @@ function ChallengeInfoController(sessionKey) {
 				predefined_teams: 	$(inputElements.editPredefTeams).is(":checked") ? 1 : 0,
 				max_teams:			$(inputElements.editMaxTeams)[0].value,
 				max_team_members:	$(inputElements.editMaxTeamMembers)[0].value,
-			},
-			popups.editEtcPopup);
+			});
+		$(popups.editEtcPopup).popup('close');
 	}
 
 	/*
@@ -693,8 +695,7 @@ function ChallengeInfoController(sessionKey) {
 				downloadChallengeInfo();
 			},
 			null,
-			"Error: request 'create team' failed",
-			null);
+			"Error: request 'create team' failed");
 	};
 
 	var sendDeleteTeam = function(teamId){
@@ -708,8 +709,7 @@ function ChallengeInfoController(sessionKey) {
 				downloadChallengeInfo();
 			},
 			null,
-			"Error: Unable to delete team",
-			null);
+			"Error: Unable to delete team");
 	};
 
 	var sendGetTeamMemberlist = function(teamid){
@@ -739,8 +739,7 @@ function ChallengeInfoController(sessionKey) {
 				}
 			},
 			null,
-			"Error: request 'get memberlist' failed",
-			null);
+			"Error: request 'get memberlist' failed");
 	}
 
 	var sendJoinTeam = function(data){
@@ -756,8 +755,7 @@ function ChallengeInfoController(sessionKey) {
 				downloadChallengeInfo();
 			},
 			null,
-			"Error: request 'join team' failed",
-			null);
+			"Error: request 'join team' failed");
 	}
 
 	var sendLeaveTeam = function(){
@@ -772,11 +770,10 @@ function ChallengeInfoController(sessionKey) {
 				downloadChallengeInfo();
 			},
 			null,
-			"Error: request 'leave team' failed",
-			null);
+			"Error: request 'leave team' failed");
 	}
 
-	var sendModifiedChallengeInfo = function(ajaxData, popupId){
+	var sendModifiedChallengeInfo = function(ajaxData){
 		ajaxData["task"] = "modify";
 		ajaxData["challenge"] = challengeSessionKey;
 
@@ -795,9 +792,7 @@ function ChallengeInfoController(sessionKey) {
 				}
 			},
 			null,
-			"Error: Update of challenge data failed.",
-			popupId
-		);
+			"Error: Update of challenge data failed.");
 	};
 
 	var sendChallengeCacheUpdateRequest = function(ajaxData, ccid, editDialog){
@@ -814,11 +809,10 @@ function ChallengeInfoController(sessionKey) {
 			function(){
 				editDialog.hideWaitScreen();
 			},
-			"Error: Update of cache failed.",
-			null);
+			"Error: Update of cache failed.");
 	};
 
-	var sendChallengeRemoveCacheRequest = function(challengeCoordId, popupId){
+	var sendChallengeRemoveCacheRequest = function(challengeCoordId){
 		sendAJAXRequest({
 				task: "remove_cache",
 				challenge: challengeSessionKey,
@@ -828,8 +822,7 @@ function ChallengeInfoController(sessionKey) {
 				$(infoElements.cacheList + " tr[data-cc-id='" + challengeCoordId + "']").remove();
 			},
 			null,
-			"Error: Unable to delete cache.",
-			popupId);
+			"Error: Unable to delete cache.");
 	};
 
 	var sendChallengeEnableRequest = function(){
@@ -843,8 +836,7 @@ function ChallengeInfoController(sessionKey) {
 				enableControls();
 			},
 			null,
-			"Error: Cannot enable challenge",
-			null);
+			"Error: Cannot enable challenge");
 	};
 
 	var sendChallengeResetRequest = function(){
@@ -854,8 +846,7 @@ function ChallengeInfoController(sessionKey) {
 			},
 			downloadChallengeInfo,
 			null,
-			"Error: Unable to reset challenge",
-			null);
+			"Error: Unable to reset challenge");
 	};
 
 	var sendChallengeDeleteRequest = function(){
@@ -867,12 +858,11 @@ function ChallengeInfoController(sessionKey) {
 				$.mobile.changePage("#ChallengeBrowser");
 			},
 			null,
-			"Error: Unable to delete challenge",
-			null);
+			"Error: Unable to delete challenge");
 	};
 
 
-	var sendAJAXRequest = function(ajaxData, successHandler, errorHandler, errorMsg, closePopup){
+	var sendAJAXRequest = function(ajaxData, successHandler, errorHandler, errorMsg){
 		$.ajax({
 			type: "POST", url: "./query/challenge.php",
 			encoding: "UTF-8",
@@ -894,10 +884,6 @@ function ChallengeInfoController(sessionKey) {
 					console.log("Server returned: " + response);
 					if(errorHandler != null){errorHandler();}
 					showError(errorMsg);
-				}
-
-				if(closePopup != null){
-					$(closePopup).popup("close");
 				}
 			},
 			error: function(){if(errorHandler != null){errorHandler();} ajaxError();}

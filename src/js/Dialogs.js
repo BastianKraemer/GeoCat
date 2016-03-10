@@ -67,43 +67,44 @@ var Dialogs = (function(){
 			container.appendChild(iframe);
 			container.appendChild(p);
 
-			var callback = function(success){
+			var onAcceptFunction = function(enableDialogAcceptButton){
+				GeoCat.login(
+					$("#login-username").val(), $("#login-password").val(),
+					function(success){
+						if(success){
+							form.submit();
+							SubstanceTheme.hideCurrentNotification();
+							simulatePageReload();
+						}
+						else{
+							enableDialogAcceptButton(true);
+							container.classList.add('shake-horizontal');
+							$("#login-username, #login-password").css("borderColor", "red").css("color", "red");
+							setTimeout(function(){
+								container.classList.remove('shake-horizontal');
+							}, 500);
 
-				if(success){
-					form.submit();
-					SubstanceTheme.hideCurrentNotification();
-					simulatePageReload();
-				}
-				else{
-					container.classList.add('shake-horizontal');
-					$("#login-username, #login-password").css("borderColor", "red").css("color", "red");
-					setTimeout(function(){
-						container.classList.remove('shake-horizontal');
-					}, 500);
-
-					setTimeout(function(){
-						$("#login-username, #login-password").removeAttr('style');
-					}, 1500);
-				}
+							setTimeout(function(){
+								$("#login-username, #login-password").removeAttr('style');
+							}, 1500);
+						}
+					},
+					pathToRoot);
 			};
 
-			var onAcceptFunction = function(){
-				GeoCat.login($("#login-username").val(), $("#login-password").val(), callback, pathToRoot)
-			};
+			var performAccept = SubstanceTheme.showYesNoDialog(container, $.mobile.activePage[0], onAcceptFunction, null, "substance-white", false);
 
 			var onKeyDownFunction = function(event){
 				var key = event.keyCode;
 				if(key == 13){
-					onAcceptFunction();
+					performAccept();
 				}
-			}
+			};
 
 			userInput.onkeydown = onKeyDownFunction;
 			pwInput.onkeydown = onKeyDownFunction;
 
-			SubstanceTheme.showYesNoDialog(
-				container, $.mobile.activePage[0],
-				onAcceptFunction, null, "substance-white", false);
+
 		},
 
 		showCreateAccountDialog: function(pathToRoot){
@@ -138,28 +139,39 @@ var Dialogs = (function(){
 			container.appendChild(pw2Label);
 			container.appendChild(pw2Input);
 			container.appendChild(p);
-			var callback = function(success, responseMsg){
-				if(success){
-					SubstanceTheme.hideCurrentNotification();
-					simulatePageReload();
-				}
-				else{
-					p.textContent = responseMsg;
-				}
-			}
 
 			SubstanceTheme.showYesNoDialog(
 				container, $.mobile.activePage[0],
-				function(){
+				function(enableDialogAcceptButton){
 					if($("#create-account-password1").val() == $("#create-account-password2").val()){
-						GeoCat.createAccount($("#create-account-username").val(), $("#create-account-email").val(), $("#create-account-password1").val(),
-											 callback, pathToRoot);
+						GeoCat.createAccount(
+							$("#create-account-username").val(), $("#create-account-email").val(), $("#create-account-password1").val(),
+							function(success, responseMsg){
+								if(success){
+									SubstanceTheme.hideCurrentNotification();
+									simulatePageReload();
+								}
+								else{
+									enableDialogAcceptButton(true);
+									p.textContent = responseMsg;
+								}
+							},
+							pathToRoot);
 					}
 					else{
 						p.textContent = GeoCat.locale.get("createacc.passwd_not_equal", "The entered passwords doesn't match.")
+						enableDialogAcceptButton(true);
 					}
 				},
 				null, "substance-white", false);
+
+			setTimeout(function(){
+				// Workaround:
+				// If the browser stores username and password - these fields are sometimes filled too...
+				userInput.value = "";
+				emailInput.value = "";
+				pw1Input.value = "";
+			}, 100);
 		}
 	}
 })();

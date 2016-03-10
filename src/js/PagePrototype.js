@@ -24,6 +24,9 @@ function PagePrototype(pageId, constructorCallback){
 			if(currentInstance != null){
 				currentInstance.pageOpened();
 			}
+			else{
+				GeoCat.noInstanceOfPage(pageId);
+			}
 		}
 		else if(ignoreNextPageChange){
 			ignoreNextPageChange = false;

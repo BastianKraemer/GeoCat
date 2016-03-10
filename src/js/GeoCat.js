@@ -69,7 +69,6 @@ GeoCat.getUplink = function(){
 /**
  * Sets the current challenge for further usage (the infrmation is stored in the HTML5 sessionStorage)
  * @param sessionKey {String} The session key of the challenge
- * @return {Uplink} Reference to an {@link Uplink} object
  *
  * @public
  * @function setCurrentChallenge
@@ -82,7 +81,7 @@ GeoCat.setCurrentChallenge = function(sessionKey){
 
 /**
  * Returns the session key of the current challenge
- * @return {Uplink} Reference to an {@link Uplink} object
+ * @return {String} The session key of the users recently used challenge
  *
  * @public
  * @function getCurrentChallenge
@@ -101,7 +100,6 @@ GeoCat.getCurrentChallenge = function(){
 
 /**
  * Removes the session key of the current challenge from the HTML5 session store
- * @return {Uplink} Reference to an {@link Uplink} object
  *
  * @public
  * @function removeCurrentChallenge
@@ -110,6 +108,26 @@ GeoCat.getCurrentChallenge = function(){
  */
 GeoCat.removeCurrentChallenge = function(){
 	sessionStorage.removeItem("currentChallenge");
+}
+
+/**
+ * The user performed a page reload, so the page instance is lost
+ * This function will redirect the user to another site.
+ *
+ * @public
+ * @function noInstanceOfPage
+ * @memberOf GeoCat
+ * @static
+ */
+GeoCat.noInstanceOfPage = function(pageId){
+	// Redirect to start page (no instance of this page available)
+	switch(pageId){
+		case "#EditCoordinate":
+			$.mobile.changePage("#ChallengeInfo");
+			break;
+		default:
+			$.mobile.changePage("#");
+	}
 }
 
 GeoCat.login = function(username, paswd, callback, pathToRoot){

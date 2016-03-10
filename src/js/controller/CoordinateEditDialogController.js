@@ -94,7 +94,7 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 					$(inputElements.lat.id).val(pos.coords.latitude);
 					$(inputElements.lon.id).val(pos.coords.longitude);
 				}
-			});
+			}, null);
 		}
 
 		if(optionIsActive("showHintField")){

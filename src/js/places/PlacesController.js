@@ -372,7 +372,7 @@ function PlacesController(){
 					$(htmlElement["field_lat"]).val(pos.coords.latitude);
 					$(htmlElement["field_lon"]).val(pos.coords.longitude);
 				}
-			});
+			}, null);
 		}
 		else{
 			$(htmlElement["field_lat"]).val(latitude);

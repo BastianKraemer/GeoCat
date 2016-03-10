@@ -24,7 +24,7 @@
 					</div>
 
 					<label for="EditCoordinate-name"><?php $locale->write("places.popup_edit.name"); ?></label>
-					<input id="EditCoordinate-name"  placeholder="<?php $locale->write("places.placeholder.name"); ?>" data-theme="a" type="text">
+					<input id="EditCoordinate-name" placeholder="<?php $locale->write("places.placeholder.name"); ?>" data-theme="a" type="text">
 
 					<div id="EditCoordinate-desc-container">
 						<label for="EditCoordinate-desc"><?php $locale->write("places.popup_edit.description"); ?></label>
@@ -41,8 +41,12 @@
 								<label for="EditCoordinate-lon"><?php $locale->write("longitude"); ?>:</label>
 								<input id="EditCoordinate-lon" placeholder="8.0000">
 							</td>
+							<td style="vertical-align: bottom; width: 28px">
+								<button id="EditCoordinate-get-gps" style="margin-bottom: 5px;" class="ui-btn ui-icon-location ui-btn-icon-notext"><?php $locale->write("prev_page") ?></button>
+							</td>
 						</tr>
 					</table>
+					<p id="EditCoordinate-wait-for-gps" class="center small" style="margin: 0; display: none"><?php $locale->write("dialog.editcoord.gpsfix"); ?> <span></span></p>
 
 					<div id="EditCoordinate-ispublic-container">
 					    <label>

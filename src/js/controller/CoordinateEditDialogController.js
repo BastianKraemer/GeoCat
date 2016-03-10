@@ -13,12 +13,14 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 			descriptionContainer: "#EditCoordinate-desc-container",
 			hintContainer: "#EditCoordinate-hint-container",
 			priorityContainer: "#EditCoordinate-priority-container",
-			codeContainer: "#EditCoordinate-code-container"
+			codeContainer: "#EditCoordinate-code-container",
+			gpsStatus: "#EditCoordinate-wait-for-gps"
 	}
 
 	var buttons = {
 		confirm: "#EditCoordinate-confirm",
-		cancel: "#EditCoordinate-cancel"
+		cancel: "#EditCoordinate-cancel",
+		getGPS: "#EditCoordinate-get-gps"
 	};
 
 	var me = this;
@@ -56,6 +58,7 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 		});
 
 		$(buttons.cancel).click(returnToPreviousPage);
+		$(buttons.getGPS).click(getGPSPosition);
 	};
 
 	var returnToPreviousPage = function(){
@@ -89,12 +92,7 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 
 		// Insert the current position in the input fields
 		if(optionIsActive("getCurrentPos")){
-			GPS.getOnce(function(pos){
-				if($(inputElements.lat.id).val() == "" && $(inputElements.lon.id).val("")){
-					$(inputElements.lat.id).val(pos.coords.latitude);
-					$(inputElements.lon.id).val(pos.coords.longitude);
-				}
-			}, null);
+			getGPSPosition();
 		}
 
 		if(optionIsActive("showHintField")){
@@ -175,6 +173,25 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 		}
 		return false;
 	};
+
+	var getGPSPosition = function(){
+		$(inputElements.lat.id).val("");
+		$(inputElements.lon.id).val("");
+		$(buttons.getGPS)[0].disabled = true;
+		$(containter.gpsStatus).slideDown("slow");
+
+		GPS.getOnce(function(pos){
+			if($(inputElements.lat.id).val() == "" && $(inputElements.lon.id).val("")){
+				$(inputElements.lat.id).val(pos.coords.latitude);
+				$(inputElements.lon.id).val(pos.coords.longitude);
+			}
+			$(buttons.getGPS)[0].disabled = false;
+			$(containter.gpsStatus).slideUp("slow");
+		},
+		function(p){
+			$(containter.gpsStatus + " span").text("(" + p + "%)");
+		});
+	}
 
 	var genDataObject = function(clear){
 		var obj = {};

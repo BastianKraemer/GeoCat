@@ -53,7 +53,24 @@ body .ui-page-theme-b, .gray-color-gradient {
 
 .listview-right {
 	float: right;
+}
+
+.listview-right:last-Child {
 	font-style: italic;
+}
+
+.listview-right:not(:last-Child) {
+	cursor: pointer;
+	width: 2.5em;
+	margin-right: -1.143em;
+	margin-left: 8px;
+	padding-right: 3px;
+	border-left: 1px solid #646464;
+	text-align: center;
+}
+
+.listview-right:not(:last-Child):hover {
+	color: red;
 }
 
 /* ==============================================================================
@@ -194,24 +211,35 @@ canvas.gpsradar {
 	padding: 0 4px;
 }
 
-#EditPlacePopup-popup, #GPSNavDestListPopup-popup {
-    width: 80%;
-    left: 10%;
-    right: 10%
-}
-
-#EditPlacePopup table,  #GPSNavDestListPopup table{
-	width: 100%;
-}
-
-#EditPlacePopup label {
-	margin-top: 8px;
-}
-
 @media (max-width:800px) {
-	#PlacesListView li a p.ui-li-aside {
+	#places-list li a p.ui-li-aside {
 		display: none;
 	}
+}
+
+#places-list {
+	margin-top: 0;
+}
+
+#places-search-container {
+	position: fixed;
+	top: 4px;
+	width: 80%;
+	left: 10%;
+	background-color: rgba(128, 193, 225, 0.9);
+	border: 1px solid #098cc9;
+	z-index: 100;
+	padding: 0px;
+	display: none;
+}
+
+#places-search-confirm{
+	line-height: 1.3;
+	background-color: #098cc9;
+	border: 1px solid #0175ab;
+	padding: 8px 16px;
+	color: white;
+	cursor: pointer;
 }
 
 /* ==============================================================================
@@ -267,7 +295,6 @@ canvas.gpsradar {
 .delete-team-col span:hover {
 	color: red;
 }
-
 
 /* ==============================================================================
 	Styled-Table

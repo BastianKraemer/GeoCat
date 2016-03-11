@@ -40,9 +40,8 @@ module.exports = function(grunt) {
 
 					'dest/js/controller.min.js':
 						[
-							'src/js/places/PlacesController.js',
 							'src/js/gpsnavigator/GPSNavigationController.js',
-							'src/js/controller/CoordinateEditDialogController.js',
+							'src/js/controller/*.js',
 							'src/js/challenges/*.js'
 						]
 				}

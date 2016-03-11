@@ -3134,7 +3134,7 @@ fieldset.ui-controlgroup {
 .ui-listview .ui-li-aside {
 	position: absolute;
 	top: 1em;
-	right: 3.333em;
+	right: 0.5em;
 	margin: 0;
 	text-align: right;
 }

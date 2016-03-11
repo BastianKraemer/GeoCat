@@ -70,12 +70,12 @@
 	<!-- /build -->
 
 	<!-- build:js ./js/controller.min.js -->
-	<script src="./js/places/PlacesController.js"></script>
 	<script src="./js/gpsnavigator/GPSNavigationController.js"></script>
 	<script src="./js/challenges/BrowseChallengesController.js"></script>
 	<script src="./js/challenges/ChallengeNavigatorController.js"></script>
 	<script src="./js/challenges/ChallengeInfoController.js"></script>
 	<script src="./js/controller/CoordinateEditDialogController.js"></script>
+	<script src="./js/controller/PlacesController.js"></script>
 	<!-- /build -->
 
 	<!-- build:js ./js/gpscat.min.js -->

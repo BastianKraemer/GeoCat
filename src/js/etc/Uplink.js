@@ -48,13 +48,20 @@ function Uplink(pathToRootDirectory){
 	 * @memberOf Uplink
 	 * @instance
 	 */
-	this.sendGetRequest = function(getPrivatePlaces, pageIndex, placesPerPage, successCallback){
+	this.sendGetRequest = function(getPrivatePlaces, offset, limit, filter, successCallback){
+
+		var ajaxData = {
+			task: getPrivatePlaces ? "get" : "get_public",
+			offset: offset,
+			limit: limit
+		}
+
+		if(filter != null){
+			ajaxData["filter"] = filter;
+		}
+
 		sendHTTPRequest(urlPrefix + "query/places.php",
-						{
-							task: getPrivatePlaces ? "get" : "get_public",
-							limit: placesPerPage,
-							offset: placesPerPage * pageIndex
-						},
+						ajaxData,
 						false,
 						successCallback,
 						null,
@@ -103,7 +110,7 @@ function Uplink(pathToRootDirectory){
 							desc: placeDesc,
 							lat: placeLat,
 							lon: placeLon,
-							is_public: placeIsPublic
+							is_public: (placeIsPublic ? 1 : 0)
 						},
 						true,
 						successCallback,
@@ -262,7 +269,7 @@ function Uplink(pathToRootDirectory){
 						null,
 						ajaxERROR);
 	}
-	
+
 	this.sendChallenge_GetMyChallenges = function(targetfunction, successCallback){
 		sendHTTPRequest(urlPrefix + "query/challenge.php",
 						{
@@ -282,7 +289,7 @@ function Uplink(pathToRootDirectory){
 						null,
 						ajaxERROR);
 	}
-	
+
 	this.sendChallenge_CountMyChallenges = function(successCallback){
 		sendHTTPRequest(urlPrefix + "query/challenge.php",
 						{task: "count_my_challenges"},

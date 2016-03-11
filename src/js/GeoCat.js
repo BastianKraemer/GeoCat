@@ -123,7 +123,13 @@ GeoCat.noInstanceOfPage = function(pageId){
 	// Redirect to start page (no instance of this page available)
 	switch(pageId){
 		case "#EditCoordinate":
-			$.mobile.changePage("#ChallengeInfo");
+			if(GeoCat.getCurrentChallenge() != ""){
+				$.mobile.changePage("#ChallengeInfo");
+			}
+			else{
+				$.mobile.changePage("#Places");
+			}
+
 			break;
 		default:
 			$.mobile.changePage("#");

@@ -45,6 +45,8 @@
 		const KEY_COORD_ID = "coord_id";
 		const KEY_OTHER_ACCOUNT = "other_account";
 
+		const COORD_REGEX = "/^[0-9]{1,3}([,\.][0-9]+)?$/";
+
 		/**
 		 * Create a PlacesHTTPRequestHandler instance
 		 * @param String[] HTTP parameters
@@ -70,8 +72,8 @@
 		protected function add(){
 			$this->requireParameters(array(
 					self::KEY_NAME => 64,
-					self::KEY_LAT => "/-?[0-9]{1,9}[,\.][0-9]+/",
-					self::KEY_LON => "/-?[0-9]{1,9}[,\.][0-9]+/",
+					self::KEY_LAT => self::COORD_REGEX,
+					self::KEY_LON => self::COORD_REGEX,
 					self::KEY_IS_PUBLIC => "/^[0-1]$/"
 			));
 
@@ -106,10 +108,10 @@
 		protected function update(){
 			$this->requireParameters(array(
 					self::KEY_NAME => 64,
-					self::KEY_LAT => "/-?[0-9]{1,9}[,\.][0-9]+/",
-					self::KEY_LON => "/-?[0-9]{1,9}[,\.][0-9]+/",
+					self::KEY_LAT => self::COORD_REGEX,
+					self::KEY_LON => self::COORD_REGEX,
 					self::KEY_IS_PUBLIC => "/^[0-1]$/",
-					self::KEY_COORD_ID => "/[0-9]+/"
+					self::KEY_COORD_ID => "/^[0-9]+$/"
 			));
 
 			$this->verifyOptionalParameters(array(
@@ -169,8 +171,8 @@
 		 */
 		protected function get(){
 			$this->verifyOptionalParameters(array(
-					self::KEY_LIMIT => "/[0-9]+/",
-					self::KEY_OFFSET => "/[0-9]+/"
+					self::KEY_LIMIT => "/^[0-9]+$/",
+					self::KEY_OFFSET => "/^[0-9]+$/"
 			));
 
 			$this->assignOptionalParameter(self::KEY_LIMIT, 20);
@@ -191,8 +193,8 @@
 		 */
 		protected function get_public(){
 			$this->verifyOptionalParameters(array(
-					self::KEY_LIMIT => "/[0-9]+/",
-					self::KEY_OFFSET => "/[0-9]+/"
+					self::KEY_LIMIT => "/^[0-9]+$/",
+					self::KEY_OFFSET => "/^[0-9]+$/"
 			));
 
 			$this->assignOptionalParameter(self::KEY_LIMIT, 20);
@@ -218,10 +220,10 @@
 		 */
 		protected function remove(){
 			$this->requireParameters(array(
-					self::KEY_COORD_ID => "/[0-9]+/"
+					self::KEY_COORD_ID => "/^[0-9]+$/"
 			));
 
-			$this->verifyOptionalParameters(array(self::KEY_OTHER_ACCOUNT => "/[0-9]+/"));
+			$this->verifyOptionalParameters(array(self::KEY_OTHER_ACCOUNT => "/^[0-9]+$/"));
 			$this->assignOptionalParameter(self::KEY_OTHER_ACCOUNT, null);
 
 			$session = $this->requireLogin();
@@ -257,7 +259,7 @@
 		 */
 		protected function nav_add(){
 			$this->requireParameters(array(
-					self::KEY_COORD_ID => "/[0-9]+/"
+					self::KEY_COORD_ID => "/^[0-9]+$/"
 			));
 
 			$session = $this->requireLogin();
@@ -276,8 +278,8 @@
 		protected function nav_create(){
 			$this->requireParameters(array(
 					self::KEY_NAME => 64,
-					self::KEY_LAT => "/-?[0-9]{1,9}[,\.][0-9]+/",
-					self::KEY_LON => "/-?[0-9]{1,9}[,\.][0-9]+/"
+					self::KEY_LAT => self::COORD_REGEX,
+					self::KEY_LON => self::COORD_REGEX
 			));
 
 			$this->verifyOptionalParameters(array(
@@ -313,7 +315,7 @@
 		 */
 		protected function nav_remove(){
 			$this->requireParameters(array(
-					self::KEY_COORD_ID => "/[0-9]+/"
+					self::KEY_COORD_ID => "/^[0-9]+$/"
 			));
 
 			$session = $this->requireLogin();

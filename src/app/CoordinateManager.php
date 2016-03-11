@@ -90,6 +90,7 @@
 											"FROM " . SELF::TABLE_ACCOUNT . ", " . SELF::TABLE_PLACE . ", " . SELF::TABLE_COORDINATE . " " .
 											"WHERE Place.is_public = 1 AND Place.account_id = Account.account_id AND Place.coord_id = Coordinate.coord_id " .
 													($filter == null ? "" : "AND (Coordinate.name LIKE :filter OR Coordinate.description LIKE :filter) ") .
+											"ORDER BY Place.modification_date DESC " .
 											"LIMIT " . $limit . " OFFSET " . $offset, ($filter != null ? array("filter" => $filter) : null));
 
 			if($res){
@@ -157,6 +158,7 @@
 											"FROM ". self::TABLE_PLACE . ", " . self::TABLE_COORDINATE . " "  .
 											"WHERE account_id = :accid AND Place.coord_id = Coordinate.coord_id " .
 												($filter == null ? "" : "AND (Coordinate.name LIKE :filter OR Coordinate.description LIKE :filter) ") .
+											"ORDER BY Place.modification_date DESC " .
 											"LIMIT " . $limit . " OFFSET " . $offset, $arr);
 			if($res){
 				$username = AccountManager::getUserNameByAccountId($dbh, $account_id);

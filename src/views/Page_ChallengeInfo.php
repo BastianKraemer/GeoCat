@@ -16,7 +16,7 @@
 			require_once(__DIR__ . "/../app/pages/InputTemplates.php");
 ?>
 	<div data-role="page" id="ChallengeInfo" data-theme="a">
-<?php self::printHeader("Wettbewerb", true, false, $config, $session); ?>
+<?php self::printHeader("Wettbewerb", "#ChallengeBrowser", $locale, $config, $session); ?>
 		<div role="main" class="ui-content">
 
 			<p id="challengeinfo-title" class="title">...</p>

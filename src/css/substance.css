@@ -94,6 +94,9 @@
 .substance-animated.substance-button {
 	transition-property: width, height, line-height, margin, background;
 	transition-duration: 0.5s;
+}
+
+.substance-button-grow {
 	margin-bottom: 1em;
 }
 

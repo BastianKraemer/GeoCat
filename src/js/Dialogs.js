@@ -16,11 +16,6 @@ var Dialogs = (function(){
 		return label;
 	};
 
-	var simulatePageReload = function(){
-		$.mobile.activePage.trigger("pagebeforehide");
-		$.mobile.activePage.trigger("pageshow");
-	}
-
 	// Public function
 	return {
 		showLoginDialog: function(pathToRoot){
@@ -74,7 +69,6 @@ var Dialogs = (function(){
 						if(success){
 							form.submit();
 							SubstanceTheme.hideCurrentNotification();
-							simulatePageReload();
 						}
 						else{
 							enableDialogAcceptButton(true);
@@ -103,7 +97,7 @@ var Dialogs = (function(){
 
 			userInput.onkeydown = onKeyDownFunction;
 			pwInput.onkeydown = onKeyDownFunction;
-
+			userInput.select();
 
 		},
 
@@ -149,7 +143,6 @@ var Dialogs = (function(){
 							function(success, responseMsg){
 								if(success){
 									SubstanceTheme.hideCurrentNotification();
-									simulatePageReload();
 								}
 								else{
 									enableDialogAcceptButton(true);

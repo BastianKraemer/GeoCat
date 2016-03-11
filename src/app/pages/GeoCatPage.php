@@ -7,18 +7,26 @@
 
 		/* Default header for all  pages */
 
-		public static function printHeader($title, $homeButton, $externalLink, $config, $session){ ?>
+		public static function printHeader($title, $backButtonTarget, $locale, $config, $session){ ?>
 		<div data-role="header" data-id="page_header" data-theme="b">
 			<h1><?php echo $title ?></h1>
-			<?php if($homeButton):
-				$href = $externalLink ? $config["app.contextroot"] . "/" : "#Home";
-				$dataAttribute = $externalLink ? "data-rel=\"external\" data-ajax=\"false\"" : ""; ?>
-				<a href="<?php echo $href ?>" <?php echo $dataAttribute ?> class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-home">Home</a>
-			<?php endif;
+<?php		if($backButtonTarget != null){
+				$icon; $txt;
+				if(strcasecmp($backButtonTarget, "#Home") == 0){
+					$icon = "ui-icon-home";
+					$txt = $locale->get("home");
+				}
+				else{
+					$icon = "ui-icon-arrow-l";
+					$txt = $locale->get("back");
+				}
+?>
+				<a href="<?php echo $backButtonTarget ?>" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left <?php echo $icon ?>"><?php echo $txt ?></a>
+<?php 		}
 			$buttonText = $session->isSignedIn() ? $session->getUsername() : "Login";
-			$pathToRoot = $externalLink ? $config["app.contextroot"] : ".";
+			$pathToRoot = ".";
 			$targetJavaScriptFunction = $session->isSignedIn() ? "GeoCat.logout(null, '" . $pathToRoot . "');" : "Dialogs.showLoginDialog('" . $pathToRoot . "');";
-			?>
+?>
 			<button onclick="<?php echo $targetJavaScriptFunction; ?>" class="login-button ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-user"><?php echo $buttonText ?></button>
 		</div>
 <?php

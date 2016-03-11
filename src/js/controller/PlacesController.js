@@ -63,9 +63,11 @@ function PlacesController(){
 	 * @instance
 	 */
 	this.pageOpened = function(){
-
 		if(GeoCat.loginStatus.isSignedIn){
 			currentlyShowingPrivatePlaces = true;
+			$(buttons.addPlace).show();
+			$(buttons.showPrivate).show();
+			$(buttons.showPublic).show();
 		}
 		else{
 			currentlyShowingPrivatePlaces = false;
@@ -78,6 +80,7 @@ function PlacesController(){
 		highlightButton(buttons.showPrivate, currentlyShowingPrivatePlaces);
 		highlightButton(buttons.showPublic, !currentlyShowingPrivatePlaces);
 
+		GeoCat.removeCurrentChallenge();
 
 		$(buttons.addPlace).click(function(){
 			me.ignoreNextEvent();
@@ -415,7 +418,7 @@ function PlacesController(){
 				function(result){
 					editDialog.close();
 					var coord = new Coordinate(result.coord_id, name, lat, lon, desc, isPublic);
-					var now = new Date().toISOString();
+					var now = new Date().toISOString().replace("T", " ").replace("Z", "");
 					var coordInfo = new CoordinateInfo(GeoCat.loginStatus.username, now, now);
 					localCoordStore.storePlace(coord, coordInfo);
 					currentlyDisplayedCoordinates.push(result.coord_id);

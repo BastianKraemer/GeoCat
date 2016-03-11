@@ -43,7 +43,7 @@
 		public function printContent($config, $locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="Home" data-theme="b">
-<?php self::printHeader($config["app.name"] . " - ". $locale->get("mainpage.title"), false, false, $config, $session); ?>
+<?php self::printHeader($config["app.name"] . " - ". $locale->get("mainpage.title"), null, $locale, $config, $session); ?>
 		<div role="main" class="ui-content my-page">
 			<ul data-role="listview" data-inset="true">
 <?php

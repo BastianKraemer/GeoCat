@@ -152,6 +152,8 @@ GeoCat.login = function(username, paswd, callback, pathToRoot){
 					GeoCat.loginStatus = {isSignedIn: true, username: jsonData.username};
 					$(".login-button").text(jsonData.username);
 					$(".login-button").attr("onclick", "GeoCat.logout(null, '" + pathToRoot + "');");
+					$.mobile.activePage.trigger("pagebeforehide");
+					$.mobile.activePage.trigger("pageshow");
 					callback(true);
 					return;
 				}
@@ -174,6 +176,8 @@ GeoCat.logout = function(callback, pathToRoot){
 				$(".login-button").text("Login");
 				$(".login-button").attr("onclick", "Dialogs.showLoginDialog('" + pathToRoot + "');");
 				if(callback != null){callback(true);}
+				$.mobile.activePage.trigger("pagebeforehide");
+				$.mobile.activePage.trigger("pageshow");
 			}
 			else{
 				if(callback != null){callback(false);}
@@ -197,6 +201,8 @@ GeoCat.createAccount = function(userName, email, pw, callback, pathToRoot){
 				GeoCat.loginStatus = {isSignedIn: true, username: userName};
 				$(".login-button").text(userName);
 				$(".login-button").attr("onclick", "GeoCat.logout(null, '" + pathToRoot + "');");
+				$.mobile.activePage.trigger("pagebeforehide");
+				$.mobile.activePage.trigger("pageshow");
 				callback(true, "");
 			}
 			else{

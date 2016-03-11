@@ -14,7 +14,7 @@
 		public function printContent($config, $locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="ChallengeBrowser" data-theme="a">
-<?php self::printHeader($locale->get("challenge.browse.title"), true, false, $config, $session); ?>
+<?php self::printHeader($locale->get("challenge.browse.title"), "#Home", $locale, $config, $session); ?>
 		<div role="main" class="ui-content">
 
 			<a id="my-challenges" href="#popup-my-challenges" data-rel="popup" data-position-to="window" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-a ui-state-disabled" data-transition="pop" style="float: right;"><?php $locale->write("challenge.browse.my_challenges"); ?></a>

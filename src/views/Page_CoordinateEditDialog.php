@@ -90,8 +90,8 @@
 					</div>
 
 					<div class="center">
-						<span id="EditCoordinate-cancel" class="substance-button substance-small-button substance-red img-delete"></span>
-						<span id="EditCoordinate-confirm" class="substance-button substance-small-button substance-green img-check"></span>
+						<span id="EditCoordinate-cancel" class="substance-button substance-small-button substance-animated substance-red img-delete"></span>
+						<span id="EditCoordinate-confirm" class="substance-button substance-small-button substance-animated substance-green img-check"></span>
 					</div>
 				</div>
 			</div>

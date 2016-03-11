@@ -226,36 +226,7 @@ function LocalCoordinateStore(){
 			delete currentNavigation[id];
 		}
 	}
-
-	/**
-	 * Verifies that a coordinate name is valid
-	 * @param str {String}
-	 * @return {Boolean}
-	 *
-	 * @public
-	 * @function verifyString
-	 * @memberOf LocalCoordinateStore
-	 * @instance
-	 */
-	this.verifyString = function(str){
-		return (str.match(/[A-Za-z0-9ÄäÖöÜüß_ ,;\.\!\#\-\*\(\)]{1,63}/g) == str);
-	}
-
-	/**
-	 * Verifies that a coordinate desription is valid
-	 * @param str {String}
-	 * @return {Boolean}
-	 *
-	 * @public
-	 * @function verifyDescriptionString
-	 * @memberOf LocalCoordinateStore
-	 * @instance
-	 */
-	this.verifyDescriptionString = function(str){
-		return (str.match(/^[^<>]{1,255}$/g) == str);
-	}
 }
-
 
 /**
  * This class represents a location that can be send as JSON object to the server

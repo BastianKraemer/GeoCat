@@ -617,9 +617,14 @@ function ChallengeNavigatorController(challenge_id){
 		var lowestDist = minDistanceToSetReached;
 		for(var i = 0; i < coordData.coords.length; i++){
 			var c = coordData.coords[i];
+			if(visibilityList.hasOwnProperty(c.coord_id)){
+				if(visibilityList[c.coord_id] == false){
+					continue;
+				}
+			}
 			var distanceInMeter = GeoTools.calculateDistance(myPos.coords.latitude, myPos.coords.longitude, c.latitude, c.longitude) * 1000;
 			if(distanceInMeter < lowestDist){
-				ilowestDist = distanceInMeter;
+				lowestDist = distanceInMeter;
 				coord = c;
 			}
 		}

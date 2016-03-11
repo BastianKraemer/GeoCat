@@ -14,7 +14,7 @@
 		public function printContent($config, $locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="ChallengeNavigator" data-theme="a">
-		<?php self::printHeader("Challenge Navigator", true, false, $config, $session); ?>
+		<?php self::printHeader("Challenge Navigator", "#ChallengeInfo", $locale, $config, $session); ?>
 		<div id="challenge-navigator-content" role="main" class="ui-content my-page">
 			<div class="gpsradar-container">
 				<canvas id="challenge-navigator-canvas" class="gpsradar"></canvas>

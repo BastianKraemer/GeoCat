@@ -14,7 +14,7 @@
 		public function printContent($config, $locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="Places" data-theme="a">
-<?php self::printHeader($locale->get("places.title"), true, false, $config, $session); ?>
+<?php self::printHeader($locale->get("places.title"), "#Home", $locale, $config, $session); ?>
 		<div role="main" class="ui-content">
 			<div id="places-search-container">
 				<table>

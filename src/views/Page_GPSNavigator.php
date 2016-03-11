@@ -14,7 +14,7 @@
 		public function printContent($config, $locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="GPSNavigator" data-theme="a">
-<?php self::printHeader($locale->get("gpsnav.title"), true, false, $config, $session); ?>
+<?php self::printHeader($locale->get("gpsnav.title"), "#Home", $locale, $config, $session); ?>
 		<div id="gpsnav-content" role="main" class="ui-content my-page">
 			<div class="gpsradar-container">
 				<canvas id="gpsnav-canvas" class="gpsradar"></canvas>

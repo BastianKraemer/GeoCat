@@ -66,6 +66,7 @@
 	<script src="./js/Substance.js"></script>
 	<script src="./js/PagePrototype.js"></script>
 	<script src="./js/Dialogs.js"></script>
+	<script src="./js/ScrollLoader.js"></script>
 	<!-- /build -->
 
 	<!-- build:js ./js/controller.min.js -->

@@ -29,7 +29,8 @@ module.exports = function(grunt) {
 							'src/js/etc/*.js',
 							'src/js/Substance.js',
 							'src/js/PagePrototype.js',
-							'src/js/Dialogs.js'
+							'src/js/Dialogs.js',
+							'src/js/ScrollLoader.js'
 						],
 
 					'dest/js/gpscat.min.js':

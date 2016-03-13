@@ -26,8 +26,11 @@
 
 		public static function createTeam($dbh, $challengeId, $teamName, $teamColor, $isPredefinedTeam, $access_code){
 
-			if(ChallengeManager::countExisitingTeams($dbh, $challengeId) >= ChallengeManager::getMaxNumberOfTeams($dbh, $challengeId)){
-				throw new InvalidArgumentException("Unable create new team: The maximal number of teams for this challenge is already reached.");
+			$maxNumberOfTeams = ChallengeManager::getMaxNumberOfTeams($dbh, $challengeId);
+			if($maxNumberOfTeams > 0){
+				if(ChallengeManager::countExisitingTeams($dbh, $challengeId) > $maxNumberOfTeams){
+					throw new InvalidArgumentException("Unable create new team: The maximal number of teams for this challenge is already reached.");
+				}
 			}
 
 			if($access_code == ""){$access_code = null;}

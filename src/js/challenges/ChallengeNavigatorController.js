@@ -78,7 +78,16 @@ function ChallengeNavigatorController(challenge_id){
 	};
 
 	var codeInputOnClick = function(){
-		sendCapturedOrReached($(htmlElement["codeinput_popup"]).attr("data-ccid"), $(htmlElement["codeinput_textfield"]).val());
+		var ccid = $(htmlElement["codeinput_popup"]).attr("data-ccid");
+		var coord = null;
+		for(var i = 0; i < coordData.coords.length; i++){
+			if(coordData.coords[i].challenge_coord_id == ccid){
+				coord = coordData.coords[i];
+				break; // The case that there is no match should never occur
+			}
+		}
+
+		sendCapturedOrReached(coord, $(htmlElement["codeinput_textfield"]).val());
 		$(htmlElement["codeinput_textfield"]).val("");
 		$(htmlElement["codeinput_popup"]).popup("close");
 	};
@@ -292,7 +301,7 @@ function ChallengeNavigatorController(challenge_id){
 		}
 	};
 
-	var generateItem = function(name, reachedTime, capturedBy, distance, isVisible, index, priority, highlight){
+	var generateItem = function(name, reachedTime, capturedBy, distance, coordIsVisible, index, priority, highlight){
 
 		var prefix = "", textHighlightClass = "", bgHighlightClass = "";
 		var CacheStyle = {REGULAR: 0, STRIKEOUT: 1, HIGHLIGHTED: 2, REACHED: 3, CAPTURED: 4};
@@ -341,14 +350,14 @@ function ChallengeNavigatorController(challenge_id){
 						(capturedBy != null ? "<p style=\"color: " + teamMap[capturedBy].color + "\">" +
 							GeoCat.locale.get("challenge.nav.captured_by", "Captured by") + ": " + teamMap[capturedBy].name + "</p>" : "") +
 					"</a>" +
-					"<a class=\"" + (isVisible ? "ui-icon-eye " : "") + "show-coord\" data-index=\"" + index + "\">" +
+					"<a class=\"" + (coordIsVisible ? "ui-icon-eye " : "") + "show-coord\" data-index=\"" + index + "\">" +
 						GeoCat.locale.get("challenge.nav.show", "Start navigation") +
 					"</a>" +
 				"</li>\n";
 	};
 
 	var listItemOnClick = function(el){
-		var data = coordData.coords[$(el).attr("data-index")];
+		var data = order[$(el).attr("data-index")];
 		if(data.hint != null){
 			SubstanceTheme.showNotification("<h3>" + GuiToolkit.sprintf(GeoCat.locale.get("challenge.nav.hint_for", "Hint for cache '{0}'"), [data.name]) + "</h3>" +
 											"<p>" + data.hint + "</p>", -1,	$.mobile.activePage[0], "substance-skyblue no-shadow white");
@@ -360,7 +369,7 @@ function ChallengeNavigatorController(challenge_id){
 	};
 
 	var toogleVisibilityOnClick = function(el){
-		var coord = coordData.coords[$(el).attr("data-index")];
+		var coord = order[$(el).attr("data-index")];
 		var id = coord.coord_id;
 		if(isVisible(id)){
 			visibilityList[id] = false;

@@ -56,7 +56,7 @@ body .ui-page-theme-b, .gray-color-gradient {
 }
 
 .listview-right:last-Child {
-	font-style: italic;
+	font-weight: 500;
 }
 
 .listview-right:not(:last-Child) {

@@ -74,7 +74,7 @@
 			<ul data-role="listview" data-inset="true">
 <?php
 				$this->addDefaultTile("info", "#", ".", $locale);
-				$this->addDefaultTile("map", "#", ".", $locale);
+				$this->addDefaultTile("map", "#Map", ".", $locale);
 				$this->addDefaultTile("places", "#Places", ".", $locale);
 				$this->addDefaultTile("challenges", "#ChallengeBrowser", ".", $locale);
 				$this->addDefaultTile("social", "#", ".", $locale);

@@ -136,19 +136,21 @@ GeoCat.noInstanceOfPage = function(pageId){
 	}
 }
 
-GeoCat.login = function(username, paswd, callback, pathToRoot){
+GeoCat.login = function(username, paswd, checkbox = false, callback, pathToRoot){
 	$.ajax({
 		type: "POST", url: pathToRoot + "/query/login.php",
 		data: {
+			task: "login",
 			user: username,
-			password: paswd
+			password: paswd,
+			checkbox: checkbox
 		},
 		cache: false,
 		success: function(response){
 			try{
 				var jsonData = JSON.parse(response);
 
-				if(jsonData.status.toLowerCase() == "true"){
+				if(jsonData.status == "ok"){
 					GeoCat.loginStatus = {isSignedIn: true, username: jsonData.username};
 					$(".login-button").text(jsonData.username);
 					$(".login-button").attr("onclick", "GeoCat.logout(null, '" + pathToRoot + "');");
@@ -213,3 +215,61 @@ GeoCat.createAccount = function(userName, email, pw, callback, pathToRoot){
 			callback(false, "Server unreachable.");
 	}});
 };
+
+GeoCat.hasCookie = function(cname){
+	var name = cname + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0; i<ca.length; i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0){
+			return true;
+		}
+	}
+	return false;
+}
+
+GeoCat.deleteLoginCookie = function(cname){
+	if(GeoCat.hasCookie(cname)){
+		var expires = new Date();
+		expires = "expires=" + expires.toUTCString();
+		document.cookie = cname + '=; ' + expires + ";path=/";
+	}
+}
+
+GeoCat.getCookie = function(cname){
+	var name = cname + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0; i<ca.length; i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0){
+			GeoCat.login_cookie(c.substring(name.length, c.length));
+		}
+	}
+}
+
+GeoCat.login_cookie = function(cookieData){
+	$.ajax({
+		type: "POST", url: "./query/login.php",
+		data: {
+			task: "login_cookie",
+			cookie: cookieData
+		},
+		cache: false,
+		success: function(response){
+			try{
+				var jsonData = JSON.parse(response);
+
+				if(jsonData.status == "ok"){
+					GeoCat.loginStatus = {isSignedIn: true, username: jsonData.username};
+					$(".login-button").text(jsonData.username);
+					$(".login-button").attr("onclick", "GeoCat.logout(null, '" + "./" + "');");
+					return;
+				}
+			}
+			catch(e){console.log("ERROR: " + e);}
+		},
+		error: function(xhr, status, error){alert("ERROR");}
+	});
+}

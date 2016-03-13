@@ -87,6 +87,9 @@
 	<script type="text/javascript">
 		GeoCat.init("de", "./");
 		GeoCat.loginStatus = <?php $session->printLoginStatusAsJSON(); ?>;
+		if(!GeoCat.loginStatus.isSignedIn && GeoCat.hasCookie("GEOCAT_LOGIN")){
+			GeoCat.getCookie("GEOCAT_LOGIN");
+		}
 	</script>
 
 <?php

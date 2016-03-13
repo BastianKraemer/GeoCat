@@ -153,6 +153,7 @@ td {
 .login-dialog label {
 	color: black;
 	text-align: left;
+	margin-bottom: 2px;;
 }
 
 .login-dialog input {

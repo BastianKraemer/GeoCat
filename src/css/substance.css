@@ -136,6 +136,54 @@
 
 /*
 -------------------------------------------------------------------------------
+	Substance UI elements
+-------------------------------------------------------------------------------
+*/
+
+/* Checkbox */
+
+.substance-checkbox {
+	display: none;
+}
+
+.substance-checkbox + label {
+	padding: 4px 32px;
+	margin: 0 0 0 -3px;
+	position: relative;
+	cursor: pointer;
+	line-height: 1.5em;
+}
+
+.substance-checkbox + label:hover:after {
+	background-color: #e3e3e3;
+}
+
+.substance-checkbox + label:after {
+	content: ' ';
+	background-color: #f0f0f0;
+	color: #099fd7;
+
+	position: absolute;
+	left: 3px;
+	width: 1.4em;
+	height: 1.4em;
+	text-align: center;
+	
+	border: 1px solid #646464;
+	border-radius: 1px;
+}
+
+.substance-checkbox:checked + label:after {
+	content: '\2716';
+}
+
+.substance-animated.substance-checkbox + label:after {
+	transition-property: background-color;
+	transition-duration: 0.25s;
+}
+
+/*
+-------------------------------------------------------------------------------
 	Substance Container
 -------------------------------------------------------------------------------
 */

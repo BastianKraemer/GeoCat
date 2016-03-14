@@ -41,9 +41,9 @@
 			<div id="challenge-list-tabs" data-role="tabs">
 				<div data-role="navbar">
 					<ul>
-						<li><a id="challenge-list-public"><?php $locale->write("challenge.browse.public"); ?></a></li>
-						<li><a id="challenge-list-joined"><?php $locale->write("challenge.browse.joined"); ?></a></li>
-						<li><a id="challenge-list-owner"><?php $locale->write("challenge.browse.owner"); ?></a></li>
+						<li><a id="challenge-list-public" class="no-shadow"><?php $locale->write("challenge.browse.public"); ?></a></li>
+						<li><a id="challenge-list-joined" class="no-shadow"><?php $locale->write("challenge.browse.joined"); ?></a></li>
+						<li><a id="challenge-list-owner" class="no-shadow"><?php $locale->write("challenge.browse.owner"); ?></a></li>
 					</ul>
 				</div>
 			</div>

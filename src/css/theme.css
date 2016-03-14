@@ -1,0 +1,127 @@
+/* ==============================================================================
+	GeoCat Page Themes
+============================================================================== */
+
+/* General styles */
+
+.ui-header {
+	border: none;
+}
+
+.ui-header h1 {
+	font-weight: 500;
+	text-shadow:0 0 0 !important;
+}
+
+.ui-header > button, .ui-header > a {
+	margin-top: 1px !important;
+	background-color: rgba(0,0,0,0.2) !important;
+	border: none;
+}
+
+.ui-header > button:hover, .ui-header > a:hover {
+	background-color: rgba(0,0,0,0.3) !important;
+}
+
+/* ==============================================================================
+	Page specific colors
+============================================================================== */
+
+/* Start page
+----------------------------------------------- */
+#Home > .ui-header > button, #Home > .ui-header > a {
+	background-color: rgba(255,255,255,0.1) !important;
+}
+
+#Home > .ui-header > button:hover, #Home > .ui-header > a:hover {
+	background-color: rgba(255,255,255,0.2) !important;
+}
+
+/* Page places
+----------------------------------------------- */
+
+#Places .ui-header {
+	background-color: #b8320e;
+}
+
+#Places ul.ui-listview > li.ui-li-divider {
+	background-color: #b45940;
+	text-shadow: 0 0 0 !important;
+	color: white;
+}
+
+/* Challenge Browser
+----------------------------------------------- */
+
+#ChallengeBrowser .ui-header {
+	background-color: #add929;
+}
+
+#ChallengeBrowser .ui-btn.ui-btn-active {
+	background-color: #727272;
+	border-color: #3C3C3C;
+}
+
+#ChallengeBrowser ul.ui-listview > li.ui-li-divider {
+	background-color: #add929;
+	text-shadow: 0 0 0 !important;
+	color: white;
+}
+
+/* Challenge Information
+----------------------------------------------- */
+
+#ChallengeInfo .ui-header {
+	background-color: #0c5c76;
+}
+
+/* Challenge Navigator
+----------------------------------------------- */
+
+#ChallengeNavigator .ui-header {
+	background-color: #0099d2;
+}
+
+/* GPS Navigator
+----------------------------------------------- */
+
+#GPSNavigator .ui-header {
+	background-color: #ff7a0b;
+}
+
+/* Map
+----------------------------------------------- */
+
+#Map .ui-header {
+	background-color: #525252;
+}
+
+/* Buddies
+----------------------------------------------- */
+
+#Buddies .ui-header {
+	background-color: #9d093b;
+}
+
+#Buddies ul.ui-listview > li.ui-li-divider {
+	background-color: #9d093b;
+	text-shadow: 0 0 0 !important;
+	color: white;
+}
+
+/* Accountsettings
+----------------------------------------------- */
+
+#Account .ui-header {
+	background-color: #650881;
+}
+
+#Account ul.ui-listview > li.ui-li-divider {
+	background-color: #9311ba;
+	text-shadow: 0 0 0 !important;
+	color: white;
+}
+
+#Account ul.ui-listview > li.ui-li-divider + li {
+	background-color: #9311ba;
+}

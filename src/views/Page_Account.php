@@ -40,13 +40,13 @@
 			<a href="#" onclick="$.mobile.changePage('#Home'); GeoCat.logout(null, './' );" id="logout" class="ui-btn"><?php $locale->write("logout") ?></a>
 			<form>
 				<ul data-role="listview" data-inset="true" data-divider-theme="a">
-					<li data-role="list-divider"><h2><?php $locale->write("account.email"); ?></h2></li>
+					<li data-role="list-divider"><span><?php $locale->write("account.email"); ?></span></li>
 					<li data-icon="gear"><a href="#popup-edit" id="acc-email" data-rel="popup" data-position-to="window" data-transition="pop"><?php $locale->write("account.loading"); ?></a></li>
-					<li data-role="list-divider"><h2><?php $locale->write("account.username"); ?></h2></li>
+					<li data-role="list-divider"><span><?php $locale->write("account.username"); ?></span></li>
 					<li data-icon="gear"><a href="#popup-edit" id="acc-username" data-rel="popup" data-position-to="window" data-transition="pop"><?php $locale->write("account.loading"); ?></a></li>
-					<li data-role="list-divider"><h2><?php $locale->write("account.firstname"); ?></h2></li>
+					<li data-role="list-divider"><span><?php $locale->write("account.firstname"); ?></span></li>
 					<li data-icon="gear"><a href="#popup-edit" id="acc-firstname" data-rel="popup" data-position-to="window" data-transition="pop"><?php $locale->write("account.loading"); ?></a></li>
-					<li data-role="list-divider"><h2><?php $locale->write("account.lastname"); ?></h2></li>
+					<li data-role="list-divider"><span><?php $locale->write("account.lastname"); ?></span></li>
 					<li data-icon="gear"><a href="#popup-edit" id="acc-lastname" data-rel="popup" data-position-to="window" data-transition="pop"><?php $locale->write("account.loading"); ?></a></li>
 				</ul>
 			</form>

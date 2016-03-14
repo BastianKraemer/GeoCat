@@ -372,7 +372,7 @@ function BuddyController(){
 			}
 			else{
 				spanStatus.textContent = GeoCat.locale.get("buddies.status.req", "Request");
-				spanStatus.style.borderBottom = "2px solid dodgerblue";
+				spanStatus.style.borderBottom = "2px solid rgb(111, 200, 40)";
 			}
 
 			li.appendChild(spanStatus);

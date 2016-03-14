@@ -59,6 +59,7 @@
 	<link rel="stylesheet" href="./css/substance.css">
 	<link rel="stylesheet" href="./css/geocat-images.css" />
 	<link rel="stylesheet" href="./css/tiles.css" />
+	<link rel="stylesheet" href="./css/theme.css" />
 	<link rel="stylesheet" href="./css/ol.css" />
 	<!-- /build -->
 

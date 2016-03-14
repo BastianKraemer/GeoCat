@@ -80,7 +80,7 @@
 				$this->addDefaultTile("navigator", "#GPSNavigator", "navTile", $locale);
 				$this->addDefaultTile("social", "#Buddies", "socialTile", $locale);
 				$this->addDefaultTile("map", "#Map", "mapTile", $locale);
-				$this->addDefaultTile("account", "Account#", "accountTile", $locale);
+				$this->addDefaultTile("account", "#Account", "accountTile", $locale);
 ?>
 			</div>
 		</div>

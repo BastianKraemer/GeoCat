@@ -243,10 +243,10 @@ function BrowseChallengesController(){
 	 */
 	function generateChallengeItemCode(name, owner, sessionKey, desc, type, start_time){
 
-		return 	"<li class=\"challenge-list-item\" data-role=\"list-divider\">" +
+		return 	"<li data-role=\"list-divider\">" +
 					"<span class=\"listview-left\">" + type + "</span>" +
 					"<span class=\"listview-right\">" + owner + "</span></li>" +
-				"<li class=\"challenge-list-item\" data-session-key=\"" + sessionKey + "\" data-icon=\"false\"><a class=\"li-clickable\">" +
+				"<li data-session-key=\"" + sessionKey + "\" data-icon=\"false\"><a class=\"li-clickable\">" +
 					"<h3>"+ name + "</h3>" +
 					"<p>" + desc + "</p>" +
 					"<p class=\"ui-li-aside\"><i>" + GeoCat.locale.get("challenge.start_date", "Start time:") + "</i><br>" + start_time.replace(" ", "<br>") + "</p>" +

@@ -136,14 +136,14 @@ GeoCat.noInstanceOfPage = function(pageId){
 	}
 }
 
-GeoCat.login = function(username, paswd, checkbox = false, callback, pathToRoot){
+GeoCat.login = function(username, paswd, keepSignedIn, callback, pathToRoot){
 	$.ajax({
 		type: "POST", url: pathToRoot + "/query/login.php",
 		data: {
 			task: "login",
 			user: username,
 			password: paswd,
-			checkbox: checkbox
+			keep_signed_in: keepSignedIn
 		},
 		cache: false,
 		success: function(response){

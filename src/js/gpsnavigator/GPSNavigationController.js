@@ -76,7 +76,7 @@ function GPSNavigationController(){
 		gpsRadar = new GPSRadar($(htmlElements.contentDiv)[0], $(htmlElements.canvas)[0]);
 		gpsRadar.start();
 		startTimer();
-	}
+	};
 
 	/**
 	 * This function should be called when the "GPS Navigator" page is closed
@@ -87,14 +87,13 @@ function GPSNavigationController(){
 	 * @instance
 	 */
 	this.pageClosed = function(){
-
 		stopTimer();
 		gpsRadar.stop();
 
 		// Remove all event handler
 		$(htmlElements.coordinatePanel).off();
 		$(htmlElements.addCoordButton).unbind();
-	}
+	};
 
 	function startTimer(){
 		if(updateTimer == null){

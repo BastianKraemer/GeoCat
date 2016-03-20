@@ -1,6 +1,7 @@
 <?php
 	/**
-	 * File SessionManager.php
+	 * PHP file for the GeoCat 'SessionManager'
+	 * @package app
 	 */
 
 	/**
@@ -97,15 +98,22 @@
 
 		/**
 		 * Create new cookie with json encoded content
-		 * @param string name		name of cookie
-		 * @param string data		content of cookie
-		 * @param int expire		lifetime of cookie, default: expires at end of session
-		 * @param string path		available domain-level (and below), default: entire domain
+		 * @param string $name			name of cookie
+		 * @param string $data			content of cookie
+		 * @param boolean $jsonencode	(Optional)
+		 * @param int $expire			(Optional) lifetime of cookie, default: expires at end of session
+		 * @param string $path			(Optional) available domain-level (and below), default: entire domain
 		 */
 		public function createCookie($name, $data, $jsonencode = true, $expire = 0, $path = "/"){
 			return setcookie($name, ($jsonencode ? json_encode($data) : $data), ($expire > 0 ? time()+$expire : $expire), $path);
 		}
-		
+
+		/**
+		 * Create a new login token
+		 * @param PDO $dbh
+		 * @param boolean $setcookie
+		 * @throws InvalidArgumentException If the user is not signed in
+		 */
 		public function createLoginToken($dbh, $setcookie = true){
 			if(!self::isSignedIn()){
 				throw new InvalidArgumentException('an error occured while creating login-token');
@@ -124,17 +132,22 @@
 									  "FROM logintoken " .
 									  "WHERE account_id = :accid", array("accid" => $accId), PDO::FETCH_NUM);
 				if($res[0] > 0){
-					DBTools::query($dbh, "DELETE FROM logintoken WHERE account_id = :accid;", array("accid" => $accId)); 
-				} 
+					DBTools::query($dbh, "DELETE FROM logintoken WHERE account_id = :accid;", array("accid" => $accId));
+				}
 				DBTools::query($dbh, "INSERT INTO logintoken (account_id, token) VALUES (:accid, :token); ", array("accid" => $accId, "token" => $token));
-				break; 
-			} 
+				break;
+			}
 			if($setcookie){
 				// expires in 30 days
-				self::createCookie("GEOCAT_LOGIN", $token, false, (30 * 24 * 60 * 60)); 
+				self::createCookie("GEOCAT_LOGIN", $token, false, (30 * 24 * 60 * 60));
 			}
 		}
-		
+
+		/**
+		 * Verifies the users login token
+		 * @param PDO $dbh Database handler
+		 * @param string $data The users login token
+		 */
 		public function verifyCookie($dbh, $data){
 			$decodedCookie = urldecode(str_replace("%22", "", $data));
 			$res = DBTools::fetchAssoc($dbh, "SELECT * FROM logintoken WHERE token = :token", array("token" => $decodedCookie));
@@ -143,18 +156,22 @@
 				self::performLogin($dbh, $res['account_id'], $username);
 			}
 			if(self::isSignedIn()){
-				return true; 
+				return true;
 			}
-			return false; 
+			return false;
 		}
-		
+
+		/**
+		 * Delete a login token from the database
+		 * @param PDO $dbh Database handler
+		 */
 		public function deleteCookie($dbh){
 			if(self::isSignedIn()){
 				$accId = self::getAccountId();
-				DBTools::query($dbh, "DELETE FROM logintoken WHERE account_id = :accid;", array("accid" => $accId)); 
+				DBTools::query($dbh, "DELETE FROM logintoken WHERE account_id = :accid;", array("accid" => $accId));
 			}
 		}
-		
+
 	}
 
 	/**

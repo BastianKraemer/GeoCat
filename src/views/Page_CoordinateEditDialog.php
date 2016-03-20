@@ -1,8 +1,26 @@
 <?php
+/**
+ * PHP file for the GeoCat coordinate page
+ * @package views
+ */
+	namespace views;
+
 	require_once(__DIR__ . "/../app/pages/GeoCatPage.php");
 
-	class Page_CoordinateEditDialog extends GeoCatPage {
+	/**
+	 * GeoCat coordinate edit dialog
+	 * This page is desigend to offer all pages a common edit dialog for coordinates.
+	 */
+	class Page_CoordinateEditDialog extends \GeoCatPage {
 
+		/**
+		 * {@inheritDoc}
+		 * @param array $config GeoCat configuration
+		 * @param JSONLocale $locale
+		 * @param SessionManager $session
+		 * @param string $pathToRoot
+		 * @see GeoCatPage::printHead()
+		 */
 		public function printHead($config, $locale, $session, $pathToRoot){
 ?>
 	<script type="text/javascript">
@@ -11,6 +29,14 @@
 <?php
 		}
 
+		/**
+		 * {@inheritDoc}
+		 * @param array $config GeoCat configuration
+		 * @param JSONLocale $locale
+		 * @param SessionManager $session
+		 * @param string $pathToRoot
+		 * @see GeoCatPage::printContent()
+		 */
 		public function printContent($config, $locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="EditCoordinate" data-theme="a" class="full-screen">

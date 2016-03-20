@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * RESTful service for GeoCat to perfrom login and logout operations
+ * @package query
+ */
+
+
 require_once(__DIR__ . "/../app/RequestInterface.php");
 require_once(__DIR__ . "/../app/DBTools.php");
 require_once(__DIR__ . "/../app/AccountManager.php");

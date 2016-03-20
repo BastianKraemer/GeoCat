@@ -19,7 +19,8 @@
 	 */
 
 	/**
-	 * File account.php
+	 * RESTful service for GeoCat to deal with accounts
+	 * @package query
 	 */
 
 	require_once(__DIR__ . "/../app/RequestInterface.php");
@@ -41,11 +42,10 @@
 	 * Required parameters: <i>username</i>, <i>email</i></li>
 	 * <li><b>create</b>: Creates an new account.<br />
 	 * Required parameters: <i>username</i>, <i>password</i>, <i>email</i><br />
-	 * Optional parameters: <i>firstname</i>, <i>lastname</i>, <i>public_email [default=false]</i></li>
 	 * </ul>
 	 *
 	 * You can also test this class using cURL:
-	 * <code>curl -s --data "cmd=check&username=[Username]&email=[email]" https://geocat.server/query/account.php</code>
+	 * <code>curl -s --data "task=check&username=[Username]&email=[email]" https://geocat.server/query/account.php</code>
 	 */
 	class AccountHTTPRequestHandler extends RequestInterface {
 
@@ -65,10 +65,21 @@
 			$this->dbh = $dbh;
 		}
 
+		/**
+		 * Handles the request by using the value from the 'task' parameter
+		 */
 		public function handleRequest(){
 			$this->handleAndSendResponseByArgsKey("task");
 		}
 
+		/**
+		 * This function can be used to check or create an GeoCat account.
+		 *
+		 * The behaviour of the method is defined by the 'justCheck' parameter.
+		 * The data is taken from the HTTP request data
+		 *
+		 * @param boolean $justCheck
+		 */
 		private function checkOrCreateAccount($justCheck){
 			$this->requireParameters(array(
 					"username" => null,
@@ -109,23 +120,31 @@
 		}
 
 		/**
+		 * Task: 'check'
+		 *
 		 * Checks if an account already exists
-		 * @param string $username
-		 * @param string $email
+		 *
+		 *  Required HTTP parameters for 'check':
+		 * - <b>username</b>
+		 * - <b>email</b>
 		 */
 		protected function check(){
 			return $this->checkOrCreateAccount(true);
 		}
 
 		/**
-		 * Creates a new account using the request data
-		 * @param string $username
-		 * @param string $password
-		 * @param string $email
-		 * @param boolean  $adminRights
-		 * @param array $details
+		 * Task: 'create'
+		 *
+		 * Creates a new GeoCat account using the request data
+		 *
+		 *  Required HTTP parameters for 'check':
+		 * - <b>username</b>
+		 * - <b>email</b>
 		 */
 		protected function create(){
+			$this->requireParameters(array(
+					"password" => null
+			));
 			return $this->checkOrCreateAccount(false);
 		}
 	}

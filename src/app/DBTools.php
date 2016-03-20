@@ -1,6 +1,7 @@
 <?php
 	/**
 	 * File DBTools.php
+	 * @package app
 	 */
 
 	/**
@@ -9,6 +10,10 @@
 	 */
 	class DBTools {
 
+		/**
+		 * Database handler
+		 * @var PDO
+		 */
 		private static $dbh = null;
 
 		/**
@@ -73,6 +78,7 @@
 		 * @param PDO $dbh PDO database connection
 		 * @param string $sql SQL statement
 		 * @param array $values (optional) Values for the SQL statement
+		 * @param PDOFetchStyle $fetchStyle (Optional) PDO fetch style
 		 * @return array The fetched data
 		 * @throws PDOException If the SQL statement is invalid or contains at least on undefined parameter
 		 * @throws Exception If the database returned an error
@@ -94,6 +100,7 @@
 		 * @param PDO $dbh PDO database connection
 		 * @param string $sql SQL statement
 		 * @param array $values (optional) Values for the SQL statement
+		 * @param PDOFetchStyle $fetchStyle (Optional) PDO fetch style
 		 * @return array The fetched row
 		 * @throws PDOException If the SQL statement is invalid or contains at least on undefined parameter
 		 * @throws Exception If the database returned an error

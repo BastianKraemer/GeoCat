@@ -1,6 +1,7 @@
 <?php
 	/**
 	 * File JSONLocale.php
+	 * @package app
 	 */
 
 	/**

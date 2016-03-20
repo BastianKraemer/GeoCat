@@ -1,7 +1,15 @@
 <?php
+/**
+ * PHP file for the GeoCat start page
+ * @package views
+ */
+	namespace views;
 	require_once(__DIR__ . "/../app/pages/GeoCatPage.php");
 
-	class Page_Home extends GeoCatPage {
+	/**
+	 * GeoCat start page
+	 */
+	class Page_Home extends \GeoCatPage {
 
 		/**
 		 * Add a tile for a jQuery Mobile Listview
@@ -10,6 +18,7 @@
 		 * @param string $aside Tile description (will be displayed in the top right corner of the tile)
 		 * @param string $target Hyperlink (href) for this tile
 		 * @param string $imgsrc Path to the background image
+		 * @param JSONLocale $locale
 		 */
 		private function addTile($title, $text, $aside, $target, $imgsrc, $locale){
 			print(	"\t\t\t" .
@@ -29,6 +38,7 @@
 		 * @param string $tilename The tile name - take a look at the JSON locale file.
 		 * @param string $target Hyperlink (href) for this tile
 		 * @param string $imgsrc Path to the background image
+		 * @param JSONLocale $locale
 		 */
 		private function addDefaultTile($tilename, $target, $imgsrc, $locale){
 			$this->addTile(	"mainpage.tiles." . $tilename . ".title",
@@ -37,9 +47,25 @@
 							$target, $imgsrc, $locale);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 * @param array $config GeoCat configuration
+		 * @param JSONLocale $locale
+		 * @param SessionManager $session
+		 * @param string $pathToRoot
+		 * @see GeoCatPage::printHead()
+		 */
 		public function printHead($config, $locale, $session, $pathToRoot){
 		}
 
+		/**
+		 * {@inheritDoc}
+		 * @param array $config GeoCat configuration
+		 * @param JSONLocale $locale
+		 * @param SessionManager $session
+		 * @param string $pathToRoot
+		 * @see GeoCatPage::printHead()
+		 */
 		public function printContent($config, $locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="Home" data-theme="b">

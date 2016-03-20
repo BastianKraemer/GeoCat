@@ -1,8 +1,25 @@
 <?php
+/**
+ * File for the GeoCat challenge navigator
+ * @package views
+ */
+	namespace views;
+
 	require_once(__DIR__ . "/../app/pages/GeoCatPage.php");
 
-	class Page_ChallengeNavigator extends GeoCatPage {
+	/**
+	 * GeoCat challenge navigator page
+	 */
+	class Page_ChallengeNavigator extends \GeoCatPage {
 
+		/**
+		 * {@inheritDoc}
+		 * @param array $config GeoCat configuration
+		 * @param JSONLocale $locale
+		 * @param SessionManager $session
+		 * @param string $pathToRoot
+		 * @see GeoCatPage::printHead()
+		 */
 		public function printHead($config, $locale, $session, $pathToRoot){
 ?>
 	<script type="text/javascript">
@@ -11,6 +28,14 @@
 <?php
 		}
 
+		/**
+		 * {@inheritDoc}
+		 * @param array $config GeoCat configuration
+		 * @param JSONLocale $locale
+		 * @param SessionManager $session
+		 * @param string $pathToRoot
+		 * @see GeoCatPage::printContent()
+		 */
 		public function printContent($config, $locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="ChallengeNavigator" data-theme="a">

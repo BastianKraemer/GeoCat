@@ -1,6 +1,6 @@
 <?php
 	/*	GeoCat - Geolocation caching and tracking platform
-	 Copyright (C) 2015 Bastian Kraemer
+	 Copyright (C) 2015-2016 Bastian Kraemer
 
 	 places.php
 
@@ -18,13 +18,19 @@
 	 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	 */
 
+	/**
+	 * RESTful service for GeoCat to deal with places and coordinates
+	 * @package query
+	 */
+
 	require_once(__DIR__ . "/../app/RequestInterface.php");
 	require_once(__DIR__ . "/../app/DBTools.php");
 	require_once(__DIR__ . "/../app/JSONLocale.php");
 	require_once(__DIR__ . "/../app/CoordinateManager.php");
 
 	/**
-	 * This class provides a interface to the CoordinateManager.
+	 * This class provides an interface to the CoordinateManager
+	 *
 	 * To interact wih this class you have to send a HTTP request with one ore more parameters which will be mapped to the CoordinateManager
 	 * @link CoordinateManager.html CoordinateManager
 	 */
@@ -57,12 +63,16 @@
 			$this->dbh = $dbh;
 		}
 
+		/**
+		 * Handles the request by using the value from the 'task' parameter
+		 */
 		public function handleRequest(){
 			$this->handleAndSendResponseByArgsKey("task");
 		}
 
 		/**
-		 * Performs a add place request.
+		 * Performs a add place request
+		 *
 		 * Required parameters ($this->args): name, lat (latitude), lon (longitude), is_public
 		 * Optional parameter: desc
 		 * @return string[] String array with two elements: "status", "coord_id"
@@ -98,7 +108,8 @@
 		}
 
 		/**
-		 * Performs a update place request.
+		 * Performs a update place request
+		 *
 		 * Required parameters in ($this->args): name, lat (latitude), lon (longitude), is_public
 		 * Optional parameter: desc
 		 * @return string[] String array with a "status" element
@@ -164,6 +175,7 @@
 
 		/**
 		 * Performs a get places request which returns the places of an user
+		 *
 		 * Required parameters (in $this->args): limit, offset
 		 * Optional parameter: filter
 		 * @return Coordinate[] Array of coordinates with a maximum length of $limit
@@ -186,6 +198,7 @@
 
 		/**
 		 * Performs a get public places request which returns a part of the public places list
+		 *
 		 * Required parameters (in $this->args): limit, offset
 		 * Optional parameter: filter
 		 * @return Coordinate[] Array of coordinates with a maximum length of $limit
@@ -203,18 +216,29 @@
 			return CoordinateManager::getPublicPlaces($this->dbh, intval($this->args[self::KEY_LIMIT]), intval($this->args[self::KEY_OFFSET]), $this->getFilter());
 		}
 
+		/**
+		 * Counts all places that are assigned to this account
+		 * @throws MissingSessionException If the user is not signed in
+		 * @return array ('status' => 'ok', 'count' => '?')
+		 */
 		protected function count(){
 			$session = $this->requireLogin();
 			return self::buildResponse(true, array("count" => CoordinateManager::countPlacesOfAccount($this->dbh, $session->getAccountId(), $this->getFilter())));
 		}
 
+		/**
+		 * Counts all public places
+		 * @return array ('status' => 'ok', 'count' => '?')
+		 */
 		protected function count_public(){
 			return self::buildResponse(true, array("count" => CoordinateManager::countPublicPlaces($this->dbh, $this->getFilter())));
 		}
 
 		/**
 		 * Performs a remove place request
+		 *
 		 * Required parameters (in $this->args): coord_id
+		 *
 		 * @return string[] String array with two elements: "status" and "msg"
 		 * @throws InvalidArgumentException If $this->args["coord_id"] is undefined
 		 */
@@ -246,6 +270,11 @@
 			return self::buildResponse($result == 1);
 		}
 
+		/**
+		 * Returns the current destination list of the user
+		 * @return array
+		 * @throws MissingSessionException If the user is not signed in
+		 */
 		protected function nav_get(){
 			$session = $this->requireLogin();
 			return CoordinateManager::getDestinationList($this->dbh, $session->getAccountId());
@@ -253,6 +282,7 @@
 
 		/**
 		 * Performs a add destination request which appends an existing coordinate to your current navigation list
+		 *
 		 * Required parameters (in $this->args): coord_id
 		 * @return string[] String array with two elements: "status" and "msg"
 		 * @throws InvalidArgumentException If $this->args["coord_id"] is undefined
@@ -270,6 +300,7 @@
 
 		/**
 		 * Performs a add destination request which appends a new coordinate to your current navigation list
+		 *
 		 * Required parameters (in $this->args): name, lat (latitude), lon (longitude)
 		 * Optional parameter: desc
 		 * @return string[] String array with three elements: "status", "msg" and "coord_id"

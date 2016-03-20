@@ -1,4 +1,5 @@
 <?php
+
 	/**
 	 * index.php - Startpage of GeoCat
 	 */
@@ -20,14 +21,16 @@
 	require_once(__DIR__ . "/views/Page_ChallengeInfo.php");
 	require_once(__DIR__ . "/views/Page_CoordinateEditDialog.php");
 
+	use views as views;
+
 	$allPages = array(
-		new Page_Home(),
-		new Page_Places(),
-		new Page_GPSNavigator(),
-		new Page_BrowseChallenges(),
-		new Page_ChallengeNavigator(),
-		new Page_ChallengeInfo(),
-		new Page_CoordinateEditDialog()
+		new \views\Page_Home(),
+		new \views\Page_Places(),
+		new \views\Page_GPSNavigator(),
+		new \views\Page_BrowseChallenges(),
+		new \views\Page_ChallengeNavigator(),
+		new \views\Page_ChallengeInfo(),
+		new \views\Page_CoordinateEditDialog()
 	);
 ?>
 

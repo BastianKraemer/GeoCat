@@ -67,6 +67,12 @@
 			}
 		}
 
+		/**
+		 * Check is an email address is already used by another account
+		 * @param PDO $dbh databse handler
+		 * @param string $email the email address
+		 * @return boolean
+		 */
 		public static function isEMailAddressAlreadyInUse($dbh, $email){
 			$result = DBTools::fetchNum($dbh, "SELECT account_id FROM " . self::TABLE_ACCOUNT . " WHERE email = :email", array(":email" => $email));
 			return !(empty($result));
@@ -257,9 +263,11 @@
 		}
 	}
 
+	/**
+	 * Account status enumeration
+	 */
 	abstract class AccountStatus
 	{
-		//Usage: $type = ChallengeType::DefaultChallenge;
 		const AccountDoesNotExist = 1;
 		const UsernameAlreadyInUse = 0;
 		const EMailAddressAlreadyInUse = -1;

@@ -18,25 +18,61 @@
 	 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	 */
 
+	/**
+	 * RESTful service for GeoCat to deal with challenges and teams
+	 * @package query
+	 */
+
 	require_once(__DIR__ . "/../app/RequestInterface.php");
 	require_once(__DIR__ . "/../app/DBTools.php");
 	require_once(__DIR__ . "/../app/challenge/ChallengeManager.php");
 	require_once(__DIR__ . "/../app/challenge/TeamManager.php");
 	require_once(__DIR__ . "/../app/JSONLocale.php");
 
+	/**
+	 * This class provides an REST interface to interact with challenges
+	 *
+	 * To interact wih this class you have to send a HTTP request to this file
+	 */
 	class ChallengeHTTPRequestHandler extends RequestInterface {
 
+		/**
+		 * Database handler
+		 * @var PDO
+		 */
 		private $dbh;
 
+		/**
+		 * Create a ChallengeHTTPRequestHandler instance
+		 * @param String[] HTTP parameters (most likely those of $_POST)
+		 * @param PDO $dbh Database handler
+		 */
 		public function __construct($parameters, $dbh){
 			parent::__construct($parameters, JSONLocale::withBrowserLanguage());
 			$this->dbh = $dbh;
 		}
 
+		/**
+		 * Handles the request by using the value from the 'task' parameter
+		 */
 		public function handleRequest(){
 			$this->handleAndSendResponseByArgsKey("task");
 		}
 
+		/**
+		 * Task: 'create_challenge'
+		 *
+		 * Required HTTP parameters:
+		 * - <b>name</b>
+		 *
+		 * Optional parameters:
+		 * - <b>desc</b> Challenge description
+		 * - <b>type</b> ('default' or 'ctf')
+		 * - <b>is_public</b> ('0': no, 1: yes)
+		 * - <b>predefined_teams</b> ('0': no, 1: yes)
+		 * - <b>max_teams</b> (use -1 for no limit)
+		 * - <b>max_team_members</b>
+		 */
 		protected function create_challenge(){
 
 			$session = $this->requireLogin();
@@ -49,8 +85,8 @@
 				"type" => "/^(default|ctf)$/i",
 				"is_public" => "/[0-1]/",
 				"predefined_teams" =>  "/[0-1]/",
-				"max_teams" => "/\d/",
-				"max_team_members" => "/\d/"
+				"max_teams" => "/-?[0-9]+/",
+				"max_team_members" => "/[0-9]+/"
 			));
 
 			$this->assignOptionalParameter("desc", "");
@@ -79,6 +115,19 @@
 		 * Task: 'modify'
 		 *
 		 * This will modify any information of a challenge
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 *
+		 * Optional parameters:
+		 * - <b>name</b> Challenge description
+		 * - <b>description</b> ('default' or 'ctf')
+		 * - <b>is_public</b> ('0': no, 1: yes)
+		 * - <b>start_time</b>
+		 * - <b>end_time</b>
+		 * - <b>predefined_teams</b> ('0': no, 1: yes)
+		 * - <b>max_teams</b> (use -1 for no limit)
+		 * - <b>max_team_members</b>
 		 */
 		protected function modify(){
 			$session = $this->requireLogin();
@@ -103,8 +152,8 @@
 					"start_time" => $this::defaultTimeRegEx(),
 					"end_time" => null,
 					"predefined_teams" =>  "/[0-1]/",
-					"max_teams" => "/\d/",
-					"max_team_members" => "/\d/"
+					"max_teams" => "/-?[0-9]+/",
+					"max_team_members" => "/[0-9]+/"
 			);
 
 			$this->verifyOptionalParameters($optionalArgs1);
@@ -149,6 +198,16 @@
 		 * Task: 'update_cache
 		 *
 		 * This will create or update a cache
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 * - <b>ccid</b> The 'challenge coord id'
+		 * - <b>name</b> Name of the chache
+		 * - <b>lat</b> Latitude
+		 * - <b>lon</b>
+		 * - <b>priority</b> A number between 0 and 999
+		 * - <b>hint</b>
+		 * - <b>code</b>
 		 */
 		protected function update_cache(){
 			$session = $this->requireLogin();
@@ -159,7 +218,7 @@
 				"name" => $this->defaultTextRegEx(1, 64),
 				"lat" => "/-?[0-9]{1,9}[,\.][0-9]+/",
 				"lon" => "/-?[0-9]{1,9}[,\.][0-9]+/",
-				"priority" => "/\d/",
+				"priority" => "/[0-9]{1,3}/",
 				"hint" => $this->defaultTextRegEx(0, 256),
 				"code" => $this->defaultTextRegEx(0, 256),
 			));
@@ -192,7 +251,7 @@
 			}
 			else{
 				// Update existing coord
-				if(!preg_match("/\d/", $this->args["ccid"])){
+				if(!preg_match("/[0-9]+/", $this->args["ccid"])){
 					return self::buildResponse(false, array("msg" => "Parameter 'ccid' is not a valid integer."));
 				}
 
@@ -217,13 +276,17 @@
 		 * Task: 'remove_cache'
 		 *
 		 * Removes a cache from a challenge
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 * - <b>ccid</b> The 'challenge coord id'
 		 */
 		protected function remove_cache(){
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
 					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
-					"ccid" => "/\d/"
+					"ccid" => "/[0-9]+/"
 			));
 
 			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
@@ -247,6 +310,9 @@
 		 * Task: 'enable'
 		 *
 		 * This will enable a challenge
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
 		 */
 		protected function enable(){
 			$session = $this->requireLogin();
@@ -272,6 +338,9 @@
 		 * Task: 'reset'
 		 *
 		 * This resets a challenge. After this all teams and stats of this challenge are removed.
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
 		 */
 		protected function reset(){
 			$session = $this->requireLogin();
@@ -293,6 +362,9 @@
 		 * Task: 'delete'
 		 *
 		 * This deletes a challenge completely
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
 		 */
 		protected function delete(){
 			$session = $this->requireLogin();
@@ -315,11 +387,20 @@
 		 * ====================================================================
 		 */
 
+		/**
+		 * Task: 'get_challenges'
+		 *
+		 * Returns a list of all public challenges
+		 *
+		 * Optional HTTP parameters:
+		 * - <b>limit</b>
+		 * - <b>offset</b>
+		 */
 		protected function get_challenges(){
 
 			$this->verifyOptionalParameters(array(
-					"limit" => "/\d/",
-					"offset" => "/\d/"
+					"limit" => "/[0-9]+/",
+					"offset" => "/[0-9]+/"
 			));
 
 			$this->assignOptionalParameter("limit", 10);
@@ -327,10 +408,22 @@
 			return ChallengeManager::getPublicChallengs($this->dbh, $this->args["limit"], $this->args["offset"]);
 		}
 
+		/**
+		 * Task: 'get_my_challenges'
+		 *
+		 * Returns a list of all public challenges (this requires that the user is signed in)
+		 * @throws MissingSessionException If the user is not signed in
+		 */
 		protected function get_my_challenges(){
 			return ChallengeManager::getMyChallenges($this->dbh, $this->requireLogin());
 		}
 
+		/**
+		 * Task: 'get_participated_challenges'
+		 *
+		 * Returns a list of all challenges the user is participating
+		 * @throws MissingSessionException If the user is not signed in
+		 */
 		protected function get_participated_challenges(){
 			$res = ChallengeManager::getParticipatedChallenges($this->dbh, $this->requireLogin());
 			foreach($res as $key => $value){
@@ -340,14 +433,32 @@
 			return $res;
 		}
 
+		/**
+		 * Task: 'count_challenges'
+		 *
+		 * Counts the number of public challenges
+		 */
 		protected function count_challenges(){
 			return array("count" => ChallengeManager::countPublicChallenges($this->dbh));
 		}
 
+		/**
+		 * Task: 'count_my_challenges'
+		 *
+		 * Counts the number of challenges the user has created (this requires that the user is signed in)
+		 */
 		protected function count_my_challenges(){
 			return array("count" => ChallengeManager::countMyChallenges($this->dbh, $this->requireLogin()));
 		}
 
+		/**
+		 * Task: 'get_teams'
+		 *
+		 * Returns the team list of a challenge (this requires that the user is signed in)
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 */
 		protected function get_teams(){
 			$session = $this->requireLogin();
 
@@ -360,12 +471,24 @@
 			return ChallengeManager::getTeams($this->dbh, $challengeId);
 		}
 
+		/**
+		 * Task: 'join_team'
+		 *
+		 * This function can be used to join a team.
+		 * This requires a valid login.
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 * - <b>team_id</b> The team the user will join
+		 *
+		 * @throws InvalidArgumentException if the user can't join this team
+		 */
 		protected function join_team(){
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
 					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
-					"team_id" => "/\d/"
+					"team_id" => "/[0-9]+/"
 			));
 
 			$this->verifyOptionalParameters(array(
@@ -382,12 +505,24 @@
 			return self::buildResponse(true);
 		}
 
+		/**
+		 * Task: 'leave_team'
+		 *
+		 * This function can be used to leave a team.
+		 * This requires a valid login.
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 * - <b>team_id</b> The team the user will leave
+		 *
+		 * @throws InvalidArgumentException if the user can't leave the team
+		 */
 		protected function leave_team(){
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
 					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
-					"team_id" => "/\d/"
+					"team_id" => "/[0-9]+/"
 			));
 
 			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
@@ -395,10 +530,20 @@
 			$this->requireEnabledChallenge($challengeId);
 
 			TeamManager::leaveTeam($this->dbh, $this->args["team_id"], $session->getAccountId());
-
 			return self::buildResponse(true);
 		}
 
+		/**
+		 * Task: 'create_team'
+		 *
+		 * Create a new team - this requires a valid login.
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 * - <b>name</b> The name of the new team
+		 *
+		 * @throws InvalidArgumentException if the operation failed
+		 */
 		protected function create_team(){
 
 			$session = $this->requireLogin();
@@ -443,12 +588,23 @@
 			return self::buildResponse(true, array("team_id" => $id));
 		}
 
+		/**
+		 * Task: 'delete_team'
+		 *
+		 * Delete a team - this requires a valid login.
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 * - <b>team_id</b> The team that will be deleted
+		 *
+		 * @throws InvalidArgumentException if the operation failed
+		 */
 		protected function delete_team(){
 			$session = $this->requireLogin();
 
 			$this->requireParameters(array(
 					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
-					"team_id" => "/\d/"
+					"team_id" => "/[0-9]+/"
 			));
 
 			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
@@ -463,6 +619,14 @@
 
 		// ================ Challenge Info ==========================
 
+		/**
+		 * Task: 'about'
+		 *
+		 * Returns detailed information about a challenge
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 */
 		protected function about(){
 
 			$this->requireParameters(array(
@@ -491,10 +655,20 @@
 			return self::buildResponse(true, $info);
 		}
 
+		/**
+		 * Task: 'get_memberlist'
+		 *
+		 * Returns the list of challenge members for this team
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 * - <b>teamid</b>
+		 */
 		protected function get_memberlist(){
 
 			$this->requireParameters(array(
-					"challenge" => "/^[A-Za-z0-9]{4,16}$/"
+					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
+					"teamid" => "/[0-9]+/"
 			));
 
 			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
@@ -508,6 +682,15 @@
 			return self::buildResponse(true, $info);
 		}
 
+		/**
+		 * Task: 'coord_info'
+		 *
+		 * Returns detailed information about the caches of a challenge
+		 * This requires a valid login.
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 */
 		protected function coord_info(){
 
 			$this->requireParameters(array(
@@ -540,7 +723,15 @@
 
 		// ================ Challenge Navigator ==========================
 
-		// Get the information about this challenge (name, teams, team colors, ...)
+		/**
+		 * Task: 'device_start'
+		 *
+		 * Get information about this challenge (name, teams, team colors, ...)
+		 * This requires a valid login.
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 */
 		protected function device_start(){
 			$session = $this->requireLogin();
 
@@ -563,7 +754,15 @@
 			return self::buildResponse(true, $info);
 		}
 
-		// Returns the status of any challenge you are part of
+		/**
+		 * Task: 'status'
+		 *
+		 * Returns the status of any challenge you are part of
+		 * This requires a valid login.
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 */
 		protected function status(){
 			require_once(__DIR__ . "/../app/challenge/Checkpoint.php");
 
@@ -589,7 +788,15 @@
 			return self::buildResponse(true, array("coords" => $coords));
 		}
 
-		// Tag a checkpoint as 'reached'
+		/**
+		 * Task: 'checkpoint'
+		 *
+		 * Set a checkpoint as reached
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 * - <b>coord</b> The coordinate id
+		 */
 		protected function checkpoint(){
 			require_once(__DIR__ . "/../app/challenge/Checkpoint.php");
 			require_once(__DIR__ . "/../app/challenge/ChallengeCoord.php");
@@ -598,7 +805,7 @@
 
 			$this->requireParameters(array(
 					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
-					"coord" => "/\d/"
+					"coord" => "/[0-9]+/"
 			));
 
 			$this->assignOptionalParameter("code", null);
@@ -643,7 +850,15 @@
 			}
 		}
 
-		// Tag a checkpoint as 'captured'
+		/**
+		 * Task: 'capture'
+		 *
+		 * Set a cache as captured
+		 *
+		 * Required HTTP parameters:
+		 * - <b>challenge</b> The session key of the challenge
+		 * - <b>coord</b> The coordinate id
+		 */
 		protected function capture(){
 			require_once(__DIR__ . "/../app/challenge/Checkpoint.php");
 			require_once(__DIR__ . "/../app/challenge/ChallengeCoord.php");
@@ -652,7 +867,7 @@
 
 			$this->requireParameters(array(
 					"challenge" => "/^[A-Za-z0-9]{4,16}$/",
-					"coord" => "/\d/"
+					"coord" => "/[0-9]+/"
 			));
 
 			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
@@ -719,18 +934,36 @@
 			return self::buildResponse(true, array("stats" => $stats));
 		}
 
+		/**
+		 * Require that the user is the challenge owner
+		 * @param integer $challengeId
+		 * @param SessionManager $session
+		 * @throws InvalidArgumentException if the user is not the owner
+		 */
 		private function requireChallengeOwner($challengeId, $session){
 			if(ChallengeManager::getOwner($this->dbh, $challengeId) != $session->getAccountId()){
 				throw new InvalidArgumentException($this->locale->get("query.challenge.unauthorized") . ".");
 			}
 		}
 
+		/**
+		 * Require that the challenge is enabled
+		 * @param integer $challengeId
+		 * @throws InvalidArgumentException if the challenge is not enabled
+		 */
 		private function requireEnabledChallenge($challengeId){
 			if(!ChallengeManager::isChallengeEnabled($this->dbh, $challengeId)){
 				throw new InvalidArgumentException($this->locale->get("query.challenge.challenge_not_enabled"));
 			}
 		}
 
+		/**
+		 * Require a started challenge
+		 * @param integer $challengeId
+		 * @param boolean $checkEndTimeToo
+		 * @param array $challengeData (Optional) The challenge data stored in the database
+		 * @throws InvalidArgumentException if the challenge has not started yet (or already ended)
+		 */
 		private function requireStartedChallenge($challengeId, $checkEndTimeToo, $challengeData = null){
 			if($challengeData == null){
 				$challengeData = ChallengeManager::getChallengeInformation($this->dbh, $challengeId);
@@ -752,6 +985,12 @@
 			}
 		}
 
+		/**
+		 * Returns the team_id of the user
+		 * @param integer $challengeId
+		 * @param SessionManager $session
+		 * @throws InvalidArgumentException if the user is no member of this challenge
+		 */
 		private function getTeamId($challengeId, $session){
 			$team_id = TeamManager::getTeamOfUser($this->dbh, $challengeId, $session->getAccountId());
 			if($team_id == -1){
@@ -760,6 +999,12 @@
 			return $team_id;
 		}
 
+		/**
+		 * This function will set a empty parameter to null.
+		 *
+		 * @see self::assignOptionalParameter()
+		 * @param string $paramName
+		 */
 		private function setNullIfEmpty($paramName){
 			if($this->hasParameter($paramName)){
 				if(empty($this->args[$paramName])){

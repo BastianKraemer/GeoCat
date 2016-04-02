@@ -59,6 +59,9 @@ function MapController(mapTask, taskParam){
 			if(mapTask == MapController.MapTask.GET_POSITION && notEmpty(taskParam.lat) && notEmpty(taskParam.lon)){
 				startOpenLayers(taskParam.lat, taskParam.lon, 16);
 			}
+			else if(mapTask == MapController.MapTask.SHOW_COORDS && taskParam.length > 0){
+				startOpenLayers(taskParam[0].lat, taskParam[0].lon, 14);
+			}
 			else{
 				startOpenLayers(MapController.initialPosition.lat, MapController.initialPosition.lon, MapController.initialPosition.zoom);
 			}
@@ -171,8 +174,9 @@ function MapController(mapTask, taskParam){
 				if(feature){
 					var coord = feature.getGeometry().getCoordinates();
 					coord = ol.proj.transform(coord, 'EPSG:3857', 'EPSG:4326');
+					var desc = feature.get("coord_desc");
 					SubstanceTheme.showNotification("<h3 style='margin: 8px 0 4px 0'>" + feature.get("coord_name") + "</h3>" +
-													"<p style='margin: 4px'>" + feature.get("coord_desc") + "</p>" +
+													(desc != null? "<p style='margin: 4px'>" + feature.get("coord_desc") + "</p>" : "") +
 													"<p style='margin: 2px; font-size: 10px'><i>" + coord[1].toFixed(6) + ", " + coord[0].toFixed(6) + "</i></p>", 7, $.mobile.activePage[0], "substance-blue no-shadow white");
 				}
 			}

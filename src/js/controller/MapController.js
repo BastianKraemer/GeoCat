@@ -57,13 +57,34 @@ function MapController(mapTask, taskParam){
 		}
 		var startOL = function(){
 			if(mapTask == MapController.MapTask.GET_POSITION && notEmpty(taskParam.lat) && notEmpty(taskParam.lon)){
-				console.log(taskParam.lat + ", " + taskParam.lon);
 				startOpenLayers(taskParam.lat, taskParam.lon, 16);
 			}
 			else{
 				startOpenLayers(MapController.initialPosition.lat, MapController.initialPosition.lon, MapController.initialPosition.zoom);
 			}
 			startup(mapTask, taskParam);
+		}
+
+		var homeButton = $("#Map div a");
+		var loginButton = $("#Map div button");
+		if(mapTask == MapController.MapTask.GET_POSITION){
+			$(homeButton)[0].href = "";
+			if(MapController.regularHomeButtonText == null){
+				MapController.regularHomeButtonText = $(homeButton).text();
+			}
+			$(homeButton).text(GeoCat.locale.get("cancel", "Cancel"));
+			$(homeButton).removeClass("ui-icon-home").addClass("ui-icon-arrow-l");
+			$(homeButton).click(function(){$.mobile.changePage(taskParam.returnTo);});
+			loginButton.hide();
+		}
+		else{
+			$(homeButton).removeClass("ui-icon-arrow-l").addClass("ui-icon-home");
+			if(MapController.regularHomeButtonText != null){
+				$(homeButton).text(MapController.regularHomeButtonText);
+			}
+			$(homeButton).unbind();
+			$(homeButton)[0].href = "#Home";
+			loginButton.show();
 		}
 
 		// Download the OpenLayers JavaScript library
@@ -295,6 +316,7 @@ function MapController(mapTask, taskParam){
 
 MapController.openLayerLibraryLoaded = false;
 MapController.initialPosition = {lat: 50.000, lon: 8.000, zoom: 5};
+MapController.regularHomeButtonText = null;
 
 MapController.init = function(myPageId){
 	var myPrototype = new PagePrototype(myPageId, function(){

@@ -61,8 +61,10 @@ function MapController(mapTask, mapCoords){
 			});
 		}
 		else{
-			startOpenLayers();
-			startup(mapTask, mapCoords);
+			setTimeout(function(){
+				startOpenLayers();
+				startup(mapTask, mapCoords);
+			}, 200);
 		}
 	};
 
@@ -76,6 +78,12 @@ function MapController(mapTask, mapCoords){
 	 */
 	this.pageClosed = function(){
 		window.onresize = null;
+		if(MapController.openLayerLibraryLoaded){
+			clearMap();
+			map.setTarget(null);
+		    map = null;
+		    olPointVector = null;
+		}
 	};
 
 	var startOpenLayers = function(){
@@ -134,6 +142,7 @@ function MapController(mapTask, mapCoords){
 				downloadPlaces(true, true);
 				break;
 			case MapController.MapTask.SHOW_COORDS:
+				displayCoordinates(coords, "#c82323", true, function(c){return c;});
 				break;
 			case MapController.MapTask.GET_POSITION:
 				break;
@@ -208,16 +217,17 @@ function MapController(mapTask, mapCoords){
 															$.mobile.activePage[0], "substance-red no-shadow white");
 						}
 						else{
-							displayCoordinates(result, privatePlaces ? "#ff7700" : "#00aeff", clear);
+							displayCoordinates(result, privatePlaces ? "#ff7700" : "#00aeff", clear, function(c){return c.coordinate;});
 						}
 				});
 	};
 
-	var displayCoordinates = function(coords, color, clear){
+	var displayCoordinates = function(coords, color, clear, getCoordCallback){
 		if(clear){clearMap();}
+
 		var points = new Array();
 		for(var i = 0; i < coords.length; i++){
-			points.push(createPoint(coords[i].coordinate, color));
+			points.push(createPoint(getCoordCallback(coords[i]), color));
 		}
 
 		display(points);
@@ -227,10 +237,19 @@ function MapController(mapTask, mapCoords){
 MapController.openLayerLibraryLoaded = false;
 
 MapController.init = function(myPageId){
-	MapController.prototype = new PagePrototype(myPageId, function(){
-
+	var myPrototype = new PagePrototype(myPageId, function(){
 		return new MapController(GeoCat.loginStatus.isSignedIn ? MapController.MapTask.SHOW_ALL : MapController.MapTask.SHOW_PUBLIC, null);
 	});
+
+	MapController.prototype = myPrototype;
+
+	MapController.showMap = function(mapTask, coordinates){
+		var mapController = new MapController(mapTask, coordinates);
+		myPrototype.setInstance(mapController);
+		myPrototype.ignoreNextEvent();
+		$.mobile.changePage(myPageId);
+		mapController.pageOpened();
+	}
 };
 
 MapController.MapTask = {

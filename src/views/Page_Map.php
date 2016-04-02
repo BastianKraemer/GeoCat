@@ -20,7 +20,7 @@
 		public function printContent($config, $locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="Map" data-theme="a">
-<?php self::printHeader($locale->get("places.title"), "#Home", $locale, $config, $session); ?>
+<?php self::printHeader($locale->get("map.title"), "#Home", $locale, $config, $session); ?>
 		<div role="main" class="ui-content" style="padding: 0">
 			<div id="openlayers-map" class="map"></div>
 		</div>

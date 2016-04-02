@@ -37,10 +37,11 @@ function MapController(mapTask, taskParam){
 	}
 
 	var map;
-	var olPointVector;
+	var olPointVector = null;
 
 	var coordSelectInProgressFlag = false;
 	var coordSelectionTimeout = null;
+	var startupCancelFlag = false;
 
 	/**
 	 * This function should be called when the page is opened
@@ -56,16 +57,18 @@ function MapController(mapTask, taskParam){
 			return val != "";
 		}
 		var startOL = function(){
-			if(mapTask == MapController.MapTask.GET_POSITION && notEmpty(taskParam.lat) && notEmpty(taskParam.lon)){
-				startOpenLayers(taskParam.lat, taskParam.lon, 16);
+			if(!startupCancelFlag){ // Verify that the user has not already left the page
+				if(mapTask == MapController.MapTask.GET_POSITION && notEmpty(taskParam.lat) && notEmpty(taskParam.lon)){
+					startOpenLayers(taskParam.lat, taskParam.lon, 16);
+				}
+				else if(mapTask == MapController.MapTask.SHOW_COORDS && taskParam.length > 0){
+					startOpenLayers(taskParam[0].lat, taskParam[0].lon, 14);
+				}
+				else{
+					startOpenLayers(MapController.initialPosition.lat, MapController.initialPosition.lon, MapController.initialPosition.zoom);
+				}
+				startup(mapTask, taskParam);
 			}
-			else if(mapTask == MapController.MapTask.SHOW_COORDS && taskParam.length > 0){
-				startOpenLayers(taskParam[0].lat, taskParam[0].lon, 14);
-			}
-			else{
-				startOpenLayers(MapController.initialPosition.lat, MapController.initialPosition.lon, MapController.initialPosition.zoom);
-			}
-			startup(mapTask, taskParam);
 		}
 
 		var homeButton = $("#Map div a");
@@ -98,7 +101,7 @@ function MapController(mapTask, taskParam){
 				success: function(response){
 					MapController.openLayerLibraryLoaded = true;
 					eval(response);
-					setTimeout(startOL, 200);
+					setTimeout(startOL, 200); // Without this timeout, the map is sometimes higher than the browser window
 				},
 				error: function(xhr, status, error){
 					alert("AJAX ERROR");
@@ -120,11 +123,19 @@ function MapController(mapTask, taskParam){
 	 */
 	this.pageClosed = function(){
 		window.onresize = null;
+
+		startupCancelFlag = true;
 		if(MapController.openLayerLibraryLoaded){
-			clearMap();
-			map.setTarget(null);
-		    map = null;
-		    olPointVector = null;
+			if(olPointVector != null){
+				clearMap();
+				map.setTarget(null);
+			}
+
+			// Run this later, to avoid conflicts with OpenLayers if the page is left immediately after opening
+			setTimeout(function(){
+			    map = null;
+			    olPointVector = null;
+			}, 200);
 		}
 
 		if(coordSelectInProgressFlag){

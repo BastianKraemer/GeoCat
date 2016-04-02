@@ -18,25 +18,28 @@
 */
 
 /**
- * Event handling for the "Places" page
- * @class PlacesController
+ * Controller for the GeoCat map page
+ * @class MapController
+ *
+ * @param mapTask {MapController.MapTask} Task for this map controlelr instance
+ * @param mapCoords {Coordinate[]} The coordinates that will be displayed when the cotroller is used in "SHOW_COORDS" mode, otherwise this parameter can be null
  */
-function MapController(){
+function MapController(mapTask, mapCoords){
 
 	var mapId = "openlayers-map";
 	var htmlElements = {
-			map: "#" + mapId,
+			map: "#" + mapId
 	}
 
 	var map;
 	var olPointVector;
 
 	/**
-	 * This function should be called when the places page is opened
+	 * This function should be called when the page is opened
 	 *
 	 * @public
 	 * @function pageOpened
-	 * @memberOf PlacesController
+	 * @memberOf MapController
 	 * @instance
 	 */
 	this.pageOpened = function(){
@@ -50,6 +53,7 @@ function MapController(){
 					MapController.openLayerLibraryLoaded = true;
 					eval(response);
 					startOpenLayers();
+					startup(mapTask, mapCoords);
 				},
 				error: function(xhr, status, error){
 					alert("AJAX ERROR");
@@ -58,15 +62,16 @@ function MapController(){
 		}
 		else{
 			startOpenLayers();
+			startup(mapTask, mapCoords);
 		}
 	};
 
 	/**
-	 * This function should be called when the places page is closed
+	 * This function should be called when the page is closed
 	 *
 	 * @public
 	 * @function pageClosed
-	 * @memberOf PlacesController
+	 * @memberOf MapController
 	 * @instance
 	 */
 	this.pageClosed = function(){
@@ -75,7 +80,7 @@ function MapController(){
 
 	var startOpenLayers = function(){
 		olPointVector = new ol.source.Vector({
-		  features: []
+			features: []
 		});
 
 		var vectorLayer = new ol.layer.Vector({
@@ -91,20 +96,48 @@ function MapController(){
 			],
 			target: mapId,
 			controls: ol.control.defaults({
-				attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
+				attributionOptions: ({
 					collapsible: false
 				})
 			}),
 			view: new ol.View({
-				center: [0, 0],
-				zoom: 2
+				center: ol.proj.transform([8.000, 50.000], 'EPSG:4326', 'EPSG:3857'),
+				zoom: 5
 			})
 		});
 
 		updateMapSize();
 		window.onresize = updateMapSize;
 
-		displayCurrentNavigation();
+		map.on('click', function(event) {
+			var feature = map.forEachFeatureAtPixel(event.pixel, function(feature, layer){return feature;});
+			if(feature){
+				var coord = feature.getGeometry().getCoordinates();
+				coord = ol.proj.transform(coord, 'EPSG:3857', 'EPSG:4326');
+				SubstanceTheme.showNotification("<h3 style='margin: 8px 0 4px 0'>" + feature.get("coord_name") + "</h3>" +
+												"<p style='margin: 4px'>" + feature.get("coord_desc") + "</p>" +
+												"<p style='margin: 2px; font-size: 10px'><i>" + coord[1].toFixed(6) + ", " + coord[0].toFixed(6) + "</i></p>", 7, $.mobile.activePage[0], "substance-blue no-shadow white");
+			}
+		});
+	};
+
+	var startup = function(task, coords){
+		switch(task){
+			case MapController.MapTask.SHOW_ALL:
+				downloadPlaces(false, true);
+				downloadPlaces(true, false);
+				break;
+			case MapController.MapTask.SHOW_PUBLIC:
+				downloadPlaces(false, true);
+				break;
+			case MapController.MapTask.SHOW_PRIVATE:
+				downloadPlaces(true, true);
+				break;
+			case MapController.MapTask.SHOW_COORDS:
+				break;
+			case MapController.MapTask.GET_POSITION:
+				break;
+		}
 	};
 
 	var updateMapSize = function(){
@@ -115,7 +148,9 @@ function MapController(){
 
 	var createPoint = function(coord, coordColor){
 		var p = new ol.Feature({
-			geometry: new ol.geom.Point(ol.proj.fromLonLat([parseFloat(coord.lon), parseFloat(coord.lat)]))
+			geometry: new ol.geom.Point(ol.proj.fromLonLat([parseFloat(coord.lon), parseFloat(coord.lat)])),
+			coord_name: coord.name.toString(),
+			coord_desc: coord.desc
 		});
 
 		p.setStyle(new ol.style.Style({
@@ -126,23 +161,13 @@ function MapController(){
 				})
 			}),
 			text: new ol.style.Text({
-			    text: coord.name,
-			    offsetY: 12,
-			    fill: new ol.style.Fill({color: coordColor})
+				text: coord.name,
+				offsetY: 15,
+				fill: new ol.style.Fill({color: coordColor}),
 			 })
 		}));
 
 		return p;
-	};
-
-	var createPoints = function(coordArray, color){
-		var ret = new Array(coordArray.length);
-
-		for(var i = 0; i < coordArray.length; i++){
-			ret[i] = this.createPoint(coordArray[i], color);
-		}
-
-		return ret;
 	};
 
 	var display = function(pointArr){
@@ -150,10 +175,8 @@ function MapController(){
 	};
 
 	var clearMap = function(){
-		vectorLayer.destroyFeatures();
+		olPointVector.clear();
 	};
-
-	// DEMO
 
 	var displayCurrentNavigation = function(){
 		var navList = GeoCat.getLocalCoordStore().getCurrentNavigation();
@@ -164,14 +187,56 @@ function MapController(){
 		}
 
 		display(points);
-	}
+	};
 
+	var downloadPlaces = function(privatePlaces, clear){
+		GeoCat.getUplink().sendGetRequest(privatePlaces, 0, 100, null,
+				function(response){
+						var result;
+						try{
+							result = JSON.parse(response);
+						}
+						catch(e){
+							SubstanceTheme.showNotification("<h3>An error occured, please try again later.</h3><p>" + e.message + "</p>", 7,
+															$.mobile.activePage[0], "substance-red no-shadow white");
+							return;
+						}
+
+						if(result.hasOwnProperty("status")){
+							// Error
+							SubstanceTheme.showNotification("<h3>Unable to download the requested information</h3><p>" + result["msg"] + "</p>", 7,
+															$.mobile.activePage[0], "substance-red no-shadow white");
+						}
+						else{
+							displayCoordinates(result, privatePlaces ? "#ff7700" : "#00aeff", clear);
+						}
+				});
+	};
+
+	var displayCoordinates = function(coords, color, clear){
+		if(clear){clearMap();}
+		var points = new Array();
+		for(var i = 0; i < coords.length; i++){
+			points.push(createPoint(coords[i].coordinate, color));
+		}
+
+		display(points);
+	};
 }
 
 MapController.openLayerLibraryLoaded = false;
 
 MapController.init = function(myPageId){
 	MapController.prototype = new PagePrototype(myPageId, function(){
-		return new MapController();
+
+		return new MapController(GeoCat.loginStatus.isSignedIn ? MapController.MapTask.SHOW_ALL : MapController.MapTask.SHOW_PUBLIC, null);
 	});
+};
+
+MapController.MapTask = {
+	SHOW_PUBLIC: 0,
+	SHOW_PRIVATE: 1,
+	SHOW_ALL: 2,
+	SHOW_COORDS: 3,
+	GET_POSITION : 4
 };

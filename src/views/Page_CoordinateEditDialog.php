@@ -68,7 +68,10 @@
 								<input id="EditCoordinate-lon" placeholder="8.0000">
 							</td>
 							<td style="vertical-align: bottom; width: 28px">
-								<button id="EditCoordinate-get-gps" style="margin-bottom: 5px;" class="ui-btn ui-icon-location ui-btn-icon-notext"><?php $locale->write("prev_page") ?></button>
+								<button id="EditCoordinate-get-gps" style="margin-bottom: 5px;" class="ui-btn ui-icon-navigation ui-btn-icon-notext"><?php $locale->write("dialog.editcoord.getpos") ?></button>
+							</td>
+							<td style="vertical-align: bottom; width: 28px">
+								<button id="EditCoordinate-get-map" style="margin-bottom: 5px;" class="ui-btn ui-icon-location ui-btn-icon-notext"><?php $locale->write("dialog.editcoord.getmap") ?></button>
 							</td>
 						</tr>
 					</table>

@@ -19,12 +19,17 @@
 
 /**
  * Controller for the GeoCat map page
+ *
+ * Example of the callback object for task 'GET_POSITION'
+ * {callback: function(){...}, lat: null, lon: null, returnTo: "#pageid"}
+ * Note: The coordinates for lat and lon are displayed on the map (maybe the user want to edit the coorindates?)
+ *
  * @class MapController
  *
- * @param mapTask {MapController.MapTask} Task for this map controlelr instance
- * @param mapCoords {Coordinate[]} The coordinates that will be displayed when the cotroller is used in "SHOW_COORDS" mode, otherwise this parameter can be null
+ * @param mapTask {MapController.MapTask} Task for this map controller instance
+ * @param mapCoords {Object} The coordinates that will be displayed (on task "SHOW_COORDS") or the callback for the selected coordinates (on task "GET_POSITON"), otherwise this parameter can be null
  */
-function MapController(mapTask, mapCoords){
+function MapController(mapTask, taskParam){
 
 	var mapId = "openlayers-map";
 	var htmlElements = {
@@ -33,6 +38,9 @@ function MapController(mapTask, mapCoords){
 
 	var map;
 	var olPointVector;
+
+	var coordSelectInProgressFlag = false;
+	var coordSelectionTimeout = null;
 
 	/**
 	 * This function should be called when the page is opened
@@ -43,6 +51,20 @@ function MapController(mapTask, mapCoords){
 	 * @instance
 	 */
 	this.pageOpened = function(){
+		var notEmpty = function(val){
+			if(val == null){return false;}
+			return val != "";
+		}
+		var startOL = function(){
+			if(mapTask == MapController.MapTask.GET_POSITION && notEmpty(taskParam.lat) && notEmpty(taskParam.lon)){
+				console.log(taskParam.lat + ", " + taskParam.lon);
+				startOpenLayers(taskParam.lat, taskParam.lon, 16);
+			}
+			else{
+				startOpenLayers(MapController.initialPosition.lat, MapController.initialPosition.lon, MapController.initialPosition.zoom);
+			}
+			startup(mapTask, taskParam);
+		}
 
 		// Download the OpenLayers JavaScript library
 		if(!MapController.openLayerLibraryLoaded){
@@ -52,8 +74,7 @@ function MapController(mapTask, mapCoords){
 				success: function(response){
 					MapController.openLayerLibraryLoaded = true;
 					eval(response);
-					startOpenLayers();
-					startup(mapTask, mapCoords);
+					setTimeout(startOL, 200);
 				},
 				error: function(xhr, status, error){
 					alert("AJAX ERROR");
@@ -61,10 +82,7 @@ function MapController(mapTask, mapCoords){
 			});
 		}
 		else{
-			setTimeout(function(){
-				startOpenLayers();
-				startup(mapTask, mapCoords);
-			}, 200);
+			setTimeout(startOL, 200);
 		}
 	};
 
@@ -84,9 +102,13 @@ function MapController(mapTask, mapCoords){
 		    map = null;
 		    olPointVector = null;
 		}
+
+		if(coordSelectInProgressFlag){
+			clearTimeout(coordSelectionTimeout);
+		}
 	};
 
-	var startOpenLayers = function(){
+	var startOpenLayers = function(centerLat, centerLon, initialZoom){
 		olPointVector = new ol.source.Vector({
 			features: []
 		});
@@ -109,8 +131,9 @@ function MapController(mapTask, mapCoords){
 				})
 			}),
 			view: new ol.View({
-				center: ol.proj.transform([8.000, 50.000], 'EPSG:4326', 'EPSG:3857'),
-				zoom: 5
+				projection: 'EPSG:3857',
+				center: ol.proj.transform([parseFloat(centerLon), parseFloat(centerLat)], 'EPSG:4326', 'EPSG:3857'),
+				zoom: initialZoom
 			})
 		});
 
@@ -118,13 +141,19 @@ function MapController(mapTask, mapCoords){
 		window.onresize = updateMapSize;
 
 		map.on('click', function(event) {
-			var feature = map.forEachFeatureAtPixel(event.pixel, function(feature, layer){return feature;});
-			if(feature){
-				var coord = feature.getGeometry().getCoordinates();
-				coord = ol.proj.transform(coord, 'EPSG:3857', 'EPSG:4326');
-				SubstanceTheme.showNotification("<h3 style='margin: 8px 0 4px 0'>" + feature.get("coord_name") + "</h3>" +
-												"<p style='margin: 4px'>" + feature.get("coord_desc") + "</p>" +
-												"<p style='margin: 2px; font-size: 10px'><i>" + coord[1].toFixed(6) + ", " + coord[0].toFixed(6) + "</i></p>", 7, $.mobile.activePage[0], "substance-blue no-shadow white");
+			if(mapTask == MapController.MapTask.GET_POSITION){
+				verifySelectedCoodinates(ol.proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326'));
+			}
+			else{
+				var feature = map.forEachFeatureAtPixel(event.pixel, function(feature, layer){return feature;});
+
+				if(feature){
+					var coord = feature.getGeometry().getCoordinates();
+					coord = ol.proj.transform(coord, 'EPSG:3857', 'EPSG:4326');
+					SubstanceTheme.showNotification("<h3 style='margin: 8px 0 4px 0'>" + feature.get("coord_name") + "</h3>" +
+													"<p style='margin: 4px'>" + feature.get("coord_desc") + "</p>" +
+													"<p style='margin: 2px; font-size: 10px'><i>" + coord[1].toFixed(6) + ", " + coord[0].toFixed(6) + "</i></p>", 7, $.mobile.activePage[0], "substance-blue no-shadow white");
+				}
 			}
 		});
 	};
@@ -145,6 +174,9 @@ function MapController(mapTask, mapCoords){
 				displayCoordinates(coords, "#c82323", true, function(c){return c;});
 				break;
 			case MapController.MapTask.GET_POSITION:
+				if(taskParam.lat != null && taskParam.lon != null){
+					display([createPoint(new Coordinate(null, taskParam.lat + ", " + taskParam.lon, taskParam.lon, taskParam.lat, "", false), "#0c5c76")]);
+				}
 				break;
 		}
 	};
@@ -232,9 +264,37 @@ function MapController(mapTask, mapCoords){
 
 		display(points);
 	};
+
+	var verifySelectedCoodinates = function(coords){
+		if(!coordSelectInProgressFlag){
+			coordSelectInProgressFlag = true;
+		}
+		else{
+			clearTimeout(coordSelectionTimeout);
+		}
+
+		clearMap();
+		coords[0] = coords[0].toFixed(6);
+		coords[1] = coords[1].toFixed(6);
+		display([createPoint(new Coordinate(null, coords[1] + ", " + coords[0], coords[1], coords[0], "", false), "#0c5c76")]);
+
+		coordSelectionTimeout = setTimeout(function(){
+			SubstanceTheme.showYesNoDialog(
+				"<h3 style='margin-bottom: 4px; font-weight: 500;'>" + GeoCat.locale.get("map.select.confirm", "Do you want to continue with the selected coordinate?") +  "</h3>" +
+				"<p style='margin-top: 0; color: #646464'>" + coords[1] + ", " + coords[0] + "</p>", $.mobile.activePage[0],
+				function(){
+					MapController.initialPosition = {lat: coords[1], lon: coords[0], zoom: 16}
+					taskParam.callback(coords[1],coords[0]);
+					$.mobile.changePage(taskParam.returnTo);},
+				null,
+				"substance-white no-shadow", true);
+			coordSelectInProgressFlag = false;
+		}, 1000);
+	}
 }
 
 MapController.openLayerLibraryLoaded = false;
+MapController.initialPosition = {lat: 50.000, lon: 8.000, zoom: 5};
 
 MapController.init = function(myPageId){
 	var myPrototype = new PagePrototype(myPageId, function(){
@@ -243,8 +303,8 @@ MapController.init = function(myPageId){
 
 	MapController.prototype = myPrototype;
 
-	MapController.showMap = function(mapTask, coordinates){
-		var mapController = new MapController(mapTask, coordinates);
+	MapController.showMap = function(mapTask, taskParam){
+		var mapController = new MapController(mapTask, taskParam);
 		myPrototype.setInstance(mapController);
 		myPrototype.ignoreNextEvent();
 		$.mobile.changePage(myPageId);

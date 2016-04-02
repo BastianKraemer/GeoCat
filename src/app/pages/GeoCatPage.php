@@ -54,9 +54,10 @@
 <?php 		}
 			$buttonText = $session->isSignedIn() ? $session->getUsername() : "Login";
 			$pathToRoot = ".";
-			$targetJavaScriptFunction = $session->isSignedIn() ? "GeoCat.logout(null, '" . $pathToRoot . "');" : "Dialogs.showLoginDialog('" . $pathToRoot . "');";
+			//$targetJavaScriptFunction = $session->isSignedIn() ? "GeoCat.logout(null, '" . $pathToRoot . "');" : "Dialogs.showLoginDialog('" . $pathToRoot . "');";
+			$targetJavaScriptFunction = $session->isSignedIn() ? "$.mobile.changePage('#Account');" : "Dialogs.showLoginDialog('" . $pathToRoot . "');";
 ?>
-			<button onclick="<?php echo $targetJavaScriptFunction; ?>" class="login-button ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-user"><?php echo $buttonText ?></button>
+			<button id="login-btn" onclick="<?php echo $targetJavaScriptFunction; ?>" class="login-button ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-user"><?php echo $buttonText ?></button>
 		</div>
 <?php
 		}

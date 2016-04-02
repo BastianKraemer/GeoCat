@@ -153,7 +153,8 @@ GeoCat.login = function(username, paswd, keepSignedIn, callback, pathToRoot){
 				if(jsonData.status == "ok"){
 					GeoCat.loginStatus = {isSignedIn: true, username: jsonData.username};
 					$(".login-button").text(jsonData.username);
-					$(".login-button").attr("onclick", "GeoCat.logout(null, '" + pathToRoot + "');");
+					//$(".login-button").attr("onclick", "GeoCat.logout(null, '" + pathToRoot + "');");
+					$(".login-button").attr("onclick", "$.mobile.changePage('#Account');");
 					$.mobile.activePage.trigger("pagebeforehide");
 					$.mobile.activePage.trigger("pageshow");
 					callback(true);

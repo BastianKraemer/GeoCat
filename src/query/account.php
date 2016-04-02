@@ -147,6 +147,127 @@
 			));
 			return $this->checkOrCreateAccount(false);
 		}
+		
+		protected function getUserData(){
+			$session = new SessionManager();
+			if($session->isSignedIn()){
+				$accId = $session->getAccountId();
+				$username = AccountManager::getUserNameByAccountId($this->dbh, $accId);
+				$email = AccountManager::getEmailAdressByAccountId($this->dbh, $accId);
+				$fullname = AccountManager::getRealNameByAccountId($this->dbh, $accId);
+				$lname = $fullname['lastname'];
+				$fname = $fullname['firstname'];
+				return self::buildResponse(true, array("username" => $username, "email" => $email, "lname" => $lname, "fname" => $fname));
+			} else {
+				return self::buildResponse(false, array("msg" => $this->locale->get("account.err.pleasesignin")));
+			}
+		}
+		
+		protected function updateUserData(){
+			$newVal = $this->args['text'];
+			$oldVal = "";
+			$type = $this->args['id'];
+			$session = new SessionManager();
+			$response = false; 
+			$message = "";
+			switch($type){
+				case "acc-email":
+					$oldVal = AccountManager::getEmailAdressByAccountId($this->dbh, $session->getAccountId());
+					if($oldVal == $newVal){
+						$message = $this->locale->get("account.update.nochange");
+						break;
+					}
+					if(AccountManager::isValidEMailAddr($newVal)){
+						if(!AccountManager::isEMailAddressAlreadyInUse($this->dbh, $newVal)){
+							if(AccountManager::setNewEmailAdressForAccountId($this->dbh, $session->getAccountId(), $newVal)){
+								$response = true;
+								$message = $this->locale->get("account.update.success");
+								break; 
+							}
+							$message = $this->locale->get("account.update.error");
+							break;
+						}
+						$message = $this->locale->get("account.update.emailinuse");
+						break;
+					}
+					$message = $this->locale->get("account.update.invalidemail");
+					break;
+				case "acc-username":
+					$oldVal = AccountManager::getUserNameByAccountId($this->dbh, $session->getAccountId());
+					if($oldVal == $newVal){
+						$message = $this->locale->get("account.update.nochange");
+						break;
+					}
+					if(AccountManager::isValidUsername($newVal)){
+						if(!AccountManager::isUsernameInUse($this->dbh, $newVal)){
+							if(AccountManager::setNewUsernameForAccountId($this->dbh, $session->getAccountId(), $newVal)){
+								$_SESSION["username"] = $newVal;
+								$response = true;
+								$message = $this->locale->get("account.update.success");
+								break;
+							}
+							$message = $this->locale->get("account.update.error");
+							break;
+						}
+						$message = $this->locale->get("account.update.usernameinuse");
+						break;
+					}
+					$message = $this->locale->get("account.update.invalidusername");
+					break;
+				case "acc-firstname":
+					$oldVal = AccountManager::getRealNameByAccountId($this->dbh, $session->getAccountId())['firstname'];
+					if($oldVal == $newVal){
+						$message = $this->locale->get("account.update.nochange");
+						break;
+					}
+					if(AccountManager::isValidRealName($newVal)){
+						if(AccountManager::setRealNameByAccountId($this->dbh, $session->getAccountId(), $newVal, "firstname")){
+							$response = true;
+							$message = $this->locale->get("account.update.success");
+							break;
+						}
+						$message = $this->locale->get("account.update.error");
+						break;
+					}
+					$message = $this->locale->get("account.update.invalidrealname");
+					break;
+				case "acc-lastname":
+					$oldVal = AccountManager::getRealNameByAccountId($this->dbh, $session->getAccountId())['lastname'];
+					if($oldVal == $newVal){
+						$message = $this->locale->get("account.update.nochange");
+						break;
+					}
+					if(AccountManager::isValidRealName($newVal)){
+						if(AccountManager::setRealNameByAccountId($this->dbh, $session->getAccountId(), $newVal, "lastname")){
+							$response = true;
+							$message = $this->locale->get("account.update.success");
+							break;
+						}
+						$message = $this->locale->get("account.update.error");
+						break;
+					}
+					$message = $this->locale->get("account.update.invalidrealname");
+					break;
+				default:
+					// should never happen
+					return self::buildResponse(false, array("msg" => "data-id does not match with predefined types"));
+			}
+			return self::buildResponse($response, array("msg" => $message));
+		}
+		
+		protected function changePassword(){
+			$session = new SessionManager();
+			$oldPassword = $this->args['oldpw'];
+			$newPassword = $this->args['newpw'];
+			if(AccountManager::checkPassword($this->dbh, $session->getAccountId(), $oldPassword) == 1){
+				if(AccountManager::setNewPassword($this->dbh, $session->getAccountId(), $newPassword)){
+					return self::buildResponse(true, array("msg" => $this->locale->get("account.update.success")));
+				}
+				return self::buildResponse(false, array("msg" => $this->locale->get("account.update.error")));
+			}
+			return self::buildResponse(false, array("msg" => $this->locale->get("account.update.wrongpassword")));
+		}
+		
 	}
 
 	$config = require(__DIR__ . "/../config/config.php");

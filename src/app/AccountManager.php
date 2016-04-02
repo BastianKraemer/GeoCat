@@ -185,6 +185,41 @@
 			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
 			return $result[0]["username"];
 		}
+		
+		public static function isUsernameInUse($dbh, $username){
+			$result = DBTools::fetchAll($dbh, "SELECT account_id FROM " . self::TABLE_ACCOUNT . " WHERE username = :user", array(":user" => $username));
+			if(empty($result)){
+				return false; 
+			}
+			return true; 
+		}
+		
+		public static function setNewUsernameForAccountId($dbh, $accountId, $username){
+			$result = DBTools::query($dbh, "UPDATE Account SET username = :username WHERE account_id = :accid", array(":username" => $username, ":accid" => $accountId));
+			return $result; 
+		}
+		
+		public static function getEmailAdressByAccountId($dbh, $accountId){
+			$result = DBTools::fetchAll($dbh, "SELECT email FROM Account WHERE account_id = :accid", array(":accid" => $accountId));
+			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
+			return $result[0]['email']; 
+		}
+		
+		public static function setNewEmailAdressForAccountId($dbh, $accountId, $email){
+			$result = DBTools::query($dbh, "UPDATE Account SET email = :email WHERE account_id = :accid", array(":email" => $email, ":accid" => $accountId));
+			return $result; 
+		}
+		
+		public static function getRealNameByAccountId($dbh, $accountId){
+			$result = DBTools::fetchAll($dbh, "SELECT lastname, firstname FROM Accountinformation WHERE account_id = :accid", array(":accid" => $accountId));
+			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
+			return $result[0]; 
+		}
+		
+		public static function setRealNameByAccountId($dbh, $accountId, $newVal, $column){
+			$result = DBTools::query($dbh, "UPDATE Accountinformation SET $column = :newval WHERE account_id = :accid", array(":newval" => $newVal, ":accid" => $accountId));
+			return $result;
+		}
 
 		/**
 		 * Checks if a user is an administrator
@@ -217,6 +252,12 @@
 			$result = DBTools::fetchAll($dbh, "SELECT password, salt FROM " . self::TABLE_ACCOUNT . " WHERE account_id = :accid", array(":accid" => $accountid));
 			if(empty($result) || count($result) != 1){return -1;}
 			return (self::getPBKDF2Hash($password, base64_decode($result[0]["salt"]))[0] == $result[0]["password"] ? 1 : 0);
+		}
+		
+		public static function setNewPassword($dbh, $accountid, $newPassword){
+			$hash = self::getPBKDF2Hash($newPassword);
+			$result = DBTools::query($dbh, "UPDATE Account SET password = :pw, salt = :salt WHERE account_id = :accid", array(":pw" => $hash[0], ":salt" => $hash[1], ":accid" => $accountid));
+			return $result; 
 		}
 
 		/**

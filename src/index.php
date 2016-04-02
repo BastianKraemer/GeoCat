@@ -20,6 +20,7 @@
 	require_once(__DIR__ . "/views/Page_ChallengeNavigator.php");
 	require_once(__DIR__ . "/views/Page_ChallengeInfo.php");
 	require_once(__DIR__ . "/views/Page_CoordinateEditDialog.php");
+	require_once(__DIR__ . "/views/Page_Account.php");
 
 	use views as views;
 
@@ -30,7 +31,8 @@
 		new \views\Page_BrowseChallenges(),
 		new \views\Page_ChallengeNavigator(),
 		new \views\Page_ChallengeInfo(),
-		new \views\Page_CoordinateEditDialog()
+		new \views\Page_CoordinateEditDialog(),
+		new \views\Page_Account()
 	);
 ?>
 
@@ -70,6 +72,7 @@
 	<script src="./js/PagePrototype.js"></script>
 	<script src="./js/Dialogs.js"></script>
 	<script src="./js/ScrollLoader.js"></script>
+	<script src="./js/Account.js"></script>
 	<!-- /build -->
 
 	<!-- build:js ./js/controller.min.js -->

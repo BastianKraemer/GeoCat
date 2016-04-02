@@ -79,7 +79,7 @@
 				$this->addDefaultTile("challenges", "#ChallengeBrowser", ".", $locale);
 				$this->addDefaultTile("social", "#", ".", $locale);
 				$this->addDefaultTile("navigator", "#GPSNavigator", ".", $locale);
-				$this->addDefaultTile("account", "#", ".", $locale);
+				$this->addDefaultTile("account", "#Account", ".", $locale);
 ?>
 			</ul>
 		</div>

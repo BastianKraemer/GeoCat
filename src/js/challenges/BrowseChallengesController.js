@@ -23,21 +23,16 @@
  */
 function BrowseChallengesController(){
 
-	// Private variables
-	var itemsPerPage = 10;
-	var currentPage = 0;
-	var challengeCount = 0;
-	var maxPages = 0;
-	var uplink = GeoCat.getUplink();
-	var locale = GeoCat.locale;
+	var limitPerRequest = window.innerHeight / 100; // one list entry has a height of approximately 100px
+	if(limitPerRequest < 10){limitPerRequest = 10;}
+
+	var scrollLoader;
+	var currentOffset = 0;
+	var currentListType;
 
 	// Collection of all important HTML elements (defined by their id)
-
 	var htmlElement = {
 		listview: "#ChallengeListView",
-		pageInfo: "#ChallengePageInformation",
-		nextPageButton: "#Browse_Next",
-		prevPageButton:	"#Browse_Prev",
 		keyInputField: "#ChallengeKeyInput",
 		keyInputOK: "#ChallengeKeyInput-OK",
 		joinChallengePopup: "#JoinChallengePopup",
@@ -45,9 +40,10 @@ function BrowseChallengesController(){
 		createChallengeInput: "#create-challenge-input",
 		createChallengeErrorInfo: "#create-challenge-errorinfo",
 		createChallengeConfirm: "#create-challenge-confirm",
-		enabled: "#MyChallengesEnabled",
-		notenabled: "#MyChallengesNotEnabled",
-		joined: "#MyChallengesJoined"
+		showPublicChallenges: "#challenge-list-public",
+		showJoinedChallenges: "#challenge-list-joined",
+		showOwnChallenges: "#challenge-list-owner",
+		tabBar: "#challenge-list-tabs"
 	}
 
 	/*
@@ -67,24 +63,54 @@ function BrowseChallengesController(){
 	this.pageOpened = function(){
 
 		$(htmlElement.listview).listview('refresh');
-		countPublicChallenges();
-		loadPublicChallengeListFromServer();
-		countMyChallenges();
 
-		$(htmlElement.nextPageButton).click(function(){
-			if(currentPage < maxPages - 1){
-				currentPage++;
-				loadPublicChallengeListFromServer();
+		scrollLoader = new ScrollLoader(
+						$(htmlElement.listview)[0],
+						function(successCallback){
+							var arrayLengthCallback = function(arrLength){
+								currentOffset += arrLength;
+								successCallback(arrLength >= limitPerRequest);
+							}
+							downloadChallengesFromServer(limitPerRequest, currentOffset, false, arrayLengthCallback);
+						}, 48);
+
+		var changeListType = function(newListType){
+			BrowseChallengesController.currentListType = newListType;
+			currentOffset = 0;
+			var callback = function(arrLength){
+				currentOffset += arrLength;
+				scrollLoader.setEnable(arrLength >= limitPerRequest);
 			}
+			downloadChallengesFromServer(limitPerRequest, currentOffset, true, callback);
+		};
+
+		$(htmlElement.showPublicChallenges).click(function(){
+			changeListType("public");
 		});
 
-		$(htmlElement.prevPageButton).click(function(){
-			if(currentPage > 0){
-				currentPage--;
-				loadPublicChallengeListFromServer();
-			}
+		$(htmlElement.showJoinedChallenges).click(function(){
+			changeListType("joined");
 		});
 
+		$(htmlElement.showOwnChallenges).click(function(){
+			changeListType("own");
+		});
+
+		$(htmlElement.showPublicChallenges).addClass("ui-btn-active");
+
+		// Disable tab bar if the user is not signed in
+		if(GeoCat.loginStatus.isSignedIn){
+			$(htmlElement.tabBar).show();
+		}
+		else{
+			$(htmlElement.tabBar).hide();
+			BrowseChallengesController.currentListType = "public"
+		}
+
+		// Initialize this page by with the last used list type
+		changeListType(BrowseChallengesController.currentListType);
+
+		// Event handler for the buttons at the bottom
 		$(htmlElement.createChallengeConfirm).click(function(){
 			sendCreateChallengeRequest($(htmlElement.createChallengeInput).val(), function(status, msg, key){
 				if(status){
@@ -122,8 +148,14 @@ function BrowseChallengesController(){
 	 * @instance
 	 */
 	this.pageClosed = function(){
-		$(htmlElement.nextPageButton).unbind();
-		$(htmlElement.prevPageButton).unbind();
+		$(htmlElement.createChallengeConfirm).unbind();
+		$(htmlElement.keyInputOK).unbind();
+		$(htmlElement.showPublicChallenges).unbind();
+		$(htmlElement.showJoinedChallenges).unbind();
+		$(htmlElement.showOwnChallenges).unbind();
+		$(htmlElement.listview).empty();
+
+		scrollLoader.destroy();
 	}
 
 	/*
@@ -132,119 +164,26 @@ function BrowseChallengesController(){
 	 * ============================================================================================
 	 */
 
-	/**
-	 * Sends a <b>COUNT_CHALLENGES</b> command to the server
-	 *
-	 * @private
-	 * @memberOf BrowseChallengesController
-	 * @instance
-	 */
-	function countPublicChallenges(){
-
-		uplink.sendChallenge_CountPublic(
-				function(response){
-					try{
-						var result = JSON.parse(response);
-
-						if(result.hasOwnProperty("count")){
-							challengeCount = parseInt(result.count);
-							maxPages = Math.floor(challengeCount / itemsPerPage) + ((challengeCount % itemsPerPage == 0) ? 0 : 1);
-							updatePageInfo();
-						}
-						else{
-							displayError("An error occured, please try again later.");
-						}
-					}
-					catch(e){
-						displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
-												   "Details:\\n{0}", [e.message]));
-					}
-				});
-	}
-
-	/**
-	 * Sends a request to the server to get the first page of the challenge list
-	 *
-	 * @private
-	 * @memberOf BrowseChallengesController
-	 * @instance
-	 */
-	function loadPublicChallengeListFromServer(){
-		uplink.sendChallenge_GetPublic(
-			function(response){
-				try{
-					updateList(JSON.parse(response));
-				}
-				catch(e){
-					displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
-											   "Details:\\n{0}", [e.message]));
-				}
-			}, itemsPerPage, currentPage * itemsPerPage);
-	}
-
-	/**
-	 * Sends a <b>COUNT_CHALLENGES</b> command to the server
-	 *
-	 * @private
-	 * @memberOf BrowseChallengesController
-	 * @instance
-	 */
-	function countMyChallenges(){
-
-		uplink.sendChallenge_CountMyChallenges(
-				function(response){
-					try{
-						var result = JSON.parse(response);
-
-						if(result.hasOwnProperty("count")){
-							if(parseInt(result.count) > 0){
-								$('#my-challenges').removeClass('ui-state-disabled');
-								loadMyChallengeListFromServer();
-							}
-						}
-					}
-					catch(e){
-						displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
-												   "Details:\\n{0}", [e.message]));
-					}
-				});
-	}
-
-	/**
-	 * Sends a request to the server to get all own (including not enabled) challenges
-	 *
-	 * @private
-	 * @memberOf BrowseChallengesController
-	 * @instance
-	 */
-	function loadMyChallengeListFromServer(){
-		$(htmlElement.enabled).empty();
-		$(htmlElement.notenabled).empty();
-		$(htmlElement.joined).empty();
-
-		uplink.sendChallenge_GetMyChallenges(
-			"get_my_challenges",
-			function(response){
-				try{
-					updateMyList(JSON.parse(response), false);
-				}
-				catch(e){
-					displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
-											   "Details:\\n{0}", [e.message]));
-				}
-				uplink.sendChallenge_GetMyChallenges(
-					"get_participated_challenges",
-					function(response){
-						try{
-							updateMyList(JSON.parse(response), true);
-						}
-						catch(e){
-							displayError(GuiToolkit.sprintf("An error occured, please try again later.\\n\\n" +
-													   "Details:\\n{0}", [e.message]));
-						}
-					}
-				);
-			});
+	var downloadChallengesFromServer = function(limit, offset, clearList, arrayLengthCallback){
+		$.ajax({
+			type: "POST", url: "query/challenge.php",
+			data: {
+				task: "get_challenges",
+				type: BrowseChallengesController.currentListType,
+				limit: limit,
+				offset: offset
+			},
+			cache: false,
+			success: function(response){
+				var result = JSON.parse(response);
+				updateList(result, clearList);
+				if(arrayLengthCallback != null){arrayLengthCallback(result.length);}
+			},
+			error: function(xhr, status, error){
+				SubstanceTheme.showNotification("<h3>Unable to dowload challenge list.</h3><p>Please try again later.</p>", 7,
+						$.mobile.activePage[0], "substance-red no-shadow white");
+			}
+		});
 	}
 
 	/**
@@ -255,9 +194,9 @@ function BrowseChallengesController(){
 	 * @memberOf BrowseChallengesController
 	 * @instance
 	 */
-	function updateList(data){
+	var updateList = function(data, clear){
 		var list = $(htmlElement.listview);
-		list.empty();
+		if(clear){list.empty();}
 
 		if(data.length > 0){
 			for(var i = 0; i < data.length; i++){
@@ -271,11 +210,10 @@ function BrowseChallengesController(){
 			});
 		}
 		else{
-			list.append("<li><span>" + locale.get("challenge.browse.empty", "There is no public challenge at the moment.") + "</span></li>");
+			list.append("<li><span>" + GeoCat.locale.get("challenge.browse.empty", "There is no public challenge at the moment.") + "</span></li>");
 			list.listview('refresh');
 		}
-		updatePageInfo();
-	}
+	};
 
 	/**
 	 * Generates the HTML-Code for a single list item
@@ -298,57 +236,8 @@ function BrowseChallengesController(){
 				"<li class=\"challenge-list-item\" data-session-key=\"" + sessionKey + "\" data-icon=\"false\"><a class=\"li-clickable\">" +
 					"<h3>"+ name + "</h3>" +
 					"<p>" + desc + "</p>" +
-					"<p class=\"ui-li-aside\"><i>" + locale.get("challenge.start_date", "Start time:") + "</i><br>" + start_time.replace(" ", "<br>") + "</p>" +
+					"<p class=\"ui-li-aside\"><i>" + GeoCat.locale.get("challenge.start_date", "Start time:") + "</i><br>" + start_time.replace(" ", "<br>") + "</p>" +
 				"</li>\n";
-	}
-
-	/**
-	 * Updates the own challenges list with the data of the ajax request
-	 * @param data {Object}
-	 * @param participated {boolean}
-	 *
-	 * @private
-	 * @memberOf BrowseChallengesController
-	 * @instance
-	 */
-	function updateMyList(data, participated){
-
-		if(data.length > 0){
-			for(var i = 0; i < data.length; i++){
-				var c = data[i];
-				var path;
-				if(participated){
-					path = $(htmlElement.joined)
-				} else {
-					path = (c.is_enabled == "1" ? $(htmlElement.enabled) : $(htmlElement.notenabled));
-				}
-				path.append(generateChallengeItemCode(c.name, c.username, c.sessionkey, c.description, c.full_name, c.start_time));
-			}
-
-			$(htmlElement.enabled).listview('refresh');
-			$(htmlElement.notenabled).listview('refresh');
-			$(htmlElement.joined).listview('refresh');
-
-			$(htmlElement.enabled + " li a.li-clickable").click(function(){
-				challenge_OnClick(this);
-			});
-			$(htmlElement.notenabled + " li a.li-clickable").click(function(){
-				challenge_OnClick(this);
-			});
-			$(htmlElement.joined + " li a.li-clickable").click(function(){
-				challenge_OnClick(this);
-			});
-
-		}
-	}
-
-	function displayError(message){
-		GuiToolkit.showPopup("Error", message, "OK", null);
-	}
-
-	function updatePageInfo(){
-		var numPages = maxPages > 0 ? maxPages : 1;
-		$(htmlElement.pageInfo).html(GuiToolkit.sprintf(locale.get("page_of", "Page {0} of {1}"), [(currentPage + 1), numPages]));
 	}
 
 	function sendCreateChallengeRequest(challengeName, callback){
@@ -384,6 +273,8 @@ function BrowseChallengesController(){
 		$.mobile.pageContainer.pagecontainer("change", "#ChallengeInfo");
 	}
 }
+
+BrowseChallengesController.currentListType = "public";
 
 BrowseChallengesController.init = function(myPageId){
 	BrowseChallengesController.prototype = new PagePrototype(myPageId, function(){

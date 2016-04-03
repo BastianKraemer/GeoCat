@@ -253,51 +253,6 @@ function Uplink(pathToRootDirectory){
 						errorCallback,
 						ajaxERROR);
 	}
-
-	/*
-	 * Challenges
-	 */
-	this.sendChallenge_GetPublic = function(successCallback, response_limit, response_offset){
-		sendHTTPRequest(urlPrefix + "query/challenge.php",
-						{
-							task: "get_challenges",
-							limit: response_limit,
-							offset: response_offset
-						},
-						false,
-						successCallback,
-						null,
-						ajaxERROR);
-	}
-
-	this.sendChallenge_GetMyChallenges = function(targetfunction, successCallback){
-		sendHTTPRequest(urlPrefix + "query/challenge.php",
-						{
-							task: targetfunction
-						},
-						false,
-						successCallback,
-						null,
-						ajaxERROR);
-	}
-
-	this.sendChallenge_CountPublic = function(successCallback){
-		sendHTTPRequest(urlPrefix + "query/challenge.php",
-						{task: "count_challenges"},
-						false,
-						successCallback,
-						null,
-						ajaxERROR);
-	}
-
-	this.sendChallenge_CountMyChallenges = function(successCallback){
-		sendHTTPRequest(urlPrefix + "query/challenge.php",
-						{task: "count_my_challenges"},
-						false,
-						successCallback,
-						null,
-						ajaxERROR);
-	}
 }
 
 function sendRequest(toUrl, body, cfunc){

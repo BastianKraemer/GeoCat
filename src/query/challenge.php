@@ -395,60 +395,30 @@
 		 * Optional HTTP parameters:
 		 * - <b>limit</b>
 		 * - <b>offset</b>
+		 * - <b>type</b>: Can be 'public', 'own' or 'joined'
 		 */
 		protected function get_challenges(){
 
+			$types = array("public", "own", "joined");
+
 			$this->verifyOptionalParameters(array(
-					"limit" => "/[0-9]+/",
-					"offset" => "/[0-9]+/"
+					"type" => "/^(public|own|joined)$/",
+					"limit" => "/^[0-9]+$/",
+					"offset" => "/^[0-9]+$/"
 			));
 
+			$this->assignOptionalParameter("type", "public");
 			$this->assignOptionalParameter("limit", 10);
 			$this->assignOptionalParameter("offset", 0);
-			return ChallengeManager::getPublicChallengs($this->dbh, $this->args["limit"], $this->args["offset"]);
-		}
 
-		/**
-		 * Task: 'get_my_challenges'
-		 *
-		 * Returns a list of all public challenges (this requires that the user is signed in)
-		 * @throws MissingSessionException If the user is not signed in
-		 */
-		protected function get_my_challenges(){
-			return ChallengeManager::getMyChallenges($this->dbh, $this->requireLogin());
-		}
-
-		/**
-		 * Task: 'get_participated_challenges'
-		 *
-		 * Returns a list of all challenges the user is participating
-		 * @throws MissingSessionException If the user is not signed in
-		 */
-		protected function get_participated_challenges(){
-			$res = ChallengeManager::getParticipatedChallenges($this->dbh, $this->requireLogin());
-			foreach($res as $key => $value){
-				$value['username'] = ChallengeManager::getOwnerName($this->dbh, $value['username'])[0]['username'];
-				$res[$key] = $value;
+			switch($this->args["type"]){
+				case "public":
+					return ChallengeManager::getPublicChallengs($this->dbh, $this->args["limit"], $this->args["offset"]);
+				case "own":
+					return ChallengeManager::getMyChallenges($this->dbh, $this->requireLogin(), $this->args["limit"], $this->args["offset"]);
+				case "joined":
+					return ChallengeManager::getParticipatedChallenges($this->dbh, $this->requireLogin(), $this->args["limit"], $this->args["offset"]);
 			}
-			return $res;
-		}
-
-		/**
-		 * Task: 'count_challenges'
-		 *
-		 * Counts the number of public challenges
-		 */
-		protected function count_challenges(){
-			return array("count" => ChallengeManager::countPublicChallenges($this->dbh));
-		}
-
-		/**
-		 * Task: 'count_my_challenges'
-		 *
-		 * Counts the number of challenges the user has created (this requires that the user is signed in)
-		 */
-		protected function count_my_challenges(){
-			return array("count" => ChallengeManager::countMyChallenges($this->dbh, $this->requireLogin()));
 		}
 
 		/**

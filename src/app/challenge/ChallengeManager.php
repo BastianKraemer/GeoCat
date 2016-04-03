@@ -35,7 +35,7 @@
 			}
 		}
 
-		public static function getPublicChallengs($dbh, $limit = -1, $offset = -1){
+		public static function getPublicChallengs($dbh, $limit = 1000, $offset = -1){
 			$res = DBTools::fetchAll($dbh,	"SELECT Account.username AS owner_name, Challenge.challenge_id, Challenge.name, Challenge.description, " .
 												"Challenge.challenge_type_id AS type_id, ChallengeType.full_name AS type_name, " .
 												"Challenge.max_teams, Challenge.max_team_members, Challenge.predefined_teams, " .
@@ -47,35 +47,33 @@
 			return $res;
 		}
 
-		public static function getMyChallenges($dbh, $session){
-			$res = DBTools::fetchAll($dbh, "SELECT Account.username, Challenge.name, Challenge.description, ChallengeType.full_name, Challenge.sessionkey, Challenge.start_time, Challenge.is_enabled " .
-									 "FROM Challenge " .
-									 "JOIN Account ON (Challenge.owner = Account.account_id) " .
-									 "JOIN ChallengeType ON (Challenge.challenge_type_id = ChallengeType.challenge_type_id) " .
-									 "WHERE Challenge.owner = " . $session->getAccountId() . ";", null, PDO::FETCH_ASSOC);
+		public static function getMyChallenges($dbh, $session, $limit = 1000, $offset = -1){
+			$res = DBTools::fetchAll($dbh,	"SELECT Account.username AS owner_name, Challenge.challenge_id, Challenge.name, Challenge.description, " .
+												"Challenge.challenge_type_id AS type_id, ChallengeType.full_name AS type_name, " .
+												"Challenge.max_teams, Challenge.max_team_members, Challenge.predefined_teams, " .
+												"Challenge.start_time, Challenge.end_time, Challenge.is_public, Challenge.sessionkey " .
+											"FROM Challenge " .
+											"JOIN Account ON (Challenge.owner = Account.account_id) " .
+											"JOIN ChallengeType ON (Challenge.challenge_type_id = ChallengeType.challenge_type_id) " .
+											"WHERE Challenge.owner = :accId" .
+											($limit > 0 ? " LIMIT " . $limit : "") . ($offset > 0 ? " OFFSET " . $offset : ""),
+											array("accId" => $session->getAccountId()), PDO::FETCH_ASSOC);
 			return $res;
 		}
 
-		public static function getParticipatedChallenges($dbh, $session){
-			$res = DBTools::fetchAll($dbh, "SELECT challenge.owner AS username, challenge.name, challenge.description, challengetype.full_name, challenge.sessionkey, challenge.start_time, challenge.is_enabled " .
-									"FROM challengemember " .
-									"JOIN challengeteam ON (challengemember.team_id = challengeteam.team_id) " .
-									"JOIN challenge ON (challengeteam.challenge_id = challenge.challenge_id) " .
-									"JOIN challengetype ON (challenge.challenge_type_id = challengetype.challenge_type_id) " .
-									"WHERE challengemember.account_id = " . $session->getAccountId() . ";", null, PDO::FETCH_ASSOC);
+		public static function getParticipatedChallenges($dbh, $session, $limit = 1000, $offset = -1){
+			$res = DBTools::fetchAll($dbh,	"SELECT Challenge.owner AS owner_name, Challenge.challenge_id, Challenge.name, Challenge.description, " .
+												"Challenge.challenge_type_id AS type_id, ChallengeType.full_name AS type_name, " .
+												"Challenge.max_teams, Challenge.max_team_members, Challenge.predefined_teams, " .
+												"Challenge.start_time, Challenge.end_time, Challenge.is_public, Challenge.sessionkey " .
+											"FROM ChallengeMember " .
+											"JOIN ChallengeTeam ON (challengemember.team_id = challengeteam.team_id) " .
+											"JOIN Challenge ON (challengeteam.challenge_id = challenge.challenge_id) " .
+											"JOIN ChallengeType ON (challenge.challenge_type_id = challengetype.challenge_type_id) " .
+											"WHERE ChallengeMember.account_id = :accId" .
+											($limit > 0 ? " LIMIT " . $limit : "") . ($offset > 0 ? " OFFSET " . $offset : ""),
+											array("accId" => $session->getAccountId()), PDO::FETCH_ASSOC);
 			return $res;
-		}
-
-		public static function countPublicChallenges($dbh){
-			$res = DBTools::fetch($dbh,	"SELECT COUNT(Challenge.challenge_id) FROM Challenge WHERE is_public = 1 AND Challenge.is_enabled = 1", null, PDO::FETCH_NUM);
-			return $res[0];
-		}
-
-		public static function countMyChallenges($dbh, $session){
-			$res = DBTools::fetch($dbh, "SELECT COUNT(Challenge.challenge_id) " .
-								  "FROM Challenge " .
-								  "WHERE Challenge.owner = " . $session->getAccountId() . ";" , null, PDO::FETCH_NUM);
-			return $res[0];
 		}
 
 		public static function challengeExists($dbh, $challengeId){
@@ -153,7 +151,13 @@
 		}
 
 		public static function getOwnerName($dbh, $ownerId){
-			return DBTools::fetchAll($dbh, "SELECT account.username FROM Account where account.account_id = :id", array("id" => $ownerId), PDO::FETCH_ASSOC);
+			$res = DBTools::fetchNum($dbh, "SELECT account.username FROM Account where account.account_id = :id", array("id" => $ownerId));
+			if($res){
+				return $res[0];
+			}
+			else{
+				return null;
+			}
 		}
 
 		public static function getTeamlistById($dbh, $teamid){

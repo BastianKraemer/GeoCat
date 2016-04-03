@@ -149,9 +149,7 @@
 					InputTemplates::printTextArea("challengeinfo-edit-desc", false, $locale->get("challenge.create.desc"), false, 512);
 ?>
 
-				<label>
-			        <input id="challengeinfo-edit-ispublic" type="checkbox"><?php $locale->write("challenge.create.public"); ?>
-			    </label>
+				<label><input id="challengeinfo-edit-ispublic" type="checkbox"><?php $locale->write("challenge.create.public"); ?></label>
 				<hr>
 				<button id="challengeinfo-editdesc-ok" class="ui-btn ui-corner-all ui-shadow"><?php $locale->write("save"); ?></button>
 			</div>
@@ -246,9 +244,7 @@
 					<input id="challengeinfo-edit-endtime" type="datetime-local" placeholder="(Optional)">
 				</div>
 
-				<label>
-			        <input id="challengeinfo-edit-predefteams" type="checkbox"><?php $locale->write("challenge.create.predef_teams"); ?>
-			    </label>
+				<label><input id="challengeinfo-edit-predefteams" type="checkbox"><?php $locale->write("challenge.create.predef_teams"); ?></label>
 
 <?php
 				$values1 = array($locale->get("challenge.info.edit.unlimited_teams") => -1);

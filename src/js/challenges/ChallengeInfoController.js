@@ -418,18 +418,23 @@ function ChallengeInfoController(sessionKey) {
 			$(buttons[key]).unbind();
 		}
 
-		$(infoElements.startTime).parent().unbind();
-		$(infoElements.startTime).parent().removeClass("clickable")
-		$(infoElements.endTime).parent().unbind();
-		$(infoElements.endTime).parent().removeClass("clickable")
-		$(infoElements.type).parent().unbind();
-		$(infoElements.type).parent().removeClass("clickable");
+		removeClickHandlerFromInfoField(infoElements.startTime, true);
+		removeClickHandlerFromInfoField(infoElements.endTime, true);
+		removeClickHandlerFromInfoField(infoElements.type, true);
+		removeClickHandlerFromInfoField(infoElements.title, false);
+		removeClickHandlerFromInfoField(infoElements.description, false);
 	}
 
 	var addClickHandlerToInfoField = function(id, callback, useParentElement){
 		var el = useParentElement ? $(id).parent() : $(id);
 		el.click(callback);
 		el.addClass("clickable");
+	}
+
+	var removeClickHandlerFromInfoField = function(id, useParentElement){
+		var el = useParentElement ? $(id).parent() : $(id);
+		el.unbind();
+		el.removeClass("clickable");
 	}
 
 	var showButton = function(id, onClickHandler){

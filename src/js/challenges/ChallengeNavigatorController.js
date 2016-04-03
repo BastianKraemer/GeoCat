@@ -683,32 +683,22 @@ function ChallengeNavigatorController(challenge_id){
 	};
 }
 
-ChallengeNavigatorController.currentInstance = null;
+ChallengeNavigatorController.init = function(myPageId){
+	ChallengeNavigatorController.prototype = new PagePrototype(myPageId, function(){
+		var key = GeoCat.getCurrentChallenge();
 
-ChallengeNavigatorController.openPage = function(){
-	var key = GeoCat.getCurrentChallenge();
-
-	if(key == ""){
-		key = location.search;
-		if(key != ""){
-			key = key.slice(1);
+		if(key == ""){
+			key = location.search;
+			if(key != ""){
+				key = key.slice(1);
+			}
+			else{
+				SubstanceTheme.showNotification("<h3>Unknown Sessionkey</h3>", 7, $.mobile.activePage[0], "substance-red no-shadow white")
+				return;
+			}
 		}
-		else{
-			SubstanceTheme.showNotification("<h3>Unknown Sessionkey</h3>", 7, $.mobile.activePage[0], "substance-red no-shadow white")
-			return;
-		}
-	}
 
-	ChallengeNavigatorController.currentInstance = new ChallengeNavigatorController(key);
-	ChallengeNavigatorController.currentInstance.pageOpened();
-};
+		return new ChallengeNavigatorController(key);
+	});
 
-ChallengeNavigatorController.closePage = function(){
-	ChallengeNavigatorController.currentInstance.pageClosed();
-	ChallengeNavigatorController.currentInstance = null;
-};
-
-ChallengeNavigatorController.init = function(){
-	$(document).on("pageshow", "#ChallengeNavigator", ChallengeNavigatorController.openPage);
-	$(document).on("pagebeforehide", "#ChallengeNavigator", ChallengeNavigatorController.closePage);
 };

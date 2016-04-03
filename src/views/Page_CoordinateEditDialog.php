@@ -78,9 +78,7 @@
 					<p id="EditCoordinate-wait-for-gps" class="center small" style="margin: 0; display: none"><?php $locale->write("dialog.editcoord.gpsfix"); ?> <span></span></p>
 
 					<div id="EditCoordinate-ispublic-container">
-					    <label>
-					        <input id="EditCoordinate-ispublic"  type="checkbox"><?php $locale->write("places.popup_edit.ispublic"); ?>
-					    </label>
+					    <label><input id="EditCoordinate-ispublic"  type="checkbox"><?php $locale->write("places.popup_edit.ispublic"); ?></label>
 					</div>
 
 					<div id="EditCoordinate-hint-container" style="display: none">
@@ -99,9 +97,7 @@
 									<input id="EditCoordinate-priority" data-theme="a" type="number" min="0" max="100">
 								</td>
 								<td>
-									<label class="regular">
-								        <input id="EditCoordinate-starting-point" type="checkbox" data-mini="true"><?php $locale->write("dialog.editcoord.starting_point"); ?>
-								    </label>
+									<label class="regular"><input id="EditCoordinate-starting-point" type="checkbox" data-mini="true"><?php $locale->write("dialog.editcoord.starting_point"); ?></label>
 								</td>
 							</tr>
 						</table>
@@ -113,9 +109,7 @@
 					</div>
 
 					<div id="EditCoordinate-add-to-own-places-container" style="display: none">
-						<label class="regular">
-					        <input id="EditCoordinate-add-to-own-places" type="checkbox" data-mini="true"><?php $locale->write("dialog.editcoord.add2ownplaces"); ?>
-					    </label>
+						<label class="regular"><input id="EditCoordinate-add-to-own-places" type="checkbox" data-mini="true"><?php $locale->write("dialog.editcoord.add2ownplaces"); ?></label>
 					</div>
 
 					<div class="center">

@@ -60,11 +60,11 @@ function BrowseChallengesController(){
 	 * This function should be called when the challenge browser page is opened
 	 *
 	 * @public
-	 * @function onPageOpened
+	 * @function pageOpened
 	 * @memberOf BrowseChallengesController
 	 * @instance
 	 */
-	this.onPageOpened = function(){
+	this.pageOpened = function(){
 
 		$(htmlElement.listview).listview('refresh');
 		countPublicChallenges();
@@ -117,11 +117,11 @@ function BrowseChallengesController(){
 	 * This function should be called when the challenge browser page is closed
 	 *
 	 * @public
-	 * @function onPageClosed
+	 * @function pageClosed
 	 * @memberOf BrowseChallengesController
 	 * @instance
 	 */
-	this.onPageClosed = function(){
+	this.pageClosed = function(){
 		$(htmlElement.nextPageButton).unbind();
 		$(htmlElement.prevPageButton).unbind();
 	}
@@ -385,16 +385,8 @@ function BrowseChallengesController(){
 	}
 }
 
-BrowseChallengesController.currentInstance = null;
-
-BrowseChallengesController.init = function(){
-	$(document).on("pageshow", "#ChallengeBrowser", function(){
-		BrowseChallengesController.currentInstance = new BrowseChallengesController();
-		BrowseChallengesController.currentInstance.onPageOpened();
-	});
-
-	$(document).on("pagebeforehide", "#ChallengeBrowser", function(){
-		BrowseChallengesController.currentInstance.onPageClosed();
-		BrowseChallengesController.currentInstance = null
+BrowseChallengesController.init = function(myPageId){
+	BrowseChallengesController.prototype = new PagePrototype(myPageId, function(){
+		return new BrowseChallengesController();
 	});
 };

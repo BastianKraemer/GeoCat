@@ -50,7 +50,7 @@ function GPSNavigationController(){
 	 * This function should be called when the "GPS navigator" page is opened
 	 *
 	 * @public
-	 * @function onPageOpened
+	 * @function pageOpened
 	 * @memberOf GPSNavigationController
 	 * @instance
 	 */
@@ -93,7 +93,7 @@ function GPSNavigationController(){
 	 * This function should be called when the "GPS Navigator" page is closed
 	 *
 	 * @public
-	 * @function onPageClosed
+	 * @function pageClosed
 	 * @memberOf GPSNavigationController
 	 * @instance
 	 */

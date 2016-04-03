@@ -23,7 +23,7 @@
 		public function printHead($config, $locale, $session, $pathToRoot){
 ?>
 	<script type="text/javascript">
-		BrowseChallengesController.init();
+		BrowseChallengesController.init("#ChallengeBrowser");
 	</script>
 <?php
 		}

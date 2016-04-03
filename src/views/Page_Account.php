@@ -56,25 +56,25 @@
 			</form>
 			<a href="#popup-pw" id="acc-password" class="ui-btn" data-rel="popup" data-position-to="window" data-transition="pop"><?php $locale->write("account.password"); ?></a>
 		</div>
-		
+
 		<!-- POPUP USER DATA -->
 		<div id="popup-edit" data-role="popup" data-theme="a" class="ui-corner-all" style="width: 85vw;">
 			<div data-role="header" data-theme="b">
 				<h1><?php $locale->write("account.edit"); ?></h1>
 			</div>
-			
+
 			<div data-role="main" class="ui-content">
 				<input id="edit-field" type="text" value="" />
 				<input id="edit-submit" type="button" value="<?php $locale->write("account.send"); ?>" />
 			</div>
 		</div>
-		
+
 		<!-- POPUP USER PASSWORD -->
 		<div id="popup-pw" data-role="popup" data-theme="a" class="ui-corner-all" style="width: 85vw;">
 			<div data-role="header" data-theme="b">
 				<h1><?php $locale->write("account.edit"); ?></h1>
 			</div>
-			
+
 			<div data-role="main" class="ui-content">
 				<form>
 					<input id="pwold" type="password" placeholder="<?php $locale->write("account.oldpassword"); ?>" value="" />
@@ -82,18 +82,6 @@
 					<input id="pwnew2" type="password" placeholder="<?php $locale->write("account.newpassword"); ?>" value="" />
 					<input id="pw-submit" type="button" value="<?php $locale->write("account.send"); ?>" />
 				</form>
-			</div>
-		</div>
-		
-		<!-- POPUP RELOAD PAGE -->
-		<div id="popup-reload" data-role="popup" data-dismissible="false" data-theme="a" class="ui-corner-all" style="width: 85vw;">
-			<div data-role="header" data-theme="b">
-				<h1><?php $locale->write("account.notification"); ?></h1>
-			</div>
-			
-			<div data-role="main" class="ui-content">
-				<h4><?php $locale->write("account.reload"); ?></h4>
-				<input id="reload-submit" type="button" value="<?php $locale->write("okay"); ?>" />
 			</div>
 		</div>
 

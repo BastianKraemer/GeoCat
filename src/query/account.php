@@ -147,7 +147,7 @@
 			));
 			return $this->checkOrCreateAccount(false);
 		}
-		
+
 		protected function getUserData(){
 			$session = new SessionManager();
 			if($session->isSignedIn()){
@@ -162,13 +162,13 @@
 				return self::buildResponse(false, array("msg" => $this->locale->get("account.err.pleasesignin")));
 			}
 		}
-		
+
 		protected function updateUserData(){
 			$newVal = $this->args['text'];
 			$oldVal = "";
 			$type = $this->args['id'];
 			$session = new SessionManager();
-			$response = false; 
+			$response = false;
 			$message = "";
 			switch($type){
 				case "acc-email":
@@ -182,7 +182,7 @@
 							if(AccountManager::setNewEmailAdressForAccountId($this->dbh, $session->getAccountId(), $newVal)){
 								$response = true;
 								$message = $this->locale->get("account.update.success");
-								break; 
+								break;
 							}
 							$message = $this->locale->get("account.update.error");
 							break;
@@ -254,20 +254,23 @@
 			}
 			return self::buildResponse($response, array("msg" => $message));
 		}
-		
+
 		protected function changePassword(){
 			$session = new SessionManager();
 			$oldPassword = $this->args['oldpw'];
-			$newPassword = $this->args['newpw'];
-			if(AccountManager::checkPassword($this->dbh, $session->getAccountId(), $oldPassword) == 1){
-				if(AccountManager::setNewPassword($this->dbh, $session->getAccountId(), $newPassword)){
-					return self::buildResponse(true, array("msg" => $this->locale->get("account.update.success")));
+			$newPassword = trim($this->args['newpw']);
+			if(strlen($newPassword) > 0){
+				if(AccountManager::checkPassword($this->dbh, $session->getAccountId(), $oldPassword) == 1){
+					if(AccountManager::setNewPassword($this->dbh, $session->getAccountId(), $newPassword)){
+						return self::buildResponse(true, array("msg" => $this->locale->get("account.update.success")));
+					}
+					return self::buildResponse(false, array("msg" => $this->locale->get("account.update.error")));
 				}
-				return self::buildResponse(false, array("msg" => $this->locale->get("account.update.error")));
+				return self::buildResponse(false, array("msg" => $this->locale->get("account.update.wrongpassword")));
 			}
-			return self::buildResponse(false, array("msg" => $this->locale->get("account.update.wrongpassword")));
+			return self::buildResponse(false, array("msg" => $this->locale->get("account.update.pwdempty")));
 		}
-		
+
 	}
 
 	$config = require(__DIR__ . "/../config/config.php");

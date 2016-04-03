@@ -1,18 +1,16 @@
 
 function Account () {
-  
+
   var popups = {
     userdata: "#popup-edit",
-    password: "#popup-pw",
-    reload: "#popup-reload"
+    password: "#popup-pw"
   }
-  
+
   var sendBTN = {
     userdata: "#edit-submit",
-    pwdata: "#pw-submit",
-    reload: "#reload-submit"
+    pwdata: "#pw-submit"
   }
-  
+
   var userData = {
     email: "#acc-email",
     username: "#acc-username",
@@ -20,7 +18,7 @@ function Account () {
     lastname: "#acc-lastname",
     password: "#acc-password"
   }
-  
+
   var inputFields = {
     userdata: "#edit-field",
     oldpw: "#pwold",
@@ -34,15 +32,13 @@ function Account () {
     $(userData.password).click(handleClickOnPWBTN);
     $(sendBTN.userdata).click(handleClickOnSubmit);
     $(sendBTN.pwdata).click(handleClickOnSubmitPassword);
-    $(sendBTN.reload).click(handleClickOnReload);
   }
-  
+
   this.onPageClosed = function(){
     $(sendBTN.userdata).unbind();
     $(sendBTN.pwdata).unbind();
-    $(sendBTN.reload).unbind();
   }
-  
+
   var loadUserData = function(){
     $.ajax({
 			type: "POST", url: "./query/account.php",
@@ -50,7 +46,7 @@ function Account () {
 			data: {task: "getUserData"},
 			cache: false,
 			success: function(response){
-					var responseData = response; 
+					var responseData = response;
 					if(responseData.status == "ok"){
             updateGUI(responseData);
 					} else {
@@ -63,33 +59,26 @@ function Account () {
 			}
 		});
   }
-  
+
   var updateGUI = function(responseData){
     $(userData.email).html(responseData.email);
     $(userData.username).html(responseData.username);
     $(userData.firstname).html(responseData.fname);
     $(userData.lastname).html(responseData.lname);
   }
-  
+
   var handleClickOnField = function(){
     $(inputFields.userdata).val($(this).text());
     $(sendBTN.userdata).attr("data-id", this.id);
   }
-  
+
   var handleClickOnPWBTN = function(){
     $(inputFields.oldpw).val("");
     $(inputFields.newpw1).val("");
     $(inputFields.newpw2).val("");
     $(sendBTN.pwdata).attr("data-id", this.id);
   }
-  
-  var handleClickOnReload = function(){
-    $(popups.reload).popup('close');
-    $(popups.reload).on({ popupafterclose: function(event, ui){
-      window.location.reload();
-    } });
-  }
-  
+
   var handleClickOnSubmit = function(){
     $(popups.userdata).popup("close");
     $.ajax({
@@ -98,7 +87,7 @@ function Account () {
 			data: {task: "updateUserData", id: $(sendBTN.userdata).attr("data-id"), text: $(inputFields.userdata).val()},
 			cache: false,
 			success: function(response){
-					var responseData = response; 
+					var responseData = response;
 					if(responseData.status == "ok"){
             $("#" + $(sendBTN.userdata).attr("data-id")).html($(inputFields.userdata).val());
             setTimeout(function(){
@@ -106,9 +95,8 @@ function Account () {
 															"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-green no-shadow white");
 						}, 750);
             if($(sendBTN.userdata).attr("data-id") == "acc-username"){
-              $(popups.userdata).on({ popupafterclose: function(event, ui){
-                $(popups.reload).popup('open');
-              }});
+              GeoCat.loginStatus.username = $(inputFields.userdata).val();
+              $(".login-button").text($(inputFields.userdata).val());
             }
 					} else {
 						setTimeout(function(){
@@ -119,7 +107,7 @@ function Account () {
 			}
 		});
   }
-  
+
   var handleClickOnSubmitPassword = function(){
     $(popups.password).popup("close");
     var newpassword = "";
@@ -128,7 +116,7 @@ function Account () {
 				SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("account.update.error", "Error") + "</h3>" +
 					"<p>" + GeoCat.locale.get("account.update.oddpw") + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
 			}, 750);
-      return; 
+      return;
     }
     newpassword = $(inputFields.newpw1).val();
     $.ajax({
@@ -137,7 +125,7 @@ function Account () {
 			data: {task: "changePassword", id: $(sendBTN.pwdata).attr("data-id"), oldpw: $(inputFields.oldpw).val(), newpw: newpassword},
 			cache: false,
 			success: function(response){
-					var responseData = response; 
+					var responseData = response;
 					if(responseData.status == "ok"){
             setTimeout(function(){
 							SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("account.update.success", "Success") + "</h3>" +
@@ -152,7 +140,7 @@ function Account () {
 			}
 		});
   }
-  
+
 }
 
 Account.currentInstance = null;
@@ -165,6 +153,6 @@ Account.init = function(){
 
 	$(document).on("pagebeforehide", "#Account", function(){
 		Account.currentInstance.onPageClosed();
-		Account.currentInstance = null; 
+		Account.currentInstance = null;
 	});
 }

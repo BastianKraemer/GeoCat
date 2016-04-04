@@ -41,7 +41,7 @@
 	<div data-role="page" id="Account" data-theme="a">
 <?php self::printHeader($locale->get("account.title"), "#Home", $locale, $config, $session); ?>
 		<div role="main" class="ui-content">
-			<a href="#" onclick="$.mobile.changePage('#Home'); GeoCat.logout(null, './' );" id="logout" class="ui-btn"><?php $locale->write("account.logout") ?></a>
+			<a href="#" onclick="$.mobile.changePage('#Home'); GeoCat.logout(null, './' );" id="logout" class="ui-btn"><?php $locale->write("logout") ?></a>
 			<form>
 				<ul data-role="listview" data-inset="true" data-divider-theme="a">
 					<li data-role="list-divider"><h2><?php $locale->write("account.email"); ?></h2></li>

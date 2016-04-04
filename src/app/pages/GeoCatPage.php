@@ -55,10 +55,18 @@
 			$buttonText = $session->isSignedIn() ? $session->getUsername() : "Login";
 			$pathToRoot = ".";
 			//$targetJavaScriptFunction = $session->isSignedIn() ? "GeoCat.logout(null, '" . $pathToRoot . "');" : "Dialogs.showLoginDialog('" . $pathToRoot . "');";
-			$targetJavaScriptFunction = $session->isSignedIn() ? "$.mobile.changePage('#Account');" : "Dialogs.showLoginDialog('" . $pathToRoot . "');";
+			$targetJavaScriptFunction = !$session->isSignedIn() ? "Dialogs.showLoginDialog('" . $pathToRoot . "');" : "";
 ?>
 			<button id="login-btn" onclick="<?php echo $targetJavaScriptFunction; ?>" class="login-button ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-user"><?php echo $buttonText ?></button>
 		</div>
+
+		<div id="popup-login" data-role="popup" data-arrow="true" data-theme="a" class="ui-corner-all">
+		    <div data-role="main" class="ui-content">
+          <button id="page_account" onclick="$.mobile.changePage('#Account')" class="ui-btn ui-shadow ui-btn-inline ui-btn-icon-left ui-icon-gear ui-corner-all ui-btn-icon-notext"></button>
+          <button id="btn_logout" onclick="GeoCat.logout(null, '<?php echo $pathToRoot ?>'); $('#popup-login-' + $.mobile.activePage.attr('id')).popup('close')" class="ui-btn ui-shadow ui-btn-inline ui-mini ui-corner-all"><?php $locale->write("logout"); ?></button>
+        </div>
+		</div>
+
 <?php
 		}
 

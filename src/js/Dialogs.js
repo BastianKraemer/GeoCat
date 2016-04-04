@@ -93,7 +93,7 @@ var Dialogs = (function(){
 				}
 				GeoCat.login(
 					$("#login-username").val(), $("#login-password").val(),
-					$('#rememberme').is(':checked'), 
+					$('#rememberme').is(':checked'),
 					function(success){
 						if(success){
 							form.submit();

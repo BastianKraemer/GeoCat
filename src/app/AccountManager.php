@@ -187,6 +187,44 @@
 		}
 
 		/**
+		 * add buddy to account
+		 * @param PDO $dbh Database handler
+		 * @param string $myAccId
+		 * @param string $buddyAccId
+		 */
+		public static function addBuddyToAccount($dbh, $myAccId, $buddyAccId){
+			DBTools::query($dbh, "INSERT INTO Friends (account_id, friend_id) " .
+				"VALUES (:myaccid, :buddyaccid);",
+				array(":myaccid" => $myAccId, ":buddyaccid" => $buddyAccId));
+		}
+
+		/**
+		 * remove buddy from account
+		 * @param PDO $dbh Database handler
+		 * @param string $myAccId
+		 * @param string $buddyAccId
+		 */
+		public static function removeBuddyFromAccount($dbh, $myAccId, $buddyAccId){
+			DBTools::query($dbh, "DELETE FROM Friends " .
+				"WHERE account_id = :myaccid AND friend_id = :buddyaccid",
+				array(":myaccid" => $myAccId, ":buddyaccid" => $buddyAccId));
+		}
+
+		/**
+		 * get buddy list from account
+		 * @param PDO $dbh Database handler
+		 * @param string $myAccId
+		 */
+		public static function getBuddyList($dbh, $myAccId){
+			$result = DBTools::fetchAll($dbh, "SELECT friend_id " .
+			"FROM Friends" .
+			"WHERE account_id = :myaccid",
+			array(":myaccid" => $myAccId),
+			PDO::FETCH_ASSOC);
+			return $result;
+		}
+
+		/**
 		 * Checks if a user is an administrator
 		 * @param PDO $dbh Database handler
 		 * @param integer $accountId

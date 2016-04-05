@@ -281,6 +281,6 @@ GeoCat.updateLoginBTN = function(){
 }
 
 $(this).on('pagechange', function(){
-	$.mobile.activePage.find('#popup-login').attr('id', 'popup-login-' + $.mobile.activePage.attr('id'));
+	$.mobile.activePage.find('.popup-login').attr('id', 'popup-login-' + $.mobile.activePage.attr('id'));
 	GeoCat.updateLoginBTN();
 });

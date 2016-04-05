@@ -27,11 +27,16 @@ function Account () {
   }
 
   this.onPageOpened = function(){
-    loadUserData();
-    $(userData.email + ", " + userData.username + ", " + userData.firstname + ", " + userData.lastname).click(handleClickOnField);
-    $(userData.password).click(handleClickOnPWBTN);
-    $(sendBTN.userdata).click(handleClickOnSubmit);
-    $(sendBTN.pwdata).click(handleClickOnSubmitPassword);
+	if(GeoCat.loginStatus.isSignedIn){
+		loadUserData();
+		$(userData.email + ", " + userData.username + ", " + userData.firstname + ", " + userData.lastname).click(handleClickOnField);
+		$(userData.password).click(handleClickOnPWBTN);
+		$(sendBTN.userdata).click(handleClickOnSubmit);
+		$(sendBTN.pwdata).click(handleClickOnSubmitPassword);
+	}
+	else{
+		$.mobile.changePage("#Home");
+	}
   }
 
   this.onPageClosed = function(){

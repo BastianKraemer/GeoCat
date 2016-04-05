@@ -195,6 +195,17 @@ td {
 	color: #067199;
 }
 
+.popup-login {
+	/* Workaround: Scrollbar + short username may lead to a popup with two rows */
+	right: 16px;
+	top: 8px;
+	width: 105%;
+}
+
+.popup-login div:first-child {
+	padding: 5px;
+}
+
 /* ==============================================================================
 	GPS Radar
 ============================================================================== */

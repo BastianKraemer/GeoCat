@@ -61,7 +61,7 @@ function ChallengeInfoController(sessionKey) {
 		joinTeamCodeWrap: "#join-team-wrap-password",
 		joinTeamCode: "#join-team-field-password",
 		teamCodeContainer: "#team-access-password-wrap",
-		isPredefinedTeamContainer: "#team-ispredefined-container"
+		isPredefinedTeamContainer: "#team-ispredefined-container",
 	};
 
 	var confirmButtons = {
@@ -72,7 +72,8 @@ function ChallengeInfoController(sessionKey) {
 
 		teamcreate: "#team-button-create",
 		joinYes: "#join-team-yes",
-		joinNo: "#join-team-no"
+		joinNo: "#join-team-no",
+		cacheListeCaption: "#challengeinfo-cache-list-caption"
 	};
 
 	// Public functions
@@ -97,6 +98,7 @@ function ChallengeInfoController(sessionKey) {
 		$(confirmButtons.teamcreate).click(createTeamClicked);
 		$(confirmButtons.joinYes).click(joinTeamYesClicked);
 		$(confirmButtons.joinNo).click(joinTeamNoClicked);
+		$(confirmButtons.cacheListeCaption).click(showOnMap);
 	};
 
 	this.pageClosed = function(){
@@ -416,18 +418,23 @@ function ChallengeInfoController(sessionKey) {
 			$(buttons[key]).unbind();
 		}
 
-		$(infoElements.startTime).parent().unbind();
-		$(infoElements.startTime).parent().removeClass("clickable")
-		$(infoElements.endTime).parent().unbind();
-		$(infoElements.endTime).parent().removeClass("clickable")
-		$(infoElements.type).parent().unbind();
-		$(infoElements.type).parent().removeClass("clickable");
+		removeClickHandlerFromInfoField(infoElements.startTime, true);
+		removeClickHandlerFromInfoField(infoElements.endTime, true);
+		removeClickHandlerFromInfoField(infoElements.type, true);
+		removeClickHandlerFromInfoField(infoElements.title, false);
+		removeClickHandlerFromInfoField(infoElements.description, false);
 	}
 
 	var addClickHandlerToInfoField = function(id, callback, useParentElement){
 		var el = useParentElement ? $(id).parent() : $(id);
 		el.click(callback);
 		el.addClass("clickable");
+	}
+
+	var removeClickHandlerFromInfoField = function(id, useParentElement){
+		var el = useParentElement ? $(id).parent() : $(id);
+		el.unbind();
+		el.removeClass("clickable");
 	}
 
 	var showButton = function(id, onClickHandler){
@@ -607,6 +614,21 @@ function ChallengeInfoController(sessionKey) {
 	var deleteCacheOnClick = function(){
 		sendChallengeRemoveCacheRequest($(popups.cachePopup).attr("data-cc-id"));
 		$(popups.cachePopup).popup("close");
+	}
+
+	var showOnMap = function(){
+		var coordList = new Array(Object.keys(coordData).length);
+		var i = 0;
+		for(var key in coordData){
+			coordList[i++] = new Coordinate(null,
+							"(" + coordData[key].priority + ") " + coordData[key].name,
+							coordData[key].latitude,
+							coordData[key].longitude,
+							coordData[key].hint,
+							false);
+		}
+
+		MapController.showMap(MapController.MapTask.SHOW_COORDS, coordList);
 	}
 
 	/*

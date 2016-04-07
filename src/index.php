@@ -20,6 +20,7 @@
 	require_once(__DIR__ . "/views/Page_ChallengeNavigator.php");
 	require_once(__DIR__ . "/views/Page_ChallengeInfo.php");
 	require_once(__DIR__ . "/views/Page_CoordinateEditDialog.php");
+	require_once(__DIR__ . "/views/Page_Map.php");
 
 	use views as views;
 
@@ -30,7 +31,8 @@
 		new \views\Page_BrowseChallenges(),
 		new \views\Page_ChallengeNavigator(),
 		new \views\Page_ChallengeInfo(),
-		new \views\Page_CoordinateEditDialog()
+		new \views\Page_CoordinateEditDialog(),
+		new \views\Page_Map()
 	);
 ?>
 
@@ -53,6 +55,7 @@
 	<link rel="stylesheet" href="./css/substance.css">
 	<link rel="stylesheet" href="./css/geocat-images.css" />
 	<!-- /build -->
+	<link rel="stylesheet" href="./css/ol.css" />
 
 	<!-- build:js ./lib/jquery_package.min.js -->
 	<script src="./lib/jquery.min.js"></script>
@@ -79,6 +82,7 @@
 	<script src="./js/challenges/ChallengeInfoController.js"></script>
 	<script src="./js/controller/CoordinateEditDialogController.js"></script>
 	<script src="./js/controller/PlacesController.js"></script>
+	<script src="./js/controller/MapController.js"></script>
 	<!-- /build -->
 
 	<!-- build:js ./js/gpscat.min.js -->

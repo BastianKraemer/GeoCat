@@ -23,7 +23,7 @@
 		public function printHead($config, $locale, $session, $pathToRoot){
 ?>
 	<script type="text/javascript">
-		ChallengeNavigatorController.init();
+		ChallengeNavigatorController.init("#ChallengeNavigator");
 	</script>
 <?php
 		}
@@ -39,7 +39,7 @@
 		public function printContent($config, $locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="ChallengeNavigator" data-theme="a">
-		<?php self::printHeader("Challenge Navigator", "#ChallengeInfo", $locale, $config, $session); ?>
+<?php self::printHeader("Challenge Navigator", "#ChallengeInfo", $locale, $config, $session); ?>
 		<div id="challenge-navigator-content" role="main" class="ui-content my-page">
 			<div class="gpsradar-container">
 				<canvas id="challenge-navigator-canvas" class="gpsradar"></canvas>
@@ -67,8 +67,7 @@
 				<?php $locale->write("challenge.navigator.preferences"); ?>
 			</p>
 			<label style="font-weight: initial; margin-top: -1em; margin-left: -1em; margin-right: -1em; border-radius: 0; background-color: #ffffff; border-right-style: none;">
-				<input id="challenge-navigator-autohide" type="checkbox" checked><?php $locale->write("challenge.navigator.autohide"); ?>
-			</label>
+				<input id="challenge-navigator-autohide" type="checkbox" checked><?php $locale->write("challenge.navigator.autohide"); ?></label>
 		</div>
 
 		<div id="code-input-popup" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all">

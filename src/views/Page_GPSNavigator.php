@@ -46,13 +46,13 @@
 			</div>
 		</div>
 
-		<div data-role="footer" data-id="navbar" data-position="fixed" data-tap-toggle="false" data-theme="b" style="overflow:hidden;">
-			<div class="substance-footer">
-				<span id="gpsnavigagtor-add-place" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-lime img-plus"
-				   title="<?php $locale->write("gpsnav.add_coord"); ?>"></span>
-				<a href="#gpsnav-destination-list-panel" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-orange img-list"
-				   title="<?php $locale->write("gpsnav.show_dest_list"); ?>"></a>
-			</div>
+		<div class="substance-footer">
+			<span id="gpsnavigagtor-add-place" class="substance-button substance-button-grow substance-animated substance-lime img-plus"
+			   title="<?php $locale->write("gpsnav.add_coord"); ?>"></span>
+			<span id="gpsnavigagtor-show-map" class="substance-button substance-button-grow substance-animated substance-blue img-pin"
+			   title="<?php $locale->write("gpsnav.show_map"); ?>"></span>
+			<a href="#gpsnav-destination-list-panel" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-orange img-list"
+			   title="<?php $locale->write("gpsnav.show_dest_list"); ?>"></a>
 		</div>
 
 		<!-- Side panel to show destination list -->

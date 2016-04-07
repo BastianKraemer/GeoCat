@@ -59,7 +59,7 @@
 			<div class="substance-horizontal-flexcontainer">
 				<div class="substance-container substance-flexitem2" style="min-width: 300px; min-height: 200px; max-height: 400px; overflow-y: auto;">
 					<table class="styled-table">
-						<caption><?php $locale->write("challenge.info.cachelist"); ?></caption>
+						<caption id="challengeinfo-cache-list-caption" class="clickable"><?php $locale->write("challenge.info.cachelist"); ?></caption>
 						<thead>
 							<tr>
 								<th><?php $locale->write("challenge.info.cache"); ?></th>
@@ -149,9 +149,7 @@
 					InputTemplates::printTextArea("challengeinfo-edit-desc", false, $locale->get("challenge.create.desc"), false, 512);
 ?>
 
-				<label>
-			        <input id="challengeinfo-edit-ispublic" type="checkbox"><?php $locale->write("challenge.create.public"); ?>
-			    </label>
+				<label><input id="challengeinfo-edit-ispublic" type="checkbox"><?php $locale->write("challenge.create.public"); ?></label>
 				<hr>
 				<button id="challengeinfo-editdesc-ok" class="ui-btn ui-corner-all ui-shadow"><?php $locale->write("save"); ?></button>
 			</div>
@@ -246,9 +244,7 @@
 					<input id="challengeinfo-edit-endtime" type="datetime-local" placeholder="(Optional)">
 				</div>
 
-				<label>
-			        <input id="challengeinfo-edit-predefteams" type="checkbox"><?php $locale->write("challenge.create.predef_teams"); ?>
-			    </label>
+				<label><input id="challengeinfo-edit-predefteams" type="checkbox"><?php $locale->write("challenge.create.predef_teams"); ?></label>
 
 <?php
 				$values1 = array($locale->get("challenge.info.edit.unlimited_teams") => -1);

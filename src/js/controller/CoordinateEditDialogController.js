@@ -20,7 +20,8 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 	var buttons = {
 		confirm: "#EditCoordinate-confirm",
 		cancel: "#EditCoordinate-cancel",
-		getGPS: "#EditCoordinate-get-gps"
+		getGPS: "#EditCoordinate-get-gps",
+		getMap: "#EditCoordinate-get-map"
 	};
 
 	var me = this;
@@ -59,6 +60,7 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 
 		$(buttons.cancel).click(returnToPreviousPage);
 		$(buttons.getGPS).click(getGPSPosition);
+		$(buttons.getMap).click(selectPositionFromMap);
 	};
 
 	var returnToPreviousPage = function(){
@@ -165,7 +167,7 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 		if(optionIsActive("noAutoClose")){
 			autoClose = false;
 		}
-	}
+	};
 
 	var optionIsActive = function(optionName){
 		if(options.hasOwnProperty(optionName)){
@@ -191,7 +193,23 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 		function(p){
 			$(containter.gpsStatus + " span").text("(" + p + "%)");
 		});
-	}
+	};
+
+	var selectPositionFromMap = function(){
+		me.ignoreNextEvent();
+		MapController.showMap(
+			MapController.MapTask.GET_POSITION,
+			{
+				callback: function(lat, lon){
+					$(inputElements.lat.id).val(lat);
+					$(inputElements.lon.id).val(lon);
+				},
+				lat: $(inputElements.lat.id).val(),
+				lon: $(inputElements.lon.id).val(),
+				returnTo: CoordinateEditDialogController.pageId
+			}
+		);
+	};
 
 	var genDataObject = function(clear){
 		var obj = {};
@@ -208,7 +226,7 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 		}
 
 		return obj;
-	}
+	};
 
 	var clearForms = function(){
 		for(var key in inputElements){
@@ -224,12 +242,15 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 			$("#EditCoordinate-starting-point").prop('checked', false).checkboxradio('refresh');
 			$(inputElements["priority"].id).textinput('enable');
 		}
-	}
+	};
 }
+
+
 
 CoordinateEditDialogController.init = function(myPageId){
 
 	var myPrototype = new PagePrototype(myPageId, null);
+	CoordinateEditDialogController.pageId = myPageId;
 
 	CoordinateEditDialogController.prototype = myPrototype;
 

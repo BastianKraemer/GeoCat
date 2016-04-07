@@ -134,7 +134,7 @@ var GPS = new function(){
 		}
 	};
 
-	var gpsErrorHandler = function(err) {
+	var gpsErrorHandler = function(error) {
 		if(gpsWatchId != -1){
 			navigator.geolocation.clearWatch(gpsWatchId);
 			gpsWatchId = -1;
@@ -142,7 +142,7 @@ var GPS = new function(){
 
 		var errorMsg = "Unknown error.";
 
-		switch(err.code){
+		switch(error.code){
 			case error.PERMISSION_DENIED:
 				errorMsg = "Permission denied.";
 				break;

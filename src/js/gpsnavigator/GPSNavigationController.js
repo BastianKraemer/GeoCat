@@ -32,11 +32,12 @@ function GPSNavigationController(){
 
 	// Collection (Map) of all important HTML elements (defeined by their id)
 	var htmlElements = {
-			contentDiv: "#gpsnav-content",
-			canvas: "#gpsnav-canvas",
-			coordinateList: "#gpsnav-destination-list",
-			coordinatePanel: "#gpsnav-destination-list-panel",
-			addCoordButton: "#gpsnavigagtor-add-place"
+		contentDiv: "#gpsnav-content",
+		canvas: "#gpsnav-canvas",
+		coordinateList: "#gpsnav-destination-list",
+		coordinatePanel: "#gpsnav-destination-list-panel",
+		addCoordButton: "#gpsnavigagtor-add-place",
+		showMapButton: "#gpsnavigagtor-show-map"
 	}
 
 	/*
@@ -49,7 +50,7 @@ function GPSNavigationController(){
 	 * This function should be called when the "GPS navigator" page is opened
 	 *
 	 * @public
-	 * @function onPageOpened
+	 * @function pageOpened
 	 * @memberOf GPSNavigationController
 	 * @instance
 	 */
@@ -73,6 +74,16 @@ function GPSNavigationController(){
 			}
 		});
 
+		$(htmlElements.showMapButton).click(function(e){
+			var currentNav = localCoordStore.getCurrentNavigation();
+			var coordList = new Array(Object.keys(currentNav).length);
+			var i = 0;
+			for(var key in currentNav){
+				coordList[i++] = currentNav[key];
+			}
+			MapController.showMap(MapController.MapTask.SHOW_COORDS, coordList);
+		});
+
 		gpsRadar = new GPSRadar($(htmlElements.contentDiv)[0], $(htmlElements.canvas)[0]);
 		gpsRadar.start();
 		startTimer();
@@ -82,7 +93,7 @@ function GPSNavigationController(){
 	 * This function should be called when the "GPS Navigator" page is closed
 	 *
 	 * @public
-	 * @function onPageClosed
+	 * @function pageClosed
 	 * @memberOf GPSNavigationController
 	 * @instance
 	 */
@@ -93,6 +104,7 @@ function GPSNavigationController(){
 		// Remove all event handler
 		$(htmlElements.coordinatePanel).off();
 		$(htmlElements.addCoordButton).unbind();
+		$(htmlElements.showMapButton).unbind();
 	};
 
 	function startTimer(){

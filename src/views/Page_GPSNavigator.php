@@ -47,9 +47,9 @@
 		</div>
 
 		<div class="substance-footer">
-			<span id="gpsnavigagtor-add-place" class="substance-button substance-button-grow substance-animated substance-lime img-plus"
+			<span id="gpsnavigator-add-place" class="substance-button substance-button-grow substance-animated substance-lime img-plus"
 			   title="<?php $locale->write("gpsnav.add_coord"); ?>"></span>
-			<span id="gpsnavigagtor-show-map" class="substance-button substance-button-grow substance-animated substance-blue img-pin"
+			<span id="gpsnavigator-show-map" class="substance-button substance-button-grow substance-animated substance-blue img-pin"
 			   title="<?php $locale->write("gpsnav.show_map"); ?>"></span>
 			<a href="#gpsnav-destination-list-panel" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-orange img-list"
 			   title="<?php $locale->write("gpsnav.show_dest_list"); ?>"></a>

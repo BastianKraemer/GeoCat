@@ -52,7 +52,7 @@ module.exports = function(grunt) {
 			main: {
 				cwd: 'src/',
 				src: [	'app/**',  'query/**', 'views/**', 'config/config.php', 'locale/*.json',
-						'lib/jquery_package.min.js', 'lib/jquery.minicolors.min.js'],
+						'lib/jquery_package.min.js', 'lib/jquery.minicolors.min.js', 'lib/ol.js'],
 				dest: 'dest/',
 				expand: true
 			},

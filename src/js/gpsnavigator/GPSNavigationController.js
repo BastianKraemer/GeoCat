@@ -36,9 +36,9 @@ function GPSNavigationController(){
 		canvas: "#gpsnav-canvas",
 		coordinateList: "#gpsnav-destination-list",
 		coordinatePanel: "#gpsnav-destination-list-panel",
-		addCoordButton: "#gpsnavigagtor-add-place",
-		showMapButton: "#gpsnavigagtor-show-map"
-	}
+		addCoordButton: "#gpsnavigator-add-place",
+		showMapButton: "#gpsnavigator-show-map"
+	};
 
 	/*
 	 * ============================================================================================
@@ -227,7 +227,7 @@ function GPSNavigationController(){
 	}
 
 	/**
-	 * Updates the current destination list based on tha values stored in the {@link LocalCoordinateStore}
+	 * Updates the current destination list based on the values stored in the {@link LocalCoordinateStore}
 	 *
 	 * @private
 	 * @function

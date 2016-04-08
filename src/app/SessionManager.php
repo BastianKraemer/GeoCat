@@ -123,18 +123,18 @@
 				$token = base64_encode(mcrypt_create_iv(30, MCRYPT_DEV_URANDOM));
 				// check if new token already exists
 				$res = DBTools::fetch($dbh, "SELECT count(*) " .
-									  "FROM logintoken " .
+									  "FROM LoginToken " .
 									  "WHERE token = :token ", array("token" => $token), PDO::FETCH_NUM);
 				if($res[0] > 0){ continue; }
 				// check if user already has a login-token
 				unset($res);
 				$res = DBTools::fetch($dbh,	"SELECT count(*) " .
-									  "FROM logintoken " .
+									  "FROM LoginToken " .
 									  "WHERE account_id = :accid", array("accid" => $accId), PDO::FETCH_NUM);
 				if($res[0] > 0){
-					DBTools::query($dbh, "DELETE FROM logintoken WHERE account_id = :accid;", array("accid" => $accId));
+					DBTools::query($dbh, "DELETE FROM LoginToken WHERE account_id = :accid;", array("accid" => $accId));
 				}
-				DBTools::query($dbh, "INSERT INTO logintoken (account_id, token) VALUES (:accid, :token); ", array("accid" => $accId, "token" => $token));
+				DBTools::query($dbh, "INSERT INTO LoginToken (account_id, token) VALUES (:accid, :token); ", array("accid" => $accId, "token" => $token));
 				break;
 			}
 			if($setcookie){
@@ -150,7 +150,7 @@
 		 */
 		public function verifyCookie($dbh, $data){
 			$decodedCookie = urldecode(str_replace("%22", "", $data));
-			$res = DBTools::fetchAssoc($dbh, "SELECT * FROM logintoken WHERE token = :token", array("token" => $decodedCookie));
+			$res = DBTools::fetchAssoc($dbh, "SELECT * FROM LoginToken WHERE token = :token", array("token" => $decodedCookie));
 			if($res > 0) {
 				$username = AccountManager::getUserNameByAccountId($dbh, $res['account_id']);
 				self::performLogin($dbh, $res['account_id'], $username);
@@ -168,7 +168,7 @@
 		public function deleteCookie($dbh){
 			if(self::isSignedIn()){
 				$accId = self::getAccountId();
-				DBTools::query($dbh, "DELETE FROM logintoken WHERE account_id = :accid;", array("accid" => $accId));
+				DBTools::query($dbh, "DELETE FROM LoginToken WHERE account_id = :accid;", array("accid" => $accId));
 			}
 		}
 

@@ -106,6 +106,15 @@
 <body>
 <?php
 	GeoCatPage::printAllPages($allPages, $config, $locale, $session, $pathToRoot);
-?>
+?>	<div class="geocat-footer">
+<?php
+	if($config["policy.imprint"] != null){
+?><a href="<?php echo $config["policy.imprint"]; ?>" target="_blank" data-ajax="false" data-rel="external"><?php $locale->write("policy.imprint"); ?></a><?php
+	}
+	if($config["policy.data_privacy_statement"] != null){
+?><a href="<?php echo $config["policy.data_privacy_statement"]; ?>" target="_blank" data-ajax="false" data-rel="external"><?php $locale->write("policy.data_privacy_stm"); ?></a><?php
+	}
+?><span>&copy; 2016</span>
+	</div>
 </body>
 </html>

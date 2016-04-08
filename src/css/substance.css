@@ -65,6 +65,10 @@
 	padding: 0;
 }
 
+.substance-footer > .substance-button {
+	z-index: 1026;
+}
+
 .substance-button {
 	display: inline-block;
 	border-radius: 100%;

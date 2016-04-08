@@ -362,9 +362,35 @@ table.styled-table tbody tr td {
 	margin: 0;
 }
 
-/*table.styled-table tbody tr td:last-child {
-	white-space: nowrap;
-}*/
+/* ==============================================================================
+	Page footer
+============================================================================== */
 
+.geocat-footer {
+	position: fixed;
+	bottom: 0px;
+	height: 16px;
+	z-index: 1025;
+}
 
+.geocat-footer a, .geocat-footer span {
+	float: left;
+	color: white;
+	background-color: #313741;
+	font-size: 10px;
+	padding: 0px 4px;
+	font-weight: 500;
+	text-shadow:0 0 0 !important;
+	height: 100%;
+	line-height: 16px;
+	text-decoration: none;
+	cursor: pointer;
+}
 
+.geocat-footer a:hover, .geocat-footer span:hover {
+	text-decoration: underline;
+}
+
+.geocat-footer span:last-child {
+	border-top-right-radius: 4px;
+}

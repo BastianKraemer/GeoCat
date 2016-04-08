@@ -199,16 +199,8 @@
 					// Apply a regular expression to verify the parameters
 					$this->args[$key] = htmlspecialchars($this->args[$key]);
 					if($value != null){
-						if(is_int($value)){
-							if(strlen($this->args[$key]) > $value){
-								throw new InvalidArgumentException(sprintf($this->locale->get("query.generic.max_str_length"), $key));
-							}
-						}
-						else{
-							if(!preg_match($value, $this->args[$key])){
-								throw new InvalidArgumentException(sprintf($this->locale->get("query.generic.invalid_value"), $key));
-							}
-
+						if(!preg_match($value, $this->args[$key])){
+							throw new InvalidArgumentException(sprintf($this->locale->get("query.generic.invalid_value"), $key));
 						}
 					}
 				}

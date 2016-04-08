@@ -81,7 +81,7 @@
 		 */
 		protected function add(){
 			$this->requireParameters(array(
-					self::KEY_NAME => 64,
+					self::KEY_NAME => "/^(.*){1,64}$/",
 					self::KEY_LAT => self::COORD_REGEX,
 					self::KEY_LON => self::COORD_REGEX,
 					self::KEY_IS_PUBLIC => "/^[0-1]$/"
@@ -118,7 +118,7 @@
 		 */
 		protected function update(){
 			$this->requireParameters(array(
-					self::KEY_NAME => 64,
+					self::KEY_NAME => "/^(.*){1,64}$/",
 					self::KEY_LAT => self::COORD_REGEX,
 					self::KEY_LON => self::COORD_REGEX,
 					self::KEY_IS_PUBLIC => "/^[0-1]$/",
@@ -126,7 +126,7 @@
 			));
 
 			$this->verifyOptionalParameters(array(
-					self::KEY_DESC => 256,
+					self::KEY_DESC => "/^(.*){1,256}$/",
 					self::KEY_OTHER_ACCOUNT => "/[0-9]+/"
 			));
 
@@ -183,7 +183,7 @@
 		 */
 		protected function get(){
 			$this->verifyOptionalParameters(array(
-					self::KEY_LIMIT => "/^[0-9]+$/",
+					self::KEY_LIMIT => "/^[0-9]{1,3}$/",
 					self::KEY_OFFSET => "/^[0-9]+$/"
 			));
 
@@ -206,7 +206,7 @@
 		 */
 		protected function get_public(){
 			$this->verifyOptionalParameters(array(
-					self::KEY_LIMIT => "/^[0-9]+$/",
+					self::KEY_LIMIT => "/^[0-9]{1,3}$/",
 					self::KEY_OFFSET => "/^[0-9]+$/"
 			));
 
@@ -308,13 +308,13 @@
 		 */
 		protected function nav_create(){
 			$this->requireParameters(array(
-					self::KEY_NAME => 64,
+					self::KEY_NAME => "/^(.*){1,64}$/",
 					self::KEY_LAT => self::COORD_REGEX,
 					self::KEY_LON => self::COORD_REGEX
 			));
 
 			$this->verifyOptionalParameters(array(
-					self::KEY_DESC => 256
+					self::KEY_DESC => "/^(.*){1,256}$/"
 			));
 
 			$this->assignOptionalParameter(self::KEY_DESC, null);
@@ -362,7 +362,7 @@
 		 */
 		private function getFilter(){
 			$this->verifyOptionalParameters(array(
-					"filter" => 256
+					"filter" => "/^(.*){0,256}$/"
 			));
 
 			return (array_key_exists("filter", $this->args) ? ("%" . $this->args["filter"] . "%") : null);

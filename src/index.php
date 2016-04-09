@@ -21,6 +21,7 @@
 	require_once(__DIR__ . "/views/Page_ChallengeInfo.php");
 	require_once(__DIR__ . "/views/Page_CoordinateEditDialog.php");
 	require_once(__DIR__ . "/views/Page_Map.php");
+	require_once(__DIR__ . "/views/Page_Buddies.php");
 
 	use views as views;
 
@@ -32,7 +33,8 @@
 		new \views\Page_ChallengeNavigator(),
 		new \views\Page_ChallengeInfo(),
 		new \views\Page_CoordinateEditDialog(),
-		new \views\Page_Map()
+		new \views\Page_Map(),
+		new \views\Page_Buddies()
 	);
 ?>
 
@@ -83,6 +85,7 @@
 	<script src="./js/controller/CoordinateEditDialogController.js"></script>
 	<script src="./js/controller/PlacesController.js"></script>
 	<script src="./js/controller/MapController.js"></script>
+	<script src="./js/controller/BuddyController.js"></script>
 	<!-- /build -->
 
 	<!-- build:js ./js/gpscat.min.js -->

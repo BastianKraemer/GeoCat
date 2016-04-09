@@ -1,6 +1,4 @@
 module.exports = function(grunt) {
-
-	// Project configuration.
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 
@@ -31,7 +29,7 @@ module.exports = function(grunt) {
 							'src/js/PagePrototype.js',
 							'src/js/Dialogs.js',
 							'src/js/ScrollLoader.js',
-							'lib/jquery.minicolors.min.js'
+							'src/lib/jquery.minicolors.min.js'
 						],
 
 					'dest/js/gpscat.min.js':
@@ -114,7 +112,6 @@ module.exports = function(grunt) {
 		}
 	});
 
-	// Load the plugin that provides the "uglify" task.
 	grunt.loadNpmTasks('grunt-properties-to-json');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-copy');
@@ -124,7 +121,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-jsdoc');
 	grunt.loadNpmTasks('grunt-phpdoc');
 
-	// Default task(s).
 	grunt.registerTask('default', ['propertiesToJSON']);
 	grunt.registerTask('translate', ['propertiesToJSON']);
 	grunt.registerTask('doc', ['jsdoc', 'phpdoc']);

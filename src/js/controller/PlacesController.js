@@ -339,7 +339,6 @@ function PlacesController(){
 
 		a.appendChild(p);
 		a.appendChild(dateInfo);
-		a.appendChild(navTo);
 
 		li.appendChild(a);
 		li.appendChild(navTo);

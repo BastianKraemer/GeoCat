@@ -54,14 +54,13 @@
 	<link rel="stylesheet" href="./css/animations.css">
 	<link rel="stylesheet" href="./css/substance.css">
 	<link rel="stylesheet" href="./css/geocat-images.css" />
-	<!-- /build -->
 	<link rel="stylesheet" href="./css/ol.css" />
+	<!-- /build -->
 
 	<!-- build:js ./lib/jquery_package.min.js -->
 	<script src="./lib/jquery.min.js"></script>
 	<script src="./lib/jquery.mobile-1.4.5.min.js"></script>
 	<!-- /build -->
-	<script src="./lib/jquery.minicolors.min.js"></script>
 
 	<!-- build:js ./js/geocat.min.js -->
 	<script src="./js/GeoCat.js"></script>
@@ -73,6 +72,7 @@
 	<script src="./js/PagePrototype.js"></script>
 	<script src="./js/Dialogs.js"></script>
 	<script src="./js/ScrollLoader.js"></script>
+	<script src="./lib/jquery.minicolors.min.js"></script>
 	<!-- /build -->
 
 	<!-- build:js ./js/controller.min.js -->

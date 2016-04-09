@@ -62,13 +62,14 @@
 		}
 
 		public static function getParticipatedChallenges($dbh, $session, $limit = 1000, $offset = -1){
-			$res = DBTools::fetchAll($dbh,	"SELECT Challenge.owner AS owner_name, Challenge.challenge_id, Challenge.name, Challenge.description, " .
+			$res = DBTools::fetchAll($dbh,	"SELECT Account.username AS owner_name, Challenge.challenge_id, Challenge.name, Challenge.description, " .
 												"Challenge.challenge_type_id AS type_id, ChallengeType.full_name AS type_name, " .
 												"Challenge.max_teams, Challenge.max_team_members, Challenge.predefined_teams, " .
 												"Challenge.start_time, Challenge.end_time, Challenge.is_public, Challenge.sessionkey " .
 											"FROM ChallengeMember " .
 											"JOIN ChallengeTeam ON (ChallengeMember.team_id = ChallengeTeam.team_id) " .
 											"JOIN Challenge ON (ChallengeTeam.challenge_id = Challenge.challenge_id) " .
+											"JOIN Account ON (Challenge.owner = Account.account_id) " .
 											"JOIN ChallengeType ON (Challenge.challenge_type_id = challengetype.challenge_type_id) " .
 											"WHERE ChallengeMember.account_id = :accId" .
 											($limit > 0 ? " LIMIT " . $limit : "") . ($offset > 0 ? " OFFSET " . $offset : ""),

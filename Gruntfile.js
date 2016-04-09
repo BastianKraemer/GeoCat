@@ -30,7 +30,8 @@ module.exports = function(grunt) {
 							'src/js/Substance.js',
 							'src/js/PagePrototype.js',
 							'src/js/Dialogs.js',
-							'src/js/ScrollLoader.js'
+							'src/js/ScrollLoader.js',
+							'lib/jquery.minicolors.min.js'
 						],
 
 					'dest/js/gpscat.min.js':
@@ -52,7 +53,7 @@ module.exports = function(grunt) {
 			main: {
 				cwd: 'src/',
 				src: [	'app/**',  'query/**', 'views/**', 'config/config.php', 'locale/*.json',
-						'lib/jquery_package.min.js', 'lib/jquery.minicolors.min.js', 'lib/ol.js'],
+						'lib/jquery_package.min.js', 'lib/ol.js'],
 				dest: 'dest/',
 				expand: true
 			},

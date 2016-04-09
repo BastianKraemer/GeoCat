@@ -12,7 +12,7 @@ require_once(__DIR__ . "/../app/AccountManager.php");
 require_once(__DIR__ . "/../app/SessionManager.php");
 require_once(__DIR__ . "/../app/JSONLocale.php");
 
-class Buddy extends RequestInterface {
+class BuddyHTTPRequestHandler extends RequestInterface {
 
     private $dbh;
 
@@ -25,7 +25,7 @@ class Buddy extends RequestInterface {
         $this->handleAndSendResponseByArgsKey("task");
     }
 
-    protected function addBuddy(){
+    protected function add_buddy(){
       $this->requireParameters(array(
         "myUsername" => null,
         "buddyUsername" => null
@@ -43,7 +43,7 @@ class Buddy extends RequestInterface {
       return self::buildResponse(false, array("msg" => $locale->get("buddies.InvalidUsername")));
     }
 
-    protected function removeBuddy(){
+    protected function remove_buddy(){
       $this->requireParameters(array(
         "myUsername" => null,
         "buddyUsername" => null
@@ -61,27 +61,16 @@ class Buddy extends RequestInterface {
       return self::buildResponse(false, array("msg" => $locale->get("buddies.InvalidUsername")));
     }
 
-    protected function getBuddyList(){
-      $this->requireParameters("myUsername" => null);
+	protected function buddylist(){
+		$session = $this->requireLogin();
 
-      if(AccountManager::isValidUsername($this->args['myUsername'])){
-        $myAccId = AccountManager::getAccountIdByUserName($this->dbh, $this->args['myUsername']);
-        if($myAccId == -1){
-          return self::buildResponse(false, array("msg" => $locale->get("buddies.unusedusername")));
-        }
-        $buddyList = AccountManager::getBuddyList($this->dbh, $myAccId);
-        foreach ($buddyList as $key => $value) {
-          $buddyList[$key] = AccountManager::getUserNameByAccountId($this->dbh, $value);
-        }
-        return $buddyList['friend_id'];
-      }
-      return self::buildResponse(false, array("msg" => $locale->get("buddies.InvalidUsername")));
+		return AccountManager::getBuddyList($this->dbh, $session->getAccountId());
+		$buddyList;
     }
-
 }
 
 $config = require("../config/config.php");
-$loginHandler = new Login($_REQUEST, DBTools::connectToDatabase($config));
-$loginHandler->handleRequest();
+$requestHandler = new BuddyHTTPRequestHandler($_REQUEST, DBTools::connectToDatabase($config));
+$requestHandler->handleRequest();
 
 ?>

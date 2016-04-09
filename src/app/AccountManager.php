@@ -216,11 +216,11 @@
 		 * @param string $myAccId
 		 */
 		public static function getBuddyList($dbh, $myAccId){
-			$result = DBTools::fetchAll($dbh, "SELECT friend_id " .
-			"FROM Friends" .
-			"WHERE account_id = :myaccid",
-			array(":myaccid" => $myAccId),
-			PDO::FETCH_ASSOC);
+			$result = DBTools::fetchAll($dbh,	"SELECT Friends.friend_id, Account.username, AccountInformation.firstname, AccountInformation.lastname, " .
+													"AccountInformation.my_position_timestamp AS pos_timestamp " .
+												"FROM Friends, Account, AccountInformation " .
+												"WHERE Friends.account_id = :myaccid AND Account.account_id = Friends.friend_id AND AccountInformation.account_id = Friends.friend_id",
+												array(":myaccid" => $myAccId), PDO::FETCH_ASSOC);
 			return $result;
 		}
 

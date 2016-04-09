@@ -67,9 +67,9 @@
 												"Challenge.max_teams, Challenge.max_team_members, Challenge.predefined_teams, " .
 												"Challenge.start_time, Challenge.end_time, Challenge.is_public, Challenge.sessionkey " .
 											"FROM ChallengeMember " .
-											"JOIN ChallengeTeam ON (challengemember.team_id = challengeteam.team_id) " .
-											"JOIN Challenge ON (challengeteam.challenge_id = challenge.challenge_id) " .
-											"JOIN ChallengeType ON (challenge.challenge_type_id = challengetype.challenge_type_id) " .
+											"JOIN ChallengeTeam ON (ChallengeMember.team_id = ChallengeTeam.team_id) " .
+											"JOIN Challenge ON (ChallengeTeam.challenge_id = Challenge.challenge_id) " .
+											"JOIN ChallengeType ON (Challenge.challenge_type_id = challengetype.challenge_type_id) " .
 											"WHERE ChallengeMember.account_id = :accId" .
 											($limit > 0 ? " LIMIT " . $limit : "") . ($offset > 0 ? " OFFSET " . $offset : ""),
 											array("accId" => $session->getAccountId()), PDO::FETCH_ASSOC);
@@ -163,7 +163,7 @@
 		public static function getTeamlistById($dbh, $teamid){
 			$res = DBTools::fetchAll($dbh, "SELECT Account.username " .
 									 "FROM Account " .
-									 "JOIN Challengemember ON (Account.account_id = Challengemember.account_id) " .
+									 "JOIN ChallengeMember ON (Account.account_id = ChallengeMember.account_id) " .
 									 "WHERE team_id = :id", array("id" => $teamid));
 			return $res;
 		}

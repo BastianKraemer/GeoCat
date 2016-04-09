@@ -78,7 +78,8 @@ module.exports = function(grunt) {
 							'src/css/style.css',
 							'src/css/animations.css',
 							'src/css/substance.css',
-							'src/css/geocat-images.css'
+							'src/css/geocat-images.css',
+							'src/css/ol.css'
 						],
 					'dest/css/jquery_package.min.css':
 						[

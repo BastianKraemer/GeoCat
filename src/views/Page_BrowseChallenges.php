@@ -59,37 +59,10 @@
 			<p class="substance-footer-offset"></p>
 
 			<div class="substance-footer">
-				<a href="#create-challenge-popup" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-lime img-plus"
-				   title="<?php $locale->write("challenge.browse.create_challenge"); ?>"></a>
-				<a href="#JoinChallengePopup" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-blue img-key"
-				   title="<?php $locale->write("challenge.browse.join_challenge"); ?>"></a>
-			</div>
-		</div>
-
-		<div id="create-challenge-popup" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all">
-			<div data-role="header" data-theme="b">
-				<h3><?php $locale->write("challenge.create.title"); ?></h3>
-				<a href="#" data-role="button" data-rel="back" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-delete ui-btn-icon-notext">Close Window</a>
-			</div>
-
-			<div role="main" class="ui-content">
-				<label for="create-challenge-input"><?php $locale->write("challenge.create.label"); ?></label>
-				<input id="create-challenge-input" placeholder="<?php $locale->write("challenge.create.name"); ?>" data-theme="a" type="text">
-				<p id="create-challenge-errorinfo" style="color: red;"></p>
-				<button id="create-challenge-confirm" class="ui-btn ui-corner-all ui-shadow"><?php $locale->write("okay"); ?></button>
-			</div>
-		</div>
-
-		<div id="JoinChallengePopup" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all">
-			<div data-role="header" data-theme="b">
-				<h3><?php $locale->write("challenge.browse.joinpopup.title"); ?></h3>
-				<a href="#" data-role="button" data-rel="back" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-delete ui-btn-icon-notext">Close Window</a>
-			</div>
-
-			<div role="main" class="ui-content">
-				<label for="ChallengeKeyInput"><?php $locale->write("challenge.browse.joinpopup.label"); ?></label>
-				<input id="ChallengeKeyInput" name="ChallengeKeyInput" placeholder="<?php $locale->write("challenge.browse.joinpopup.placeholder"); ?>" data-theme="a" type="text">
-				<button id="ChallengeKeyInput-OK" class="ui-btn ui-corner-all ui-shadow"><?php $locale->write("challenge.browse.joinpopup.ok"); ?></button>
+				<span id="challenge-create" class="substance-button substance-button-grow substance-animated substance-lime img-plus"
+				   title="<?php $locale->write("challenge.browse.create_challenge"); ?>"></span>
+				<span id="challenge-join-by-key" class="substance-button substance-button-grow substance-animated substance-blue img-key"
+				   title="<?php $locale->write("challenge.browse.join_challenge"); ?>"></span>
 			</div>
 		</div>
 	</div>

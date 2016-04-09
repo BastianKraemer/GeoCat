@@ -135,28 +135,28 @@ td {
 }
 
 /* ==============================================================================
-	Login dialog
+	Input dialog
 ============================================================================== */
 
-.login-dialog {
+.input-dialog {
 	display: inline-block;
 	margin: 8px;
 	min-width: 300px;
 	width: 40%;
 }
 
-.login-dialog > h3 {
+.input-dialog > h3 {
 	color: black;
 	margin-bottom: 8px;
 }
 
-.login-dialog label {
+.input-dialog label {
 	color: black;
 	text-align: left;
 	margin-bottom: 2px;;
 }
 
-.login-dialog input {
+.input-dialog input {
 	color: black;
 	text-align: left;
 	width: 100%;
@@ -171,27 +171,27 @@ td {
 	transition-duration: 0.6s;
 }
 
-.login-dialog input:focus {
+.input-dialog input:focus {
 	border: solid 2px #145c74; /* #099fd7 | #067199 */
 	color: #145c74;
 }
 
-.login-dialog > p {
+.input-dialog > p {
 	margin: 0 0 28px 0;
 }
 
-.login-dialog > p.small-margin {
+.input-dialog > p.small-margin {
 	margin: 0 0 8px 0;
 }
 
-.login-dialog > p > span {
+.input-dialog > p > span {
 	transition: color 0.5s;
 	color: #099fd7;
 	cursor: pointer;
 	font-weight: 500;
 }
 
-.login-dialog > p > span:hover {
+.input-dialog > p > span:hover {
 	color: #067199;
 }
 

@@ -2,15 +2,16 @@ var Dialogs = (function(){
 	// private functions
 	var createTextInputField = function(id, type){
 		var input = document.createElement("input");
-		input.id = id
-		input.name = id;
+		if(id != null){
+			input.name = id;
+			input.id = id;
+		}
 		input.type = type;
 		return input;
 	};
 
 	var createLabel = function(text, forId){
 		var label = document.createElement("label");
-		label.className = "no-shadow";
 		label.innerHTML = text;
 		label.setAttribute("for", forId);
 		return label;
@@ -35,10 +36,9 @@ var Dialogs = (function(){
 	return {
 		showLoginDialog: function(pathToRoot){
 			var container = document.createElement("div");
-			container.className = "login-dialog";
+			container.className = "input-dialog";
 
 			var h = document.createElement("h3");
-			h.className = "no-shadow";
 			h.innerHTML = "GeoCat Login"
 
 			var form = document.createElement("form");
@@ -56,7 +56,6 @@ var Dialogs = (function(){
 			var pwLabel = createLabel(GeoCat.locale.get("login.password", "Password") + ":", "login-password");
 
 			var p = document.createElement("p");
-			p.className = "no-shadow";
 
 			var checkboxContainer = document.createElement("div");
 			checkboxContainer.setAttribute("data-role", "none");
@@ -93,7 +92,7 @@ var Dialogs = (function(){
 				}
 				GeoCat.login(
 					$("#login-username").val(), $("#login-password").val(),
-					$('#rememberme').is(':checked'), 
+					$('#rememberme').is(':checked'),
 					function(success){
 						if(success){
 							form.submit();
@@ -132,10 +131,9 @@ var Dialogs = (function(){
 
 		showCreateAccountDialog: function(pathToRoot){
 			var container = document.createElement("div");
-			container.className = "login-dialog";
+			container.className = "input-dialog";
 
 			var h = document.createElement("h3");
-			h.className = "no-shadow";
 			h.innerHTML = "Account erstellen"
 
 			var userInput = createTextInputField("create-account-username", "text");
@@ -149,7 +147,7 @@ var Dialogs = (function(){
 			var pw2Label = createLabel(GeoCat.locale.get("createacc.pw_repeat", "Please enter the password again") + ":", "create-account-password2");
 
 			var p = document.createElement("p");
-			p.className = "no-shadow small-margin";
+			p.className = "small-margin";
 			p.style = "color: red;";
 
 			container.appendChild(h);
@@ -194,6 +192,36 @@ var Dialogs = (function(){
 				emailInput.value = "";
 				pw1Input.value = "";
 			}, 100);
+		},
+
+		showInputDialog: function(title, textContent, autoHide, acceptCallback, canceledCallback){
+			var container = document.createElement("div");
+			container.className = "input-dialog";
+
+			var h = document.createElement("h3");
+			h.innerText = title
+
+			var span = document.createElement("span");
+			span.innerText = textContent;
+
+			var textInput = createTextInputField(null, "text");
+
+			container.appendChild(h);
+			container.appendChild(span);
+			container.appendChild(textInput);
+
+			var performAccept = SubstanceTheme.showYesNoDialog(
+									container, $.mobile.activePage[0],
+									function(){acceptCallback(textInput.value);},
+									canceledCallback, "substance-white", autoHide);
+
+			textInput.onkeydown = function(event){
+				var key = event.keyCode;
+				if(key == 13){
+					performAccept();
+				}
+			};
+			textInput.select();
 		}
 	}
 })();

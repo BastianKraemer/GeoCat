@@ -33,13 +33,8 @@ function BrowseChallengesController(){
 	// Collection of all important HTML elements (defined by their id)
 	var htmlElement = {
 		listview: "#ChallengeListView",
-		keyInputField: "#ChallengeKeyInput",
-		keyInputOK: "#ChallengeKeyInput-OK",
-		joinChallengePopup: "#JoinChallengePopup",
-		createChallengePopup: "#create-challenge-popup",
-		createChallengeInput: "#create-challenge-input",
-		createChallengeErrorInfo: "#create-challenge-errorinfo",
-		createChallengeConfirm: "#create-challenge-confirm",
+		createChallengeButton: "#challenge-create",
+		joinChallengeButton: "#challenge-join-by-key",
 		showPublicChallenges: "#challenge-list-public",
 		showJoinedChallenges: "#challenge-list-joined",
 		showOwnChallenges: "#challenge-list-owner",
@@ -96,8 +91,6 @@ function BrowseChallengesController(){
 			changeListType("own");
 		});
 
-		$(htmlElement.showPublicChallenges).addClass("ui-btn-active");
-
 		// Disable tab bar if the user is not signed in
 		if(GeoCat.loginStatus.isSignedIn){
 			$(htmlElement.tabBar).show();
@@ -107,36 +100,56 @@ function BrowseChallengesController(){
 			BrowseChallengesController.currentListType = "public"
 		}
 
+		switch(BrowseChallengesController.currentListType){
+			case "public":
+				$(htmlElement.showPublicChallenges).addClass("ui-btn-active");
+				break;
+			case "joined":
+				$(htmlElement.showJoinedChallenges).addClass("ui-btn-active");
+				break;
+			case "own":
+				$(htmlElement.showOwnChallenges).addClass("ui-btn-active");
+				break;
+		}
+
 		// Initialize this page by with the last used list type
 		changeListType(BrowseChallengesController.currentListType);
 
 		// Event handler for the buttons at the bottom
-		$(htmlElement.createChallengeConfirm).click(function(){
-			sendCreateChallengeRequest($(htmlElement.createChallengeInput).val(), function(status, msg, key){
-				if(status){
-					$(htmlElement.createChallengePopup).popup("close");
-					setTimeout(function(){
-						GeoCat.setCurrentChallenge(key)
-						$.mobile.changePage("#ChallengeInfo");
-					}, 150);
-				}
-				else{
-					$(htmlElement.createChallengeErrorInfo).text(msg);
-				}
-			});
-		});
 
-		$(htmlElement.keyInputOK).click(function(){
-			var key = $(htmlElement.keyInputField).val();
-			if(key != ""){
-				$(htmlElement.joinChallengePopup).popup("close");
-				setTimeout(function(){
-					$(htmlElement.keyInputField).val("");
-					GeoCat.setCurrentChallenge(key)
-					$.mobile.changePage("#ChallengeInfo");
-				}, 150);
-			}
-		});
+		$(htmlElement.createChallengeButton).click(function(){
+			Dialogs.showInputDialog(GeoCat.locale.get("challenge.create.title", "Create a new challenge"),
+					GeoCat.locale.get("challenge.create.text", "Please enter a challenge name"),
+									true,
+									function(name){
+										sendCreateChallengeRequest(name,
+											function(status, msg, key){
+											if(status){
+												setTimeout(function(){
+													GeoCat.setCurrentChallenge(key)
+													$.mobile.changePage("#ChallengeInfo");
+												}, 150);
+											}
+											else{
+												SubstanceTheme.showNotification("<p>" + msg + "</p>", 7,
+													$.mobile.activePage[0], "substance-red no-shadow white");
+											}
+										});
+									}, null);
+			});
+
+		$(htmlElement.joinChallengeButton).click(function(){
+			Dialogs.showInputDialog(GeoCat.locale.get("challenge.browse.join.title", "Join a challenge"),
+									GeoCat.locale.get("challenge.browse.join.text", "Please enter the session key of the challenge"),
+									true,
+									function(key){
+										setTimeout(function(){
+											$(htmlElement.keyInputField).val("");
+											GeoCat.setCurrentChallenge(key)
+											$.mobile.changePage("#ChallengeInfo");
+										}, 150);
+									}, null);
+			});
 	}
 
 	/**
@@ -148,8 +161,8 @@ function BrowseChallengesController(){
 	 * @instance
 	 */
 	this.pageClosed = function(){
-		$(htmlElement.createChallengeConfirm).unbind();
-		$(htmlElement.keyInputOK).unbind();
+		$(htmlElement.createChallengeButton).unbind();
+		$(htmlElement.joinChallengeButton).unbind();
 		$(htmlElement.showPublicChallenges).unbind();
 		$(htmlElement.showJoinedChallenges).unbind();
 		$(htmlElement.showOwnChallenges).unbind();

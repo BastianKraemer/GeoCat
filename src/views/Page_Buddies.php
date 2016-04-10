@@ -42,26 +42,26 @@
 <?php self::printHeader($locale->get("buddies.title"), "#Home", $locale, $config, $session); ?>
 		<div role="main" class="ui-content">
 
-			<div data-role="tabs">
-				<div data-role="navbar">
-					<ul>
-						<li><a id="buddies-show"><?php $locale->write("buddies.show_list"); ?></a></li>
-						<li><a id="buddies-find"><?php $locale->write("buddies.search"); ?></a></li>
-					</ul>
-				</div>
+			<div id="buddy-search-container">
+				<table>
+					<tr>
+						<td><input id="buddy-search-input" data-mini="true" data-corners="false" type="text" placeholder="<?php $locale->write("buddies.search_placeholder"); ?>"></td>
+						<td style="width: 48px"><span id="buddy-search-confirm" class="no-shadow">Suchen</span></td>
+					</tr>
+				</table>
 			</div>
 
-			<ul id="buddy-list" data-role="listview" data-inset="true">
+			<ul id="buddy-list" data-role="listview" data-inset="true" data-corners="false">
 			</ul>
 
-			<!-- <p class="substance-footer-offset"></p>
+			<p class="substance-footer-offset"></p>
 
 			<div class="substance-footer">
-				<span id="buddies-add" class="substance-button substance-button-grow substance-animated substance-lime img-plus"
-				   title="<?php $locale->write("challenge.browse.create_challenge"); ?>"></span>
-				<span id="challenge-join-by-key" class="substance-button substance-button-grow substance-animated substance-blue img-key"
-				   title="<?php $locale->write("challenge.browse.join_challenge"); ?>"></span>
-			</div> -->
+				<span id="buddies-show-list-btn" class="substance-button substance-button-grow substance-animated substance-lime img-public"
+				   title="<?php $locale->write("buddies.show_list"); ?>"></span>
+				<span id="buddies-search-mode-btn" class="substance-button substance-button-grow substance-animated substance-blue img-find"
+				   title="<?php $locale->write("buddies.search"); ?>"></span>
+			</div>
 		</div>
 	</div>
 <?php

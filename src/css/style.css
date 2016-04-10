@@ -413,3 +413,16 @@ table.styled-table tbody tr td {
 .geocat-footer span:last-child {
 	border-top-right-radius: 4px;
 }
+
+/* ==============================================================================
+	GPS Tracking indicator
+============================================================================== */
+
+#track-indicator {
+	right: 0;
+	display: none;
+}
+
+#track-indicator span:first-child {
+	border-radius: 4px 0 0 0;
+}

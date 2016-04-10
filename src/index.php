@@ -119,5 +119,6 @@
 	}
 ?><span>&copy; 2016</span>
 	</div>
+	<div id="track-indicator" class="geocat-footer"><span>Tracking läuft...</span></div>
 </body>
 </html>

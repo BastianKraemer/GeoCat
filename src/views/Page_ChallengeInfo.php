@@ -111,19 +111,19 @@
 			<p class="substance-footer-offset"></p>
 
 			<div class="substance-footer" id="challengeinfo-footer">
-				<span id="challengeinfo-add-cache" class="substance-button substance-button-grow substance-animated substance-lime img-plus"
+				<span id="challengeinfo-add-cache" class="substance-button substance-animated substance-lime img-plus"
 					  title="<?php $locale->write("challenge.info.add_cache"); ?>" style="display: none;"></span>
-				<span id="challengeinfo-create-team" class="substance-button substance-button-grow substance-animated substance-green img-plus"
+				<span id="challengeinfo-create-team" class="substance-button substance-animated substance-green img-plus"
 					  title="<?php $locale->write("challenge.info.create_team"); ?>" style="display: none;"></span>
-				<span id="challengeinfo-start" class="substance-button substance-button-grow substance-animated substance-blue img-pin"
+				<span id="challengeinfo-start" class="substance-button substance-animated substance-blue img-pin"
 					  title="<?php $locale->write("challenge.info.start_challenge"); ?>" style="display: none;"></span>
-				<span id="challengeinfo-leave" class="substance-button substance-button-grow substance-animated substance-orange img-leave"
+				<span id="challengeinfo-leave" class="substance-button substance-animated substance-orange img-leave"
 					  title="<?php $locale->write("challenge.info.leave"); ?>" style="display: none;"></span>
-				<span id="challengeinfo-reset" class="substance-button substance-button-grow substance-animated substance-purple img-reset"
+				<span id="challengeinfo-reset" class="substance-button substance-animated substance-purple img-reset"
 					  title="<?php $locale->write("challenge.info.reset"); ?>" style="display: none;"></span>
-				<span id="challengeinfo-enable" class="substance-button substance-button-grow substance-animated substance-blue img-flag"
+				<span id="challengeinfo-enable" class="substance-button substance-animated substance-blue img-flag"
 					  title="<?php $locale->write("challenge.info.enable"); ?>" style="display: none;"></span>
-				<span id="challengeinfo-delete" class="substance-button substance-button-grow substance-animated substance-red img-delete"
+				<span id="challengeinfo-delete" class="substance-button substance-animated substance-red img-delete"
 					  title="<?php $locale->write("challenge.info.delete"); ?>" style="display: none;"></span>
 			</div>
 

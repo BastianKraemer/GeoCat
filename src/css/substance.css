@@ -81,6 +81,7 @@
 	background-repeat: no-repeat;
 	background-size: 80% 80%;
 	background-position: center;
+	margin-bottom: 1em;
 
 	cursor: pointer;
 }
@@ -98,17 +99,6 @@
 .substance-animated.substance-button {
 	transition-property: width, height, line-height, margin, background;
 	transition-duration: 0.5s;
-}
-
-.substance-button-grow {
-	margin-bottom: 1em;
-}
-
-.substance-button-grow:hover {
-	width: 4.5em;
-	height: 4.5em;
-	line-height: 4.5em;
-	margin-bottom: 0em;
 }
 
 .substance-skyblue {background-color: #63b8d7;}

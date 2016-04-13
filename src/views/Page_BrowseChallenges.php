@@ -59,9 +59,9 @@
 			<p class="substance-footer-offset"></p>
 
 			<div class="substance-footer">
-				<span id="challenge-create" class="substance-button substance-button-grow substance-animated substance-lime img-plus"
+				<span id="challenge-create" class="substance-button substance-animated substance-lime img-plus"
 				   title="<?php $locale->write("challenge.browse.create_challenge"); ?>"></span>
-				<span id="challenge-join-by-key" class="substance-button substance-button-grow substance-animated substance-blue img-key"
+				<span id="challenge-join-by-key" class="substance-button substance-animated substance-blue img-key"
 				   title="<?php $locale->write("challenge.browse.join_challenge"); ?>"></span>
 			</div>
 		</div>

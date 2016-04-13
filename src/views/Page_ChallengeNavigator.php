@@ -47,10 +47,10 @@
 		</div>
 
 		<div class="substance-footer">
-			<a href="#challenge-navigator-stats-panel" data-rel="panel" class="substance-button substance-button-grow substance-animated substance-purple img-stats"></a>
-			<span id="challenge-navigator-update-button" class="substance-button substance-button-grow substance-animated substance-lime img-update"></span>
-			<span id="checkpoint-reached-button" class="substance-button substance-button-grow substance-animated substance-blue img-flag"></span>
-			<a href="#challenge-navigator-coord-panel" data-rel="panel" class="substance-button substance-button-grow substance-animated substance-orange img-list"></a>
+			<a href="#challenge-navigator-stats-panel" data-rel="panel" class="substance-button substance-animated substance-purple img-stats"></a>
+			<span id="challenge-navigator-update-button" class="substance-button substance-animated substance-lime img-update"></span>
+			<span id="checkpoint-reached-button" class="substance-button substance-animated substance-blue img-flag"></span>
+			<a href="#challenge-navigator-coord-panel" data-rel="panel" class="substance-button substance-animated substance-orange img-list"></a>
 		</div>
 
 		<!-- Side panel to show destination list -->

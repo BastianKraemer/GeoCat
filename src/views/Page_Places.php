@@ -56,13 +56,13 @@
 		</div>
 
 		<div class="substance-footer">
-			<span id="places-add" class="substance-button substance-button-grow substance-animated substance-blue img-plus"
+			<span id="places-add" class="substance-button substance-animated substance-blue img-plus"
 				  title="<?php $locale->write("places.new_place"); ?>"></span>
-			<span id="places-show-private" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-blue img-private"
+			<span id="places-show-private" data-rel="popup" class="substance-button substance-animated substance-blue img-private"
 				  title="<?php $locale->write("places.private_places"); ?>"></span>
-			<span id="places-show-public" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-blue img-public"
+			<span id="places-show-public" data-rel="popup" class="substance-button substance-animated substance-blue img-public"
 				  title="<?php $locale->write("places.public_places"); ?>"></span>
-			<span id="places-find" data-rel="popup" class="substance-button substance-button-grow substance-animated substance-blue img-find"
+			<span id="places-find" data-rel="popup" class="substance-button substance-animated substance-blue img-find"
 				  title="<?php $locale->write("places.find"); ?>"></span>
 		</div>
 	</div>

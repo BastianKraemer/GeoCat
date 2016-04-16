@@ -224,6 +224,42 @@
 			return $result;
 		}
 
+		public static function updateMyPosition($dbh, $myAccId, $coordId){
+			DBTools::query($dbh, "UPDATE AccountInformation SET my_position = :coordid WHERE account_id = :accid", array(":coordid" => $coordId, ":accid" => $myAccId));
+		}
+
+		public static function updateTimestamp($dbh, $myAccId){
+			DBTools::query($dbh, "UPDATE AccountInformation SET my_position_timestamp = CURRENT_TIMESTAMP WHERE account_id = :accid", array(":accid" => $myAccId));
+		}
+
+		public static function getMyPosition($dbh, $myAccId){
+			$result = DBTools::fetchAll($dbh,
+																	"SELECT AccountInformation.my_position " .
+																	"FROM AccountInformation " .
+																	"WHERE account_id = :accid",
+																	array(":accid" => $myAccId), PDO::FETCH_ASSOC);
+			if(empty($result) || count($result) > 1){ return -1; } else { return $result[0]['my_position']; }
+		}
+
+		public static function find_buddy($dbh, $searchtext){
+			$result = DBTools::fetchAll($dbh,
+																	"SELECT Account.username " .
+																	"FROM Account JOIN AccountInformation ON (Account.account_id = AccountInformation.account_id) " .
+																	"WHERE Account.username ILIKE :text " .
+																	"OR AccountInformation.firstname ILIKE :text " .
+																	"OR AccountInformation.lastname ILIKE :text ",
+																	array(":text" => $searchtext), PDO::FETCH_ASSOC);
+			return $result;
+		}
+
+		public static function check_buddy($dbh, $myAccId, $buddyAccId){
+			$result = DBTools::fetchAll($dbh,
+																"SELECT * FROM Friends " .
+																"WHERE account_id = :myaccid AND friend_id = :buddyaccid",
+																array(":myaccid" => $myAccId, ":buddyaccid" => $buddyAccId), PDO::FETCH_ASSOC);
+			return (!empty($result) ? true : false);
+		}
+
 		/**
 		 * Checks if a user is an administrator
 		 * @param PDO $dbh Database handler

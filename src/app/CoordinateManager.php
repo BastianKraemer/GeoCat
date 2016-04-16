@@ -63,7 +63,7 @@
 		 */
 		public static function getCoordinateById($dbh, $coordinateId){
 			$res = DBTools::fetchAll($dbh, "SELECT name, description, latitude, longitude FROM " . self::TABLE_COORDINATE . " WHERE coord_id = :coordId",
-					array("coordId" => $coordinateId));
+					array(":coordId" => $coordinateId));
 
 			if(count($res) == 0){
 				return null;

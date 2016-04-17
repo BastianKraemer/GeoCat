@@ -20,6 +20,7 @@ GeoCat.loginStatus = {isSignedIn: false, username: null}; // Default value
 
 GeoCat.localCoordStore = null;
 GeoCat.uplink = null;
+GeoCat.gpsTracker = null;
 
 /**
  * Initializes the static values
@@ -109,6 +110,64 @@ GeoCat.getCurrentChallenge = function(){
 GeoCat.removeCurrentChallenge = function(){
 	sessionStorage.removeItem("currentChallenge");
 }
+
+/**
+ * Starts the GPS tracking
+ *
+ * @param gpsTracker {GPSTracker} The gps tracker
+ * @return {Boolean} True if the tracker has been prepared, false if another tracker is active
+ *
+ * @public
+ * @function startGPSTracking
+ * @memberOf GeoCat
+ * @static
+ */
+GeoCat.startGPSTracking = function(callback, trackIndicatorOnclick){
+	if(GeoCat.gpsTracker == null){
+		GeoCat.gpsTracker = new GPSTracker(callback, 30000, null);
+		GeoCat.trackControl(true);
+		$("#track-indicator").click(trackIndicatorOnclick);
+		return true;
+	}
+	return false;
+};
+
+/**
+ * Controls the GPS tracker to start an stop it
+ * @param active {Boolean} Activate GPS tracking
+ *
+ * @public
+ * @function trackControl
+ * @memberOf GeoCat
+ * @static
+ */
+GeoCat.trackControl = function(active){
+	if(GeoCat.gpsTracker != null){
+		if(active){
+			GeoCat.gpsTracker.start();
+			$("#track-indicator").show();
+		}
+		else{
+			GeoCat.gpsTracker.stop();
+			$("#track-indicator").hide();
+		}
+	}
+};
+
+/**
+ * Removes the current GPS tracker
+ *
+ * @public
+ * @function stopGPSTracking
+ * @memberOf GeoCat
+ * @static
+ */
+GeoCat.stopGPSTracking = function(){
+	if(GeoCat.gpsTracker != null){
+		GeoCat.trackControl(false);
+		GeoCat.gpsTracker = null;
+	}
+};
 
 /**
  * The user performed a page reload, so the page instance is lost

@@ -143,6 +143,7 @@ td {
 	margin: 8px;
 	min-width: 300px;
 	width: 40%;
+	text-shadow:0 0 0 !important;
 }
 
 .input-dialog > h3 {
@@ -425,4 +426,22 @@ table.styled-table tbody tr td {
 
 #track-indicator span:first-child {
 	border-radius: 4px 0 0 0;
+}
+
+.button-list {
+	padding-top: 4px;
+}
+
+.button-list > p {
+	margin: 4px 0;
+}
+
+.button-list button {
+	height: 32px;
+	min-width: 250px;
+	width: 50%;
+	border: 1px solid white;
+	background: rgba(0,0,0,0.5);
+	color: white;
+	cursor: pointer;
 }

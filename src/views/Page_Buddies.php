@@ -57,10 +57,14 @@
 			<p class="substance-footer-offset"></p>
 
 			<div class="substance-footer">
-				<span id="buddies-show-list-btn" class="substance-button substance-button-grow substance-animated substance-lime img-public"
+				<span id="buddies-show-list-btn" class="substance-button substance-animated substance-lime img-public"
 				   title="<?php $locale->write("buddies.show_list"); ?>"></span>
-				<span id="buddies-search-mode-btn" class="substance-button substance-button-grow substance-animated substance-blue img-find"
+				<span id="buddies-search-mode-btn" class="substance-button substance-animated substance-blue img-find"
 				   title="<?php $locale->write("buddies.search"); ?>"></span>
+				<span id="start-tracking" class="substance-button substance-animated substance-blue img-pin"
+				   title="<?php $locale->write("tracking.startstop"); ?>"></span>
+				<span id="locate-friends" class="substance-button substance-animated substance-blue img-world"
+				   title="<?php $locale->write("tracking.locate_buddies"); ?>"></span>
 			</div>
 		</div>
 	</div>

@@ -92,6 +92,7 @@
 	<script src="./js/gps/GPSRadar.js"></script>
 	<script src="./js/gps/GPS.js"></script>
 	<script src="./js/gps/GeoTools.js"></script>
+	<script src="./js/gps/GPSTracker.js"></script>
 	<!-- /build -->
 
 	<script type="text/javascript">

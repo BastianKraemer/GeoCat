@@ -28,8 +28,10 @@ function BuddyController(){
 		searchInput: "#buddy-search-input",
 		searchButton: "#buddy-search-confirm",
 		buttonShowList: "#buddies-show-list-btn",
-		buttonSearchMode: "#buddies-search-mode-btn"
-	}
+		buttonSearchMode: "#buddies-search-mode-btn",
+		buttonStartStopTacking: "#start-tracking",
+		buttonLocateBuddies: "#locate-friends"
+	};
 
 	var hightlightStyleClass = "substance-lime";
 	var regularStyleClass = "substance-blue";
@@ -80,7 +82,90 @@ function BuddyController(){
 		$(htmlElements.buttonSearchMode).click(function(){
 			changeMode(BuddyController.modeTypes.BUDDY_SEARCH);
 		});
+
+		$(htmlElements.buttonStartStopTacking).click(function(){
+
+			var stopTrackingCallback = function(){
+				SubstanceTheme.showYesNoDialog(	"<p>" + GeoCat.locale.get(
+						"tracking.stop",
+						"Do you want to stop the GPS tracking?") +
+				"</p>",
+				$.mobile.activePage[0],
+				function(){
+					GeoCat.stopGPSTracking();
+				}, null, "substance-white no-shadow", true);
+			}
+
+			var html;
+			var yesCb;
+			if(GeoCat.gpsTracker == null){
+
+				var content = document.createElement("div");
+				content.className = "button-list";
+
+				buttonCreator(content, GeoCat.locale.get("tracking.button_start", "Start GPS tracking"), function(){
+					// This function will be executed when the button is clicked
+					SubstanceTheme.showYesNoDialog(
+						"<p>" + GeoCat.locale.get(
+								"tracking.start",
+								"Do you want GeoCat to track your GPS position?<br>" +
+								"Your coordinates will be stored on the server and all your buddies will be able to see your position.") +
+						"</p>",
+					$.mobile.activePage[0],
+					function(){
+						GeoCat.startGPSTracking(function(track){
+							sendCurrentPosition(track[0].coords.latitude, track[0].coords.longitude, function(status){
+								if(!status){
+									console.log("Error: Unable to send current psoition to server.");
+								}
+							});
+						},
+						stopTrackingCallback);
+					}, null, "substance-white no-shadow", true);
+				});
+
+				buttonCreator(content, GeoCat.locale.get("tracking.button_share", "Share current position"), function(){
+					// This function will be executed when the button is clicked
+					SubstanceTheme.showNotification("<p>" + GeoCat.locale.get("tracking.uploading", "Uploading GPS position...") + "</p>",
+													0, $.mobile.activePage[0], "substance-orange no-shadow white");
+
+					GPS.getOnce(function(pos){
+						// This callback is executed when the gps position is available
+						console.log(pos.coords.latitude + "/" + pos.coords.longitude);
+						sendCurrentPosition(pos.coords.latitude, pos.coords.longitude, function(status){
+							// ...and this one after the AJAX requets has finished
+							var txt = status ? GeoCat.locale.get("tracking.upload_success", "GPS Upload successfull") : GeoCat.locale.get("tracking.upload_error", "GPS Upload failed");
+							SubstanceTheme.showNotification("<p>" + txt + "</p>",
+															7, $.mobile.activePage[0], "substance-" + (status ? "green" : "red") + " no-shadow white");
+						});
+					}, null);
+				});
+
+				buttonCreator(content, GeoCat.locale.get("tracking.button_remove", "Remove position from server"), function(){
+					sendClearPosition();
+				});
+
+				SubstanceTheme.showNotification(content, 0, $.mobile.activePage[0], "substance-skyblue no-shadow");
+			}
+			else{
+				stopTrackingCallback();
+			}
+		});
+
+		$(htmlElements.buttonLocateBuddies).click(function(){
+
+		});
 	};
+
+	var buttonCreator = function(container, text, onClick){
+		var b = document.createElement("button");
+		var p = document.createElement("p");
+		b.innerText = text;
+		b.onclick = onClick;
+		p.appendChild(b);
+		container.appendChild(p);
+		return b;
+	}
 
 	/**
 	 * This function is called when the page is closed
@@ -96,6 +181,8 @@ function BuddyController(){
 		$(htmlElements.searchInput).unbind();
 		$(htmlElements.buttonShowList).unbind();
 		$(htmlElements.buttonSearchMode).unbind();
+		$(htmlElements.buttonStartStopTacking).unbind();
+		$(htmlElements.buttonLocateBuddies).unbind();
 	};
 
 	var startup = function(){
@@ -235,7 +322,7 @@ function BuddyController(){
 		}
 
 		var p = document.createElement("p");
-		p.innerHTML = GeoCat.locale.get("buddies.last_pos_update", "Last position update") + ": " + (buddy.pos_timestamp == null ? "-" : budy.pos_timestamp);
+		p.innerHTML = GeoCat.locale.get("buddies.last_pos_update", "Last position update") + ": " + (buddy.pos_timestamp == null ? "-" : buddy.pos_timestamp);
 
 		var del = document.createElement("a");
 
@@ -303,7 +390,7 @@ function BuddyController(){
 
 				if(res.status == "ok"){
 					SubstanceTheme.showNotification(
-						"<p>" + GuiToolkit.sprintf(GeoCat.locale.get("buddies.added", "'{0}' has been added to your buddy list"), username) + "</p>", 7,
+						"<p>" + GuiToolkit.sprintf(GeoCat.locale.get("buddies.added", "'{0}' has been added to your buddy list"), [username]) + "</p>", 7,
 						$.mobile.activePage[0], "substance-green no-shadow white");
 
 					var titleLi = $(element).prev();
@@ -335,7 +422,7 @@ function BuddyController(){
 
 				if(res.status == "ok"){
 					SubstanceTheme.showNotification(
-						"<p>" + GuiToolkit.sprintf(GeoCat.locale.get("buddies.removed", "'{0}' has been removed from your buddy list"), username) + "</p>", 7,
+						"<p>" + GuiToolkit.sprintf(GeoCat.locale.get("buddies.removed", "'{0}' has been removed from your buddy list"), [username]) + "</p>", 7,
 						$.mobile.activePage[0], "substance-green no-shadow white");
 
 					var titleLi = $(element).prev();
@@ -349,6 +436,50 @@ function BuddyController(){
 			error: function(xhr, status, error){
 				SubstanceTheme.showNotification("<h3>Unable to remove buddy from buddy list</h3><p>Please try again later.</p>", 7,
 						$.mobile.activePage[0], "substance-red no-shadow white");
+			}
+		});
+	};
+
+	var sendCurrentPosition = function(lat, lon, callback){
+		$.ajax({
+			type: "POST", url: "query/buddies.php",
+			data: {
+				task: "upload_position",
+				lat: lat,
+				lon: lon
+			},
+			cache: false,
+			success: function(response){
+
+				var res = JSON.parse(response);
+
+				if(callback != null){
+						callback(res.status == "ok");
+				}
+			},
+			error: function(xhr, status, error){
+				console.log("ERROR: GPS position upload failed: " + error);
+			}
+		});
+	};
+
+	var sendClearPosition = function(lat, lon, callback){
+		$.ajax({
+			type: "POST", url: "query/buddies.php",
+			data: {
+				task: "clear_position",
+			},
+			cache: false,
+			success: function(response){
+
+				var res = JSON.parse(response);
+
+				SubstanceTheme.showNotification(
+						"<p>" + res.msg + "</p>", 7,
+						$.mobile.activePage[0], "substance-green no-shadow white");
+			},
+			error: function(xhr, status, error){
+				console.log("ERROR: Unable to remove Position from Server: " + error);
 			}
 		});
 	};

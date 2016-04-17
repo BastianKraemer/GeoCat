@@ -83,12 +83,12 @@ class BuddyHTTPRequestHandler extends RequestInterface {
     $session = self::requireLogin();
 
     $this->requireParameters(array(
-      "lat" => null,
-      "long" => null
+      "lat" => "/-?[0-9]{1,9}[,\.][0-9]+/",
+      "lon" => "/-?[0-9]{1,9}[,\.][0-9]+/"
     ));
 
     $lat = $this->args['lat'];
-    $long = $this->args['long'];
+    $long = $this->args['lon'];
 
     $name = $session->getUsername();
 
@@ -104,6 +104,18 @@ class BuddyHTTPRequestHandler extends RequestInterface {
     AccountManager::updateTimestamp($this->dbh, $session->getAccountId());
     return self::buildResponse(true, array("msg" => $this->locale->get("buddies.position_ok")));
   }
+
+	/**
+	 * Task: 'clear_position'
+	 *
+	 * Removes your position from the server
+	 */
+	protected function clear_position(){
+		$session = $this->requireLogin();
+		$status = AccountManager::clearPosition($this->dbh, $session->getAccountId());
+
+		return self::buildResponse(true, array("msg" => $this->locale->get($status == 1 ? "tracking.cleared" : "tracking.already_cleared")));
+	}
 
   /**
    * returns coordinates of current user's friends

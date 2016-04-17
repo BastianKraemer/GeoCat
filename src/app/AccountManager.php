@@ -241,6 +241,20 @@
 			if(empty($result) || count($result) > 1){ return -1; } else { return $result[0]['my_position']; }
 		}
 
+		public static function clearPosition($dbh, $accountId){
+
+			$coordId = self::getMyPosition($dbh, $accountId);
+			if($coordId > 0){
+				CoordinateManager::tryToRemoveCooridate($dbh, $coordId);
+			}
+
+			$result = DBTools::query($dbh,	"UPDATE AccountInformation SET my_position = NULL, my_position_timestamp = NULL " .
+											"WHERE account_id = :accid",
+											array(":accid" => $accountId));
+
+			return ($coordId > 0);
+		}
+
 		public static function find_buddy($dbh, $searchtext, $dbType){
 			// Note: dbType is a workaround:
 

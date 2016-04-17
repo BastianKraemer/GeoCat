@@ -58,8 +58,13 @@ function BuddyController(){
 		}
 
 		var searchAction = function(){
-			runBuddyFilter($(htmlElements.searchInput).val());
-		}
+			if(currentMode == BuddyController.modeTypes.BUDDY_LIST){
+				runBuddyFilter($(htmlElements.searchInput).val());
+			}
+			else{
+				searchForBuddies($(htmlElements.searchInput).val());
+			}
+		};
 
 		$(htmlElements.searchButton).click(searchAction);
 		$(htmlElements.searchInput).keyup(function(e){
@@ -96,7 +101,6 @@ function BuddyController(){
 	var startup = function(){
 		$(htmlElements.tabShowBuddies).addClass("ui-btn-active");
 		changeMode(currentMode);
-		downloadBuddyList();
 	};
 
 	var changeMode = function(mode){
@@ -104,11 +108,16 @@ function BuddyController(){
 			$(BuddyController.pageId + " > div > h1").text(GeoCat.locale.get("buddies.show_list", "My buddies"));
 			changeButtonStyleClass($(htmlElements.buttonShowList), hightlightStyleClass);
 			changeButtonStyleClass($(htmlElements.buttonSearchMode), regularStyleClass);
+
+			downloadBuddyList();
 		}
 		else{
 			$(BuddyController.pageId + " > div > h1").text(GeoCat.locale.get("buddies.search", "Find buddies"));
 			changeButtonStyleClass($(htmlElements.buttonSearchMode), hightlightStyleClass);
 			changeButtonStyleClass($(htmlElements.buttonShowList), regularStyleClass);
+
+			$(htmlElements.list).empty();
+			searchForBuddies($(htmlElements.searchInput).val());
 		}
 
 		currentMode = mode;
@@ -124,7 +133,7 @@ function BuddyController(){
 		$.ajax({
 			type: "POST", url: "query/buddies.php",
 			data: {
-				task: "buddylist",
+				task: "buddylist"
 			},
 			cache: false,
 			success: function(response){
@@ -137,6 +146,26 @@ function BuddyController(){
 		});
 	};
 
+	var searchForBuddies = function(searchText){
+		if(searchText != ""){
+			$.ajax({
+				type: "POST", url: "query/buddies.php",
+				data: {
+					task: "search_buddy",
+					searchtext: searchText
+				},
+				cache: false,
+				success: function(response){
+					displaySearchResults(JSON.parse(response));
+				},
+				error: function(xhr, status, error){
+					SubstanceTheme.showNotification("<h3>Unable to search for buddies</h3><p>Please try again later.</p>", 7,
+							$.mobile.activePage[0], "substance-red no-shadow white");
+				}
+			});
+		}
+	};
+
 	var buildBuddylist = function(buddies){
 		var list = $(htmlElements.list);
 		list.empty();
@@ -144,11 +173,34 @@ function BuddyController(){
 		if(buddies.length > 0){
 			for(var i = 0; i < buddies.length; i++){
 				list.append(generateTitleLi(buddies[i]));
-				list.append(generateContentLi(buddies[i]));
+				list.append(generateContentLi(buddies[i], true));
 			}
 		}
 		else{
 			list.append("<li>" + GeoCat.locale.get("buddies.empty_list", "You don't have added any buddies to your buddy list yet") + "</li>");
+		}
+
+		list.listview('refresh');
+	};
+
+	var displaySearchResults = function(response){
+		var list = $(htmlElements.list);
+		list.empty();
+
+		var listLength = 0;
+
+		if(response.status == "ok"){
+			for(var i = 0; i < response.matches.length; i++){
+				if(!response.matches[i].isFriend){
+					list.append(generateTitleLi(response.matches[i]));
+					list.append(generateContentLi(response.matches[i], false));
+					listLength++;
+				}
+			}
+		}
+
+		if(listLength == 0){
+			list.append("<li>" + GeoCat.locale.get("buddies.buddies.no_results", "No matches found.") + "</li>");
 		}
 
 		list.listview('refresh');
@@ -168,7 +220,7 @@ function BuddyController(){
 		return li;
 	};
 
-	var generateContentLi = function(buddy){
+	var generateContentLi = function(buddy, showDeleteIcon){
 
 		var li = document.createElement("li");
 
@@ -186,8 +238,15 @@ function BuddyController(){
 		p.innerHTML = GeoCat.locale.get("buddies.last_pos_update", "Last position update") + ": " + (buddy.pos_timestamp == null ? "-" : budy.pos_timestamp);
 
 		var del = document.createElement("a");
-		del.onclick = function(){sendRemoveBuddy(buddy.username, li);}
-		del.className = "ui-icon-delete";
+
+		if(showDeleteIcon){
+			del.onclick = function(){sendRemoveBuddy(buddy.username, li);}
+		}
+		else{
+			del.onclick = function(){sendAddBuddy(buddy.username, li);}
+		}
+
+		del.className = (showDeleteIcon ? "ui-icon-delete" : "ui-icon-check");
 		del.textContent = GeoCat.locale.get("buddies.remove", "Remove buddy from list");
 
 		a.appendChild(p);
@@ -218,7 +277,6 @@ function BuddyController(){
 			var regEx = new RegExp(searchKey);
 			for(var i = 0; i < liNodes.length; i++){
 				var li = liNodes[i];
-				console.log(i + ": " + regEx.exec(li.getAttribute("data-username")));
 				if(	regEx.exec(li.getAttribute("data-username")) != null ||
 					regEx.exec(li.getAttribute("data-firstname")) != null ||
 					regEx.exec(li.getAttribute("data-lastname")) != null){
@@ -232,17 +290,67 @@ function BuddyController(){
 	};
 
 	var sendAddBuddy = function(username, element){
-		// TODO: Send HTTP Request to server
+		$.ajax({
+			type: "POST", url: "query/buddies.php",
+			data: {
+				task: "add_buddy",
+				username: username
+			},
+			cache: false,
+			success: function(response){
+
+				var res = JSON.parse(response);
+
+				if(res.status == "ok"){
+					SubstanceTheme.showNotification(
+						"<p>" + GuiToolkit.sprintf(GeoCat.locale.get("buddies.added", "'{0}' has been added to your buddy list"), username) + "</p>", 7,
+						$.mobile.activePage[0], "substance-green no-shadow white");
+
+					var titleLi = $(element).prev();
+					$(titleLi).slideUp('fast', function(){ $(titleLi).remove(); });
+					$(element).slideUp('fast', function(){ $(element).remove(); });
+				}
+				else{
+					SubstanceTheme.showNotification("<p>" + res.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
+				}
+			},
+			error: function(xhr, status, error){
+				SubstanceTheme.showNotification("<h3>Unable to add buddy to buddy list</h3><p>Please try again later.</p>", 7,
+						$.mobile.activePage[0], "substance-red no-shadow white");
+			}
+		});
 	};
 
 	var sendRemoveBuddy = function(username, element){
+		$.ajax({
+			type: "POST", url: "query/buddies.php",
+			data: {
+				task: "remove_buddy",
+				username: username
+			},
+			cache: false,
+			success: function(response){
 
-		// TODO: Send HTTP Request to server
+				var res = JSON.parse(response);
 
-		var titleLi = $(element).prev();
+				if(res.status == "ok"){
+					SubstanceTheme.showNotification(
+						"<p>" + GuiToolkit.sprintf(GeoCat.locale.get("buddies.removed", "'{0}' has been removed from your buddy list"), username) + "</p>", 7,
+						$.mobile.activePage[0], "substance-green no-shadow white");
 
-		$(titleLi).slideUp('fast', function(){ $(titleLi).remove(); });
-		$(element).slideUp('fast', function(){ $(element).remove(); });
+					var titleLi = $(element).prev();
+					$(titleLi).slideUp('fast', function(){ $(titleLi).remove(); });
+					$(element).slideUp('fast', function(){ $(element).remove(); });
+				}
+				else{
+					SubstanceTheme.showNotification("<p>" + res.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
+				}
+			},
+			error: function(xhr, status, error){
+				SubstanceTheme.showNotification("<h3>Unable to remove buddy from buddy list</h3><p>Please try again later.</p>", 7,
+						$.mobile.activePage[0], "substance-red no-shadow white");
+			}
+		});
 	};
 }
 

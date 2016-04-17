@@ -16,10 +16,12 @@ require_once(__DIR__ . "/../app/JSONLocale.php");
 class BuddyHTTPRequestHandler extends RequestInterface {
 
     private $dbh;
+    private $dbType;
 
-    public function __construct($parameters, $dbh){
+    public function __construct($parameters, $dbh, $configDBType){
         parent::__construct($parameters, JSONLocale::withBrowserLanguage());
         $this->dbh = $dbh;
+        $this->dbType = $configDBType;
     }
 
     public function handleRequest(){
@@ -28,17 +30,20 @@ class BuddyHTTPRequestHandler extends RequestInterface {
 
     protected function add_buddy(){
       $this->requireParameters(array(
-        "myUsername" => null,
-        "buddyUsername" => null
+        "username" => null
       ));
 
-      if(AccountManager::isValidUsername($this->args['myUsername']) && AccountManager::isValidUsername($this->args['buddyUsername'])){
-        $myAccId = AccountManager::getAccountIdByUserName($this->dbh, $this->args['myUsername']);
-        $buddyAccId = AccountManager::getAccountIdByUserName($this->dbh, $this->args['buddyUsername']);
-        if($myAccId == -1 || $buddyAccId == -1){
+      $session = $this->requireLogin();
+
+      if(AccountManager::isValidUsername($this->args['username'])){
+        $buddyAccId = AccountManager::getAccountIdByUserName($this->dbh, $this->args['username']);
+
+        if($buddyAccId == -1){
           return self::buildResponse(false, array("msg" => $this->locale->get("buddies.unusedusername")));
         }
-        AccountManager::addBuddyToAccount($this->dbh, $myAccId, $buddyAccId);
+
+        AccountManager::addBuddyToAccount($this->dbh, $session->getAccountId(), $buddyAccId);
+
         return self::buildResponse(true, array("msg" => $this->locale->get("buddies.added")));
       }
       return self::buildResponse(false, array("msg" => $this->locale->get("buddies.InvalidUsername")));
@@ -46,17 +51,17 @@ class BuddyHTTPRequestHandler extends RequestInterface {
 
     protected function remove_buddy(){
       $this->requireParameters(array(
-        "myUsername" => null,
-        "buddyUsername" => null
+        "username" => null
       ));
 
-      if(AccountManager::isValidUsername($this->args['myUsername']) && AccountManager::isValidUsername($this->args['buddyUsername'])){
-        $myAccId = AccountManager::getAccountIdByUserName($this->dbh, $this->args['myUsername']);
-        $buddyAccId = AccountManager::getAccountIdByUserName($this->dbh, $this->args['buddyUsername']);
-        if($myAccId == -1 || $buddyAccId == -1){
+      $session = $this->requireLogin();
+
+      if(AccountManager::isValidUsername($this->args['username'])){
+        $buddyAccId = AccountManager::getAccountIdByUserName($this->dbh, $this->args['username']);
+        if($buddyAccId == -1){
           return self::buildResponse(false, array("msg" => $this->locale->get("buddies.unusedusername")));
         }
-        AccountManager::removeBuddyFromAccount($this->dbh, $myAccId, $buddyAccId);
+        AccountManager::removeBuddyFromAccount($this->dbh, $session->getAccountId(), $buddyAccId);
         return self::buildResponse(true, array("msg" => $this->locale->get("buddies.removed")));
       }
       return self::buildResponse(false, array("msg" => $this->locale->get("buddies.InvalidUsername")));
@@ -163,11 +168,11 @@ class BuddyHTTPRequestHandler extends RequestInterface {
 
     $pos = 0;
     while(($pos = strpos($sourcetext, "*", $pos)) !== false){
-      $sourcetext = substr_replace($sourcetext, "_", $pos, 1);
+      $sourcetext = substr_replace($sourcetext, "%", $pos, 1);
       $pos++;
     }
 
-    $result = AccountManager::find_buddy($this->dbh, $sourcetext);
+    $result = AccountManager::find_buddy($this->dbh, $sourcetext, $this->dbType);
 
     foreach ($result as $user => $arraydata) {
       if($result[$user]['username'] == $session->getUsername()){
@@ -180,7 +185,7 @@ class BuddyHTTPRequestHandler extends RequestInterface {
     $result = array_values($result);
 
     if(!empty($result)){
-      return self::buildResponse(true, $result);
+      return self::buildResponse(true, array("matches" => $result));
     }
     return self::buildResponse(false, array("msg" => $this->locale->get("buddies.no_data_available")));
   }
@@ -188,7 +193,7 @@ class BuddyHTTPRequestHandler extends RequestInterface {
 }
 
 $config = require("../config/config.php");
-$requestHandler = new BuddyHTTPRequestHandler($_REQUEST, DBTools::connectToDatabase($config));
+$requestHandler = new BuddyHTTPRequestHandler($_REQUEST, DBTools::connectToDatabase($config), $config["database.type"]);
 $requestHandler->handleRequest();
 
 ?>

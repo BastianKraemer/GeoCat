@@ -1,6 +1,6 @@
 <?php
 	/*	GeoCat - Geocaching and -Tracking platform
-		Copyright (C) 2015 Bastian Kraemer
+		Copyright (C) 2015-2016 Bastian Kraemer, Raphael Harzer
 
 		AccountManager.php
 
@@ -241,13 +241,17 @@
 			if(empty($result) || count($result) > 1){ return -1; } else { return $result[0]['my_position']; }
 		}
 
-		public static function find_buddy($dbh, $searchtext){
+		public static function find_buddy($dbh, $searchtext, $dbType){
+			// Note: dbType is a workaround:
+
+			$likeStm = ($dbType == "pgsql" ? "ILIKE" : "LIKE");
+
 			$result = DBTools::fetchAll($dbh,
-																	"SELECT Account.username " .
+																	"SELECT Account.username, AccountInformation.firstname, AccountInformation.lastname " .
 																	"FROM Account JOIN AccountInformation ON (Account.account_id = AccountInformation.account_id) " .
-																	"WHERE Account.username ILIKE :text " .
-																	"OR AccountInformation.firstname ILIKE :text " .
-																	"OR AccountInformation.lastname ILIKE :text ",
+																	"WHERE Account.username ". $likeStm . " :text " .
+																	"OR AccountInformation.firstname ". $likeStm . " :text " .
+																	"OR AccountInformation.lastname ". $likeStm . " :text ",
 																	array(":text" => $searchtext), PDO::FETCH_ASSOC);
 			return $result;
 		}

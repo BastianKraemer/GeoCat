@@ -93,13 +93,14 @@ class BuddyHTTPRequestHandler extends RequestInterface {
     $name = $session->getUsername();
 
     $myPosition = AccountManager::getMyPosition($this->dbh, $session->getAccountId());
+    $desc = "Position of user '" . $session->getUsername() . "'";
     if($myPosition == null || $myPosition <= 0){
-      if(($myPosition = CoordinateManager::createCoordinate($this->dbh, $name, $lat, $long, "position of " . $session->getUsername()))  == -1){
+      if(($myPosition = CoordinateManager::createCoordinate($this->dbh, $name, $lat, $long, $desc))  == -1){
         return self::buildResponse(false, array("msg" => $this->locale->get("buddies.InvalidPosition")));
       }
       AccountManager::updateMyPosition($this->dbh, $session->getAccountId(), $myPosition);
     } else {
-      CoordinateManager::updateCoordinate($this->dbh, $myPosition, $name, $lat, $long, "position of " . $session->getUsername());
+      CoordinateManager::updateCoordinate($this->dbh, $myPosition, $name, $lat, $long, $desc);
     }
     AccountManager::updateTimestamp($this->dbh, $session->getAccountId());
     return self::buildResponse(true, array("msg" => $this->locale->get("buddies.position_ok")));
@@ -124,10 +125,10 @@ class BuddyHTTPRequestHandler extends RequestInterface {
    *  - desc            descripton of position
    *  - lat             latitude value
    *  - lon             longitude value
-   *  - pos_timestamp   timestamp of position
+   *  - timestamp   timestamp of position
    * @return array $coordsList with latest available data
    */
-  protected function show_pos_buddies(){
+  protected function get_buddy_positions(){
     $session = self::requireLogin();
     $buddylist = AccountManager::getBuddyList($this->dbh, $session->getAccountId());
     $coordsList = null;
@@ -136,13 +137,13 @@ class BuddyHTTPRequestHandler extends RequestInterface {
       $coords = CoordinateManager::getCoordinateById($this->dbh, $coordId);
       if($coords != null){
         unset($coords->coord_id);
-        $coords->pos_timestamp = $datalist['pos_timestamp'];
+        $coords->timestamp = $datalist['pos_timestamp'];
         $coordsList[] = $coords;
       }
     }
 
     if(!empty($coordsList)){
-      return self::buildResponse(true, $coordsList);
+      return self::buildResponse(true, array("coords" => $coordsList));
     }
     return self::buildResponse(false, array("msg" => $this->locale->get("buddies.no_data_available")));
   }

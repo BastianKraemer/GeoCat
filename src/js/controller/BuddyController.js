@@ -25,18 +25,21 @@
 function BuddyController(){
 	var htmlElements = {
 		list: "#buddy-list",
+		searchContainer: "#buddy-search-container",
 		searchInput: "#buddy-search-input",
 		searchButton: "#buddy-search-confirm",
-		buttonShowList: "#buddies-show-list-btn",
-		buttonSearchMode: "#buddies-search-mode-btn",
-		buttonStartStopTacking: "#start-tracking",
-		buttonLocateBuddies: "#locate-friends"
+		radar: "#buddy-radar"
 	};
 
-	var hightlightStyleClass = "substance-lime";
-	var regularStyleClass = "substance-blue";
+	var buttons = {
+		showList: "#buddies-show-list-btn",
+		searchMode: "#buddies-search-mode-btn",
+		startStopTacking: "#start-tracking",
+		locateBuddies: "#locate-friends"
+	};
 
 	var currentMode = BuddyController.modeTypes.BUDDY_LIST;
+	var gpsRadar = null;
 
 	/**
 	 * This function is called when the page is opened
@@ -60,11 +63,13 @@ function BuddyController(){
 		}
 
 		var searchAction = function(){
-			if(currentMode == BuddyController.modeTypes.BUDDY_LIST){
-				runBuddyFilter($(htmlElements.searchInput).val());
-			}
-			else{
-				searchForBuddies($(htmlElements.searchInput).val());
+			switch(currentMode){
+				case BuddyController.modeTypes.BUDDY_LIST:
+					runBuddyFilter($(htmlElements.searchInput).val());
+					break;
+				case BuddyController.modeTypes.BUDDY_SEARCH:
+					searchForBuddies($(htmlElements.searchInput).val());
+					break;
 			}
 		};
 
@@ -75,15 +80,15 @@ function BuddyController(){
 			}
 		});
 
-		$(htmlElements.buttonShowList).click(function(){
+		$(buttons.showList).click(function(){
 			changeMode(BuddyController.modeTypes.BUDDY_LIST);
 		});
 
-		$(htmlElements.buttonSearchMode).click(function(){
+		$(buttons.searchMode).click(function(){
 			changeMode(BuddyController.modeTypes.BUDDY_SEARCH);
 		});
 
-		$(htmlElements.buttonStartStopTacking).click(function(){
+		$(buttons.startStopTacking).click(function(){
 
 			var stopTrackingCallback = function(){
 				SubstanceTheme.showYesNoDialog(	"<p>" + GeoCat.locale.get(
@@ -152,8 +157,8 @@ function BuddyController(){
 			}
 		});
 
-		$(htmlElements.buttonLocateBuddies).click(function(){
-
+		$(buttons.locateBuddies).click(function(){
+			changeMode(BuddyController.modeTypes.BUDDY_RADAR);
 		});
 	};
 
@@ -179,10 +184,10 @@ function BuddyController(){
 		$(htmlElements.list).empty();
 		$(htmlElements.searchButton).unbind();
 		$(htmlElements.searchInput).unbind();
-		$(htmlElements.buttonShowList).unbind();
-		$(htmlElements.buttonSearchMode).unbind();
-		$(htmlElements.buttonStartStopTacking).unbind();
-		$(htmlElements.buttonLocateBuddies).unbind();
+		$(buttons.showList).unbind();
+		$(buttons.searchMode).unbind();
+		$(buttons.startStopTacking).unbind();
+		$(buttons.locateBuddies).unbind();
 	};
 
 	var startup = function(){
@@ -191,29 +196,54 @@ function BuddyController(){
 	};
 
 	var changeMode = function(mode){
-		if(mode == BuddyController.modeTypes.BUDDY_LIST){
-			$(BuddyController.pageId + " > div > h1").text(GeoCat.locale.get("buddies.show_list", "My buddies"));
-			changeButtonStyleClass($(htmlElements.buttonShowList), hightlightStyleClass);
-			changeButtonStyleClass($(htmlElements.buttonSearchMode), regularStyleClass);
 
-			downloadBuddyList();
+		// Stop the radar
+		if(mode != BuddyController.modeTypes.BUDDY_RADAR && currentMode == BuddyController.modeTypes.BUDDY_RADAR){
+			showRadar(false);
+			stopRadar();
 		}
-		else{
-			$(BuddyController.pageId + " > div > h1").text(GeoCat.locale.get("buddies.search", "Find buddies"));
-			changeButtonStyleClass($(htmlElements.buttonSearchMode), hightlightStyleClass);
-			changeButtonStyleClass($(htmlElements.buttonShowList), regularStyleClass);
 
-			$(htmlElements.list).empty();
-			searchForBuddies($(htmlElements.searchInput).val());
+		switch(mode){
+			case BuddyController.modeTypes.BUDDY_LIST:
+				$(BuddyController.pageId + " > div > h1").text(GeoCat.locale.get("buddies.show_list", "My buddies"));
+
+				activateButton(buttons.showList);
+				downloadBuddyList();
+				break;
+
+			case BuddyController.modeTypes.BUDDY_SEARCH:
+				$(BuddyController.pageId + " > div > h1").text(GeoCat.locale.get("buddies.search", "Find buddies"));
+
+				$(htmlElements.list).empty();
+				searchForBuddies($(htmlElements.searchInput).val());
+
+				activateButton(buttons.searchMode);
+				break;
+
+			case BuddyController.modeTypes.BUDDY_RADAR:
+				activateButton(buttons.locateBuddies);
+
+				if(gpsRadar == null){
+					showRadar(true);
+					startRadar();
+				}
+				break;
 		}
 
 		currentMode = mode;
-	}
+	};
 
-	var changeButtonStyleClass = function(btn, styleClass){
-		btn.removeClass(regularStyleClass);
-		btn.removeClass(hightlightStyleClass);
-		btn.addClass(styleClass);
+	var activateButton = function(btnId){
+		for(var key in buttons){
+			if(btnId == buttons[key]){
+				$(buttons[key]).removeClass("substance-blue");
+				$(buttons[key]).addClass("substance-lime")
+			}
+			else{
+				$(buttons[key]).removeClass("substance-lime");
+				$(buttons[key]).addClass("substance-blue")
+			}
+		}
 	};
 
 	var downloadBuddyList = function(){
@@ -376,6 +406,55 @@ function BuddyController(){
 		}
 	};
 
+	var showRadar = function(value){
+		if(value){
+			$(htmlElements.searchContainer).hide();
+			$(htmlElements.list).hide();
+			$(htmlElements.radar).show();
+		}
+		else{
+			$(htmlElements.radar).hide();
+			$(htmlElements.searchContainer).show();
+			$(htmlElements.list).show();
+		}
+	};
+
+	var startRadar = function(){
+		var radarInstance = new GPSRadar($("#" + $.mobile.activePage[0].id + " > div.ui-content")[0], $(htmlElements.radar + " > canvas")[0]);
+		var buddyPosition = null;
+
+		var downloadCallback = function(coords){
+			buddyPosition = coords;
+		};
+
+		var radarUpdateTimer = setInterval(function(){
+			radarInstance.update(buddyPosition, {}, {});
+		}, 2000);
+
+		var positionDownloadTimer = setInterval(function(){
+			receiveBuddyPosition(downloadCallback);
+		}, 30000);
+
+		receiveBuddyPosition(downloadCallback);
+
+		gpsRadar = {
+				radar: radarInstance,
+				updateTimer: radarUpdateTimer,
+				downloadTimer: positionDownloadTimer
+		};
+
+		radarInstance.start();
+	};
+
+	var stopRadar = function(){
+		if(gpsRadar != null){
+			gpsRadar.radar.stop();
+			clearInterval(gpsRadar.updateTimer);
+			clearInterval(gpsRadar.positionDownloadTimer);
+			gpsRadar = null;
+		}
+	};
+
 	var sendAddBuddy = function(username, element){
 		$.ajax({
 			type: "POST", url: "query/buddies.php",
@@ -467,7 +546,7 @@ function BuddyController(){
 		$.ajax({
 			type: "POST", url: "query/buddies.php",
 			data: {
-				task: "clear_position",
+				task: "clear_position"
 			},
 			cache: false,
 			success: function(response){
@@ -479,7 +558,26 @@ function BuddyController(){
 						$.mobile.activePage[0], "substance-green no-shadow white");
 			},
 			error: function(xhr, status, error){
-				console.log("ERROR: Unable to remove Position from Server: " + error);
+				console.log("ERROR: Unable to remove GPS position from Server: " + error);
+			}
+		});
+	};
+
+	var receiveBuddyPosition = function(callback){
+		$.ajax({
+			type: "POST", url: "query/buddies.php",
+			data: {
+				task: "get_buddy_positions"
+			},
+			cache: false,
+			success: function(response){
+				var result = JSON.parse(response);
+				if(result.status == "ok"){
+					callback(result.coords);
+				}
+			},
+			error: function(xhr, status, error){
+				console.log("ERROR: Unable to receive buddy positions from server: " + error);
 			}
 		});
 	};
@@ -487,7 +585,8 @@ function BuddyController(){
 
 BuddyController.modeTypes = {
 	BUDDY_LIST: 0,
-	BUDDY_SEARCH: 1
+	BUDDY_SEARCH: 1,
+	BUDDY_RADAR: 2
 };
 
 BuddyController.init = function(myPageId){

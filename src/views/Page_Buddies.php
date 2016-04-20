@@ -54,6 +54,10 @@
 			<ul id="buddy-list" data-role="listview" data-inset="true" data-corners="false">
 			</ul>
 
+			<div id="buddy-radar" class="gpsradar-container" style="display: none;">
+				<canvas class="gpsradar"></canvas>
+			</div>
+
 			<p class="substance-footer-offset"></p>
 
 			<div class="substance-footer">

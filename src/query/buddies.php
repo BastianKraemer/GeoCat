@@ -67,11 +67,15 @@ class BuddyHTTPRequestHandler extends RequestInterface {
       return self::buildResponse(false, array("msg" => $this->locale->get("buddies.InvalidUsername")));
     }
 
+	/**
+	 * Task: 'buddylist'
+	 *
+	 * Get the list of your buddies from the server
+	 */
 	protected function buddylist(){
 		$session = $this->requireLogin();
-
-		return AccountManager::getBuddyList($this->dbh, $session->getAccountId());
-  }
+		return self::buildResponse(true, AccountManager::getBuddyInformation($this->dbh, $session->getAccountId()));
+	}
 
   /**
    * updates accountinformation with geoposition of user
@@ -132,15 +136,18 @@ class BuddyHTTPRequestHandler extends RequestInterface {
     $session = self::requireLogin();
     $buddylist = AccountManager::getBuddyList($this->dbh, $session->getAccountId());
     $coordsList = null;
-    foreach ($buddylist as $friend => $datalist) {
-      $coordId = AccountManager::getMyPosition($this->dbh, $datalist['friend_id']);
-      $coords = CoordinateManager::getCoordinateById($this->dbh, $coordId);
-      if($coords != null){
-        unset($coords->coord_id);
-        $coords->timestamp = $datalist['pos_timestamp'];
-        $coordsList[] = $coords;
-      }
-    }
+
+	foreach ($buddylist as $friend => $datalist) {
+		if(AccountManager::isFriendOf($this->dbh, $session->getAccountId(), $datalist["friend_id"])){
+			$coordId = AccountManager::getMyPosition($this->dbh, $datalist['friend_id']);
+			$coords = CoordinateManager::getCoordinateById($this->dbh, $coordId);
+			if($coords != null){
+				unset($coords->coord_id);
+				$coords->timestamp = $datalist['pos_timestamp'];
+				$coordsList[] = $coords;
+			}
+		}
+	}
 
     if(!empty($coordsList)){
       return self::buildResponse(true, array("coords" => $coordsList));

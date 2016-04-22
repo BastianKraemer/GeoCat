@@ -224,6 +224,43 @@
 			return $result;
 		}
 
+		public static function getAccountsWhichAddedMeAsFriend($dbh, $myAccId){
+			$res = DBTools::fetchAll($dbh,	"SELECT Friends.account_id, Account.username, AccountInformation.firstname, AccountInformation.lastname, " .
+											"AccountInformation.my_position_timestamp AS pos_timestamp " .
+											"FROM Friends, Account, AccountInformation " .
+											"WHERE Friends.friend_id = :accId AND Account.account_id = Friends.account_id AND AccountInformation.account_id = Friends.account_id",
+										array("accId" => $myAccId), PDO::FETCH_ASSOC);
+			return $res;
+		}
+
+		public static function isFriendOf($dbh, $buddy, $ofAccount){
+			$result = DBTools::fetchAll($dbh, "SELECT Friends.friend_id FROM Friends WHERE Friends.account_id = :accId AND Friends.friend_id = :buddyId",
+										array("buddyId" => $buddy, "accId" => $ofAccount), PDO::FETCH_ASSOC);
+			return !empty($result);
+		}
+
+		public static function getBuddyInformation($dbh, $myAccId){
+			$list = self::getBuddyList($dbh, $myAccId);
+			$others = self::getAccountsWhichAddedMeAsFriend($dbh, $myAccId);
+
+			$buddyIdList = array();
+
+			for($i = 0; $i < count($list); $i++){
+				$list[$i]["confirmed"] = self::isFriendOf($dbh, $myAccId, $list[$i]["friend_id"]) ? "yes" : "no";
+				$buddyIdList[] = $list[$i]["friend_id"];
+			}
+
+			$buddyReq = array();
+
+			for($i = 0; $i < count($others); $i++){
+				if(!in_array($others[$i]["account_id"], $buddyIdList)){
+					$buddyReq[] = $others[$i];
+				}
+			}
+
+			return array("buddies" => $list, "requests" => $buddyReq);
+		}
+
 		public static function updateMyPosition($dbh, $myAccId, $coordId){
 			DBTools::query($dbh, "UPDATE AccountInformation SET my_position = :coordid WHERE account_id = :accid", array(":coordid" => $coordId, ":accid" => $myAccId));
 		}

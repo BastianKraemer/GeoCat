@@ -38,6 +38,7 @@ function BuddyController(){
 		locateBuddies: "#locate-friends"
 	};
 
+
 	var currentMode = BuddyController.modeTypes.BUDDY_LIST;
 	var gpsRadar = null;
 
@@ -136,7 +137,6 @@ function BuddyController(){
 
 					GPS.getOnce(function(pos){
 						// This callback is executed when the gps position is available
-						console.log(pos.coords.latitude + "/" + pos.coords.longitude);
 						sendCurrentPosition(pos.coords.latitude, pos.coords.longitude, function(status){
 							// ...and this one after the AJAX requets has finished
 							var txt = status ? GeoCat.locale.get("tracking.upload_success", "GPS Upload successfull") : GeoCat.locale.get("tracking.upload_error", "GPS Upload failed");
@@ -283,14 +283,22 @@ function BuddyController(){
 		}
 	};
 
-	var buildBuddylist = function(buddies){
+	var buildBuddylist = function(response){
 		var list = $(htmlElements.list);
 		list.empty();
 
-		if(buddies.length > 0){
-			for(var i = 0; i < buddies.length; i++){
-				list.append(generateTitleLi(buddies[i]));
-				list.append(generateContentLi(buddies[i], true));
+		if(response.buddies.length > 0 || response.requests.length > 0){
+
+			for(var i = 0; i < response.requests.length; i++){
+				list.append(generateTitleLi(response.requests[i], BuddyType.REQUEST));
+				list.append(generateContentLi(response.requests[i], BuddyType.REQUEST));
+			}
+
+			for(var i = 0; i < response.buddies.length; i++){
+				var type = (response.buddies[i].confirmed == "yes" ? BuddyType.BUDDY : BuddyType.WAITING);
+
+				list.append(generateTitleLi(response.buddies[i], type));
+				list.append(generateContentLi(response.buddies[i], type));
 			}
 		}
 		else{
@@ -309,8 +317,8 @@ function BuddyController(){
 		if(response.status == "ok"){
 			for(var i = 0; i < response.matches.length; i++){
 				if(!response.matches[i].isFriend){
-					list.append(generateTitleLi(response.matches[i]));
-					list.append(generateContentLi(response.matches[i], false));
+					list.append(generateTitleLi(response.matches[i], BuddyType.ADD));
+					list.append(generateContentLi(response.matches[i], BuddyType.ADD));
 					listLength++;
 				}
 			}
@@ -323,7 +331,19 @@ function BuddyController(){
 		list.listview('refresh');
 	};
 
-	var generateTitleLi = function(buddy){
+	/*
+	 * BUDDY: Both accounts have each other as friend
+	 * REQUEST: Someone offers me a friend request
+	 * WAITING: I am waiting that somone accepts my friend request
+	 */
+	var BuddyType = {
+		BUDDY: 0,
+		REQUEST: 1,
+		WAITING: 2,
+		ADD: 3
+	};
+
+	var generateTitleLi = function(buddy, buddyType){
 		var li = document.createElement("li");
 		li.setAttribute("data-role", "list-divider");
 
@@ -334,14 +354,30 @@ function BuddyController(){
 		li.appendChild(spanName);
 		setLiAttributes(li, buddy);
 
+		if(buddyType == BuddyType.WAITING || buddyType == BuddyType.REQUEST){
+			var spanStatus = document.createElement("span");
+			spanStatus.className = "listview-right";
+
+			if(buddyType == BuddyType.WAITING){
+				spanStatus.textContent = GeoCat.locale.get("buddies.status.waiting", "Not accepted");
+				spanStatus.style.borderBottom = "2px solid orange";
+			}
+			else{
+				spanStatus.textContent = GeoCat.locale.get("buddies.status.req", "Request");
+				spanStatus.style.borderBottom = "2px solid dodgerblue";
+			}
+
+			li.appendChild(spanStatus);
+		}
+
 		return li;
 	};
 
-	var generateContentLi = function(buddy, showDeleteIcon){
+	var generateContentLi = function(buddy, buddyType){
 
 		var li = document.createElement("li");
-
 		var a = document.createElement("a");
+
 		a.className = "li-clickable";
 		a.onclick = function(){};
 
@@ -354,26 +390,31 @@ function BuddyController(){
 		var p = document.createElement("p");
 		p.innerHTML = GeoCat.locale.get("buddies.last_pos_update", "Last position update") + ": " + (buddy.pos_timestamp == null ? "-" : buddy.pos_timestamp);
 
-		var del = document.createElement("a");
+		var b = document.createElement("a");
 
-		if(showDeleteIcon){
-			del.onclick = function(){sendRemoveBuddy(buddy.username, li);}
+		if(buddyType == BuddyType.BUDDY || buddyType == BuddyType.WAITING){
+			setRemoveUserButton(b, buddy.username, li);
 		}
 		else{
-			del.onclick = function(){sendAddBuddy(buddy.username, li);}
+			b.onclick = function(){sendAddBuddy(buddy.username, li, buddyType != BuddyType.REQUEST);}
+			b.className = "ui-icon-check";
+			b.textContent = GeoCat.locale.get("buddies.add", "Add buddy to list");
 		}
-
-		del.className = (showDeleteIcon ? "ui-icon-delete" : "ui-icon-check");
-		del.textContent = GeoCat.locale.get("buddies.remove", "Remove buddy from list");
 
 		a.appendChild(p);
 
 		li.appendChild(a);
-		li.appendChild(del);
+		li.appendChild(b);
 		setLiAttributes(li, buddy);
 
 		return li;
 	};
+
+	var setRemoveUserButton = function(btn, username, li){
+		btn.onclick = function(){sendRemoveBuddy(username, li);}
+		btn.className = "ui-icon-delete ui-btn ui-btn-icon-notext";
+		btn.title = GeoCat.locale.get("buddies.remove", "Remove buddy from list");
+	}
 
 	var setLiAttributes = function(li, buddy){
 		li.setAttribute("data-username", buddy.username);
@@ -455,7 +496,7 @@ function BuddyController(){
 		}
 	};
 
-	var sendAddBuddy = function(username, element){
+	var sendAddBuddy = function(username, element, removeLi){
 		$.ajax({
 			type: "POST", url: "query/buddies.php",
 			data: {
@@ -472,9 +513,16 @@ function BuddyController(){
 						"<p>" + GuiToolkit.sprintf(GeoCat.locale.get("buddies.added", "'{0}' has been added to your buddy list"), [username]) + "</p>", 7,
 						$.mobile.activePage[0], "substance-green no-shadow white");
 
-					var titleLi = $(element).prev();
-					$(titleLi).slideUp('fast', function(){ $(titleLi).remove(); });
-					$(element).slideUp('fast', function(){ $(element).remove(); });
+					if(removeLi){
+						var titleLi = $(element).prev();
+						$(titleLi).slideUp('fast', function(){ $(titleLi).remove(); });
+						$(element).slideUp('fast', function(){ $(element).remove(); });
+					}
+					else{
+						var titleLi = $(element).prev();
+						$(titleLi).find("span.listview-right").remove();
+						setRemoveUserButton($(element).find("a.ui-icon-check")[0], $(element).attr("data-username"), element);
+					}
 				}
 				else{
 					SubstanceTheme.showNotification("<p>" + res.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");

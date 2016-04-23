@@ -21,6 +21,7 @@
 	require_once(__DIR__ . "/views/Page_ChallengeInfo.php");
 	require_once(__DIR__ . "/views/Page_CoordinateEditDialog.php");
 	require_once(__DIR__ . "/views/Page_Map.php");
+	require_once(__DIR__ . "/views/Page_Buddies.php");
 
 	use views as views;
 
@@ -32,7 +33,8 @@
 		new \views\Page_ChallengeNavigator(),
 		new \views\Page_ChallengeInfo(),
 		new \views\Page_CoordinateEditDialog(),
-		new \views\Page_Map()
+		new \views\Page_Map(),
+		new \views\Page_Buddies()
 	);
 ?>
 
@@ -83,12 +85,14 @@
 	<script src="./js/controller/CoordinateEditDialogController.js"></script>
 	<script src="./js/controller/PlacesController.js"></script>
 	<script src="./js/controller/MapController.js"></script>
+	<script src="./js/controller/BuddyController.js"></script>
 	<!-- /build -->
 
 	<!-- build:js ./js/gpscat.min.js -->
 	<script src="./js/gps/GPSRadar.js"></script>
 	<script src="./js/gps/GPS.js"></script>
 	<script src="./js/gps/GeoTools.js"></script>
+	<script src="./js/gps/GPSTracker.js"></script>
 	<!-- /build -->
 
 	<script type="text/javascript">
@@ -116,5 +120,6 @@
 	}
 ?><span>&copy; 2016</span>
 	</div>
+	<div id="track-indicator" class="geocat-footer"><span>Tracking läuft...</span></div>
 </body>
 </html>

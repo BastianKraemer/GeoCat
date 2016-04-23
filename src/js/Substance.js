@@ -13,6 +13,7 @@ SubstanceTheme.showYesNoDialog = function(htmlContent, container, yesCallback, n
 
 	var el = document.createElement("div");
 	el.setAttribute("class", "substance-notification " + styleClasses);
+	el.style.paddingTop = "4px";
 
 	if(typeof htmlContent === 'string' || htmlContent instanceof String){
 		el.innerHTML = htmlContent;
@@ -92,9 +93,14 @@ SubstanceTheme.showNotification = function(htmlContent, durationInSeconds, conta
 
 	var el = document.createElement("div");
 	el.setAttribute("class", "substance-notification substance-animated " + styleClasses);
-	el.innerHTML = htmlContent;
-	container.appendChild(el);
 
+	if(typeof htmlContent === 'string' || htmlContent instanceof String){
+		el.innerHTML = htmlContent;
+	}
+	else{
+		el.appendChild(htmlContent);
+	}
+	container.appendChild(el);
 	setTimeout(function(){
 		el.style.opacity = 1;
 	}, 100);

@@ -204,8 +204,10 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 					$(inputElements.lat.id).val(lat);
 					$(inputElements.lon.id).val(lon);
 				},
-				lat: $(inputElements.lat.id).val(),
-				lon: $(inputElements.lon.id).val(),
+				coords: [{
+					lat: $(inputElements.lat.id).val(),
+					lon: $(inputElements.lon.id).val(),
+				}],
 				returnTo: CoordinateEditDialogController.pageId
 			}
 		);

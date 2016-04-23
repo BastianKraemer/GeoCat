@@ -1,6 +1,6 @@
 <?php
 	/*	GeoCat - Geocaching and -Tracking platform
-		Copyright (C) 2015 Bastian Kraemer
+		Copyright (C) 2015-2016 Bastian Kraemer, Raphael Harzer
 
 		AccountManager.php
 
@@ -184,6 +184,135 @@
 			$result = DBTools::fetchAll($dbh, "SELECT username FROM Account WHERE account_id = :accid", array(":accid" => $accountId));
 			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
 			return $result[0]["username"];
+		}
+
+		/**
+		 * add buddy to account
+		 * @param PDO $dbh Database handler
+		 * @param string $myAccId
+		 * @param string $buddyAccId
+		 */
+		public static function addBuddyToAccount($dbh, $myAccId, $buddyAccId){
+			DBTools::query($dbh, "INSERT INTO Friends (account_id, friend_id) " .
+				"VALUES (:myaccid, :buddyaccid);",
+				array(":myaccid" => $myAccId, ":buddyaccid" => $buddyAccId));
+		}
+
+		/**
+		 * remove buddy from account
+		 * @param PDO $dbh Database handler
+		 * @param string $myAccId
+		 * @param string $buddyAccId
+		 */
+		public static function removeBuddyFromAccount($dbh, $myAccId, $buddyAccId){
+			DBTools::query($dbh, "DELETE FROM Friends " .
+				"WHERE account_id = :myaccid AND friend_id = :buddyaccid",
+				array(":myaccid" => $myAccId, ":buddyaccid" => $buddyAccId));
+		}
+
+		/**
+		 * get buddy list from account
+		 * @param PDO $dbh Database handler
+		 * @param string $myAccId
+		 */
+		public static function getBuddyList($dbh, $myAccId){
+			$result = DBTools::fetchAll($dbh,	"SELECT Friends.friend_id, Account.username, AccountInformation.firstname, AccountInformation.lastname, " .
+													"AccountInformation.my_position_timestamp AS pos_timestamp " .
+												"FROM Friends, Account, AccountInformation " .
+												"WHERE Friends.account_id = :myaccid AND Account.account_id = Friends.friend_id AND AccountInformation.account_id = Friends.friend_id",
+												array(":myaccid" => $myAccId), PDO::FETCH_ASSOC);
+			return $result;
+		}
+
+		public static function getAccountsWhichAddedMeAsFriend($dbh, $myAccId){
+			$res = DBTools::fetchAll($dbh,	"SELECT Friends.account_id, Account.username, AccountInformation.firstname, AccountInformation.lastname, " .
+											"AccountInformation.my_position_timestamp AS pos_timestamp " .
+											"FROM Friends, Account, AccountInformation " .
+											"WHERE Friends.friend_id = :accId AND Account.account_id = Friends.account_id AND AccountInformation.account_id = Friends.account_id",
+										array("accId" => $myAccId), PDO::FETCH_ASSOC);
+			return $res;
+		}
+
+		public static function isFriendOf($dbh, $buddy, $ofAccount){
+			$result = DBTools::fetchAll($dbh, "SELECT Friends.friend_id FROM Friends WHERE Friends.account_id = :accId AND Friends.friend_id = :buddyId",
+										array("buddyId" => $buddy, "accId" => $ofAccount), PDO::FETCH_ASSOC);
+			return !empty($result);
+		}
+
+		public static function getBuddyInformation($dbh, $myAccId){
+			$list = self::getBuddyList($dbh, $myAccId);
+			$others = self::getAccountsWhichAddedMeAsFriend($dbh, $myAccId);
+
+			$buddyIdList = array();
+
+			for($i = 0; $i < count($list); $i++){
+				$list[$i]["confirmed"] = self::isFriendOf($dbh, $myAccId, $list[$i]["friend_id"]) ? "yes" : "no";
+				$buddyIdList[] = $list[$i]["friend_id"];
+			}
+
+			$buddyReq = array();
+
+			for($i = 0; $i < count($others); $i++){
+				if(!in_array($others[$i]["account_id"], $buddyIdList)){
+					$buddyReq[] = $others[$i];
+				}
+			}
+
+			return array("buddies" => $list, "requests" => $buddyReq);
+		}
+
+		public static function updateMyPosition($dbh, $myAccId, $coordId){
+			DBTools::query($dbh, "UPDATE AccountInformation SET my_position = :coordid WHERE account_id = :accid", array(":coordid" => $coordId, ":accid" => $myAccId));
+		}
+
+		public static function updateTimestamp($dbh, $myAccId){
+			DBTools::query($dbh, "UPDATE AccountInformation SET my_position_timestamp = CURRENT_TIMESTAMP WHERE account_id = :accid", array(":accid" => $myAccId));
+		}
+
+		public static function getMyPosition($dbh, $myAccId){
+			$result = DBTools::fetchAll($dbh,
+																	"SELECT AccountInformation.my_position " .
+																	"FROM AccountInformation " .
+																	"WHERE account_id = :accid",
+																	array(":accid" => $myAccId), PDO::FETCH_ASSOC);
+			if(empty($result) || count($result) > 1){ return -1; } else { return $result[0]['my_position']; }
+		}
+
+		public static function clearPosition($dbh, $accountId){
+
+			$coordId = self::getMyPosition($dbh, $accountId);
+			if($coordId > 0){
+				CoordinateManager::tryToRemoveCooridate($dbh, $coordId);
+			}
+
+			$result = DBTools::query($dbh,	"UPDATE AccountInformation SET my_position = NULL, my_position_timestamp = NULL " .
+											"WHERE account_id = :accid",
+											array(":accid" => $accountId));
+
+			return ($coordId > 0);
+		}
+
+		public static function find_buddy($dbh, $searchtext, $dbType){
+			// Note: dbType is a workaround:
+
+			$likeStm = ($dbType == "pgsql" ? "ILIKE" : "LIKE");
+
+			$result = DBTools::fetchAll($dbh,
+																	"SELECT Account.username, AccountInformation.firstname, AccountInformation.lastname " .
+																	"FROM Account JOIN AccountInformation ON (Account.account_id = AccountInformation.account_id) " .
+																	"WHERE Account.username ". $likeStm . " :text " .
+																	"OR AccountInformation.firstname ". $likeStm . " :text " .
+																	"OR AccountInformation.lastname ". $likeStm . " :text ",
+																	array(":text" => $searchtext), PDO::FETCH_ASSOC);
+			return $result;
+		}
+
+		public static function check_buddy($dbh, $myAccId, $buddyAccId){
+			$result = DBTools::fetchAll($dbh,
+																"SELECT * FROM Friends " .
+																"WHERE account_id = :myaccid AND friend_id = :buddyaccid",
+																array(":myaccid" => $myAccId, ":buddyaccid" => $buddyAccId), PDO::FETCH_ASSOC);
+			return (!empty($result) ? true : false);
 		}
 
 		/**

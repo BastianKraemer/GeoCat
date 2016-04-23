@@ -17,6 +17,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 /**
  * Controller for the GeoCat map page
  *
@@ -24,10 +25,16 @@
  * {callback: function(){...}, lat: null, lon: null, returnTo: "#pageid"}
  * Note: The coordinates for lat and lon are displayed on the map (maybe the user want to edit the coorindates?)
  *
+ * taskParam object examples:
+ *
+ * {returnTo: "#PageId"}
+ * {returnTo: "#PageId", coords: [{lat: ???, lon: ???}]}
+ * {coords: [{lat: ???, lon: ???},{lat: ???, lon: ???}]}
+ *
  * @class MapController
  *
  * @param mapTask {MapController.MapTask} Task for this map controller instance
- * @param mapCoords {Object} The coordinates that will be displayed (on task "SHOW_COORDS") or the callback for the selected coordinates (on task "GET_POSITON"), otherwise this parameter can be null
+ * @param taskParam {Object} The coordinates that will be displayed (on task "SHOW_COORDS") or the callback for the selected coordinates (on task "GET_POSITON"), otherwise this parameter can be null
  */
 function MapController(mapTask, taskParam){
 
@@ -58,22 +65,24 @@ function MapController(mapTask, taskParam){
 		}
 		var startOL = function(){
 			if(!startupCancelFlag){ // Verify that the user has not already left the page
-				if(mapTask == MapController.MapTask.GET_POSITION && notEmpty(taskParam.lat) && notEmpty(taskParam.lon)){
-					startOpenLayers(taskParam.lat, taskParam.lon, 16);
+				if(mapTask == MapController.MapTask.GET_POSITION && notEmpty(taskParam.coords[0].lat) && notEmpty(taskParam.coords[0].lon)){
+					startOpenLayers(taskParam.coords[0].lat, taskParam.coords[0].lon, 16);
 				}
-				else if(mapTask == MapController.MapTask.SHOW_COORDS && taskParam.length > 0){
-					startOpenLayers(taskParam[0].lat, taskParam[0].lon, 14);
+				else if(mapTask == MapController.MapTask.SHOW_COORDS && taskParam.coords.length > 0){
+					startOpenLayers(taskParam.coords[0].lat, taskParam.coords[0].lon, 14);
 				}
 				else{
 					startOpenLayers(MapController.initialPosition.lat, MapController.initialPosition.lon, MapController.initialPosition.zoom);
 				}
-				startup(mapTask, taskParam);
+				startup();
 			}
 		}
 
 		var homeButton = $("#Map div a");
 		var loginButton = $("#Map div button");
-		if(mapTask == MapController.MapTask.GET_POSITION){
+
+		$(homeButton).unbind();
+		if(taskParam != null && taskParam.hasOwnProperty("returnTo")){
 			$(homeButton)[0].href = "";
 			if(MapController.regularHomeButtonText == null){
 				MapController.regularHomeButtonText = $(homeButton).text();
@@ -88,7 +97,6 @@ function MapController(mapTask, taskParam){
 			if(MapController.regularHomeButtonText != null){
 				$(homeButton).text(MapController.regularHomeButtonText);
 			}
-			$(homeButton).unbind();
 			$(homeButton)[0].href = "#Home";
 			loginButton.show();
 		}
@@ -143,6 +151,23 @@ function MapController(mapTask, taskParam){
 		}
 	};
 
+	/**
+	 * Update the displayed coordinates
+	 * @param coords {Object} Array of coordinates (for examples: [{name: ???, lat: ???, lon: ???}, {name: ???, lat: ???, lon: ???}]
+	 * @public
+	 * @function updateCoords
+	 * @memberOf MapController
+	 * @instance
+	 */
+	this.updateCoords = function(coords){
+		if(olPointVector != null){
+			displayCoordinates(coords, "#c82323", true, function(c){return c;});
+		}
+		else{
+			SubstanceTheme.showNotification("<p>" + GeoCat.locale.get("map.notready", "Preparing map. Please wait...") + "</p>", 10, $.mobile.activePage[0], "substance-skyblue no-shadow white");
+		}
+	};
+
 	var startOpenLayers = function(centerLat, centerLon, initialZoom){
 		olPointVector = new ol.source.Vector({
 			features: []
@@ -194,8 +219,8 @@ function MapController(mapTask, taskParam){
 		});
 	};
 
-	var startup = function(task, coords){
-		switch(task){
+	var startup = function(){
+		switch(mapTask){
 			case MapController.MapTask.SHOW_ALL:
 				downloadPlaces(false, true);
 				downloadPlaces(true, false);
@@ -207,11 +232,11 @@ function MapController(mapTask, taskParam){
 				downloadPlaces(true, true);
 				break;
 			case MapController.MapTask.SHOW_COORDS:
-				displayCoordinates(coords, "#c82323", true, function(c){return c;});
+				displayCoordinates(taskParam.coords, "#c82323", true, function(c){return c;});
 				break;
 			case MapController.MapTask.GET_POSITION:
 				if(taskParam.lat != null && taskParam.lon != null){
-					display([createPoint(new Coordinate(null, taskParam.lat + ", " + taskParam.lon, taskParam.lon, taskParam.lat, "", false), "#0c5c76")]);
+					display([createPoint(new Coordinate(null, taskParam.coords[0].lat + ", " + taskParam.coords[0].lon, taskParam.coords[0].lon, taskParam.coords[0].lat, "", false), "#0c5c76")]);
 				}
 				break;
 		}
@@ -340,13 +365,23 @@ MapController.init = function(myPageId){
 
 	MapController.prototype = myPrototype;
 
-	MapController.showMap = function(mapTask, taskParam){
+	MapController.prepareMap = function(mapTask, taskParam){
 		var mapController = new MapController(mapTask, taskParam);
 		myPrototype.setInstance(mapController);
 		myPrototype.ignoreNextEvent();
+		return mapController;
+	};
+
+	MapController.showPreparedMap = function(mapController){
 		$.mobile.changePage(myPageId);
 		mapController.pageOpened();
-	}
+	};
+
+	MapController.showMap = function(mapTask, taskParam){
+		var controller = MapController.prepareMap(mapTask, taskParam);
+		MapController.showPreparedMap(controller);
+		return controller;
+	};
 };
 
 MapController.MapTask = {

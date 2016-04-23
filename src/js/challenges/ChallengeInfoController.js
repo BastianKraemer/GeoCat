@@ -628,7 +628,8 @@ function ChallengeInfoController(sessionKey) {
 							false);
 		}
 
-		MapController.showMap(MapController.MapTask.SHOW_COORDS, coordList);
+		me.ignoreNextEvent();
+		MapController.showMap(MapController.MapTask.SHOW_COORDS, {returnTo: ChallengeInfoController.pageId, coords: coordList});
 	}
 
 	/*
@@ -917,7 +918,10 @@ function ChallengeInfoController(sessionKey) {
 	};
 }
 
+
 ChallengeInfoController.init = function(myPageId){
+	ChallengeInfoController.pageId = myPageId;
+
 	ChallengeInfoController.prototype = new PagePrototype(myPageId, function(){
 		var key = GeoCat.getCurrentChallenge();
 

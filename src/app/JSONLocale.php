@@ -73,7 +73,6 @@
 
 		/**
 		 * Creates a JSONLocale object by using the browser language
-		 * @param string[] $config Configuration from "config.php".
 		 * @return JSONLocale
 		 */
 		public static function withBrowserLanguage(){

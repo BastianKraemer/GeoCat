@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . "/../GeoCat.php";
 $output = array_key_exists("argv", $GLOBALS) ? CheckPage::OUTPUT_TEXT : CheckPage::OUTPUT_HTML;
 CheckPage::runCheck($output);
 
@@ -9,9 +10,7 @@ class CheckPage {
 	const OUTPUT_HTML = 1;
 
 	public static function runCheck($output_type = self::OUTPUT_TEXT){
-		$config = require __DIR__ . "/../../config/config.php";
-
-		$result = self::performCheck($config);
+		$result = self::performCheck(GeoCat::getConfig());
 
 		if($output_type == self::OUTPUT_TEXT){
 			print "Running checks...\n\n";
@@ -60,7 +59,7 @@ class CheckPage {
 		$checkResult = array();
 
 		$checkResult["config_check"] = self::checkConfig($config);
-		$checkResult["database_check"] = self::databaseCheck($config);
+		$checkResult["database_check"] = self::databaseCheck();
 		$checkResult["php_mods"] = self::phpModuleCheck();
 
 		return $checkResult;
@@ -76,7 +75,9 @@ class CheckPage {
 				"database.type" => "/^(mysql|pgsql)$/",
 				"database.username" => null,
 				"database.password" =>  null,
-				"database.name" => null
+				"database.name" => null,
+				"policy.imprint" => null,
+				"policy.data_privacy_statement" => null
 		);
 
 		$returnState = CheckResult::OK;
@@ -107,13 +108,12 @@ class CheckPage {
 		}
 	}
 
-	public static function databaseCheck($config){
+	public static function databaseCheck(){
 		require_once __DIR__ . "/../DBTools.php";
-		require_once __DIR__ . "/../GeoCat.php";
 		$dbh;
 
 		try{
-			$dbh = DBTools::connectToDatabase($config);
+			$dbh = DBTools::connectToDatabase();
 		}
 		catch(PDOException $pdoex){
 			return CheckResult::failed("Unable to establish database connection: " . $pdoex->getMessage());

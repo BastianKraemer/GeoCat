@@ -149,8 +149,7 @@
 		}
 	}
 
-	$config = require(__DIR__ . "/../config/config.php");
-	$accountHandler = new AccountHTTPRequestHandler($_POST, DBTools::connectToDatabase($config));
+	$accountHandler = new AccountHTTPRequestHandler($_POST, DBTools::connectToDatabase());
 	header("Content-Type: application/json; charset=utf-8");
 	$accountHandler->handleRequest();
 ?>

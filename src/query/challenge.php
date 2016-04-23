@@ -984,8 +984,6 @@
 		}
 	}
 
-	$config = require(__DIR__ . "/../config/config.php");
-
-	$requestHandler = new ChallengeHTTPRequestHandler($_POST, DBTools::connectToDatabase($config));
+	$requestHandler = new ChallengeHTTPRequestHandler($_POST, DBTools::connectToDatabase());
 	$requestHandler->handleRequest();
 ?>

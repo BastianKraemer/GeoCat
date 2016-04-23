@@ -16,13 +16,12 @@
 
 		/**
 		 * {@inheritDoc}
-		 * @param array $config GeoCat configuration
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
 		 * @param string $pathToRoot
 		 * @see GeoCatPage::printHead()
 		 */
-		public function printHead($config, $locale, $session, $pathToRoot){
+		public function printHead($locale, $session, $pathToRoot){
 ?>
 	<script type="text/javascript">
 		ChallengeInfoController.init("#ChallengeInfo");
@@ -32,18 +31,17 @@
 
 		/**
 		 * {@inheritDoc}
-		 * @param array $config GeoCat configuration
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
 		 * @param string $pathToRoot
 		 * @see GeoCatPage::printContent()
 		 */
-		public function printContent($config, $locale, $session, $pathToRoot){
+		public function printContent($locale, $session, $pathToRoot){
 
 			require_once(__DIR__ . "/../app/pages/InputTemplates.php");
 ?>
 	<div data-role="page" id="ChallengeInfo" data-theme="a">
-<?php self::printHeader("Wettbewerb", "#ChallengeBrowser", $locale, $config, $session); ?>
+<?php self::printHeader("Wettbewerb", "#ChallengeBrowser", $locale, $session); ?>
 		<div role="main" class="ui-content">
 
 			<p id="challengeinfo-title" class="title">...</p>

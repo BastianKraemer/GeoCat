@@ -9,7 +9,14 @@
 
 	class Page_Map extends \GeoCatPage {
 
-		public function printHead($config, $locale, $session, $pathToRoot){
+		/**
+		 * {@inheritDoc}
+		 * @param JSONLocale $locale
+		 * @param SessionManager $session
+		 * @param string $pathToRoot
+		 * @see GeoCatPage::printHead()
+		 */
+		public function printHead($locale, $session, $pathToRoot){
 ?>
 	<script type="text/javascript">
 		MapController.init("#Map");
@@ -17,10 +24,17 @@
 <?php
 		}
 
-		public function printContent($config, $locale, $session, $pathToRoot){
+		/**
+		 * {@inheritDoc}
+		 * @param JSONLocale $locale
+		 * @param SessionManager $session
+		 * @param string $pathToRoot
+		 * @see GeoCatPage::printContent()
+		 */
+		public function printContent($locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="Map" data-theme="a">
-<?php self::printHeader($locale->get("map.title"), "#Home", $locale, $config, $session); ?>
+<?php self::printHeader($locale->get("map.title"), "#Home", $locale, $session); ?>
 		<div role="main" class="ui-content" style="padding: 0">
 			<div id="openlayers-map" class="map"></div>
 		</div>

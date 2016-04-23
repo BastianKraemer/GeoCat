@@ -15,13 +15,12 @@
 
 		/**
 		 * {@inheritDoc}
-		 * @param array $config GeoCat configuration
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
 		 * @param string $pathToRoot
 		 * @see GeoCatPage::printHead()
 		 */
-		public function printHead($config, $locale, $session, $pathToRoot){
+		public function printHead($locale, $session, $pathToRoot){
 ?>
 	<script type="text/javascript">
 		CoordinateEditDialogController.init("#EditCoordinate");
@@ -31,13 +30,12 @@
 
 		/**
 		 * {@inheritDoc}
-		 * @param array $config GeoCat configuration
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
 		 * @param string $pathToRoot
 		 * @see GeoCatPage::printContent()
 		 */
-		public function printContent($config, $locale, $session, $pathToRoot){
+		public function printContent($locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="EditCoordinate" data-theme="a" class="full-screen">
 

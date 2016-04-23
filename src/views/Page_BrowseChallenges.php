@@ -14,13 +14,12 @@
 
 		/**
 		 * {@inheritDoc}
-		 * @param array $config GeoCat configuration
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
 		 * @param string $pathToRoot
 		 * @see GeoCatPage::printHead()
 		 */
-		public function printHead($config, $locale, $session, $pathToRoot){
+		public function printHead($locale, $session, $pathToRoot){
 ?>
 	<script type="text/javascript">
 		BrowseChallengesController.init("#ChallengeBrowser");
@@ -30,16 +29,15 @@
 
 		/**
 		 * {@inheritDoc}
-		 * @param array $config GeoCat configuration
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
 		 * @param string $pathToRoot
 		 * @see GeoCatPage::printContent()
 		 */
-		public function printContent($config, $locale, $session, $pathToRoot){
+		public function printContent($locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="ChallengeBrowser" data-theme="a">
-<?php self::printHeader($locale->get("challenge.browse.title"), "#Home", $locale, $config, $session); ?>
+<?php self::printHeader($locale->get("challenge.browse.title"), "#Home", $locale, $session); ?>
 		<div role="main" class="ui-content">
 
 			<div id="challenge-list-tabs" data-role="tabs">

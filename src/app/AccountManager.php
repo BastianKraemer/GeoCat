@@ -292,10 +292,10 @@
 			return ($coordId > 0);
 		}
 
-		public static function find_buddy($dbh, $searchtext, $dbType){
+		public static function find_buddy($dbh, $searchtext){
 			// Note: dbType is a workaround:
-
-			$likeStm = ($dbType == "pgsql" ? "ILIKE" : "LIKE");
+			require_once(__DIR__ . "/GeoCat.php");
+			$likeStm = (GeoCat::getConfigKey("database.type") == "pgsql" ? "ILIKE" : "LIKE");
 
 			$result = DBTools::fetchAll($dbh,
 																	"SELECT Account.username, AccountInformation.firstname, AccountInformation.lastname " .

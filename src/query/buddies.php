@@ -16,12 +16,10 @@ require_once(__DIR__ . "/../app/JSONLocale.php");
 class BuddyHTTPRequestHandler extends RequestInterface {
 
     private $dbh;
-    private $dbType;
 
-    public function __construct($parameters, $dbh, $configDBType){
+    public function __construct($parameters, $dbh){
         parent::__construct($parameters, JSONLocale::withBrowserLanguage());
         $this->dbh = $dbh;
-        $this->dbType = $configDBType;
     }
 
     public function handleRequest(){
@@ -192,7 +190,7 @@ class BuddyHTTPRequestHandler extends RequestInterface {
       $pos++;
     }
 
-    $result = AccountManager::find_buddy($this->dbh, $sourcetext, $this->dbType);
+    $result = AccountManager::find_buddy($this->dbh, $sourcetext);
 
     foreach ($result as $user => $arraydata) {
       if($result[$user]['username'] == $session->getUsername()){
@@ -212,8 +210,7 @@ class BuddyHTTPRequestHandler extends RequestInterface {
 
 }
 
-$config = require("../config/config.php");
-$requestHandler = new BuddyHTTPRequestHandler($_REQUEST, DBTools::connectToDatabase($config), $config["database.type"]);
+$requestHandler = new BuddyHTTPRequestHandler($_REQUEST, DBTools::connectToDatabase());
 $requestHandler->handleRequest();
 
 ?>

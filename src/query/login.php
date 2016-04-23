@@ -62,8 +62,7 @@ class Login extends RequestInterface {
 
 }
 
-$config = require("../config/config.php");
-$loginHandler = new Login($_REQUEST, DBTools::connectToDatabase($config));
+$loginHandler = new Login($_REQUEST, DBTools::connectToDatabase());
 $loginHandler->handleRequest();
 
 ?>

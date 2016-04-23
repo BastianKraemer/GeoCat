@@ -21,8 +21,9 @@
 		 * @param array $config Application configuration (see "config/config.php")
 		 * @throws PDOException If the connection couldn't be established
 		 */
-		public static function connectToDatabase($config){
-			return self::connect($config, false, false);
+		public static function connectToDatabase(){
+			require_once(__DIR__ . "/GeoCat.php");
+			return self::connect(GeoCat::getConfig(), false, false);
 		}
 
 		/**
@@ -70,9 +71,8 @@
 		 *
 		 * Example:<br>
 		 * <code>
-		 * // $config = require("/config/config.php");<br>
 		 * // require_once("/app/DBTools.php");<br>
-		 * $dbh = DBTools::connectToDatabase($config);<br>
+		 * $dbh = DBTools::connectToDatabase();<br>
 		 * $ret = DBTools::fetchAll($dbh, "SELECT * FROM Account WHERE email = :email", array(":email" => "master@example.com"));
 		 * </code>
 		 * @param PDO $dbh PDO database connection

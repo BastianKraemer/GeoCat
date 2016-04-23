@@ -14,13 +14,12 @@
 
 		/**
 		 * {@inheritDoc}
-		 * @param array $config GeoCat configuration
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
 		 * @param string $pathToRoot
 		 * @see GeoCatPage::printHead()
 		 */
-		public function printHead($config, $locale, $session, $pathToRoot){
+		public function printHead($locale, $session, $pathToRoot){
 ?>
 	<script type="text/javascript">
 		GPSNavigationController.init("#GPSNavigator");
@@ -30,16 +29,15 @@
 
 		/**
 		 * {@inheritDoc}
-		 * @param array $config GeoCat configuration
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
 		 * @param string $pathToRoot
 		 * @see GeoCatPage::printContent()
 		 */
-		public function printContent($config, $locale, $session, $pathToRoot){
+		public function printContent($locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="GPSNavigator" data-theme="a">
-<?php self::printHeader($locale->get("gpsnav.title"), "#Home", $locale, $config, $session); ?>
+<?php self::printHeader($locale->get("gpsnav.title"), "#Home", $locale, $session); ?>
 		<div id="gpsnav-content" role="main" class="ui-content my-page">
 			<div class="gpsradar-container">
 				<canvas id="gpsnav-canvas" class="gpsradar"></canvas>

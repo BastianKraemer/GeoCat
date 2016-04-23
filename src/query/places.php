@@ -370,8 +370,6 @@
 
 	}
 
-	$config = require(__DIR__ . "/../config/config.php");
-
-	$placeHandler = new PlacesHTTPRequestHandler($_POST, DBTools::connectToDatabase($config));
+	$placeHandler = new PlacesHTTPRequestHandler($_POST, DBTools::connectToDatabase());
 	$placeHandler->handleRequest();
 ?>

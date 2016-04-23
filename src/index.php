@@ -4,7 +4,7 @@
 	 * index.php - Startpage of GeoCat
 	 */
 
-	$config = require(__DIR__ . "/config/config.php");
+	require_once(__DIR__ . "/app/GeoCat.php");
 	require_once(__DIR__ . "/app/JSONLocale.php");
 	require_once(__DIR__ . "/app/SessionManager.php");
 	require_once(__DIR__ . "/app/pages/GeoCatPage.php");
@@ -104,19 +104,21 @@
 	</script>
 
 <?php
-	GeoCatPage::printAllHeaders($allPages, $config, $locale, $session, $pathToRoot);
+	GeoCatPage::printAllHeaders($allPages, $locale, $session, $pathToRoot);
 ?>
 </head>
 <body>
 <?php
-	GeoCatPage::printAllPages($allPages, $config, $locale, $session, $pathToRoot);
+	GeoCatPage::printAllPages($allPages, $locale, $session, $pathToRoot);
 ?>	<div class="geocat-footer">
 <?php
-	if($config["policy.imprint"] != null){
-?><a href="<?php echo $config["policy.imprint"]; ?>" target="_blank" data-ajax="false" data-rel="external"><?php $locale->write("policy.imprint"); ?></a><?php
+	$imprint = GeoCat::getConfigKey("policy.imprint");
+	if($imprint != null){
+?><a href="<?php echo $imprint; ?>" target="_blank" data-ajax="false" data-rel="external"><?php $locale->write("policy.imprint"); ?></a><?php
 	}
-	if($config["policy.data_privacy_statement"] != null){
-?><a href="<?php echo $config["policy.data_privacy_statement"]; ?>" target="_blank" data-ajax="false" data-rel="external"><?php $locale->write("policy.data_privacy_stm"); ?></a><?php
+	$privacyStm = GeoCat::getConfigKey("policy.data_privacy_statement");
+	if($privacyStm != null){
+?><a href="<?php echo $privacyStm; ?>" target="_blank" data-ajax="false" data-rel="external"><?php $locale->write("policy.data_privacy_stm"); ?></a><?php
 	}
 ?><span>&copy; 2016</span>
 	</div>

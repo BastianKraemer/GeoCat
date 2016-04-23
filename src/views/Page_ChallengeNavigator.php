@@ -14,13 +14,12 @@
 
 		/**
 		 * {@inheritDoc}
-		 * @param array $config GeoCat configuration
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
 		 * @param string $pathToRoot
 		 * @see GeoCatPage::printHead()
 		 */
-		public function printHead($config, $locale, $session, $pathToRoot){
+		public function printHead($locale, $session, $pathToRoot){
 ?>
 	<script type="text/javascript">
 		ChallengeNavigatorController.init("#ChallengeNavigator");
@@ -30,16 +29,15 @@
 
 		/**
 		 * {@inheritDoc}
-		 * @param array $config GeoCat configuration
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
 		 * @param string $pathToRoot
 		 * @see GeoCatPage::printContent()
 		 */
-		public function printContent($config, $locale, $session, $pathToRoot){
+		public function printContent($locale, $session, $pathToRoot){
 ?>
 	<div data-role="page" id="ChallengeNavigator" data-theme="a">
-<?php self::printHeader("Challenge Navigator", "#ChallengeInfo", $locale, $config, $session); ?>
+<?php self::printHeader("Challenge Navigator", "#ChallengeInfo", $locale, $session); ?>
 		<div id="challenge-navigator-content" role="main" class="ui-content my-page">
 			<div class="gpsradar-container">
 				<canvas id="challenge-navigator-canvas" class="gpsradar"></canvas>

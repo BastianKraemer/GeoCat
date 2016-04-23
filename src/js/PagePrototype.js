@@ -14,6 +14,7 @@ function PagePrototype(pageId, constructorCallback){
 	var currentInstance = null;
 	var handleEvents = true;
 	var ignoreNextPageChange = false;
+	var onComebackCallback = null;
 
 	var onPageOpened = function(){
 		if(handleEvents){
@@ -31,6 +32,11 @@ function PagePrototype(pageId, constructorCallback){
 		else if(ignoreNextPageChange){
 			ignoreNextPageChange = false;
 			handleEvents = true;
+
+			if(onComebackCallback != null){
+				onComebackCallback();
+				onComebackCallback = null;
+			}
 		}
 	};
 
@@ -57,6 +63,11 @@ function PagePrototype(pageId, constructorCallback){
 	this.ignoreNextEvent = function(){
 		handleEvents = false;
 		ignoreNextPageChange = true;
+	};
+
+	this.showSubPage = function(onComeback){
+		this.ignoreNextEvent();
+		onComebackCallback = onComeback;
 	};
 
 	/**

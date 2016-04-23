@@ -38,8 +38,7 @@ function BuddyController(){
 		locateBuddies: "#locate-friends"
 	};
 
-
-	var currentMode = BuddyController.modeTypes.BUDDY_LIST;
+	var me = this;
 	var gpsRadar = null;
 
 	/**
@@ -64,7 +63,7 @@ function BuddyController(){
 		}
 
 		var searchAction = function(){
-			switch(currentMode){
+			switch(BuddyController.currentMode){
 				case BuddyController.modeTypes.BUDDY_LIST:
 					runBuddyFilter($(htmlElements.searchInput).val());
 					break;
@@ -82,11 +81,11 @@ function BuddyController(){
 		});
 
 		$(buttons.showList).click(function(){
-			changeMode(BuddyController.modeTypes.BUDDY_LIST);
+			changeMode(BuddyController.modeTypes.BUDDY_LIST, false);
 		});
 
 		$(buttons.searchMode).click(function(){
-			changeMode(BuddyController.modeTypes.BUDDY_SEARCH);
+			changeMode(BuddyController.modeTypes.BUDDY_SEARCH, false);
 		});
 
 		$(buttons.startStopTacking).click(function(){
@@ -158,7 +157,7 @@ function BuddyController(){
 		});
 
 		$(buttons.locateBuddies).click(function(){
-			changeMode(BuddyController.modeTypes.BUDDY_RADAR);
+			changeMode(BuddyController.modeTypes.BUDDY_RADAR, false);
 		});
 	};
 
@@ -181,6 +180,7 @@ function BuddyController(){
 	 * @instance
 	 */
 	this.pageClosed = function(){
+		stopRadar();
 		$(htmlElements.list).empty();
 		$(htmlElements.searchButton).unbind();
 		$(htmlElements.searchInput).unbind();
@@ -191,14 +191,13 @@ function BuddyController(){
 	};
 
 	var startup = function(){
-		$(htmlElements.tabShowBuddies).addClass("ui-btn-active");
-		changeMode(currentMode);
+		changeMode(BuddyController.currentMode, true);
 	};
 
-	var changeMode = function(mode){
+	var changeMode = function(mode, noMapDisplay){
 
 		// Stop the radar
-		if(mode != BuddyController.modeTypes.BUDDY_RADAR && currentMode == BuddyController.modeTypes.BUDDY_RADAR){
+		if(mode != BuddyController.modeTypes.BUDDY_RADAR && BuddyController.currentMode == BuddyController.modeTypes.BUDDY_RADAR){
 			showRadar(false);
 			stopRadar();
 		}
@@ -221,16 +220,25 @@ function BuddyController(){
 				break;
 
 			case BuddyController.modeTypes.BUDDY_RADAR:
-				activateButton(buttons.locateBuddies);
+				if(BuddyController.currentMode != BuddyController.modeTypes.BUDDY_RADAR || noMapDisplay){
+					// First click on the radar button
+					$(BuddyController.pageId + " > div > h1").text(GeoCat.locale.get("buddies.radar", "Buddy radar"));
 
-				if(gpsRadar == null){
-					showRadar(true);
-					startRadar();
+					activateButton(buttons.locateBuddies);
+
+					if(gpsRadar == null){
+						showRadar(true);
+						startRadar();
+					}
+				}
+				else{
+					// Another click on the radar button
+					switchToMapView();
 				}
 				break;
 		}
 
-		currentMode = mode;
+		BuddyController.currentMode = mode;
 	};
 
 	var activateButton = function(btnId){
@@ -460,6 +468,29 @@ function BuddyController(){
 		}
 	};
 
+	var switchToMapView = function(){
+		stopRadar();
+		var mapController = MapController.prepareMap(MapController.MapTask.SHOW_COORDS, {returnTo: BuddyController.pageId, coords: []});
+
+		var callback = function(){
+			receiveBuddyPosition(function(coords){
+				mapController.updateCoords(coords);
+			});
+		}
+
+		var interval = setInterval(function(){
+			callback();
+		}, 30000);
+
+		me.showSubPage(function(){
+			clearInterval(interval);
+			startRadar();
+		});
+
+		MapController.showPreparedMap(mapController);
+		setTimeout(callback, 1000);
+	};
+
 	var startRadar = function(){
 		var radarInstance = new GPSRadar($("#" + $.mobile.activePage[0].id + " > div.ui-content")[0], $(htmlElements.radar + " > canvas")[0]);
 		var buddyPosition = null;
@@ -491,7 +522,7 @@ function BuddyController(){
 		if(gpsRadar != null){
 			gpsRadar.radar.stop();
 			clearInterval(gpsRadar.updateTimer);
-			clearInterval(gpsRadar.positionDownloadTimer);
+			clearInterval(gpsRadar.downloadTimer);
 			gpsRadar = null;
 		}
 	};
@@ -636,6 +667,8 @@ BuddyController.modeTypes = {
 	BUDDY_SEARCH: 1,
 	BUDDY_RADAR: 2
 };
+
+BuddyController.currentMode = BuddyController.modeTypes.BUDDY_LIST;
 
 BuddyController.init = function(myPageId){
 	BuddyController.pageId = myPageId;

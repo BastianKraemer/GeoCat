@@ -146,7 +146,7 @@ class GeoCatCLI_Account extends GeoCatCLI_Command {
 		require_once $this->cli->home . "/app/AccountManager.php";
 		require_once $this->cli->home . "/app/DBTools.php";
 
-		$config = require $this->cli->home . "/config/config.php";
+		$config = GeoCat::getConfig();
 
 		$dbh = DBTools::connect($config, $this->cli->verbose, false);
 

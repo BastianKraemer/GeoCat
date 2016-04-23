@@ -118,7 +118,7 @@
 		public function exec(){
 			require_once $this->cli->home . "/app/DBTools.php";
 			require_once __DIR__ . "/../lib/sql_parse.php";
-			$config =  require $this->cli->home . "/config/config.php";
+			$config = GeoCat::getConfig();
 
 			foreach($this->configOverwrite as $key => $value){
 				$config[$key] = $value;
@@ -229,7 +229,7 @@
 			try{
 				$dbh = DBTools::connect($config, true, false);
 
-				printf("\nCurrent database version:\t%s\n", $this->readDatabaseVersion($dbh, $config, false));
+				printf("\nCurrent database version:\t%s\n", $this->readDatabaseVersion($dbh, false));
 				printf("Latest version:\t\t\t%s\n", GeoCat::DB_VERSION);
 			}
 			catch(PDOException $e){
@@ -238,7 +238,7 @@
 			}
 		}
 
-		private function readDatabaseVersion($dbh, $config, $getRevision){
+		private function readDatabaseVersion($dbh, $getRevision){
 			$index = $getRevision ? 1 : 0;
 			return DBTools::fetchNum($dbh, "SELECT db_version, db_revision FROM GeoCat LIMIT 1")[$index];
 		}

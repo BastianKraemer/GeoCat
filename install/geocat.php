@@ -22,6 +22,7 @@ class GeoCatCLI {
 	public $commands = array();
 	public $verbose = false;
 	public $home = null;
+	private $geoCatClassLoaded = false;
 
 	public function __construct(){
 		$this->includeModules();
@@ -35,7 +36,7 @@ class GeoCatCLI {
 
 		foreach($defaultPaths as $path){
 			if($this->checkHomePath($path)){
-				printf("Found GeoCat application in '%s'.\n\n", str_replace("\\", "/", $path));
+				printf("Found GeoCat application in '%s'.\n", str_replace("\\", "/", $path));
 				$this->setHomePath($path);
 				return;
 			}
@@ -44,6 +45,7 @@ class GeoCatCLI {
 
 	private function setHomePath($path){
 		$this->home = $path;
+		$this->loadGeoCatCore();
 	}
 
 	private function checkHomePath($path){
@@ -52,6 +54,14 @@ class GeoCatCLI {
 				file_exists($path . "/config/config.php") &&
 				file_exists($path . "/app/GeoCat.php") &&
 				file_exists($path . "/app/DBTools.php"));
+	}
+
+	private function loadGeoCatCore(){
+		if(!$this->geoCatClassLoaded){
+			printf("Using GeoCat core class '%s'.\n\n", str_replace("\\", "/", $this->home . "/app/GeoCat.php"));
+			require_once $this->home . "/app/GeoCat.php";
+			$this->geoCatClassLoaded = true;
+		}
 	}
 
 	public function includeModules(){
@@ -75,8 +85,6 @@ class GeoCatCLI {
 			printf("Invalid command line option. Use '--help' for more information.\n");
 			exit(1);
 		}
-
-		require_once $this->home . "/app/GeoCat.php";
 
 		$cmd = $this->parseFirstArgument($args);
 
@@ -125,6 +133,10 @@ class GeoCatCLI {
 			case "-h":
 				$this->setHomePath($args[$index + 1]);
 				return 2;
+			case "--config":
+			case "-c":
+				GeoCat::setConfigPath($args[$index + 1]);
+				return 1;
 		}
 		throw new InvalidArgumentException(sprintf("Unknown command line option '%s'.", $args[$index]));
 	}

@@ -19,3 +19,9 @@ doc/
 
 # Build files
 dest/
+
+# Test files
+test/testconfig.php
+
+# phpUnit
+test/phpunit.phar

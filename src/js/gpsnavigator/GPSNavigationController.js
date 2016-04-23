@@ -181,9 +181,9 @@ function GPSNavigationController(){
 	}
 
 	function uplinkOnError(response){
-		SubstanceTheme.showNotification(GuiToolkit.sprintf(	"Unable to perform this operation. (Status {0})<br>" +
-															"Server returned: {1}", [response["status"], response["msg"]]), 10,
-															$.mobile.activePage[0], "substance-red no-shadow white");
+		SubstanceTheme.showNotification(sprintf("Unable to perform this operation. (Status {0})<br>" +
+												"Server returned: {1}", [response["status"], response["msg"]]), 10,
+												$.mobile.activePage[0], "substance-red no-shadow white");
 	}
 
 	/**

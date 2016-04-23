@@ -541,7 +541,7 @@ function BuddyController(){
 
 				if(res.status == "ok"){
 					SubstanceTheme.showNotification(
-						"<p>" + GuiToolkit.sprintf(GeoCat.locale.get("buddies.added", "'{0}' has been added to your buddy list"), [username]) + "</p>", 7,
+						"<p>" + sprintf(GeoCat.locale.get("buddies.added", "'{0}' has been added to your buddy list"), [username]) + "</p>", 7,
 						$.mobile.activePage[0], "substance-green no-shadow white");
 
 					if(removeLi){
@@ -580,7 +580,7 @@ function BuddyController(){
 
 				if(res.status == "ok"){
 					SubstanceTheme.showNotification(
-						"<p>" + GuiToolkit.sprintf(GeoCat.locale.get("buddies.removed", "'{0}' has been removed from your buddy list"), [username]) + "</p>", 7,
+						"<p>" + sprintf(GeoCat.locale.get("buddies.removed", "'{0}' has been removed from your buddy list"), [username]) + "</p>", 7,
 						$.mobile.activePage[0], "substance-green no-shadow white");
 
 					var titleLi = $(element).prev();

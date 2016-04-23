@@ -359,11 +359,11 @@ function ChallengeNavigatorController(challenge_id){
 	var listItemOnClick = function(el){
 		var data = order[$(el).attr("data-index")];
 		if(data.hint != null){
-			SubstanceTheme.showNotification("<h3>" + GuiToolkit.sprintf(GeoCat.locale.get("challenge.nav.hint_for", "Hint for cache '{0}'"), [data.name]) + "</h3>" +
+			SubstanceTheme.showNotification("<h3>" + sprintf(GeoCat.locale.get("challenge.nav.hint_for", "Hint for cache '{0}'"), [data.name]) + "</h3>" +
 											"<p>" + data.hint + "</p>", -1,	$.mobile.activePage[0], "substance-skyblue no-shadow white");
 		}
 		else{
-			SubstanceTheme.showNotification("<p>" + GuiToolkit.sprintf(GeoCat.locale.get("challenge.nav.nohint", "There is no hint for cache '{0}' available"), [data.name]) + "</p>", 7,
+			SubstanceTheme.showNotification("<p>" + sprintf(GeoCat.locale.get("challenge.nav.nohint", "There is no hint for cache '{0}' available"), [data.name]) + "</p>", 7,
 											$.mobile.activePage[0], "substance-skyblue no-shadow white");
 		}
 	};
@@ -672,7 +672,7 @@ function ChallengeNavigatorController(challenge_id){
 			}
 		}
 		else{
-			SubstanceTheme.showNotification("<p>" + GuiToolkit.sprintf(GeoCat.locale.get("challenge.nav.too_far_away", "You have to get closer to a cache before you can set the point as 'reached' (less than {0} m)"), [minDistanceToSetReached]) + "</p>", 7,
+			SubstanceTheme.showNotification("<p>" + sprintf(GeoCat.locale.get("challenge.nav.too_far_away", "You have to get closer to a cache before you can set the point as 'reached' (less than {0} m)"), [minDistanceToSetReached]) + "</p>", 7,
 											$.mobile.activePage[0], "substance-skyblue no-shadow white");
 		}
 	};

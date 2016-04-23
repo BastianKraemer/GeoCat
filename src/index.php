@@ -11,7 +11,6 @@
 
 	$locale = JSONLocale::withBrowserLanguage();
 	$session = new SessionManager();
-	$pathToRoot = "./";
 
 	require_once(__DIR__ . "/views/Page_Home.php");
 	require_once(__DIR__ . "/views/Page_Places.php");
@@ -96,7 +95,7 @@
 	<!-- /build -->
 
 	<script type="text/javascript">
-		GeoCat.init("de", "./");
+		GeoCat.init("de");
 		GeoCat.loginStatus = <?php $session->printLoginStatusAsJSON(); ?>;
 		if(!GeoCat.loginStatus.isSignedIn && GeoCat.hasCookie("GEOCAT_LOGIN")){
 			GeoCat.getCookie("GEOCAT_LOGIN");
@@ -104,12 +103,12 @@
 	</script>
 
 <?php
-	GeoCatPage::printAllHeaders($allPages, $locale, $session, $pathToRoot);
+	GeoCatPage::printAllHeaders($allPages, $locale, $session);
 ?>
 </head>
 <body>
 <?php
-	GeoCatPage::printAllPages($allPages, $locale, $session, $pathToRoot);
+	GeoCatPage::printAllPages($allPages, $locale, $session);
 ?>	<div class="geocat-footer">
 <?php
 	$imprint = GeoCat::getConfigKey("policy.imprint");

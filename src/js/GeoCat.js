@@ -30,9 +30,8 @@ GeoCat.gpsTracker = null;
  * @memberOf GeoCat
  * @static
  */
-GeoCat.init = function(language, pathToRootDirectory){
-	GeoCat.contextRoot = pathToRootDirectory;
-	GeoCat.locale = new JSONLocale(language, pathToRootDirectory);
+GeoCat.init = function(language){
+	GeoCat.locale = new JSONLocale(language);
 }
 
 /**
@@ -62,7 +61,7 @@ GeoCat.getLocalCoordStore = function(){
  */
 GeoCat.getUplink = function(){
 	if(GeoCat.uplink == null){
-		GeoCat.uplink = new Uplink(GeoCat.contextRoot);
+		GeoCat.uplink = new Uplink();
 	}
 	return GeoCat.uplink;
 }
@@ -195,9 +194,9 @@ GeoCat.noInstanceOfPage = function(pageId){
 	}
 }
 
-GeoCat.login = function(username, paswd, keepSignedIn, callback, pathToRoot){
+GeoCat.login = function(username, paswd, keepSignedIn, callback){
 	$.ajax({
-		type: "POST", url: pathToRoot + "/query/login.php",
+		type: "POST", url: "query/login.php",
 		data: {
 			task: "login",
 			user: username,
@@ -212,7 +211,7 @@ GeoCat.login = function(username, paswd, keepSignedIn, callback, pathToRoot){
 				if(jsonData.status == "ok"){
 					GeoCat.loginStatus = {isSignedIn: true, username: jsonData.username};
 					$(".login-button").text(jsonData.username);
-					$(".login-button").attr("onclick", "GeoCat.logout(null, '" + pathToRoot + "');");
+					$(".login-button").attr("onclick", "GeoCat.logout(null);");
 					$.mobile.activePage.trigger("pagebeforehide");
 					$.mobile.activePage.trigger("pageshow");
 					callback(true);
@@ -226,9 +225,9 @@ GeoCat.login = function(username, paswd, keepSignedIn, callback, pathToRoot){
 	});
 };
 
-GeoCat.logout = function(callback, pathToRoot){
+GeoCat.logout = function(callback){
 	$.ajax({
-		type: "POST", url: pathToRoot + "/query/login.php",
+		type: "POST", url: "query/login.php",
 		data: {task: "logout"},
 		cache: false,
 		success: function(response){
@@ -236,7 +235,7 @@ GeoCat.logout = function(callback, pathToRoot){
 			if(result.status == "ok"){
 				GeoCat.loginStatus = {isSignedIn: false, username: null};
 				$(".login-button").text("Login");
-				$(".login-button").attr("onclick", "Dialogs.showLoginDialog('" + pathToRoot + "');");
+				$(".login-button").attr("onclick", "Dialogs.showLoginDialog();");
 				if(callback != null){callback(true);}
 				$.mobile.activePage.trigger("pagebeforehide");
 				$.mobile.activePage.trigger("pageshow");
@@ -249,8 +248,8 @@ GeoCat.logout = function(callback, pathToRoot){
 	});
 };
 
-GeoCat.createAccount = function(userName, email, pw, callback, pathToRoot){
-	$.ajax({type: "POST", url: pathToRoot + "/query/account.php",
+GeoCat.createAccount = function(userName, email, pw, callback){
+	$.ajax({type: "POST", url: "query/account.php",
 		data: { task: "create",
 				username: userName,
 				email: email,
@@ -262,7 +261,7 @@ GeoCat.createAccount = function(userName, email, pw, callback, pathToRoot){
 			if(response.status == "ok"){
 				GeoCat.loginStatus = {isSignedIn: true, username: userName};
 				$(".login-button").text(userName);
-				$(".login-button").attr("onclick", "GeoCat.logout(null, '" + pathToRoot + "');");
+				$(".login-button").attr("onclick", "GeoCat.logout(null);");
 				$.mobile.activePage.trigger("pagebeforehide");
 				$.mobile.activePage.trigger("pageshow");
 				callback(true, "");

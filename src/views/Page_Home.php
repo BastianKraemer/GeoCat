@@ -52,20 +52,18 @@
 		 * {@inheritDoc}
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
-		 * @param string $pathToRoot
 		 * @see GeoCatPage::printHead()
 		 */
-		public function printHead($locale, $session, $pathToRoot){
+		public function printHead($locale, $session){
 		}
 
 		/**
 		 * {@inheritDoc}
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
-		 * @param string $pathToRoot
 		 * @see GeoCatPage::printHead()
 		 */
-		public function printContent($locale, $session, $pathToRoot){
+		public function printContent($locale, $session){
 ?>
 	<div data-role="page" id="Home" data-theme="b">
 <?php

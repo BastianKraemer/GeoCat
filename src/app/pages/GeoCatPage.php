@@ -14,17 +14,15 @@
 		 * Prints the head section of a GeoCat page
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
-		 * @param string $pathToRoot
 		 */
-		public abstract function printHead($locale, $session, $pathToRoot);
+		public abstract function printHead($locale, $session);
 
 		/**
 		 * Prints out the content of a GeoCat page
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
-		 * @param string $pathToRoot
 		 */
-		public abstract function printContent($locale, $session, $pathToRoot);
+		public abstract function printContent($locale, $session);
 
 		/**
 		 * Print the default header for a GeoCat page
@@ -50,8 +48,7 @@
 				<a href="<?php echo $backButtonTarget ?>" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left <?php echo $icon ?>"><?php echo $txt ?></a>
 <?php 		}
 			$buttonText = $session->isSignedIn() ? $session->getUsername() : "Login";
-			$pathToRoot = ".";
-			$targetJavaScriptFunction = $session->isSignedIn() ? "GeoCat.logout(null, '" . $pathToRoot . "');" : "Dialogs.showLoginDialog('" . $pathToRoot . "');";
+			$targetJavaScriptFunction = $session->isSignedIn() ? "GeoCat.logout(null);" : "Dialogs.showLoginDialog();";
 ?>
 			<button onclick="<?php echo $targetJavaScriptFunction; ?>" class="login-button ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-user"><?php echo $buttonText ?></button>
 		</div>
@@ -63,11 +60,10 @@
 		 * @param GeoCatPage[] $pages Array of all pages
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
-		 * @param string $pathToRoot
 		 */
-		public static function printAllHeaders($pages, $locale, $session, $pathToRoot){
+		public static function printAllHeaders($pages, $locale, $session){
 			foreach($pages as $page){
-				$page->printHead($locale, $session, $pathToRoot);
+				$page->printHead($locale, $session);
 			}
 		}
 
@@ -76,11 +72,10 @@
 		 * @param GeoCatPage[] $pages Array of all pages
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
-		 * @param string $pathToRoot
 		 */
-		public static function printAllPages($pages, $locale, $session, $pathToRoot){
+		public static function printAllPages($pages, $locale, $session){
 			foreach($pages as $page){
-				$page->printContent($locale, $session, $pathToRoot);
+				$page->printContent($locale, $session);
 			}
 		}
 	}

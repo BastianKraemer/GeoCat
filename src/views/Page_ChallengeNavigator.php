@@ -16,10 +16,9 @@
 		 * {@inheritDoc}
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
-		 * @param string $pathToRoot
 		 * @see GeoCatPage::printHead()
 		 */
-		public function printHead($locale, $session, $pathToRoot){
+		public function printHead($locale, $session){
 ?>
 	<script type="text/javascript">
 		ChallengeNavigatorController.init("#ChallengeNavigator");
@@ -31,10 +30,9 @@
 		 * {@inheritDoc}
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
-		 * @param string $pathToRoot
 		 * @see GeoCatPage::printContent()
 		 */
-		public function printContent($locale, $session, $pathToRoot){
+		public function printContent($locale, $session){
 ?>
 	<div data-role="page" id="ChallengeNavigator" data-theme="a">
 <?php self::printHeader("Challenge Navigator", "#ChallengeInfo", $locale, $session); ?>

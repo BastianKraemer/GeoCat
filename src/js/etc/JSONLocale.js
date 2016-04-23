@@ -1,10 +1,10 @@
-var JSONLocale = function(language, path){
+var JSONLocale = function(language){
 
 	var translations = new Object();
-	downloadTranslations(language, path);
+	downloadTranslations(language);
 
-	function downloadTranslations(language, path){
-		var downloadUrl = path + "locale/" + language + "_client.json";
+	function downloadTranslations(language){
+		var downloadUrl = "locale/" + language + "_client.json";
 		$.ajax({type: "GET", url: downloadUrl,
 			encoding: "UTF-8",
 			contentType: "application/json; charset=UTF-8",

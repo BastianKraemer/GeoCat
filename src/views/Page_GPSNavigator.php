@@ -16,10 +16,9 @@
 		 * {@inheritDoc}
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
-		 * @param string $pathToRoot
 		 * @see GeoCatPage::printHead()
 		 */
-		public function printHead($locale, $session, $pathToRoot){
+		public function printHead($locale, $session){
 ?>
 	<script type="text/javascript">
 		GPSNavigationController.init("#GPSNavigator");
@@ -31,10 +30,9 @@
 		 * {@inheritDoc}
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
-		 * @param string $pathToRoot
 		 * @see GeoCatPage::printContent()
 		 */
-		public function printContent($locale, $session, $pathToRoot){
+		public function printContent($locale, $session){
 ?>
 	<div data-role="page" id="GPSNavigator" data-theme="a">
 <?php self::printHeader($locale->get("gpsnav.title"), "#Home", $locale, $session); ?>

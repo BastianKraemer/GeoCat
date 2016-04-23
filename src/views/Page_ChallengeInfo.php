@@ -18,10 +18,9 @@
 		 * {@inheritDoc}
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
-		 * @param string $pathToRoot
 		 * @see GeoCatPage::printHead()
 		 */
-		public function printHead($locale, $session, $pathToRoot){
+		public function printHead($locale, $session){
 ?>
 	<script type="text/javascript">
 		ChallengeInfoController.init("#ChallengeInfo");
@@ -33,10 +32,9 @@
 		 * {@inheritDoc}
 		 * @param JSONLocale $locale
 		 * @param SessionManager $session
-		 * @param string $pathToRoot
 		 * @see GeoCatPage::printContent()
 		 */
-		public function printContent($locale, $session, $pathToRoot){
+		public function printContent($locale, $session){
 
 			require_once(__DIR__ . "/../app/pages/InputTemplates.php");
 ?>

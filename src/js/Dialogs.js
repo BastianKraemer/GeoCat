@@ -34,7 +34,7 @@ var Dialogs = (function(){
 
 	// Public function
 	return {
-		showLoginDialog: function(pathToRoot){
+		showLoginDialog: function(){
 			var container = document.createElement("div");
 			container.className = "input-dialog";
 
@@ -70,7 +70,7 @@ var Dialogs = (function(){
 			span1.textContent = GeoCat.locale.get("login.create_account", "Create an account");
 			span1.onclick = function(){
 				SubstanceTheme.hideCurrentNotification();
-				setTimeout(function(){Dialogs.showCreateAccountDialog(pathToRoot);}, 400);
+				setTimeout(function(){Dialogs.showCreateAccountDialog();}, 400);
 			};
 			span1.style.float = "right";
 
@@ -110,8 +110,7 @@ var Dialogs = (function(){
 								$("#login-username, #login-password").removeAttr('style');
 							}, 1500);
 						}
-					},
-					pathToRoot);
+					});
 			};
 
 			var performAccept = SubstanceTheme.showYesNoDialog(container, $.mobile.activePage[0], onAcceptFunction, null, "substance-white", false);
@@ -129,7 +128,7 @@ var Dialogs = (function(){
 
 		},
 
-		showCreateAccountDialog: function(pathToRoot){
+		showCreateAccountDialog: function(){
 			var container = document.createElement("div");
 			container.className = "input-dialog";
 
@@ -175,8 +174,7 @@ var Dialogs = (function(){
 									enableDialogAcceptButton(true);
 									p.textContent = responseMsg;
 								}
-							},
-							pathToRoot);
+							});
 					}
 					else{
 						p.textContent = GeoCat.locale.get("createacc.passwd_not_equal", "The entered passwords doesn't match.")

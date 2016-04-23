@@ -1,11 +1,8 @@
 /**
  * This class handels the AJAX requests which are sent to the server
  * @class Uplink
- * @param pathToRootDirectory {String} Path to the root root directory (for example './')
  */
-function Uplink(pathToRootDirectory){
-
-	var urlPrefix = pathToRootDirectory;
+function Uplink(){
 
 	function sendHTTPRequest(url, dataObj, expectStatusResponse, successCallback, errorCallback, onAjaxError){
 		$.ajax({
@@ -60,7 +57,7 @@ function Uplink(pathToRootDirectory){
 			ajaxData["filter"] = filter;
 		}
 
-		sendHTTPRequest(urlPrefix + "query/places.php",
+		sendHTTPRequest("query/places.php",
 						ajaxData,
 						false,
 						successCallback,
@@ -79,7 +76,7 @@ function Uplink(pathToRootDirectory){
 	 * @instance
 	 */
 	this.sendCountRequest = function(countPrivatePlaces, successCallback){
-		sendHTTPRequest(urlPrefix + "query/places.php",
+		sendHTTPRequest("query/places.php",
 						{task: countPrivatePlaces ? "count" : "count_public"},
 						true,
 						successCallback,
@@ -103,7 +100,7 @@ function Uplink(pathToRootDirectory){
 	 * @instance
 	 */
 	this.sendNewCoordinate = function(placeName, placeDesc, placeLat, placeLon, placeIsPublic, successCallback, errorCallback) {
-		sendHTTPRequest(urlPrefix + "query/places.php",
+		sendHTTPRequest("query/places.php",
 						{
 							task: "add",
 							name: placeName,
@@ -130,7 +127,7 @@ function Uplink(pathToRootDirectory){
 	 * @instance
 	 */
 	this.sendCoordinateUpdate = function(coord, successCallback, errorCallback) {
-		sendHTTPRequest(urlPrefix + "query/places.php",
+		sendHTTPRequest("query/places.php",
 						{
 							task: "update",
 							coord_id: coord.coord_id,
@@ -158,7 +155,7 @@ function Uplink(pathToRootDirectory){
 	 * @instance
 	 */
 	this.sendDeleteCoordinate = function(coordId, successCallback, errorCallback) {
-		sendHTTPRequest(urlPrefix + "query/places.php",
+		sendHTTPRequest("query/places.php",
 						{task: "remove", coord_id: coordId},
 						true,
 						successCallback,
@@ -178,7 +175,7 @@ function Uplink(pathToRootDirectory){
 	 * @instance
 	 */
 	this.sendNavList_Add = function(coordId, successCallback, errorCallback){
-		sendHTTPRequest(urlPrefix + "query/places.php",
+		sendHTTPRequest("query/places.php",
 						{task: "nav_add", coord_id: coordId},
 						true,
 						successCallback,
@@ -201,7 +198,7 @@ function Uplink(pathToRootDirectory){
 	 * @instance
 	 */
 	this.sendNavList_Create = function(placeName, placeDesc, placeLat, placeLon, successCallback, errorCallback){
-		sendHTTPRequest(urlPrefix + "query/places.php",
+		sendHTTPRequest("query/places.php",
 						{
 							task: "nav_create",
 							name: placeName,
@@ -226,7 +223,7 @@ function Uplink(pathToRootDirectory){
 	 * @instance
 	 */
 	this.sendNavList_Get = function(successCallback, errorCallback){
-		sendHTTPRequest(urlPrefix + "query/places.php",
+		sendHTTPRequest("query/places.php",
 						{task: "nav_get"},
 						false,
 						successCallback,
@@ -246,23 +243,11 @@ function Uplink(pathToRootDirectory){
 	 * @instance
 	 */
 	this.sendNavList_Remove = function(coordId, successCallback, errorCallback){
-		sendHTTPRequest(urlPrefix + "query/places.php",
+		sendHTTPRequest("query/places.php",
 						{task: "nav_remove", coord_id: coordId},
 						true,
 						successCallback,
 						errorCallback,
 						ajaxERROR);
 	}
-}
-
-function sendRequest(toUrl, body, cfunc){
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function(){
-		if(xhttp.readyState == 4 && xhttp.status == 200){
-			if(typeof cfunc == 'function'){ cfunc(xhttp); }
-		}
-	}
-	xhttp.open("POST", toUrl);
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send(body);
 }

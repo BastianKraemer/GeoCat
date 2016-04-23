@@ -23,18 +23,20 @@ SubstanceTheme.showYesNoDialog = function(htmlContent, container, yesCallback, n
 	}
 
 	SubstanceTheme.hideCurrentNotification();
-	var handler = new SubstanceNotificationHandler(darkBg);
+
+	// This function is called 100ms after displaying and when the widow is resized
+	var vCenterCalculateFx = function(){SubstanceTheme.calculateVerticalCenter(el);};
+
+	var handler = new SubstanceNotificationHandler(darkBg, function(){window.removeEventListener('resize', vCenterCalculateFx);});
 
 	var btnContainer = document.createElement("div");
 	btnContainer.setAttribute("class", "center");
-
 
 	var yesBtn = document.createElement("span");
 	var yesButtonEnableFx = function(enable){yesBtn.setAttribute("data-disabled", enable ? 0 : 1);}
 
 	yesBtn.setAttribute("class", "substance-button substance-small-button substance-lime substance-animated img-check");
 	yesBtn.onclick = function(){
-
 		if(yesBtn.getAttribute("data-disabled") != "1"){
 			if(autoHide){
 				handler.hide();
@@ -62,9 +64,11 @@ SubstanceTheme.showYesNoDialog = function(htmlContent, container, yesCallback, n
 	SubstanceTheme.previousNotification = handler;
 
 	setTimeout(function(){
-		SubstanceTheme.calculateVerticalCenter(el);
+		vCenterCalculateFx();
 		darkBg.style.opacity = 1;
 	}, 100);
+
+	window.addEventListener('resize', vCenterCalculateFx);
 
 	return yesBtn.onclick;
 }
@@ -139,7 +143,7 @@ SubstanceTheme.hideCurrentNotification = function(){
 	}
 }
 
-function SubstanceNotificationHandler(element){
+function SubstanceNotificationHandler(element, postHideCallback){
 	var htmlElement = element;
 	var isActive = true;
 	this.hide = function(){
@@ -149,6 +153,10 @@ function SubstanceNotificationHandler(element){
 			setTimeout(function(){
 				htmlElement.parentElement.removeChild(htmlElement);
 			}, 600);
+		}
+
+		if(postHideCallback != null){
+			postHideCallback();
 		}
 	};
 

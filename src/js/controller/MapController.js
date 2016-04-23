@@ -130,7 +130,7 @@ function MapController(mapTask, taskParam){
 	 * @instance
 	 */
 	this.pageClosed = function(){
-		window.onresize = null;
+		window.removeEventListener('resize', updateMapSize);
 
 		startupCancelFlag = true;
 		if(MapController.openLayerLibraryLoaded){
@@ -198,7 +198,7 @@ function MapController(mapTask, taskParam){
 		});
 
 		updateMapSize();
-		window.onresize = updateMapSize;
+		window.addEventListener('resize', updateMapSize);
 
 		map.on('click', function(event) {
 			if(mapTask == MapController.MapTask.GET_POSITION){

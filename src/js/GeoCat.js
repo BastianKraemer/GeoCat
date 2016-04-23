@@ -228,11 +228,12 @@ GeoCat.login = function(username, paswd, keepSignedIn, callback, pathToRoot){
 
 GeoCat.logout = function(callback, pathToRoot){
 	$.ajax({
-		type: "POST", url: pathToRoot + "/query/logout.php",
-		data: {logout: "true"},
+		type: "POST", url: pathToRoot + "/query/login.php",
+		data: {task: "logout"},
 		cache: false,
 		success: function(response){
-			if(response.toLowerCase() == "true"){
+			var result = JSON.parse(response)
+			if(result.status == "ok"){
 				GeoCat.loginStatus = {isSignedIn: false, username: null};
 				$(".login-button").text("Login");
 				$(".login-button").attr("onclick", "Dialogs.showLoginDialog('" + pathToRoot + "');");

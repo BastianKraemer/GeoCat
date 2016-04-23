@@ -60,6 +60,11 @@ class Login extends RequestInterface {
         return self::buildResponse(false);
     }
 
+	protected function logout(){
+		$session = $this->requireLogin();
+		$session->logout();
+		return self::buildResponse(true);
+	}
 }
 
 $loginHandler = new Login($_REQUEST, DBTools::connectToDatabase());

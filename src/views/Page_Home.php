@@ -18,17 +18,19 @@
 		 * @param string $text Tile text
 		 * @param string $aside Tile description (will be displayed in the top right corner of the tile)
 		 * @param string $target Hyperlink (href) for this tile
-		 * @param string $imgsrc Path to the background image
+		 * @param string $tileId The id for this element
 		 * @param JSONLocale $locale
 		 */
-		private function addTile($title, $text, $aside, $target, $imgsrc, $locale){
-			print(	"\t\t\t" .
-					"<li><a href=\"" . $target . "\">" .
-					"<img src=\"" . $imgsrc . "\" class=\"ui-li-thumb\">" .
-					"<h2>" . $locale->get($title) . "</h2>" .
-					"<p>" . $locale->get($text) . "</p>" .
-					"<p class=\"ui-li-aside\">" . $locale->get($aside) . "</p>" .
-					"</a></li>\n");
+		private function addTile($title, $text, $aside, $target, $tileId, $locale){
+?>
+				<div id="<?php echo $tileId; ?>" class="substance-flexitem1 tile">
+					<a href="<?php echo $target; ?>" class="content">
+						<h1><?php $locale->write($title); ?></h1>
+						<p><?php $locale->write($text); ?></p>
+						<aside><?php $locale->write($aside); ?></aside>
+					</a>
+				</div>
+<?php
 		}
 
 		/**
@@ -38,14 +40,14 @@
 		 * Prefix: "mainpage.tiles." . $tilename . ".title|text|aside"
 		 * @param string $tilename The tile name - take a look at the JSON locale file.
 		 * @param string $target Hyperlink (href) for this tile
-		 * @param string $imgsrc Path to the background image
+		 * @param string $tileId The id for this element
 		 * @param JSONLocale $locale
 		 */
-		private function addDefaultTile($tilename, $target, $imgsrc, $locale){
+		private function addDefaultTile($tilename, $target, $tileId, $locale){
 			$this->addTile(	"mainpage.tiles." . $tilename . ".title",
 							"mainpage.tiles." . $tilename . ".text",
 							"mainpage.tiles." . $tilename . ".aside",
-							$target, $imgsrc, $locale);
+							$target, $tileId, $locale);
 		}
 
 		/**
@@ -70,17 +72,17 @@
 	self::printHeader(\GeoCat::getConfigKey("app.name") . " - ". $locale->get("mainpage.title"), null, $locale, $session);
 ?>
 		<div role="main" class="ui-content my-page">
-			<ul data-role="listview" data-inset="true">
+			<div class="substance-horizontal-flexcontainer mainpage-grid">
 <?php
-				$this->addDefaultTile("info", "#", ".", $locale);
-				$this->addDefaultTile("map", "#Map", ".", $locale);
-				$this->addDefaultTile("places", "#Places", ".", $locale);
-				$this->addDefaultTile("challenges", "#ChallengeBrowser", ".", $locale);
-				$this->addDefaultTile("social", "#Buddies", ".", $locale);
-				$this->addDefaultTile("navigator", "#GPSNavigator", ".", $locale);
-				$this->addDefaultTile("account", "#", ".", $locale);
+				$this->addDefaultTile("info", "#", "infoTile", $locale);
+				$this->addDefaultTile("places", "#Places", "placesTile", $locale);
+				$this->addDefaultTile("challenges", "#ChallengeBrowser", "challengesTile", $locale);
+				$this->addDefaultTile("navigator", "#GPSNavigator", "navTile", $locale);
+				$this->addDefaultTile("social", "#Buddies", "socialTile", $locale);
+				$this->addDefaultTile("map", "#Map", "mapTile", $locale);
+				$this->addDefaultTile("account", "#", "accountTile", $locale);
 ?>
-			</ul>
+			</div>
 		</div>
 	</div>
 <?php

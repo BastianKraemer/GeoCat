@@ -47,7 +47,6 @@
 	<!-- build:css ./css/jquery_package.min.css -->
 	<link rel="stylesheet" href="./css/jquery.mobile-1.4.5.css">
 	<link rel="stylesheet" href="./css/jquery.minicolors.css" />
-	<link rel="stylesheet" href="./css/listview-grid.css" />
 	<!-- /build -->
 
 	<!-- build:css ./css/geocat.min.css -->
@@ -55,6 +54,7 @@
 	<link rel="stylesheet" href="./css/animations.css">
 	<link rel="stylesheet" href="./css/substance.css">
 	<link rel="stylesheet" href="./css/geocat-images.css" />
+	<link rel="stylesheet" href="./css/tiles.css" />
 	<link rel="stylesheet" href="./css/ol.css" />
 	<!-- /build -->
 

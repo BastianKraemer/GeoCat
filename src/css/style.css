@@ -33,15 +33,116 @@ body .ui-page-theme-b, .gray-color-gradient {
 }
 
 /* ==============================================================================
-	Listview styles
+	Start page
 ============================================================================== */
 
-.page-number-info {
-	position: absolute;
-	text-align: center;
-	width: 100%;
-	margin-top: 0.75em;
+#Home > div.ui-content {
+	padding: 4px;
 }
+
+.mainpage-grid {
+	width: 100%;
+	max-width: 640px;
+	margin: 12px auto;
+}
+
+.tile {
+	position: relative;
+	min-width: calc(50% - 10px);
+	max-width: calc(50% - 10px);
+
+	background-color: #bbbbbb;
+	border: 1px solid white;
+	margin: 4px;
+}
+
+.tile:before {
+    content: "";
+    display: block;
+    padding-top: 90%;
+}
+
+.tile > .content {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+
+.tile > .content > * {
+	margin: 0;
+	text-shadow:0 0 0 !important;
+	font-weight: initial;
+}
+
+.tile > a.content {
+	padding: 0;
+	text-decoration: none;
+	color: white;
+	background-repeat: no-repeat;
+	background-position: bottom;
+}
+
+.tile > a.content:hover {
+	color: white;
+}
+
+.tile > a.content:hover > h1 {
+	background-color: rgba(0,0,0,0.7);
+}
+
+.tile > .content > aside {
+	position: absolute;
+	bottom: 0; right: 0;
+	font-size: 12px;
+	padding: 2px 8px;
+	border-top-left-radius: 4px;
+	background-color: rgba(255,255,255,0.5);
+}
+
+.tile > .content > h1 {
+	font-size: 17px;
+	padding: 4px 10px;
+	background-color: rgba(0,0,0,0.4);
+	height: 1.3em;
+	overflow: hidden;
+	transition: background-color 0.5s;
+}
+
+.tile > .content > p {
+	padding: 8px 10px;
+}
+
+@media ( min-width: 900px ) {
+	.mainpage-grid {
+		max-width: 900px;
+	}
+
+	.tile {
+		min-width: calc(33% - 14px);
+		max-width: calc(33% - 14px);
+	}
+
+	.tile > .content > h1 {
+		font-size: 24px;
+	}
+}
+
+@media ( min-width: 1200px ) {
+	.mainpage-grid {
+		max-width: 1200px;
+	}
+
+	.tile {
+		min-width: calc(25% - 14px);
+		max-width: calc(25% - 14px);
+	}
+}
+
+/* ==============================================================================
+	Listview styles
+============================================================================== */
 
 .listview-header{
 	margin-top: 0;

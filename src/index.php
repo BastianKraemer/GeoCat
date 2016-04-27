@@ -13,6 +13,7 @@
 	$session = new SessionManager();
 
 	require_once(__DIR__ . "/views/Page_Home.php");
+	require_once(__DIR__ . "/views/Page_About.php");
 	require_once(__DIR__ . "/views/Page_Places.php");
 	require_once(__DIR__ . "/views/Page_GPSNavigator.php");
 	require_once(__DIR__ . "/views/Page_BrowseChallenges.php");
@@ -26,6 +27,7 @@
 
 	$allPages = array(
 		new \views\Page_Home(),
+		new \views\Page_About(),
 		new \views\Page_Places(),
 		new \views\Page_GPSNavigator(),
 		new \views\Page_BrowseChallenges(),
@@ -85,6 +87,7 @@
 	<script src="./js/controller/PlacesController.js"></script>
 	<script src="./js/controller/MapController.js"></script>
 	<script src="./js/controller/BuddyController.js"></script>
+	<script src="./js/controller/AboutController.js"></script>
 	<!-- /build -->
 
 	<!-- build:js ./js/gpscat.min.js -->

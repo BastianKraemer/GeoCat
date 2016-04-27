@@ -74,7 +74,7 @@
 		<div role="main" class="ui-content my-page">
 			<div class="substance-horizontal-flexcontainer mainpage-grid">
 <?php
-				$this->addDefaultTile("info", "#", "infoTile", $locale);
+				$this->addDefaultTile("info", "#About", "infoTile", $locale);
 				$this->addDefaultTile("places", "#Places", "placesTile", $locale);
 				$this->addDefaultTile("challenges", "#ChallengeBrowser", "challengesTile", $locale);
 				$this->addDefaultTile("navigator", "#GPSNavigator", "navTile", $locale);

@@ -5,7 +5,7 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 		desc: {id: "#EditCoordinate-desc", isCheckbox: false},
 		lat: {id: "#EditCoordinate-lat", isCheckbox: false},
 		lon: {id: "#EditCoordinate-lon", isCheckbox: false},
-		isPublic: {id: "#EditCoordinate-ispublic",isCheckbox: true},
+		isPublic: {id: "#EditCoordinate-ispublic", isCheckbox: true},
 	};
 
 	var containter = {
@@ -29,6 +29,12 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 	var waitScreen = null;
 
 	this.pageOpened = function(){
+
+		// Most times this value is called 'isPublic', but sometimes it is also 'is_public'
+		if(data.hasOwnProperty("is_public") && !data.hasOwnProperty("isPublic")){
+			data["isPublic"] = data["is_public"];
+			delete data["is_public"];
+		}
 
 		evaluateOptions();
 

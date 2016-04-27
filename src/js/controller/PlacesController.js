@@ -311,10 +311,20 @@ function PlacesController(){
 		li.className = "place-list-item";
 		li.setAttribute("coordinate-id", coord.coord_id);
 		li.setAttribute("is-editable", isEditable);
-
 		var a = document.createElement("a");
-		a.className = "li-clickable";
-		a.onclick = function(){place_OnClick(a);};
+		if(GeoCat.loginStatus.isSignedIn){
+			a.className = "li-clickable";
+			if(GeoCat.loginStatus.username == coord_info.owner){
+				a.onclick = function(){place_OnClick(a, coord.is_public);};
+			}
+			else{
+				a.onclick = function(){
+					SubstanceTheme.showNotification(
+						"<p>" + sprintf(GeoCat.locale.get("places.not_authorized", "You cannot edit place '{0}' of {1}"), [coord.name, coord_info.owner]) + "</p>",
+						7, $.mobile.activePage[0], "substance-red no-shadow white");
+				};
+			}
+		}
 
 		if(coord.desc != null){
 			var h = document.createElement("h2");
@@ -357,7 +367,7 @@ function PlacesController(){
 	 * ============================================================================================
 	 */
 
-	var place_OnClick = function(el){
+	var place_OnClick = function(el, isPublic){
 
 		var isEditale = $(el).parent().attr("is-editable") == "true";
 		var coordId = $(el).parent().attr("coordinate-id");

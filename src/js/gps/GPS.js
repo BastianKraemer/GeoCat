@@ -47,7 +47,7 @@ var GPS = new function(){
 				},
 				function(){
 					navigator.geolocation.clearWatch(watchId);
-					alert("Error: Unable to get GPS position");
+					GeoCat.displayError("Error: Unable to get GPS position");
 				},
 				{enableHighAccuracy: true});
 	}
@@ -156,6 +156,6 @@ var GPS = new function(){
 				break;
 	    }
 
-	    alert("Unable to get GPS position: " + errorMsg);
+		GeoCat.displayError("Unable to get GPS position: " + errorMsg);
 	};
 };

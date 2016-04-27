@@ -329,6 +329,13 @@ GeoCat.login_cookie = function(cookieData){
 			}
 			catch(e){console.log("ERROR: " + e);}
 		},
-		error: function(xhr, status, error){alert("ERROR");}
+		error: function(xhr, status, error){
+			GeoCat.displayError();
+		}
 	});
+}
+
+GeoCat.displayError = function(msg){
+	if(typeof msg === "undefined"){msg = "Unable to connect to server."}
+	SubstanceTheme.showNotification(sprintf("<p>{0}</p>", [msg]), 7, $.mobile.activePage[0], "substance-red no-shadow white");
 }

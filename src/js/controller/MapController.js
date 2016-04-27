@@ -112,7 +112,7 @@ function MapController(mapTask, taskParam){
 					setTimeout(startOL, 200); // Without this timeout, the map is sometimes higher than the browser window
 				},
 				error: function(xhr, status, error){
-					alert("AJAX ERROR");
+					GeoCat.displayError();
 				}
 			});
 		}

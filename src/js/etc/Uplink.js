@@ -4,7 +4,7 @@
  */
 function Uplink(){
 
-	function sendHTTPRequest(url, dataObj, expectStatusResponse, successCallback, errorCallback, onAjaxError){
+	function sendHTTPRequest(url, dataObj, expectStatusResponse, successCallback, errorCallback){
 		$.ajax({
 				type: "POST", url: url,
 				data: dataObj,
@@ -22,15 +22,9 @@ function Uplink(){
 					}
 				},
 				error: function(xhr, status, error){
-					if(onAjaxError != null){
-						onAjaxError(error)
-					}
+					GeoCat.displayError();
 				}
 		});
-	}
-
-	function ajaxERROR(msg){
-		alert("Unable to send HTTP Request: " + msg);
 	}
 
 	/**
@@ -61,8 +55,7 @@ function Uplink(){
 						ajaxData,
 						false,
 						successCallback,
-						null,
-						ajaxERROR);
+						null);
 	}
 
 	/**
@@ -80,8 +73,7 @@ function Uplink(){
 						{task: countPrivatePlaces ? "count" : "count_public"},
 						true,
 						successCallback,
-						null,
-						ajaxERROR);
+						null);
 	}
 
 	/**
@@ -111,8 +103,7 @@ function Uplink(){
 						},
 						true,
 						successCallback,
-						errorCallback,
-						ajaxERROR);
+						errorCallback);
 	}
 
 	/**
@@ -139,8 +130,7 @@ function Uplink(){
 						},
 						true,
 						successCallback,
-						errorCallback,
-						ajaxERROR);
+						errorCallback);
 	}
 
 	/**
@@ -159,8 +149,7 @@ function Uplink(){
 						{task: "remove", coord_id: coordId},
 						true,
 						successCallback,
-						errorCallback,
-						ajaxERROR);
+						errorCallback);
 	}
 
 	/**
@@ -179,8 +168,7 @@ function Uplink(){
 						{task: "nav_add", coord_id: coordId},
 						true,
 						successCallback,
-						errorCallback,
-						ajaxERROR);
+						errorCallback);
 	}
 
 	/**
@@ -208,8 +196,7 @@ function Uplink(){
 						},
 						true,
 						successCallback,
-						errorCallback,
-						ajaxERROR);
+						errorCallback);
 	}
 
 	/**
@@ -227,8 +214,7 @@ function Uplink(){
 						{task: "nav_get"},
 						false,
 						successCallback,
-						errorCallback,
-						ajaxERROR);
+						errorCallback);
 	}
 
 	/**
@@ -247,7 +233,6 @@ function Uplink(){
 						{task: "nav_remove", coord_id: coordId},
 						true,
 						successCallback,
-						errorCallback,
-						ajaxERROR);
+						errorCallback);
 	}
 }

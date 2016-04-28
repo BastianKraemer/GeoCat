@@ -41,7 +41,7 @@
 				<table>
 					<tr>
 						<td><input id="places-search-input" data-mini="true" data-corners="false" type="text"></td>
-						<td style="width: 32px"><span id="places-search-confirm" class="no-shadow">Suchen</span></td>
+						<td style="width: 32px"><span id="places-search-confirm" class="no-shadow"><?php $locale->write("places.find"); ?></span></td>
 					</tr>
 				</table>
 			</div>

@@ -117,11 +117,7 @@
 }
 
 #Account ul.ui-listview > li.ui-li-divider {
-	background-color: #9311ba;
+	background-color: #77667d;
 	text-shadow: 0 0 0 !important;
 	color: white;
-}
-
-#Account ul.ui-listview > li.ui-li-divider + li {
-	background-color: #9311ba;
 }

@@ -58,6 +58,9 @@ function BrowseChallengesController(){
 	this.pageOpened = function(){
 
 		$(htmlElement.listview).listview('refresh');
+		$(htmlElement.showPublicChallenges).removeClass("ui-btn-active");
+		$(htmlElement.showJoinedChallenges).removeClass("ui-btn-active");
+		$(htmlElement.showOwnChallenges).removeClass("ui-btn-active");
 
 		scrollLoader = new ScrollLoader(
 						$(htmlElement.listview)[0],

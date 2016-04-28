@@ -41,7 +41,8 @@
 												"Challenge.max_teams, Challenge.max_team_members, Challenge.predefined_teams, " .
 												"Challenge.start_time, Challenge.end_time, Challenge.is_public, Challenge.sessionkey " .
 											"FROM Challenge, Account, ChallengeType WHERE is_public = 1 AND Challenge.is_enabled = 1 " .
-												"AND Account.account_id = Challenge.owner AND Challenge.challenge_type_id = ChallengeType.challenge_type_id" .
+												"AND Account.account_id = Challenge.owner AND Challenge.challenge_type_id = ChallengeType.challenge_type_id " .
+											"ORDER BY Challenge.start_time DESC" .
 											($limit > 0 ? " LIMIT " . $limit : "") . ($offset > 0 ? " OFFSET " . $offset : ""),null, PDO::FETCH_ASSOC);
 
 			return $res;
@@ -55,7 +56,8 @@
 											"FROM Challenge " .
 											"JOIN Account ON (Challenge.owner = Account.account_id) " .
 											"JOIN ChallengeType ON (Challenge.challenge_type_id = ChallengeType.challenge_type_id) " .
-											"WHERE Challenge.owner = :accId" .
+											"WHERE Challenge.owner = :accId " .
+											"ORDER BY Challenge.start_time DESC" .
 											($limit > 0 ? " LIMIT " . $limit : "") . ($offset > 0 ? " OFFSET " . $offset : ""),
 											array("accId" => $session->getAccountId()), PDO::FETCH_ASSOC);
 			return $res;
@@ -71,7 +73,8 @@
 											"JOIN Challenge ON (ChallengeTeam.challenge_id = Challenge.challenge_id) " .
 											"JOIN Account ON (Challenge.owner = Account.account_id) " .
 											"JOIN ChallengeType ON (Challenge.challenge_type_id = challengetype.challenge_type_id) " .
-											"WHERE ChallengeMember.account_id = :accId" .
+											"WHERE ChallengeMember.account_id = :accId " .
+											"ORDER BY Challenge.start_time DESC" .
 											($limit > 0 ? " LIMIT " . $limit : "") . ($offset > 0 ? " OFFSET " . $offset : ""),
 											array("accId" => $session->getAccountId()), PDO::FETCH_ASSOC);
 			return $res;

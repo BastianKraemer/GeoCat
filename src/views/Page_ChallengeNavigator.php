@@ -69,7 +69,7 @@
 		<div id="code-input-popup" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all">
 			<div data-role="header" data-theme="b">
 				<h3><?php $locale->write("challenge.navigator.codeinput.title"); ?></h3>
-				<a href="#" data-role="button" data-rel="back" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-delete ui-btn-icon-notext">Close Window</a>
+				<a href="#" data-role="button" data-rel="back" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-delete ui-btn-icon-notext"><?php $locale->write("challenge.navigator.codeinput.close"); ?></a>
 			</div>
 
 			<div role="main" class="ui-content">

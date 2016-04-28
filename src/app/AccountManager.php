@@ -161,6 +161,53 @@
 			}
 		}
 
+		public static function deleteAccount($dbh, $accountId){
+			$place_coordId = $currnav_coordId = $accinfo_coordId = $challcoord_coordId = array();
+			$place_coordId = DBTools::fetchAll($dbh, "SELECT coord_id FROM Place WHERE account_id = :accid", array(":accid" => $accountId), PDO::FETCH_ASSOC);
+			DBTools::query($dbh, "DELETE FROM Place WHERE account_id = :accid", array(":accid" => $accountId));
+			DBTools::query($dbh, "DELETE FROM LoginToken WHERE account_id = :accid", array(":accid" => $accountId));
+			DBTools::query($dbh, "DELETE FROM Friends WHERE account_id = :accid OR friend_id = :accid", array(":accid" => $accountId));
+			$currnav_coordId = DBTools::fetchAll($dbh, "SELECT coord_id FROM CurrentNavigation WHERE account_id = :accid", array(":accid" => $accountId), PDO::FETCH_ASSOC);
+			DBTools::query($dbh, "DELETE FROM CurrentNavigation WHERE account_id = :accid", array(":accid" => $accountId));
+			DBTools::query($dbh, "DELETE FROM ChallengeMember WHERE account_id = :accid", array(":accid" => $accountId));
+			$accinfo_coordId = DBTools::fetchAll($dbh, "SELECT my_position FROM AccountInformation WHERE account_id = :accid", array(":accid" => $accountId), PDO::FETCH_ASSOC);
+			DBTools::query($dbh, "DELETE FROM AccountInformation WHERE account_id = :accid", array(":accid" => $accountId));
+			$challengeId = DBTools::fetchAll($dbh, "SELECT challenge_id FROM Challenge WHERE owner = :accid", array(":accid" => $accountId), PDO::FETCH_ASSOC);
+			if(!empty($challengeId)){
+				foreach ($challengeId as $index => $array) {
+					foreach ($array as $key => $challenge_id) {
+						DBTools::query($dbh, "DELETE FROM ChallengeStats WHERE challenge_id = $challenge_id");
+						$challengeCoordId = DBTools::fetchAll($dbh, "SELECT challenge_coord_id FROM ChallengeCoord WHERE challenge_id = $challenge_id", null, PDO::FETCH_ASSOC);
+						if(!empty($challengeCoordId)){
+							foreach ($challengeCoordId as $index => $array) {
+								foreach ($array as $key => $challenge_coord_id) {
+									DBTools::query($dbh, "DELETE FROM ChallengeCheckpoint WHERE challenge_coord_id = $challenge_coord_id");
+								}
+							}
+						}
+						$challcoord_coordId = DBTools::fetchAll($dbh, "SELECT coord_id FROM ChallengeCoord WHERE challenge_id = $challenge_id", null, PDO::FETCH_ASSOC);
+						DBTools::query($dbh, "DELETE FROM ChallengeCoord WHERE challenge_id = $challenge_id");
+						DBTools::query($dbh, "DELETE FROM ChallengeTeam WHERE challenge_id = $challenge_id");
+						DBTools::query($dbh, "DELETE FROM Challenge WHERE challenge_id = $challenge_id");
+					}
+				}
+			}
+			$coordId = array_merge(
+				array_values($place_coordId),
+				array_values($currnav_coordId),
+				array_values($accinfo_coordId),
+				array_values($challcoord_coordId)
+			);
+			if(!empty($coordId)){
+				foreach ($coordId as $index => $array) {
+					foreach ($array as $key => $coord) {
+						DBTools::query($dbh, "DELETE FROM Coordinate WHERE coord_id = $coord");
+					}
+				}
+			}
+			DBTools::query($dbh, "DELETE FROM Account WHERE account_id = :accid", array(":accid" => $accountId));
+		}
+
 		/**
 		 * Returns the account id which is assigned to the username
 		 * @param PDO $dbh Database handler
@@ -185,37 +232,37 @@
 			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
 			return $result[0]["username"];
 		}
-		
+
 		public static function isUsernameInUse($dbh, $username){
 			$result = DBTools::fetchAll($dbh, "SELECT account_id FROM " . self::TABLE_ACCOUNT . " WHERE username = :user", array(":user" => $username));
 			if(empty($result)){
-				return false; 
+				return false;
 			}
-			return true; 
+			return true;
 		}
-		
+
 		public static function setNewUsernameForAccountId($dbh, $accountId, $username){
 			$result = DBTools::query($dbh, "UPDATE Account SET username = :username WHERE account_id = :accid", array(":username" => $username, ":accid" => $accountId));
-			return $result; 
+			return $result;
 		}
-		
+
 		public static function getEmailAdressByAccountId($dbh, $accountId){
 			$result = DBTools::fetchAll($dbh, "SELECT email FROM Account WHERE account_id = :accid", array(":accid" => $accountId));
 			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
-			return $result[0]['email']; 
+			return $result[0]['email'];
 		}
-		
+
 		public static function setNewEmailAdressForAccountId($dbh, $accountId, $email){
 			$result = DBTools::query($dbh, "UPDATE Account SET email = :email WHERE account_id = :accid", array(":email" => $email, ":accid" => $accountId));
-			return $result; 
+			return $result;
 		}
-		
+
 		public static function getRealNameByAccountId($dbh, $accountId){
 			$result = DBTools::fetchAll($dbh, "SELECT lastname, firstname FROM Accountinformation WHERE account_id = :accid", array(":accid" => $accountId));
 			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
-			return $result[0]; 
+			return $result[0];
 		}
-		
+
 		public static function setRealNameByAccountId($dbh, $accountId, $newVal, $column){
 			$result = DBTools::query($dbh, "UPDATE Accountinformation SET $column = :newval WHERE account_id = :accid", array(":newval" => $newVal, ":accid" => $accountId));
 			return $result;
@@ -382,11 +429,11 @@
 			if(empty($result) || count($result) != 1){return -1;}
 			return (self::getPBKDF2Hash($password, base64_decode($result[0]["salt"]))[0] == $result[0]["password"] ? 1 : 0);
 		}
-		
+
 		public static function setNewPassword($dbh, $accountid, $newPassword){
 			$hash = self::getPBKDF2Hash($newPassword);
 			$result = DBTools::query($dbh, "UPDATE Account SET password = :pw, salt = :salt WHERE account_id = :accid", array(":pw" => $hash[0], ":salt" => $hash[1], ":accid" => $accountid));
-			return $result; 
+			return $result;
 		}
 
 		/**

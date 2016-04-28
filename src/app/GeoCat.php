@@ -54,7 +54,7 @@ class GeoCat{
 	 * @package app
 	 */
 	private static $config = null;
-	private static $configPath = __DIR__ . "../config/config.php";
+	private static $configPath = __DIR__ . "/../config/config.php";
 
 	/**
 	 * Loads the GeoCat configuration from the config file ('/config/config.php')

@@ -33,6 +33,11 @@ GeoCat.gpsTracker = null;
 GeoCat.init = function(language){
 	GeoCat.locale = new JSONLocale(language);
 	AboutController.language = language;
+
+	$(this).on('pagechange', function(){
+		$.mobile.activePage.find('.popup-login').attr('id', 'popup-login-' + $.mobile.activePage.attr('id'));
+		GeoCat.updateLoginBTN();
+	});
 }
 
 /**
@@ -212,7 +217,8 @@ GeoCat.login = function(username, paswd, keepSignedIn, callback){
 				if(jsonData.status == "ok"){
 					GeoCat.loginStatus = {isSignedIn: true, username: jsonData.username};
 					$(".login-button").text(jsonData.username);
-					$(".login-button").attr("onclick", "GeoCat.logout(null);");
+					GeoCat.updateLoginBTN();
+
 					$.mobile.activePage.trigger("pagebeforehide");
 					$.mobile.activePage.trigger("pageshow");
 					callback(true);
@@ -334,6 +340,12 @@ GeoCat.login_cookie = function(cookieData){
 			GeoCat.displayError();
 		}
 	});
+}
+
+GeoCat.updateLoginBTN = function(){
+	if(GeoCat.loginStatus.isSignedIn){
+		$(".login-button").attr("onclick", "$('#popup-login-' + $.mobile.activePage.attr('id')).popup('open', {positionTo: $.mobile.activePage.find('#login-btn'), transition: 'pop'});");
+	}
 }
 
 GeoCat.displayError = function(msg){

@@ -20,6 +20,7 @@
 	require_once(__DIR__ . "/views/Page_ChallengeNavigator.php");
 	require_once(__DIR__ . "/views/Page_ChallengeInfo.php");
 	require_once(__DIR__ . "/views/Page_CoordinateEditDialog.php");
+	require_once(__DIR__ . "/views/Page_Account.php");
 	require_once(__DIR__ . "/views/Page_Map.php");
 	require_once(__DIR__ . "/views/Page_Buddies.php");
 
@@ -34,6 +35,7 @@
 		new \views\Page_ChallengeNavigator(),
 		new \views\Page_ChallengeInfo(),
 		new \views\Page_CoordinateEditDialog(),
+		new \views\Page_Account(),
 		new \views\Page_Map(),
 		new \views\Page_Buddies()
 	);
@@ -76,6 +78,7 @@
 	<script src="./js/Dialogs.js"></script>
 	<script src="./js/ScrollLoader.js"></script>
 	<script src="./lib/jquery.minicolors.min.js"></script>
+	<script src="./js/Account.js"></script>
 	<!-- /build -->
 
 	<!-- build:js ./js/controller.min.js -->

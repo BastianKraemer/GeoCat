@@ -48,10 +48,18 @@
 				<a href="<?php echo $backButtonTarget ?>" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left <?php echo $icon ?>"><?php echo $txt ?></a>
 <?php 		}
 			$buttonText = $session->isSignedIn() ? $session->getUsername() : "Login";
-			$targetJavaScriptFunction = $session->isSignedIn() ? "GeoCat.logout(null);" : "Dialogs.showLoginDialog();";
+			$targetJavaScriptFunction = !$session->isSignedIn() ? "Dialogs.showLoginDialog();" : "";
 ?>
-			<button onclick="<?php echo $targetJavaScriptFunction; ?>" class="login-button ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-user"><?php echo $buttonText ?></button>
+			<button id="login-btn" onclick="<?php echo $targetJavaScriptFunction; ?>" class="login-button ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-user"><?php echo $buttonText ?></button>
 		</div>
+
+		<div class="popup-login" data-role="popup" data-arrow="true" data-theme="a" class="ui-corner-all">
+		    <div data-role="main" class="ui-content">
+          <button onclick="$.mobile.changePage('#Account')" class="ui-btn ui-shadow ui-btn-inline ui-btn-icon-left ui-icon-gear ui-corner-all ui-btn-icon-notext"></button>
+          <button onclick="GeoCat.logout(null); $('#popup-login-' + $.mobile.activePage.attr('id')).popup('close')" class="ui-btn ui-shadow ui-btn-inline ui-mini ui-corner-all"><?php $locale->write("logout"); ?></button>
+        </div>
+		</div>
+
 <?php
 		}
 

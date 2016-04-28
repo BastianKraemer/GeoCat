@@ -1,0 +1,62 @@
+/* ==============================================================================
+	Tile styles for the start page
+============================================================================== */
+
+#infoTile {
+	background-image: linear-gradient(to bottom, transparent 0%, #0099d2 100%);
+}
+
+#placesTile{
+	background-image: linear-gradient(to bottom, transparent 0%, #b8320e 100%);
+}
+
+#challengesTile{
+	background-image: linear-gradient(to bottom, transparent 0%, #add929 100%);
+}
+
+#socialTile{
+	background-image: linear-gradient(to bottom, transparent 0%, #b32876 100%);
+}
+
+#navTile{
+	background-image: linear-gradient(to bottom, transparent 0%, #ff7a0b 100%);
+}
+
+#mapTile {
+	background-image: linear-gradient(to bottom, transparent 0%, #6e9c9a 100%);
+}
+
+#accountTile{
+	background-image: linear-gradient(to bottom, transparent 0%, #c60bff 100%);
+}
+
+@media ( min-width: 600px ) {
+	#infoTile > a.content {
+		background-image: url('../img/tile/getstarted.png');
+	}
+
+	#placesTile > a.content {
+		background-image: url('../img/tile/flag.png');
+	}
+
+	#challengesTile > a.content {
+		background-image: url('../img/tile/challenge.png');
+	}
+
+	#socialTile > a.content {
+		background-image: url('../img/tile/team.png');
+	}
+
+	#navTile > a.content {
+		background-position: left bottom;
+		background-image: url('../img/tile/nav.png');
+	}
+
+	#mapTile > a.content {
+		background-image: url('../img/tile/signpost.png');
+	}
+
+	#accountTile > a.content {
+		background-image: url('../img/tile/settings.png');
+	}
+}

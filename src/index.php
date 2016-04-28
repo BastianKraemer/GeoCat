@@ -13,6 +13,7 @@
 	$session = new SessionManager();
 
 	require_once(__DIR__ . "/views/Page_Home.php");
+	require_once(__DIR__ . "/views/Page_About.php");
 	require_once(__DIR__ . "/views/Page_Places.php");
 	require_once(__DIR__ . "/views/Page_GPSNavigator.php");
 	require_once(__DIR__ . "/views/Page_BrowseChallenges.php");
@@ -26,6 +27,7 @@
 
 	$allPages = array(
 		new \views\Page_Home(),
+		new \views\Page_About(),
 		new \views\Page_Places(),
 		new \views\Page_GPSNavigator(),
 		new \views\Page_BrowseChallenges(),
@@ -47,7 +49,6 @@
 	<!-- build:css ./css/jquery_package.min.css -->
 	<link rel="stylesheet" href="./css/jquery.mobile-1.4.5.css">
 	<link rel="stylesheet" href="./css/jquery.minicolors.css" />
-	<link rel="stylesheet" href="./css/listview-grid.css" />
 	<!-- /build -->
 
 	<!-- build:css ./css/geocat.min.css -->
@@ -55,6 +56,7 @@
 	<link rel="stylesheet" href="./css/animations.css">
 	<link rel="stylesheet" href="./css/substance.css">
 	<link rel="stylesheet" href="./css/geocat-images.css" />
+	<link rel="stylesheet" href="./css/tiles.css" />
 	<link rel="stylesheet" href="./css/ol.css" />
 	<!-- /build -->
 
@@ -85,6 +87,7 @@
 	<script src="./js/controller/PlacesController.js"></script>
 	<script src="./js/controller/MapController.js"></script>
 	<script src="./js/controller/BuddyController.js"></script>
+	<script src="./js/controller/AboutController.js"></script>
 	<!-- /build -->
 
 	<!-- build:js ./js/gpscat.min.js -->

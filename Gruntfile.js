@@ -50,7 +50,7 @@ module.exports = function(grunt) {
 		copy: {
 			main: {
 				cwd: 'src/',
-				src: [	'app/**',  'query/**', 'views/**', 'config/config.php', 'locale/*.json',
+				src: [	'app/**',  'query/**', 'views/**', 'config/config.php', 'locale/*.json', 'img/tile/*',
 						'lib/jquery_package.min.js', 'lib/ol.js'],
 				dest: 'dest/',
 				expand: true
@@ -78,6 +78,7 @@ module.exports = function(grunt) {
 							'src/css/animations.css',
 							'src/css/substance.css',
 							'src/css/geocat-images.css',
+							'src/css/tiles.css',
 							'src/css/ol.css'
 						],
 					'dest/css/jquery_package.min.css':

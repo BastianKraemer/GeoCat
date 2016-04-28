@@ -32,6 +32,7 @@ GeoCat.gpsTracker = null;
  */
 GeoCat.init = function(language){
 	GeoCat.locale = new JSONLocale(language);
+	AboutController.language = language;
 }
 
 /**

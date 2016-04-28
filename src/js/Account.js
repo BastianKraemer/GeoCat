@@ -3,12 +3,14 @@ function Account () {
 
   var popups = {
     userdata: "#popup-edit",
-    password: "#popup-pw"
+    password: "#popup-pw",
+    deleteAccount: "#popup-delete-acc"
   }
 
   var sendBTN = {
     userdata: "#edit-submit",
-    pwdata: "#pw-submit"
+    pwdata: "#pw-submit",
+    deleteAccount: "#delete-submit"
   }
 
   var userData = {
@@ -16,14 +18,16 @@ function Account () {
     username: "#acc-username",
     firstname: "#acc-firstname",
     lastname: "#acc-lastname",
-    password: "#acc-password"
+    password: "#acc-password",
+    deleteAccount: "#delete-acc"
   }
 
   var inputFields = {
     userdata: "#edit-field",
     oldpw: "#pwold",
     newpw1: "#pwnew1",
-    newpw2: "#pwnew2"
+    newpw2: "#pwnew2",
+    deleteAccount: "#delete-pw"
   }
 
   this.onPageOpened = function(){
@@ -31,8 +35,10 @@ function Account () {
 		loadUserData();
 		$(userData.email + ", " + userData.username + ", " + userData.firstname + ", " + userData.lastname).click(handleClickOnField);
 		$(userData.password).click(handleClickOnPWBTN);
+    $(userData.deleteAccount).click(handleClickOnDelAcc);
 		$(sendBTN.userdata).click(handleClickOnSubmit);
 		$(sendBTN.pwdata).click(handleClickOnSubmitPassword);
+    $(sendBTN.deleteAccount).click(handleClickOnSubmitPasswordDelete);
 	}
 	else{
 		$.mobile.changePage("#Home");
@@ -82,6 +88,10 @@ function Account () {
     $(inputFields.newpw1).val("");
     $(inputFields.newpw2).val("");
     $(sendBTN.pwdata).attr("data-id", this.id);
+  }
+
+  var handleClickOnDelAcc = function(){
+    $(inputFields.deleteAccount).val("");
   }
 
   var handleClickOnSubmit = function(){
@@ -136,6 +146,31 @@ function Account () {
 							SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("account.update.success", "Success") + "</h3>" +
 															"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-green no-shadow white");
 						}, 750);
+					} else {
+						setTimeout(function(){
+							SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("account.update.error", "Error") + "</h3>" +
+															"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
+						}, 750);
+					}
+			}
+		});
+  }
+
+  var handleClickOnSubmitPasswordDelete = function(){
+    $(popups.deleteAccount).popup("close");
+    var password = $(inputFields.deleteAccount).val();
+    $.ajax({
+			type: "POST", url: "./query/account.php",
+			encoding: "UTF-8",
+			data: {task: "deleteAccount", password: password},
+			cache: false,
+			success: function(response){
+					var responseData = response;
+          if(responseData.status == "ok"){
+            GeoCat.loginStatus = {isSignedIn: false, username: null};
+            $(".login-button").text("Login");
+    				$(".login-button").attr("onclick", "Dialogs.showLoginDialog();");
+            $.mobile.changePage("#Home");
 					} else {
 						setTimeout(function(){
 							SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("account.update.error", "Error") + "</h3>" +

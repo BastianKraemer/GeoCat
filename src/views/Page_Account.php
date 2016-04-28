@@ -50,7 +50,8 @@
 					<li data-icon="gear"><a href="#popup-edit" id="acc-lastname" data-rel="popup" data-position-to="window" data-transition="pop"><?php $locale->write("account.loading"); ?></a></li>
 				</ul>
 			</form>
-			<a href="#popup-pw" id="acc-password" class="ui-btn" data-rel="popup" data-position-to="window" data-transition="pop"><?php $locale->write("account.password"); ?></a>
+			<a href="#popup-pw" id="acc-password" class="ui-btn" data-rel="popup" data-position-to="window" data-transition="pop"><?php $locale->write("account.password_change"); ?></a>
+			<a href="#popup-delete-acc" id="delete-acc" class="ui-btn" data-rel="popup" data-position-to="window" data-transition="pop"><?php $locale->write("account.delete"); ?></a>
 		</div>
 
 		<!-- POPUP USER DATA -->
@@ -77,6 +78,22 @@
 					<input id="pwnew1" type="password" placeholder="<?php $locale->write("account.newpassword"); ?>" value="" />
 					<input id="pwnew2" type="password" placeholder="<?php $locale->write("account.newpassword"); ?>" value="" />
 					<input id="pw-submit" type="button" value="<?php $locale->write("account.send"); ?>" />
+				</form>
+			</div>
+		</div>
+
+		<!-- POPUP DELETE ACCOUNT -->
+		<div id="popup-delete-acc" data-role="popup" data-theme="a" class="ui-corner-all" style="width: 85vw;">
+			<div data-role="header" data-theme="b">
+				<h1><?php $locale->write("account.warning"); ?></h1>
+			</div>
+
+			<div data-role="main" class="ui-content">
+				<h2><?php $locale->write("account.delete"); ?>?</h2>
+				<h3><?php $locale->write("account.no_undo"); ?></h3>
+				<form>
+					<input id="delete-pw" type="password" placeholder="<?php $locale->write("account.password"); ?>" value="" />
+					<input id="delete-submit" type="button" value="<?php $locale->write("account.send"); ?>" />
 				</form>
 			</div>
 		</div>

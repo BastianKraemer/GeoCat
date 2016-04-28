@@ -193,10 +193,10 @@
 				}
 			}
 			$coordId = array_merge(
-				array_values($place_coordId),
-				array_values($currnav_coordId),
-				array_values($accinfo_coordId),
-				array_values($challcoord_coordId)
+				array_values((array) $place_coordId),
+				array_values((array) $currnav_coordId),
+				array_values((array) $accinfo_coordId),
+				array_values((array) $challcoord_coordId)
 			);
 			if(!empty($coordId)){
 				foreach ($coordId as $index => $array) {

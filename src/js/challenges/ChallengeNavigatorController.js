@@ -1,18 +1,20 @@
 function ChallengeNavigatorController(challenge_id){
 
-	var htmlElement = new Object();
-	htmlElement["coord_panel"] = "#challenge-navigator-coord-panel";
-	htmlElement["coord_list"] = "#challenge-navigator-coord-list";
-	htmlElement["stats"] = "#challenge-navigator-stats";
-	htmlElement["canvas"] = "#challenge-navigator-canvas";
-	htmlElement["canvas_container"] = "#challenge-navigator-content";
-	htmlElement["codeinput_popup"] = "#code-input-popup";
-	htmlElement["codeinput_hint"] = "#checkpoint-code-input-hint";
-	htmlElement["codeinput_textfield"] = "#checkpoint-code-input";
-	htmlElement["codeinput_ok"] = "#checkpoint-code-input-ok";
-	htmlElement["reached_button"] = "#checkpoint-reached-button";
-	htmlElement["reload_button"] = "#challenge-navigator-update-button";
-	htmlElement["autohide_flipswitch"] = "#challenge-navigator-autohide";
+	var htmlElement = {
+		coord_panel: "#challenge-navigator-coord-panel",
+		coord_list: "#challenge-navigator-coord-list",
+		stats: "#challenge-navigator-stats",
+		canvas: "#challenge-navigator-canvas",
+		canvas_container: "#challenge-navigator-content",
+		codeinput_popup: "#code-input-popup",
+		codeinput_hint: "#checkpoint-code-input-hint",
+		codeinput_textfield: "#checkpoint-code-input",
+		codeinput_ok: "#checkpoint-code-input-ok",
+		reached_button: "#checkpoint-reached-button",
+		reload_button: "#challenge-navigator-update-button",
+		autohide_flipswitch: "#challenge-navigator-autohide",
+		waiting: "#challenge-nav-waiting"
+	};
 
 	var minDistanceToSetReached = 20; // In meters
 
@@ -483,10 +485,12 @@ function ChallengeNavigatorController(challenge_id){
 
 	var sendCapturedOrReached = function (coord, cacheCode){
 		if(isCTF && coord.priority > 0){ // is "Capture the Flag" challenge or the start point
+			showWaitNotification(true);
 			sendCheckpointCaptured(coord.challenge_coord_id, cacheCode);
 		}
 		else{
 			if(coord.priority == currentPriority){
+				showWaitNotification(true);
 				sendCheckpointReached(coord.challenge_coord_id, cacheCode);
 			}
 			else{
@@ -509,6 +513,7 @@ function ChallengeNavigatorController(challenge_id){
 			},
 			cache: false,
 			success: function(response){
+				showWaitNotification(false);
 				var responseData = null
 				try{
 					responseData = JSON.parse(response);
@@ -529,7 +534,7 @@ function ChallengeNavigatorController(challenge_id){
 					}
 					else{
 						SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("challenge.nav.error.update_checkpoint", "Unable to update checkpoint") + "</h3>" +
-								"						<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
+														"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
 					}
 				}
 				catch(e){
@@ -537,7 +542,10 @@ function ChallengeNavigatorController(challenge_id){
 													"<p>" + response + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
 				}
 			},
-			error: ajaxError
+			error: function(){
+				showWaitNotification(false);
+				ajaxError();
+			}
 		});
 	};
 
@@ -553,6 +561,7 @@ function ChallengeNavigatorController(challenge_id){
 			},
 			cache: false,
 			success: function(response){
+				showWaitNotification(false);
 				try{
 					var responseData = JSON.parse(response);
 					if(responseData.status == "ok"){
@@ -580,8 +589,15 @@ function ChallengeNavigatorController(challenge_id){
 													"<p>" + response + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
 				}
 			},
-			error: ajaxError
+			error: function(){
+				showWaitNotification(false);
+				ajaxError();
+			}
 		});
+	};
+
+	var showWaitNotification = function(value){
+		$(htmlElement.waiting).css("opacity", value ? 1 : 0);
 	};
 
 /*
@@ -700,5 +716,4 @@ ChallengeNavigatorController.init = function(myPageId){
 
 		return new ChallengeNavigatorController(key);
 	});
-
 };

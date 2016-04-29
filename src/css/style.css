@@ -419,6 +419,19 @@ canvas.gpsradar {
 	cursor: pointer;
 }
 
+#challenge-nav-waiting {
+	position: absolute;
+	left: 20%; right: 20%;
+	background-color: rgba(0, 64, 90, 0.8);
+	border-radius: 0 0 3px 3px;
+	color: white;
+	padding: 4px;
+	text-align: center;
+	font-size: 12px;
+	transition: opacity 0.5s;
+	opacity: 0;
+}
+
 /* ==============================================================================
 	Challenge Info
 ============================================================================== */

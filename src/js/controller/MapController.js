@@ -59,12 +59,15 @@ function MapController(mapTask, taskParam){
 	 * @instance
 	 */
 	this.pageOpened = function(){
+		$("#openlayers-map").html("<p class=\"center\" style=\"margin-top: 40px\">" + GeoCat.locale.get("map.loading", "Loading map") + "...</p>");
+
 		var notEmpty = function(val){
 			if(val == null){return false;}
 			return val != "";
 		}
 		var startOL = function(){
 			if(!startupCancelFlag){ // Verify that the user has not already left the page
+				$("#openlayers-map").html("");
 				if(mapTask == MapController.MapTask.GET_POSITION && notEmpty(taskParam.coords[0].lat) && notEmpty(taskParam.coords[0].lon)){
 					startOpenLayers(taskParam.coords[0].lat, taskParam.coords[0].lon, 16);
 				}

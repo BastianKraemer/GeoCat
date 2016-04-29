@@ -36,6 +36,7 @@
 ?>
 	<div data-role="page" id="ChallengeNavigator" data-theme="a">
 <?php self::printHeader("Challenge Navigator", "#ChallengeInfo", $locale, $session); ?>
+		<div id="challenge-nav-waiting"><span class="no-shadow"><?php $locale->write("challenge.navigator.waiting"); ?></span></div>
 		<div id="challenge-navigator-content" role="main" class="ui-content my-page">
 			<div class="gpsradar-container">
 				<canvas id="challenge-navigator-canvas" class="gpsradar"></canvas>

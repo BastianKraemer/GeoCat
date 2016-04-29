@@ -22,10 +22,21 @@
 		 */
 		function __construct($locale) {
 			if(strtolower($locale) == "de"){
-				$this->translations = json_decode(file_get_contents(__DIR__ . "/../locale/" . $locale . ".json"), true);
+				$this->loadLocale("de");
 			}
 			else{
+				$this->translations = array();
 				throw new InvalidArgumentException("Unsupported locale: " . $locale);
+			}
+		}
+
+		function loadLocale($locale){
+			$file = __DIR__ . "/../locale/" . $locale . ".json";
+			if(file_exists($file)){
+				$this->translations = json_decode(file_get_contents($file), true);
+			}
+			else{
+				$this->translations = array();
 			}
 		}
 

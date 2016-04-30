@@ -35,10 +35,15 @@ function Account () {
 		loadUserData();
 		$(userData.email + ", " + userData.username + ", " + userData.firstname + ", " + userData.lastname).click(handleClickOnField);
 		$(userData.password).click(handleClickOnPWBTN);
-    $(userData.deleteAccount).click(handleClickOnDelAcc);
+		$(userData.deleteAccount).click(handleClickOnDelAcc);
 		$(sendBTN.userdata).click(handleClickOnSubmit);
 		$(sendBTN.pwdata).click(handleClickOnSubmitPassword);
-    $(sendBTN.deleteAccount).click(handleClickOnSubmitPasswordDelete);
+		$(sendBTN.deleteAccount).click(handleClickOnSubmitPasswordDelete);
+		$(inputFields.deleteAccount).keyup(function(e){
+			if(e.keyCode == 13){
+				handleClickOnSubmitPasswordDelete();
+			}
+		});
 	}
 	else{
 		$.mobile.changePage("#Home");
@@ -46,8 +51,13 @@ function Account () {
   }
 
   this.onPageClosed = function(){
+	$(userData.email + ", " + userData.username + ", " + userData.firstname + ", " + userData.lastname).unbind();
+	$(userData.password).unbind();
+	$(userData.deleteAccount).unbind();
     $(sendBTN.userdata).unbind();
     $(sendBTN.pwdata).unbind();
+	$(sendBTN.deleteAccount).unbind();
+	$(inputFields.deleteAccount).unbind();
   }
 
   var loadUserData = function(){

@@ -162,6 +162,10 @@
 		}
 
 		public static function deleteAccount($dbh, $accountId){
+			require_once(__DIR__ . "/CoordinateManager.php");
+			require_once(__DIR__ . "/challenge/TeamManager.php");
+			require_once(__DIR__ . "/challenge/ChallengeManager.php");
+
 			$place_coordId = $currnav_coordId = $accinfo_coordId = $challcoord_coordId = array();
 			$place_coordId = DBTools::fetchAll($dbh, "SELECT coord_id FROM Place WHERE account_id = :accid", array(":accid" => $accountId), PDO::FETCH_ASSOC);
 			DBTools::query($dbh, "DELETE FROM Place WHERE account_id = :accid", array(":accid" => $accountId));
@@ -169,8 +173,14 @@
 			DBTools::query($dbh, "DELETE FROM Friends WHERE account_id = :accid OR friend_id = :accid", array(":accid" => $accountId));
 			$currnav_coordId = DBTools::fetchAll($dbh, "SELECT coord_id FROM CurrentNavigation WHERE account_id = :accid", array(":accid" => $accountId), PDO::FETCH_ASSOC);
 			DBTools::query($dbh, "DELETE FROM CurrentNavigation WHERE account_id = :accid", array(":accid" => $accountId));
-			DBTools::query($dbh, "DELETE FROM ChallengeMember WHERE account_id = :accid", array(":accid" => $accountId));
+
+			foreach(ChallengeManager::getChallengesOfUser($dbh, $accountId) as $userChallengeId){
+				$userTeamId = TeamManager::getTeamOfUser($dbh, $userChallengeId, $accountId);
+				TeamManager::leaveTeam($dbh, $userTeamId, $accountId);
+			}
+
 			$accinfo_coordId = DBTools::fetchAll($dbh, "SELECT my_position FROM AccountInformation WHERE account_id = :accid", array(":accid" => $accountId), PDO::FETCH_ASSOC);
+
 			DBTools::query($dbh, "DELETE FROM AccountInformation WHERE account_id = :accid", array(":accid" => $accountId));
 			$challengeId = DBTools::fetchAll($dbh, "SELECT challenge_id FROM Challenge WHERE owner = :accid", array(":accid" => $accountId), PDO::FETCH_ASSOC);
 			if(!empty($challengeId)){
@@ -201,7 +211,9 @@
 			if(!empty($coordId)){
 				foreach ($coordId as $index => $array) {
 					foreach ($array as $key => $coord) {
-						DBTools::query($dbh, "DELETE FROM Coordinate WHERE coord_id = $coord");
+						if($coord != null){
+							CoordinateManager::tryToRemoveCooridate($dbh, $coord);
+						}
 					}
 				}
 			}

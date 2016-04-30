@@ -18,9 +18,10 @@
 		along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	*/
 
-	/**
-	 * File AccountManager.php
-	 */
+/**
+ * File AccountManager.php
+ * @package app
+ */
 
 	require_once(__DIR__ . "/DBTools.php");
 
@@ -185,44 +186,82 @@
 			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
 			return $result[0]["username"];
 		}
-		
+
+		/**
+		 * Checks if a username is already in use
+		 * @param PDO $dbh Database handler
+		 * @param string $username The username
+		 * @boolean
+		 */
 		public static function isUsernameInUse($dbh, $username){
 			$result = DBTools::fetchAll($dbh, "SELECT account_id FROM " . self::TABLE_ACCOUNT . " WHERE username = :user", array(":user" => $username));
 			if(empty($result)){
-				return false; 
+				return false;
 			}
-			return true; 
+			return true;
 		}
-		
+
+		/**
+		 * Set new username for an account
+		 * @param PDO $dbh Database handler
+		 * @param integer $accountId The account id
+		 * @param string $username The account username
+		 */
 		public static function setNewUsernameForAccountId($dbh, $accountId, $username){
 			$result = DBTools::query($dbh, "UPDATE Account SET username = :username WHERE account_id = :accid", array(":username" => $username, ":accid" => $accountId));
-			return $result; 
+			return $result;
 		}
-		
+
+		/**
+		 * Returns the email adress of an user
+		 * @param PDO $dbh Database handler
+		 * @param integer $accountId The account id
+		 * @return string The email-adress of a user
+		 */
 		public static function getEmailAdressByAccountId($dbh, $accountId){
 			$result = DBTools::fetchAll($dbh, "SELECT email FROM Account WHERE account_id = :accid", array(":accid" => $accountId));
 			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
-			return $result[0]['email']; 
+			return $result[0]['email'];
 		}
-		
+
+		/**
+		 * Sets a new email adress for an account
+		 * @param PDO $dbh Database handler
+		 * @param integer $accountId the account id
+		 * @param string $email he new email address
+		 * @return integer The result of the SQL query
+		 */
 		public static function setNewEmailAdressForAccountId($dbh, $accountId, $email){
 			$result = DBTools::query($dbh, "UPDATE Account SET email = :email WHERE account_id = :accid", array(":email" => $email, ":accid" => $accountId));
-			return $result; 
+			return $result;
 		}
-		
+
+		/**
+		 * Returns the 'real' name of an user
+		 * @param PDO $dbh Database handler
+		 * @param integer $accountId
+		 * @return string the real name
+		 */
 		public static function getRealNameByAccountId($dbh, $accountId){
 			$result = DBTools::fetchAll($dbh, "SELECT lastname, firstname FROM Accountinformation WHERE account_id = :accid", array(":accid" => $accountId));
 			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
-			return $result[0]; 
+			return $result[0];
 		}
-		
+
+		/**
+		 * Set a new 'real' name of an user
+		 * @param PDO $dbh Database handler
+		 * @param integer $accountId
+		 * @param string $newVal Value for the database row
+		 * @param string $column Name of the database column
+		 */
 		public static function setRealNameByAccountId($dbh, $accountId, $newVal, $column){
 			$result = DBTools::query($dbh, "UPDATE Accountinformation SET $column = :newval WHERE account_id = :accid", array(":newval" => $newVal, ":accid" => $accountId));
 			return $result;
 		}
 
 		/**
-		 * add buddy to account
+		 * Add buddy to account
 		 * @param PDO $dbh Database handler
 		 * @param string $myAccId
 		 * @param string $buddyAccId
@@ -234,7 +273,7 @@
 		}
 
 		/**
-		 * remove buddy from account
+		 * Remove buddy from account
 		 * @param PDO $dbh Database handler
 		 * @param string $myAccId
 		 * @param string $buddyAccId
@@ -246,7 +285,7 @@
 		}
 
 		/**
-		 * get buddy list from account
+		 * Get buddy list from account
 		 * @param PDO $dbh Database handler
 		 * @param string $myAccId
 		 */
@@ -259,6 +298,12 @@
 			return $result;
 		}
 
+		/**
+		 * Returns a list of accounts which added a specific account as buddy
+		 * @param PDO $dbh Database handler
+		 * @param integer $myAccId
+		 * @return array
+		 */
 		public static function getAccountsWhichAddedMeAsFriend($dbh, $myAccId){
 			$res = DBTools::fetchAll($dbh,	"SELECT Friends.account_id, Account.username, AccountInformation.firstname, AccountInformation.lastname, " .
 											"AccountInformation.my_position_timestamp AS pos_timestamp " .
@@ -268,12 +313,25 @@
 			return $res;
 		}
 
+		/**
+		 * Checks if a user added another user as buddy
+		 * @param PDO $dbh Database handler
+		 * @param integer $buddy The account id of the buddy
+		 * @param integer $ofAccount the account id od the user who has '$buddy' as buddy
+		 * @return boolean
+		 */
 		public static function isFriendOf($dbh, $buddy, $ofAccount){
 			$result = DBTools::fetchAll($dbh, "SELECT Friends.friend_id FROM Friends WHERE Friends.account_id = :accId AND Friends.friend_id = :buddyId",
 										array("buddyId" => $buddy, "accId" => $ofAccount), PDO::FETCH_ASSOC);
 			return !empty($result);
 		}
 
+		/**
+		 * Returns detailed information of the buddies of an account and possible friend requests
+		 * @param PDO $dbh Database handler
+		 * @param integer $myAccId the account id
+		 * @return array
+		 */
 		public static function getBuddyInformation($dbh, $myAccId){
 			$list = self::getBuddyList($dbh, $myAccId);
 			$others = self::getAccountsWhichAddedMeAsFriend($dbh, $myAccId);
@@ -296,14 +354,31 @@
 			return array("buddies" => $list, "requests" => $buddyReq);
 		}
 
+		/**
+		 * Links the position of a user with a coordinate
+		 * @param PDO $dbh Database handler
+		 * @param integer $myAccId The account id
+		 * @param integer $coordId The coordinate id
+		 */
 		public static function updateMyPosition($dbh, $myAccId, $coordId){
 			DBTools::query($dbh, "UPDATE AccountInformation SET my_position = :coordid WHERE account_id = :accid", array(":coordid" => $coordId, ":accid" => $myAccId));
 		}
 
+		/**
+		 * Updates the timestamp of a user position
+		 * @see self::updateMyPosition()
+		 * @param PDO $dbh Database handler
+		 * @param intger $myAccId The account id
+		 */
 		public static function updateTimestamp($dbh, $myAccId){
 			DBTools::query($dbh, "UPDATE AccountInformation SET my_position_timestamp = CURRENT_TIMESTAMP WHERE account_id = :accid", array(":accid" => $myAccId));
 		}
 
+		/**
+		 * Returns the coordinate id that has been assigned to an account
+		 * @param PDO $dbh Database handler
+		 * @param integer $myAccId The account id
+		 */
 		public static function getMyPosition($dbh, $myAccId){
 			$result = DBTools::fetchAll($dbh,
 																	"SELECT AccountInformation.my_position " .
@@ -313,6 +388,12 @@
 			if(empty($result) || count($result) > 1){ return -1; } else { return $result[0]['my_position']; }
 		}
 
+		/**
+		 * Removes the position information from an account
+		 * @param PDO $dbh Database handler
+		 * @param integer $accountId Zhe account id
+		 * @return boolean <code>true</code> if the position has been cleared, <code>false</code> if no position has been assigned to the accoount
+		 */
 		public static function clearPosition($dbh, $accountId){
 
 			$coordId = self::getMyPosition($dbh, $accountId);
@@ -327,6 +408,12 @@
 			return ($coordId > 0);
 		}
 
+		/**
+		 * Finds a buddy
+		 * @param PDO $dbh Database handler
+		 * @param string $searchtext
+		 * @return array The matched serach results
+		 */
 		public static function find_buddy($dbh, $searchtext){
 			// Note: dbType is a workaround:
 			require_once(__DIR__ . "/GeoCat.php");
@@ -340,14 +427,6 @@
 																	"OR AccountInformation.lastname ". $likeStm . " :text ",
 																	array(":text" => $searchtext), PDO::FETCH_ASSOC);
 			return $result;
-		}
-
-		public static function check_buddy($dbh, $myAccId, $buddyAccId){
-			$result = DBTools::fetchAll($dbh,
-																"SELECT * FROM Friends " .
-																"WHERE account_id = :myaccid AND friend_id = :buddyaccid",
-																array(":myaccid" => $myAccId, ":buddyaccid" => $buddyAccId), PDO::FETCH_ASSOC);
-			return (!empty($result) ? true : false);
 		}
 
 		/**
@@ -382,11 +461,17 @@
 			if(empty($result) || count($result) != 1){return -1;}
 			return (self::getPBKDF2Hash($password, base64_decode($result[0]["salt"]))[0] == $result[0]["password"] ? 1 : 0);
 		}
-		
+
+		/**
+		 * Sets a new password for an account
+		 * @param PDO $dbh Database handler
+		 * @param integer $accountid The user's account id
+		 * @param string $newPassword The new password
+		 */
 		public static function setNewPassword($dbh, $accountid, $newPassword){
 			$hash = self::getPBKDF2Hash($newPassword);
 			$result = DBTools::query($dbh, "UPDATE Account SET password = :pw, salt = :salt WHERE account_id = :accid", array(":pw" => $hash[0], ":salt" => $hash[1], ":accid" => $accountid));
-			return $result; 
+			return $result;
 		}
 
 		/**

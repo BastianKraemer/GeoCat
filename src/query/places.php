@@ -31,7 +31,7 @@
 	/**
 	 * This class provides an interface to the CoordinateManager
 	 *
-	 * To interact wih this class you have to send a HTTP request with one ore more parameters which will be mapped to the CoordinateManager
+	 * To interact wih this class you have to send a HTTP request to '/query/places.php' with one ore more parameters which will be mapped to the CoordinateManager
 	 * @link CoordinateManager.html CoordinateManager
 	 */
 	class PlacesHTTPRequestHandler extends RequestInterface {

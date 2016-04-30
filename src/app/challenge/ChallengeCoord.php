@@ -1,9 +1,28 @@
 <?php
 
+/**
+ * GeoCat challenge coordinate manager
+ * @package app.challenge
+ */
+
 	require_once(__DIR__ . "/../DBTools.php");
 
+	/**
+	 * This class handles the interaction with challenge coordinates (caches)
+	 */
 	class ChallengeCoord {
 
+		/**
+		 * Create a new challenge coordinate (respectively cache)
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeId The challenge id
+		 * @param integer $coordId The coordinate id
+		 * @param integer $priority The priority of this chache
+		 * @param string $hint The cache hint
+		 * @param string $code The codeword of this cache
+		 * @throws InvalidArgumentException if a parameter has an invalid value
+		 * @throws Exception if the database returns an error
+		 */
 		public static function create($dbh, $challengeId, $coordId, $priority, $hint, $code){
 
 			require_once(__DIR__ . "/../CoordinateManager.php");
@@ -55,27 +74,61 @@
 			}
 		}
 
+		/**
+		 * Returns the challenge that is assigned to this challenge coordinate
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeCoordId
+		 * @return integer the challenge id
+		 */
 		public static function getChallengeOfCoordinate($dbh, $challengeCoordId){
 			$res = DBTools::fetchNum($dbh, "SELECT challenge_id FROM ChallengeCoord WHERE challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
 			return $res ? $res[0] : -1;
 		}
 
+		/**
+		 * Return the coordinate id of a cache
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeCoordId
+		 * @return integer The coordinate id or <code>-1</code> if there is no cache with this id
+		 */
 		public static function getCoordinate($dbh, $challengeCoordId){
 			$res = DBTools::fetchNum($dbh, "SELECT coord_id FROM ChallengeCoord WHERE challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
 
 			return $res ? $res[0] : -1;
 		}
 
+		/**
+		 * Counts the coordinates of a challenge
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeId The challenge id
+		 * @param boolean $onlyWithPriority0 If set, this function returns <code>1</code> if there is already a start point defined, false if not
+		 * @return mixed
+		 */
 		public static function countCoordsOfChallenge($dbh, $challengeId, $onlyWithPriority0){
 			$res = DBTools::fetchNum($dbh,	"SELECT COUNT(coord_id) FROM ChallengeCoord " .
 											"WHERE challenge_id = :cid" . ($onlyWithPriority0 ? " AND priority = 0" : ""), array("cid" => $challengeId));
 			return $res[0];
 		}
 
+		/**
+		 * Returns the start point of a challenge
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeId The challenge id
+		 * @return integer The challenge_coord_id of teh challenge start point
+		 */
 		public static function getPriority0Coord($dbh, $challengeId){
 			return DBTools::fetchNum($dbh, "SELECT challenge_coord_id FROM ChallengeCoord WHERE challenge_id = :cid AND priority = 0 LIMIT 1", array("cid" => $challengeId));
 		}
 
+		/**
+		 * Updates the data of a cache
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeCoordId
+		 * @param integer $priority
+		 * @param string $hint
+		 * @param string $code
+		 * @throws Exception if the database returns an error
+		 */
 		public static function update($dbh, $challengeCoordId, $priority, $hint, $code){
 			$res = DBTools::query($dbh, "UPDATE ChallengeCoord " .
 										"SET priority = :priority, hint = :hint, code = :code " .
@@ -88,6 +141,12 @@
 			}
 		}
 
+		/**
+		 * Remove a cache from a challenge
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeCoordId The id of the cache
+		 * @throws Exception if the database returns an error
+		 */
 		public static function remove($dbh, $challengeCoordId){
 
 			$coordId = self::getCoordinate($dbh, $challengeCoordId);
@@ -103,6 +162,12 @@
 			}
 		}
 
+		/**
+		 * Remove all caches of a challenge
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeId The challenge id
+		 * @throws Exception if the database returns an error
+		 */
 		public static function removeByChallenge($dbh, $challengeId){
 
 			$coords = ChallengeManager::getChallengeCoordinates($dbh, $challengeId);
@@ -123,6 +188,12 @@
 			}
 		}
 
+		/**
+		 * Set a cache as captured (this is part of 'Capture the Flag' challenge)
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeCoordId The cache id
+		 * @param integer $teamId The id of the team that has captured this cache
+		 */
 		public static function capture($dbh, $challengeCoordId, $teamId){
 
 			$res = DBTools::query($dbh, "UPDATE ChallengeCoord " .
@@ -132,6 +203,12 @@
 									array("team" => $teamId, "ccid" => $challengeCoordId));
 		}
 
+		/**
+		 * Checks if cache has been captured by a team
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeCoordId The cache id
+		 * @return integer <code>1</code> if the cache has been captured, <code>0</code> if not
+		 */
 		public static function isCaptured($dbh, $challengeCoordId){
 
 			$res = DBTools::fetchNum($dbh,	"SELECT ChallengeCoord.captured_by " .
@@ -147,6 +224,12 @@
 			}
 		}
 
+		/**
+		 * Returns the timestamp of the capture event
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeCoordId The cache id
+		 * @return The timestamp or <code>null</code> if there is no cache with this id
+		 */
 		public static function getCaptureTime($dbh, $challengeCoordId){
 
 			$res = DBTools::fetchNum($dbh,	"SELECT ChallengeCoord.capture_time " .
@@ -161,6 +244,11 @@
 			}
 		}
 
+		/**
+		 * Resets the capture state of all caches of a challenge
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeId The challenge id
+		 */
 		public static function resetCaptureFlag($dbh, $challengeId){
 
 			DBTools::query($dbh, "UPDATE ChallengeCoord " .
@@ -168,11 +256,24 @@
 								 array("cid" => $challengeId));
 		}
 
+		/**
+		 * Checks if a cache needs a code to be captured/set as reached
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeCoordId The cache id
+		 * @return boolean
+		 */
 		public static function hasCode($dbh, $challengeCoordId){
 			$res = DBTools::fetchNum($dbh, "SELECT code FROM ChallengeCoord WHERE code IS NOT NULL AND challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
 			return $res[0] == 1;
 		}
 
+		/**
+		 * Checks if a code matches with the code of the cache
+		 * @param PDO $dbh Database handler
+		 * @param integer $challengeCoordId The cache id
+		 * @param string $code The code for this cache
+		 * @return boolean
+		 */
 		public static function checkCode($dbh, $challengeCoordId, $code){
 			$res = DBTools::fetchNum($dbh, "SELECT code FROM ChallengeCoord WHERE challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
 

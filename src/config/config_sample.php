@@ -1,4 +1,8 @@
 <?php
+/**
+ * Sample configuration file for GeoCat
+ */
+
 	return [
 			"app.name" => "GeoCat",
 

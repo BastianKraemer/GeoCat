@@ -12,19 +12,48 @@ require_once(__DIR__ . "/../app/AccountManager.php");
 require_once(__DIR__ . "/../app/SessionManager.php");
 require_once(__DIR__ . "/../app/JSONLocale.php");
 
-class Login extends RequestInterface {
+/**
+ * This class provides an REST interface to sign in into GeoCat
+ *
+ * To interact wih this class you have to send a HTTP request to '/query/login.php'
+ */
+class LoginHTTPRequestHandler extends RequestInterface {
 
+	/**
+	 * Database handler
+	 * @var PDO
+	 */
     private $dbh;
 
+    /**
+     * Create a LoginHTTPRequestHandler instance
+     * @param String[] HTTP parameters (most likely those of $_POST)
+     * @param PDO $dbh Database handler
+     */
     public function __construct($parameters, $dbh){
         parent::__construct($parameters, JSONLocale::withBrowserLanguage());
         $this->dbh = $dbh;
     }
 
+    /**
+     * Handles the request by using the value from the 'task' parameter
+     */
     public function handleRequest(){
         $this->handleAndSendResponseByArgsKey("task");
     }
 
+    /**
+     * Task: 'login'
+     *
+     * Login into GeoCat using your username and your password
+     *
+     * Required HTTP parameters:
+     * - <b>user</b>
+     * - <b>password</b>
+     *
+     * Optional parameters:
+     * - <b>keep_signed_in</b> Create a token to keep signed in across multiple sessions
+     */
     protected function login(){
         $this->requireParameters(array(
 			"user" => self::defaultTextRegEx(1, 64),
@@ -52,6 +81,11 @@ class Login extends RequestInterface {
         return self::buildResponse(false);
     }
 
+    /**
+     * Task: 'login_cookie'
+     *
+     * Login to GeoCat using your "keep_signed_in" token
+     */
     protected function login_cookie(){
         $session = new SessionManager();
         if($session->verifyCookie($this->dbh, $this->args['cookie'])){
@@ -60,6 +94,11 @@ class Login extends RequestInterface {
         return self::buildResponse(false);
     }
 
+    /**
+     * Task: 'logout'
+     *
+     * Logout from GeoCat. To delete your "keep_signed_in" token as well, sign in WITHOUT the "keep_signed_in" again.
+     */
 	protected function logout(){
 		$session = $this->requireLogin();
 		$session->logout();
@@ -67,7 +106,7 @@ class Login extends RequestInterface {
 	}
 }
 
-$loginHandler = new Login($_REQUEST, DBTools::connectToDatabase());
+$loginHandler = new LoginHTTPRequestHandler($_POST, DBTools::connectToDatabase());
 $loginHandler->handleRequest();
 
 ?>

@@ -19,9 +19,25 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * GeoCat ChallengeStat handler
+ * @package app.challenge
+ */
+
 require_once(__DIR__ . "/../DBTools.php");
 
+/**
+ * This class handles the interaction with challenge statistics
+ */
 class ChallengeStats {
+
+	/**
+	 * Calculate the stats for a team
+	 * @param PDO $dbh Database handler
+	 * @param integer $challengeId
+	 * @param integer $teamId
+	 * @return The total time needed to finish the challenge
+	 */
 	public static function calculateStats($dbh, $challengeId, $teamId){
 
 		require_once(__DIR__ . "/ChallengeCoord.php");
@@ -79,6 +95,12 @@ class ChallengeStats {
 		}
 	}
 
+	/**
+	 * Get the stats of a challenge
+	 * @param PDO $dbh Database handler
+	 * @param integer $challengeId
+	 * @return array The ranking as orderd list with team name and the needed time
+	 */
 	public static function getStats($dbh, $challengeId){
 		if(self::isCTFChallenge($dbh, $challengeId)){
 			require_once(__DIR__ . "/ChallengeManager.php");
@@ -127,6 +149,11 @@ class ChallengeStats {
 		}
 	}
 
+	/**
+	 * Checks if the challenge is a 'Capture the Flag' challenge
+	 * @param PDO $dbh Database handler
+	 * @param integer $challengeId
+	 */
 	private static function isCTFChallenge($dbh, $challengeId){
 		$res = DBTools::fetchAssoc($dbh,"SELECT Challenge.challenge_type_id AS type_id, ChallengeType.acronym AS type " .
 										"FROM Challenge, Account, ChallengeType " .

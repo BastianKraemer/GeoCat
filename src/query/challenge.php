@@ -32,7 +32,7 @@
 	/**
 	 * This class provides an REST interface to interact with challenges
 	 *
-	 * To interact wih this class you have to send a HTTP request to this file
+	 * To interact wih this class you have to send a HTTP request to '/query/challenges.php'
 	 */
 	class ChallengeHTTPRequestHandler extends RequestInterface {
 

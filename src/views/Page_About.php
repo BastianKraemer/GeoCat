@@ -1,12 +1,15 @@
 <?php
-	/**
-	 * PHP file for the map
-	 * @package views
-	 */
+/**
+ * File for the GeoCat about page
+ * @package views
+ */
 	namespace views;
 
 	require_once(__DIR__ . "/../app/pages/GeoCatPage.php");
 
+	/**
+	 * GeoCat about page
+	 */
 	class Page_About extends \GeoCatPage {
 
 		/**

@@ -5,6 +5,9 @@
  * @package app
  */
 
+/**
+ * This class contains GeoCat version information and provides access to the GeoCat configuration
+ */
 class GeoCat{
 
 	/**

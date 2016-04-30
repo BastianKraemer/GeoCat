@@ -31,7 +31,7 @@
 
 	/**
 	 * This class provides an interface to create new accounts.
-	 * Therefore you have to send HTTP post requests to this file.
+	 * Therefore you have to send HTTP post requests to '/query/account.php'.
 	 * A valid request could look like this:
 	 *
 	 * <code>account.php?task=check&username=[username]&email=[email]"}</code>
@@ -148,6 +148,13 @@
 			return $this->checkOrCreateAccount(false);
 		}
 
+		/**
+		 * Task: 'getUserData'
+		 *
+		 * Returns your current account details
+		 *
+		 * You have to be signed in to use this service
+		 */
 		protected function getUserData(){
 			$session = new SessionManager();
 			if($session->isSignedIn()){
@@ -163,6 +170,17 @@
 			}
 		}
 
+		/**
+		 * Task: 'updateUserData'
+		 *
+		 * Creates a new GeoCat account using the request data
+		 *
+		 * You have to be signed in to use this service
+		 *
+		 *  Required HTTP parameters for 'updateUserData':
+		 * - <b>id</b>: This can be "acc-email", "acc-username", "acc-firstname" or "acc-lastname"
+		 * - <b>text</b> : The value for the selected account detail
+		 */
 		protected function updateUserData(){
 			$newVal = $this->args['text'];
 			$oldVal = "";
@@ -255,6 +273,17 @@
 			return self::buildResponse($response, array("msg" => $message));
 		}
 
+		/**
+		 * Task: 'changePassword'
+		 *
+		 * Update the password of your GeoCat account
+		 *
+		 * You have to be signed in to use this service
+		 *
+		 *  Required HTTP parameters for 'updateUserData':
+		 * - <b>oldpw</b>: Old password
+		 * - <b>newpw</b>: New password
+		 */
 		protected function changePassword(){
 			$session = new SessionManager();
 			$oldPassword = $this->args['oldpw'];

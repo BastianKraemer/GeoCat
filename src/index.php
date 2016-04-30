@@ -1,15 +1,26 @@
 <?php
+/**
+ * index.php - Startpage of GeoCat
+ */
 
-	/**
-	 * index.php - Startpage of GeoCat
-	 */
-
+/**
+ * This php code will build the whole application based on all views
+ */
 	require_once(__DIR__ . "/app/GeoCat.php");
 	require_once(__DIR__ . "/app/JSONLocale.php");
 	require_once(__DIR__ . "/app/SessionManager.php");
 	require_once(__DIR__ . "/app/pages/GeoCatPage.php");
 
+	/**
+	 * The locale for GeoCat
+	 * @var JSONLocale
+	 */
 	$locale = JSONLocale::withBrowserLanguage();
+
+	/**
+	 * The current GeoCat session
+	 * @var SessionManager
+	 */
 	$session = new SessionManager();
 
 	require_once(__DIR__ . "/views/Page_Home.php");

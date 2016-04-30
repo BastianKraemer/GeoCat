@@ -7,6 +7,9 @@
 
 	require_once(__DIR__ . "/../app/pages/GeoCatPage.php");
 
+	/**
+	 * GeoCat map page
+	 */
 	class Page_Map extends \GeoCatPage {
 
 		/**

@@ -1,8 +1,8 @@
 <?php
-	/**
-	 * File JSONLocale.php
-	 * @package app
-	 */
+/**
+ * File JSONLocale.php
+ * @package app
+ */
 
 	/**
 	 * This class can be used to localize the application. The list of all translations is stored in a JSON file.
@@ -30,6 +30,10 @@
 			}
 		}
 
+		/**
+		 * Loads the translations from a JSON file
+		 * @param string $locale
+		 */
 		function loadLocale($locale){
 			$file = __DIR__ . "/../locale/" . $locale . ".json";
 			if(file_exists($file)){

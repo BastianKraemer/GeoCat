@@ -1,14 +1,27 @@
 <?php
+/**
+ * GeoCat Testpage
+ */
 
+/**
+ * The following lines allows you to display the checkpage in your browser
+ */
 require_once __DIR__ . "/../GeoCat.php";
 $output = array_key_exists("argv", $GLOBALS) ? CheckPage::OUTPUT_TEXT : CheckPage::OUTPUT_HTML;
 CheckPage::runCheck($output);
 
+/**
+ * Perform some checks to verify your GeoCat installation
+ */
 class CheckPage {
 
 	const OUTPUT_TEXT = 0;
 	const OUTPUT_HTML = 1;
 
+	/**
+	 * Run the check of your installation and print out the result
+	 * @param mixed $output_type The output type: Possible values: CheckPage::OUTPUT_TEXT or CheckPage::OUTPUT_HTML
+	 */
 	public static function runCheck($output_type = self::OUTPUT_TEXT){
 		$result = self::performCheck(GeoCat::getConfig());
 
@@ -55,6 +68,11 @@ class CheckPage {
 		}
 	}
 
+	/**
+	 * Run the check of your installation
+	 * @param array $config
+	 * @return CheckResult[]
+	 */
 	public static function performCheck($config){
 		$checkResult = array();
 
@@ -65,6 +83,11 @@ class CheckPage {
 		return $checkResult;
 	}
 
+	/**
+	 * Check GeoCat configuration
+	 * @param array $config
+	 * @return CheckResult The result of the check
+	 */
 	public static function checkConfig($config){
 
 		$checkList = array(
@@ -94,6 +117,13 @@ class CheckPage {
 		return new CheckResult($returnState, $msg);
 	}
 
+	/**
+	 * Check a signle configuration parameter
+	 * @param array $config Current GeoCat configuration
+	 * @param string $key Configuration key
+	 * @param string $regExPattern (Optional) RegEx pattern for the value check
+	 * @return CheckResult The result of the check
+	 */
 	private static function checkConfigParam($config, $key, $regExPattern = null){
 		if(array_key_exists($key, $config)){
 			if($regExPattern != null){
@@ -108,6 +138,10 @@ class CheckPage {
 		}
 	}
 
+	/**
+	 * Run a database check
+	 * @return CheckResult The result of the check
+	 */
 	public static function databaseCheck(){
 		require_once __DIR__ . "/../DBTools.php";
 		$dbh;
@@ -137,6 +171,10 @@ class CheckPage {
 		}
 	}
 
+	/**
+	 * Check that all required phpModules are available
+	 * @return CheckResult The result of the check
+	 */
 	private static function phpModuleCheck(){
 		require_once __DIR__ . "/../AccountManager.php";
 		try{
@@ -149,27 +187,58 @@ class CheckPage {
 	}
 }
 
+/**
+ * This class represents the result of a test
+ */
 class CheckResult {
 	const FAILED = 0;
 	const WARNING = -1;
 	const OK = 1;
 
-	public $result;
-	public $msg;
+	/**
+	 * The test result: Can be CheckResult::OK, CheckResult::WARNING or CheckResult::FAILED
+	 * @var mixed
+	 */
+	public final $result;
 
+	/**
+	 * An optional message (this value my be null)
+	 * @var string
+	 */
+	public final $msg;
+
+	/**
+	 * Create a new CheckResult
+	 * @param mixed $state The check result: Can be CheckResult::OK, CheckResult::WARNING or CheckResult::FAILED
+	 * @param string $msg AN optional message
+	 */
 	public function __construct($state, $msg){
 		$this->result = $state;
 		$this->msg = $msg;
 	}
 
+	/**
+	 * Creates a SUCESS result
+	 * @return CheckResult
+	 */
 	public static function success(){
 		return new CheckResult(CheckResult::OK, null);
 	}
 
+	/**
+	 * Creates a FAILED result
+	 * @param string $msg (optional) message
+	 * @return CheckResult
+	 */
 	public static function failed($msg = null){
 		return new CheckResult(CheckResult::FAILED, $msg);
 	}
 
+	/**
+	 * Creates a WARNING result
+	 * @param string $msg (optional) message´
+	 * @return CheckResult
+	 */
 	public static function warning($msg = null){
 		return new CheckResult(CheckResult::WARNING, $msg);
 	}

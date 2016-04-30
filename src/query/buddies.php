@@ -13,19 +13,48 @@ require_once(__DIR__ . "/../app/SessionManager.php");
 require_once(__DIR__ . "/../app/CoordinateManager.php");
 require_once(__DIR__ . "/../app/JSONLocale.php");
 
+/**
+ * This class provides an REST interface to add and remove buddies
+ *
+ * To interact wih this class you have to send a HTTP request '/query/buddies.php'
+ *
+ * Note: You have to be signed in for every interaction with this service.
+ */
 class BuddyHTTPRequestHandler extends RequestInterface {
 
+	/**
+	 * Database handler
+	 * @var PDO
+	 */
     private $dbh;
 
+    /**
+     * Create a BuddyHTTPRequestHandler instance
+     * @param String[] HTTP parameters (most likely those of $_POST)
+     * @param PDO $dbh Database handler
+     */
     public function __construct($parameters, $dbh){
         parent::__construct($parameters, JSONLocale::withBrowserLanguage());
         $this->dbh = $dbh;
     }
 
+    /**
+     * Handles the request by using the value from the 'task' parameter
+     */
     public function handleRequest(){
         $this->handleAndSendResponseByArgsKey("task");
     }
 
+    /**
+     * Task: 'add_buddy'
+     *
+     * Add a buddy to your account.
+     *
+     * You have to be signed in to use this feature.
+     *
+     * Required HTTP parameters:
+     * - <b>username</b>
+     */
     protected function add_buddy(){
       $this->requireParameters(array(
         "username" => null
@@ -47,6 +76,16 @@ class BuddyHTTPRequestHandler extends RequestInterface {
       return self::buildResponse(false, array("msg" => $this->locale->get("buddies.InvalidUsername")));
     }
 
+    /**
+     * Task: 'remove_buddy'
+     *
+     * Remove a buddy from your account.
+     *
+     * You have to be signed in to use this feature.
+     *
+     * Required HTTP parameters:
+     * - <b>username</b>
+     */
     protected function remove_buddy(){
       $this->requireParameters(array(
         "username" => null
@@ -76,10 +115,13 @@ class BuddyHTTPRequestHandler extends RequestInterface {
 	}
 
   /**
-   * updates accountinformation with geoposition of user
-   * @param float lat   geoposition latitude
-   * @param float long  geoposition longitude
-   * @return bool       true if update was successful
+   * Task: 'upload_position'
+   *
+   * Update your Account Information with your current GPS position
+   *
+   * Required HTTP parameters:
+   * - <b>lat</b> Your latitude
+   * - <b>lon</b> Your longitude
    */
   protected function upload_position(){
     $session = self::requireLogin();
@@ -120,16 +162,18 @@ class BuddyHTTPRequestHandler extends RequestInterface {
 		return self::buildResponse(true, array("msg" => $this->locale->get($status == 1 ? "tracking.cleared" : "tracking.already_cleared")));
 	}
 
-  /**
-   * returns coordinates of current user's friends
-   * complete list of data (=index):
-   *  - name            username
-   *  - desc            descripton of position
-   *  - lat             latitude value
-   *  - lon             longitude value
-   *  - timestamp   timestamp of position
-   * @return array $coordsList with latest available data
-   */
+	/**
+	 * Task: 'get_buddy_positions'
+	 *
+	 * Receive the GPS positions of your buddies
+	 *
+	 * List of the respone data (=index):
+	 * - name            username
+	 * - desc            descripton of position
+	 * - lat             latitude value
+	 * - lon             longitude value
+	 * - timestamp   timestamp of position
+	 */
   protected function get_buddy_positions(){
     $session = self::requireLogin();
     $buddylist = AccountManager::getBuddyList($this->dbh, $session->getAccountId());
@@ -154,13 +198,18 @@ class BuddyHTTPRequestHandler extends RequestInterface {
   }
 
   /**
+   * Task: 'search_buddy'
+   *
+   * Search for buddies
+   *
    * method to search for username, firstname or lastname by a specific search text
    * searching options:
    * - asterisk at beginning or end means 'zero or more unknown characters'
    * - asterisk within a string means 'one unknown character'
-   * @param String  searchtext      search pattern
-   * @return array $result which contains username and flag 'isFriend' (bool) which tells if
-   * a user is a friend of current user
+   *
+   * Response:
+   * The response which contains the username and a flag 'isFriend' (bool) which tells if
+   * a user is a friend of the current user
    */
   protected function search_buddy(){
     $session = self::requireLogin();
@@ -197,7 +246,9 @@ class BuddyHTTPRequestHandler extends RequestInterface {
         unset($result[$user]);
         continue;
       }
-      $isFriend = AccountManager::check_buddy($this->dbh, $session->getAccountId(), AccountManager::getAccountIdByUserName($this->dbh, $result[$user]['username']));
+
+      $isFriend = AccountManager::isFriendOf($this->dbh, AccountManager::getAccountIdByUserName($this->dbh, $result[$user]['username']), $session->getAccountId());
+
       $result[$user]['isFriend'] = $isFriend;
     }
     $result = array_values($result);

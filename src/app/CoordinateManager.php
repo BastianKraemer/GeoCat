@@ -18,6 +18,11 @@
 	 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	 */
 
+/**
+ * GeoCat CoordinateManager
+ * @package app
+ */
+
 	require_once(__DIR__ . "/DBTools.php");
 	require_once(__DIR__ . "/AccountManager.php");
 
@@ -655,8 +660,8 @@
 		 * @param double $longitude
 		 * @param string $description
 		 */
-		public function __construct($coordinteId, $coordinateName, $latitude, $longitude, $description){
-			$this->coord_id = $coordinteId;
+		public function __construct($coordinateId, $coordinateName, $latitude, $longitude, $description){
+			$this->coord_id = $coordinateId;
 			$this->name = $coordinateName;
 			$this->desc = $description;
 			$this->lat = $latitude;

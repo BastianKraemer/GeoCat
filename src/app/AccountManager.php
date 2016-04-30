@@ -243,7 +243,7 @@
 		 * @return string the real name
 		 */
 		public static function getRealNameByAccountId($dbh, $accountId){
-			$result = DBTools::fetchAll($dbh, "SELECT lastname, firstname FROM Accountinformation WHERE account_id = :accid", array(":accid" => $accountId));
+			$result = DBTools::fetchAll($dbh, "SELECT lastname, firstname FROM AccountInformation WHERE account_id = :accid", array(":accid" => $accountId));
 			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
 			return $result[0];
 		}
@@ -256,7 +256,7 @@
 		 * @param string $column Name of the database column
 		 */
 		public static function setRealNameByAccountId($dbh, $accountId, $newVal, $column){
-			$result = DBTools::query($dbh, "UPDATE Accountinformation SET $column = :newval WHERE account_id = :accid", array(":newval" => $newVal, ":accid" => $accountId));
+			$result = DBTools::query($dbh, "UPDATE AccountInformation SET $column = :newval WHERE account_id = :accid", array(":newval" => $newVal, ":accid" => $accountId));
 			return $result;
 		}
 

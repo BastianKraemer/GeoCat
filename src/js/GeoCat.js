@@ -41,6 +41,9 @@ GeoCat.localCoordStore = null;
 GeoCat.uplink = null;
 GeoCat.gpsTracker = null;
 
+GeoCat.imprintHref = null;
+GeoCat.privacyPolicHref = null;
+
 /**
  * Initializes the static values
  *
@@ -49,9 +52,12 @@ GeoCat.gpsTracker = null;
  * @memberOf GeoCat
  * @static
  */
-GeoCat.init = function(language){
+GeoCat.init = function(language, imprintPath, privacyPolicyPath){
 	GeoCat.locale = new JSONLocale(language);
 	AboutController.language = language;
+
+	GeoCat.imprintHref = imprintPath;
+	GeoCat.privacyPolicHref = privacyPolicyPath;
 
 	$(this).on('pagechange', function(){
 		$.mobile.activePage.find('.popup-login').attr('id', 'popup-login-' + $.mobile.activePage.attr('id'));
@@ -287,7 +293,7 @@ GeoCat.createAccount = function(userName, email, pw, callback){
 			if(response.status == "ok"){
 				GeoCat.loginStatus = {isSignedIn: true, username: userName};
 				$(".login-button").text(userName);
-				$(".login-button").attr("onclick", "GeoCat.logout(null);");
+				GeoCat.updateLoginBTN();
 				$.mobile.activePage.trigger("pagebeforehide");
 				$.mobile.activePage.trigger("pageshow");
 				callback(true, "");
@@ -349,7 +355,7 @@ GeoCat.login_cookie = function(cookieData){
 				if(jsonData.status == "ok"){
 					GeoCat.loginStatus = {isSignedIn: true, username: jsonData.username};
 					$(".login-button").text(jsonData.username);
-					$(".login-button").attr("onclick", "GeoCat.logout(null, '" + "./" + "');");
+					GeoCat.updateLoginBTN();
 					return;
 				}
 			}

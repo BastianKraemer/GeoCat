@@ -117,7 +117,7 @@ function ChallengeInfoController(sessionKey) {
 		$(confirmButtons.teamcreate).click(createTeamClicked);
 		$(confirmButtons.joinYes).click(joinTeamYesClicked);
 		$(confirmButtons.joinNo).click(joinTeamNoClicked);
-		$(confirmButtons.cacheListeCaption).click(showOnMap);
+
 	};
 
 	this.pageClosed = function(){
@@ -245,6 +245,11 @@ function ChallengeInfoController(sessionKey) {
 		updateGUIWithChallengeData();
 		updateTeamList();
 		enableControls();
+
+		if(userIsChallengeOwner()){
+			$(confirmButtons.cacheListeCaption).click(showOnMap);
+			$(confirmButtons.cacheListeCaption).addClass("clickable");
+		}
 	};
 
 	var updateGUIWithChallengeData = function(){
@@ -374,8 +379,14 @@ function ChallengeInfoController(sessionKey) {
 				"</tr>");
 		});
 
-		$(infoElements.teamList + " tr td:not(:last-child)").click(handleClickOnJoinTeam);
-		$(infoElements.teamList + " tr td:last-child").click(handleClickOnDeleteTeam);
+
+		if(userIsChallengeOwner()){
+			$(infoElements.teamList + " tr td:not(:last-child)").click(handleClickOnJoinTeam);
+			$(infoElements.teamList + " tr td:last-child").click(handleClickOnDeleteTeam);
+		}
+		else{
+			$(infoElements.teamList + " tr td").click(handleClickOnJoinTeam);
+		}
 
 		var cursor = (challengeData['your_team'] == -1 || userIsChallengeOwner()) ? "pointer" : "default";
 		$(infoElements.teamList + " tr td").css("cursor", cursor);

@@ -1,5 +1,5 @@
 /* GeoCat - Geocaching and -tracking application
- * Copyright (C) 2016 Bastian Kraemer
+ * Copyright (C) 2016 Bastian Kraemer, Raphael Harzer
  *
  * BrowseChallengesController.js
  *

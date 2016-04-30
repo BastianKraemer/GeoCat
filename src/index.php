@@ -113,7 +113,7 @@
 	<!-- /build -->
 
 	<script type="text/javascript">
-		GeoCat.init("de");
+		GeoCat.init("de", "<?php echo GeoCat::getConfigKey("policy.imprint"); ?>", "<?php echo GeoCat::getConfigKey("policy.data_privacy_statement"); ?>");
 		GeoCat.loginStatus = <?php $session->printLoginStatusAsJSON(); ?>;
 		if(!GeoCat.loginStatus.isSignedIn && GeoCat.hasCookie("GEOCAT_LOGIN")){
 			GeoCat.getCookie("GEOCAT_LOGIN");

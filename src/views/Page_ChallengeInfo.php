@@ -55,7 +55,7 @@
 			<div class="substance-horizontal-flexcontainer">
 				<div class="substance-container substance-flexitem2" style="min-width: 300px; min-height: 200px; max-height: 400px; overflow-y: auto;">
 					<table class="styled-table">
-						<caption id="challengeinfo-cache-list-caption" class="clickable"><?php $locale->write("challenge.info.cachelist"); ?></caption>
+						<caption id="challengeinfo-cache-list-caption"><?php $locale->write("challenge.info.cachelist"); ?></caption>
 						<thead>
 							<tr>
 								<th><?php $locale->write("challenge.info.cache"); ?></th>

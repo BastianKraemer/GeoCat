@@ -44,30 +44,48 @@ var Dialogs = (function(){
 		input.type = "checkbox";
 		input.checked = (checked ? "checked" : "");
 		return input;
-	}
+	};
 
 	var simulatePageReload = function(){
 		$.mobile.activePage.trigger("pagebeforehide");
 		$.mobile.activePage.trigger("pageshow");
+	};
+
+	var createCheckboxAndLabel = function(id, text, checkboxValue){
+		var checkboxContainer = document.createElement("div");
+		checkboxContainer.setAttribute("data-role", "none");
+		var checkboxLabel = createLabel(text, id);
+		var checkbox = createCheckbox(id, checkboxValue);
+		checkboxContainer.appendChild(checkbox);
+		checkboxContainer.appendChild(checkboxLabel);
+		checkbox.setAttribute("data-role", "none");
+		checkboxLabel.setAttribute("data-role", "none");
+		return checkboxContainer;
 	}
 
 	// Public function
 	return {
+		// Display the 'login dialog'
 		showLoginDialog: function(){
+			// Create the div container
 			var container = document.createElement("div");
 			container.className = "input-dialog";
 
 			var h = document.createElement("h3");
 			h.innerHTML = "GeoCat Login"
 
+			// The form is neccessary, otherwise he browser won't ask you to store your credentials
 			var form = document.createElement("form");
 			form.setAttribute("action", "./app/GeoCat.php");
 			form.setAttribute("target", "formtarget");
 
+			// ...this iframe is a workaround - the browser will only ask to store your passwords if a submit button sends the request
+			// To realize this we will target this useless iframe
 			var iframe = document.createElement("iframe");
 			iframe.name= "formtarget";
 			iframe.style.display = "none";
 
+			// Create input elements
 			var userInput = createTextInputField("login-username", "text");
 			var pwInput = createTextInputField("login-password", "password");
 
@@ -76,14 +94,7 @@ var Dialogs = (function(){
 
 			var p = document.createElement("p");
 
-			var checkboxContainer = document.createElement("div");
-			checkboxContainer.setAttribute("data-role", "none");
-			var checkboxLabel = createLabel(GeoCat.locale.get("login.stayloggedin", "Stay logged in"), "rememberme");
-			var checkbox = createCheckbox("rememberme", GeoCat.hasCookie('GEOCAT_LOGIN'));
-			checkboxContainer.appendChild(checkbox);
-			checkboxContainer.appendChild(checkboxLabel);
-			checkbox.setAttribute("data-role", "none");
-			checkboxLabel.setAttribute("data-role", "none");
+			var checkboxContainer = createCheckboxAndLabel("rememberme", GeoCat.locale.get("login.stayloggedin", "Stay logged in"), GeoCat.hasCookie('GEOCAT_LOGIN'));
 
 			var span1 = document.createElement("span");
 			span1.textContent = GeoCat.locale.get("login.create_account", "Create an account");
@@ -105,6 +116,7 @@ var Dialogs = (function(){
 			container.appendChild(iframe);
 			container.appendChild(p);
 
+			// Callback - this function will be executed when the user clicks on the green tick
 			var onAcceptFunction = function(enableDialogAcceptButton){
 				if(!$('#rememberme').is(":checked")){
 					GeoCat.deleteLoginCookie("GEOCAT_LOGIN");
@@ -144,16 +156,18 @@ var Dialogs = (function(){
 			userInput.onkeydown = onKeyDownFunction;
 			pwInput.onkeydown = onKeyDownFunction;
 			userInput.select();
-
 		},
 
+		// Display the 'createAccount dialog'
 		showCreateAccountDialog: function(){
+			// Create the div container
 			var container = document.createElement("div");
 			container.className = "input-dialog";
 
 			var h = document.createElement("h3");
 			h.innerHTML = "Account erstellen"
 
+			// Input elements
 			var userInput = createTextInputField("create-account-username", "text");
 			var emailInput = createTextInputField("create-account-email", "text");
 			var pw1Input = createTextInputField("create-account-password1", "password");
@@ -164,10 +178,17 @@ var Dialogs = (function(){
 			var pw1Label = createLabel(GeoCat.locale.get("createacc.pw", "Please enter a password") + ":", "create-account-password1");
 			var pw2Label = createLabel(GeoCat.locale.get("createacc.pw_repeat", "Please enter the password again") + ":", "create-account-password2");
 
+			var privacyPolicy = GeoCat.locale.get("createacc.privacy_policy", "privacy policy");
+			var text = sprintf(GeoCat.locale.get("createacc.accept_policy", "I accept the {0}"),
+								["<a href=\"" + GeoCat.privacyPolicHref + "\" style=\"font-weight: 500\" target=\"_blank\">" + privacyPolicy + "</a>"]);
+
+			var checkbox = createCheckboxAndLabel("create-account-accept_policy", text, false);
+
 			var p = document.createElement("p");
 			p.className = "small-margin";
 			p.style = "color: red;";
 
+			// Append all child nodes
 			container.appendChild(h);
 			container.appendChild(userLabel);
 			container.appendChild(userInput);
@@ -177,23 +198,34 @@ var Dialogs = (function(){
 			container.appendChild(pw1Input);
 			container.appendChild(pw2Label);
 			container.appendChild(pw2Input);
+			container.appendChild(checkbox);
 			container.appendChild(p);
 
+			// Display the created elements
 			SubstanceTheme.showYesNoDialog(
 				container, $.mobile.activePage[0],
 				function(enableDialogAcceptButton){
 					if($("#create-account-password1").val() == $("#create-account-password2").val()){
-						GeoCat.createAccount(
-							$("#create-account-username").val(), $("#create-account-email").val(), $("#create-account-password1").val(),
-							function(success, responseMsg){
-								if(success){
-									SubstanceTheme.hideCurrentNotification();
-								}
-								else{
-									enableDialogAcceptButton(true);
-									p.textContent = responseMsg;
-								}
-							});
+						if(!$("#create-account-accept_policy").is(":checked")){
+							p.textContent = GeoCat.locale.get("createacc.policy_not_accepted", "Please accept the privacy policy first.");
+							//Re-enable the button - the button has been disabled to avoid multiple clicks
+							enableDialogAcceptButton(true);
+						}
+						else{
+							// Everything okay: Send the crate Account request
+							GeoCat.createAccount(
+								$("#create-account-username").val(), $("#create-account-email").val(), $("#create-account-password1").val(),
+								function(success, responseMsg){
+									if(success){
+										// Account successfully created
+										SubstanceTheme.hideCurrentNotification();
+									}
+									else{
+										enableDialogAcceptButton(true);
+										p.textContent = responseMsg;
+									}
+								});
+						}
 					}
 					else{
 						p.textContent = GeoCat.locale.get("createacc.passwd_not_equal", "The entered passwords doesn't match.")

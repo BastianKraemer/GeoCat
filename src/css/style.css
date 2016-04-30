@@ -270,11 +270,14 @@ dd + dt {
 	margin: 8px;
 	min-width: 300px;
 	width: 40%;
+	text-shadow:0 0 0 !important;
 }
 
 .input-dialog > h3 {
 	color: black;
 	margin-bottom: 8px;
+	font-weight: 500;
+	font-size: 1.2em;
 }
 
 .input-dialog label {

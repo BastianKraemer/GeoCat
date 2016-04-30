@@ -430,6 +430,13 @@ function PlacesController(){
 					var now = new Date().toISOString().replace("T", " ").replace("Z", "");
 					var coordInfo = new CoordinateInfo(GeoCat.loginStatus.username, now, now);
 					localCoordStore.storePlace(coord, coordInfo);
+
+					if(currentlyDisplayedCoordinates.length == 0){
+						// The user does not have any displayed places yet
+						// In this case wh have to remove the "No places" notification
+						$(htmlElements.list).empty();
+					}
+
 					currentlyDisplayedCoordinates.push(result.coord_id);
 					addListItem($(htmlElements.list), currentlyDisplayedCoordinates.length - 1);
 					$(htmlElements.list).listview('refresh');

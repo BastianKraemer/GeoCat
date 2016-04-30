@@ -151,7 +151,6 @@ function ChallengeInfoController(sessionKey) {
 															"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
 						}, 750);
 					}
-
 			},
 			error: ajaxError
 		});
@@ -181,7 +180,6 @@ function ChallengeInfoController(sessionKey) {
 					// The only error that could occur ist that the challenge has not started yet...
 					$(infoElements.cacheList).html("<tr><td colspan=4>" + GeoCat.locale.get("challenge.info.not_started", "The challenge has not started yet.") + "</td></tr>");
 				}
-
 			},
 			error: ajaxError});
 	};
@@ -232,7 +230,14 @@ function ChallengeInfoController(sessionKey) {
 
 	var updateGUIWithChallengeData = function(){
 		$(infoElements.title).html(challengeData["name"]);
-		$(infoElements.description).html(challengeData["description"].replace(/\n/, "<br />")); // No global match to avoid more than two lines
+
+		if(challengeData["description"] == "" && userIsChallengeOwner()){
+			$(infoElements.description).html(GeoCat.locale.get("challenge.info.no_desc", "[Click here to enter the challenge description]"));
+		}
+		else{
+			$(infoElements.description).html(challengeData["description"].replace(/\n/, "<br />")); // No global match to avoid more than two lines
+
+		}
 
 		$(infoElements.owner).html(challengeData["owner_name"]);
 		$(infoElements.type).html(challengeData["type_name"]);

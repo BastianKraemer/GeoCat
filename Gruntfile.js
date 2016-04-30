@@ -41,6 +41,7 @@ module.exports = function(grunt) {
 						[
 							'src/js/gpsnavigator/GPSNavigationController.js',
 							'src/js/controller/*.js',
+							'src/js/Account.js',
 							'src/js/challenges/*.js'
 						]
 				}

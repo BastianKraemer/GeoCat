@@ -226,7 +226,21 @@ function BrowseChallengesController(){
 			});
 		}
 		else{
-			list.append("<li><span>" + GeoCat.locale.get("challenge.browse.empty", "There is no public challenge at the moment.") + "</span></li>");
+			var txt;
+
+			switch(BrowseChallengesController.currentListType){
+				case "public":
+					txt = GeoCat.locale.get("challenge.browse.public_empty", "There is no public challenge at the moment.");
+					break;
+				case "joined":
+					txt = GeoCat.locale.get("challenge.browse.joined_empty", "You don't have joined any challenge yet.");
+					break;
+				case "own":
+					txt = GeoCat.locale.get("challenge.browse.own_empty", "You don't have any challenges created yet.");
+					break;
+			}
+
+			list.append("<li style=\"white-space: normal\"><span>" + txt + "</span></li>");
 			list.listview('refresh');
 		}
 	};

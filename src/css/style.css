@@ -601,7 +601,7 @@ table.styled-table tbody tr td {
 }
 
 .button-list button {
-	height: 32px;
+	min-height: 32px;
 	min-width: 250px;
 	width: 50%;
 	border: 1px solid white;

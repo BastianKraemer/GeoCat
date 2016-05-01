@@ -234,6 +234,10 @@ function ChallengeNavigatorController(challenge_id){
 				if(coord.reached == null){
 					colorList[id] = "#000";
 					iconList[id] = GPSRadar.CoordinateIcon.CIRCLE;
+
+					if(displayCurrentPriorityItemsOnly){
+						return true;
+					}
 				}
 				else{
 					colorList[id] = challengeData.team_color;
@@ -248,13 +252,19 @@ function ChallengeNavigatorController(challenge_id){
 				colorList[id] = "#949494";
 				iconList[id] = GPSRadar.CoordinateIcon.CIRCLE;
 
-				if(displayCurrentPriorityItemsOnly && (coord.priority > (currentPriority + 1))){
-					// Hide caches with priority + 2 or more
-					return false;
+				if(displayCurrentPriorityItemsOnly){
+					if(coord.priority > (currentPriority + 1)){
+						// Hide caches with priority + 2 or more
+						return false;
+					}
+					else{
+						return true;
+					}
 				}
 			}
 		}
-		return true; // return value: is this cache visible?
+		// Leave the visibility unchanged
+		return isVisible(id); // return value: is this cache visible?
 	};
 
 	var generateOrderByPriority = function(currentPriority){

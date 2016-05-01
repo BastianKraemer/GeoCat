@@ -310,7 +310,7 @@ function BuddyController(){
 			}
 		}
 		else{
-			list.append("<li>" + GeoCat.locale.get("buddies.empty_list", "You don't have added any buddies to your buddy list yet") + "</li>");
+			list.append("<li style=\"white-space: normal\">" + GeoCat.locale.get("buddies.empty_list", "You don't have added any buddies to your buddy list yet") + "</li>");
 		}
 
 		list.listview('refresh');

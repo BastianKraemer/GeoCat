@@ -51,8 +51,8 @@ module.exports = function(grunt) {
 		copy: {
 			main: {
 				cwd: 'src/',
-				src: [	'app/**',  'query/**', 'views/**', 'config/config.php', 'locale/*.json', 'img/tile/*',
-						'lib/jquery_package.min.js', 'lib/ol.js'],
+				src: [	'app/**',  'query/**', 'views/**', 'config/config.php', 'locale/*.json', 'locale/sites/*',
+						'img/tile/*', 'img/etc/*', 'lib/jquery_package.min.js', 'lib/ol.js'],
 				dest: 'dest/',
 				expand: true
 			},

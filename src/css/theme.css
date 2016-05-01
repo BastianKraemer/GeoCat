@@ -37,6 +37,14 @@
 	background-color: rgba(255,255,255,0.2) !important;
 }
 
+/* About page
+----------------------------------------------- */
+
+#About .ui-header {
+	background-color: #1b939b;
+}
+
+
 /* Page places
 ----------------------------------------------- */
 

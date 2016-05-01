@@ -35,7 +35,7 @@
 		public function printContent($locale, $session){
 ?>
 	<div data-role="page" id="About" data-theme="a">
-<?php self::printHeader("", "#Home", $locale, $session); ?>
+<?php self::printHeader($locale->get("about.title"), "#Home", $locale, $session); ?>
 		<div role="main" class="ui-content" style="padding: 0">
 			<div id="about-content" class="no-shadow"></div>
 		</div>

@@ -144,7 +144,7 @@ var GPS = new function(){
 
 		switch(error.code){
 			case error.PERMISSION_DENIED:
-				errorMsg = "Permission denied.";
+				errorMsg = "Permission denied. Please check your Browser settings.";
 				break;
 			case error.POSITION_UNAVAILABLE:
 				errorMsg = "GPS is not availabe.";

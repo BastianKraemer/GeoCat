@@ -109,7 +109,7 @@
 											"JOIN ChallengeTeam ON (ChallengeMember.team_id = ChallengeTeam.team_id) " .
 											"JOIN Challenge ON (ChallengeTeam.challenge_id = Challenge.challenge_id) " .
 											"JOIN Account ON (Challenge.owner = Account.account_id) " .
-											"JOIN ChallengeType ON (Challenge.challenge_type_id = challengetype.challenge_type_id) " .
+											"JOIN ChallengeType ON (Challenge.challenge_type_id = ChallengeType.challenge_type_id) " .
 											"WHERE ChallengeMember.account_id = :accId " .
 											"ORDER BY Challenge.start_time DESC" .
 											($limit > 0 ? " LIMIT " . $limit : "") . ($offset > 0 ? " OFFSET " . $offset : ""),

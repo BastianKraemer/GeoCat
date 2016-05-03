@@ -46,14 +46,7 @@
 			require_once(__DIR__ . "/../CoordinateManager.php");
 			require_once(__DIR__ . "/ChallengeManager.php");
 
-			if($code != null){
-				if($code == ""){
-					$code = null;
-				}
-				else if(strlen($code) > 32){
-					throw new InvalidArgumentException("The maximum length for the code is limited to 32 characters.");
-				}
-			}
+			$code = self::verifyCodeValue($code);
 
 			if($hint != null){
 				$hint = htmlspecialchars($hint, ENT_QUOTES);
@@ -148,6 +141,9 @@
 		 * @throws Exception if the database returns an error
 		 */
 		public static function update($dbh, $challengeCoordId, $priority, $hint, $code){
+
+			$code = self::verifyCodeValue($code);
+
 			$res = DBTools::query($dbh, "UPDATE ChallengeCoord " .
 										"SET priority = :priority, hint = :hint, code = :code " .
 										"WHERE challenge_coord_id = :ccid",
@@ -275,14 +271,39 @@
 		}
 
 		/**
+		 * Removes trailing whitespaces and converts <code>""</code> to <code>null</code>
+		 * @param string $code
+		 * @return string
+		 * @throws InvalidArgumentException if the code is too long
+		 */
+		private static function verifyCodeValue($code){
+			if($code != null){
+				if($code == ""){
+					return null;
+				}
+				else{
+					if(strlen($code) > 32){
+						throw new InvalidArgumentException("The maximum length for the code is limited to 32 characters.");
+					}
+					else{
+						$code = trim($code);
+						return $code == "" ? null : $code;
+					}
+				}
+			}
+			return $code;
+		}
+
+		/**
 		 * Checks if a cache needs a code to be captured/set as reached
 		 * @param PDO $dbh Database handler
 		 * @param integer $challengeCoordId The cache id
 		 * @return boolean
 		 */
 		public static function hasCode($dbh, $challengeCoordId){
-			$res = DBTools::fetchNum($dbh, "SELECT code FROM ChallengeCoord WHERE code IS NOT NULL AND challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
-			return $res[0] == 1;
+			$res = DBTools::fetchNum($dbh, "SELECT code FROM ChallengeCoord WHERE challenge_coord_id = :ccid", array("ccid" => $challengeCoordId));
+
+			return $res[0] != null;
 		}
 
 		/**

@@ -1,5 +1,5 @@
 
-function Account () {
+function AccountController () {
 
   var popups = {
     userdata: "#popup-edit",
@@ -30,7 +30,7 @@ function Account () {
     deleteAccount: "#delete-pw"
   }
 
-  this.onPageOpened = function(){
+  this.pageOpened = function(){
 	if(GeoCat.loginStatus.isSignedIn){
 		loadUserData();
 		$(userData.email + ", " + userData.username + ", " + userData.firstname + ", " + userData.lastname).click(handleClickOnField);
@@ -50,7 +50,7 @@ function Account () {
 	}
   }
 
-  this.onPageClosed = function(){
+  this.pageClosed = function(){
 	$(userData.email + ", " + userData.username + ", " + userData.firstname + ", " + userData.lastname).unbind();
 	$(userData.password).unbind();
 	$(userData.deleteAccount).unbind();
@@ -166,43 +166,39 @@ function Account () {
 		});
   }
 
-  var handleClickOnSubmitPasswordDelete = function(){
-    $(popups.deleteAccount).popup("close");
-    var password = $(inputFields.deleteAccount).val();
-    $.ajax({
+	var handleClickOnSubmitPasswordDelete = function(){
+		$(popups.deleteAccount).popup("close");
+		var password = $(inputFields.deleteAccount).val();
+		$.ajax({
 			type: "POST", url: "./query/account.php",
 			encoding: "UTF-8",
 			data: {task: "deleteAccount", password: password},
 			cache: false,
 			success: function(response){
-					var responseData = response;
-          if(responseData.status == "ok"){
-            GeoCat.loginStatus = {isSignedIn: false, username: null};
-            $(".login-button").text("Login");
-    				$(".login-button").attr("onclick", "Dialogs.showLoginDialog();");
-            $.mobile.changePage("#Home");
-					} else {
-						setTimeout(function(){
-							SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("account.update.error", "Error") + "</h3>" +
-															"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
-						}, 750);
-					}
+				var responseData = response;
+				if(responseData.status == "ok"){
+					GeoCat.loginStatus = {isSignedIn: false, username: null};
+					$(".login-button").text("Login");
+					$(".login-button").attr("onclick", "Dialogs.showLoginDialog();");
+					$.mobile.changePage("#Home");
+
+					setTimeout(function(){
+						SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("account.deleted", "Your Account has been deleted.") + "</h3>", 7,
+														$.mobile.activePage[0], "substance-skyblue no-shadow white");
+					}, 750);
+				} else {
+					setTimeout(function(){
+						SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("account.update.error", "Error") + "</h3>" +
+														"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
+					}, 750);
+				}
 			}
 		});
-  }
-
+	};
 }
 
-Account.currentInstance = null;
-
-Account.init = function(){
-  $(document).on("pageshow", "#Account", function(){
-		Account.currentInstance = new Account();
-		Account.currentInstance.onPageOpened();
+AccountController.init = function(myPageId){
+	AccountController.prototype = new PagePrototype(myPageId, function(){
+		return new AccountController();
 	});
-
-	$(document).on("pagebeforehide", "#Account", function(){
-		Account.currentInstance.onPageClosed();
-		Account.currentInstance = null;
-	});
-}
+};

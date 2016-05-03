@@ -21,7 +21,7 @@
 		public function printHead($locale, $session){
 ?>
 	<script type="text/javascript">
-		Account.init();
+		AccountController.init("#Account");
 	</script>
 <?php
 		}
@@ -91,10 +91,8 @@
 			<div data-role="main" class="ui-content">
 				<h2><?php $locale->write("account.delete"); ?>?</h2>
 				<h3><?php $locale->write("account.no_undo"); ?></h3>
-				<form>
-					<input id="delete-pw" type="password" placeholder="<?php $locale->write("account.password"); ?>" value="" />
-					<input id="delete-submit" type="button" value="<?php $locale->write("account.send"); ?>" />
-				</form>
+				<input id="delete-pw" type="password" placeholder="<?php $locale->write("account.password"); ?>" value="" />
+				<input id="delete-submit" type="button" value="<?php $locale->write("account.send"); ?>" />
 			</div>
 		</div>
 

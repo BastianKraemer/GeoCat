@@ -17,16 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function Account () {
+function AccountController () {
 
   var popups = {
     userdata: "#popup-edit",
-    password: "#popup-pw"
+    password: "#popup-pw",
+    deleteAccount: "#popup-delete-acc"
   }
 
   var sendBTN = {
     userdata: "#edit-submit",
-    pwdata: "#pw-submit"
+    pwdata: "#pw-submit",
+    deleteAccount: "#delete-submit"
   }
 
   var userData = {
@@ -34,32 +36,46 @@ function Account () {
     username: "#acc-username",
     firstname: "#acc-firstname",
     lastname: "#acc-lastname",
-    password: "#acc-password"
+    password: "#acc-password",
+    deleteAccount: "#delete-acc"
   }
 
   var inputFields = {
     userdata: "#edit-field",
     oldpw: "#pwold",
     newpw1: "#pwnew1",
-    newpw2: "#pwnew2"
+    newpw2: "#pwnew2",
+    deleteAccount: "#delete-pw"
   }
 
-  this.onPageOpened = function(){
+  this.pageOpened = function(){
 	if(GeoCat.loginStatus.isSignedIn){
 		loadUserData();
 		$(userData.email + ", " + userData.username + ", " + userData.firstname + ", " + userData.lastname).click(handleClickOnField);
 		$(userData.password).click(handleClickOnPWBTN);
+		$(userData.deleteAccount).click(handleClickOnDelAcc);
 		$(sendBTN.userdata).click(handleClickOnSubmit);
 		$(sendBTN.pwdata).click(handleClickOnSubmitPassword);
+		$(sendBTN.deleteAccount).click(handleClickOnSubmitPasswordDelete);
+		$(inputFields.deleteAccount).keyup(function(e){
+			if(e.keyCode == 13){
+				handleClickOnSubmitPasswordDelete();
+			}
+		});
 	}
 	else{
 		$.mobile.changePage("#Home");
 	}
   }
 
-  this.onPageClosed = function(){
+  this.pageClosed = function(){
+	$(userData.email + ", " + userData.username + ", " + userData.firstname + ", " + userData.lastname).unbind();
+	$(userData.password).unbind();
+	$(userData.deleteAccount).unbind();
     $(sendBTN.userdata).unbind();
     $(sendBTN.pwdata).unbind();
+	$(sendBTN.deleteAccount).unbind();
+	$(inputFields.deleteAccount).unbind();
   }
 
   var loadUserData = function(){
@@ -100,6 +116,10 @@ function Account () {
     $(inputFields.newpw1).val("");
     $(inputFields.newpw2).val("");
     $(sendBTN.pwdata).attr("data-id", this.id);
+  }
+
+  var handleClickOnDelAcc = function(){
+    $(inputFields.deleteAccount).val("");
   }
 
   var handleClickOnSubmit = function(){
@@ -164,18 +184,39 @@ function Account () {
 		});
   }
 
+	var handleClickOnSubmitPasswordDelete = function(){
+		$(popups.deleteAccount).popup("close");
+		var password = $(inputFields.deleteAccount).val();
+		$.ajax({
+			type: "POST", url: "./query/account.php",
+			encoding: "UTF-8",
+			data: {task: "deleteAccount", password: password},
+			cache: false,
+			success: function(response){
+				var responseData = response;
+				if(responseData.status == "ok"){
+					GeoCat.loginStatus = {isSignedIn: false, username: null};
+					$(".login-button").text("Login");
+					$(".login-button").attr("onclick", "Dialogs.showLoginDialog();");
+					$.mobile.changePage("#Home");
+
+					setTimeout(function(){
+						SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("account.deleted", "Your Account has been deleted.") + "</h3>", 7,
+														$.mobile.activePage[0], "substance-skyblue no-shadow white");
+					}, 750);
+				} else {
+					setTimeout(function(){
+						SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("account.update.error", "Error") + "</h3>" +
+														"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
+					}, 750);
+				}
+			}
+		});
+	};
 }
 
-Account.currentInstance = null;
-
-Account.init = function(){
-  $(document).on("pageshow", "#Account", function(){
-		Account.currentInstance = new Account();
-		Account.currentInstance.onPageOpened();
+AccountController.init = function(myPageId){
+	AccountController.prototype = new PagePrototype(myPageId, function(){
+		return new AccountController();
 	});
-
-	$(document).on("pagebeforehide", "#Account", function(){
-		Account.currentInstance.onPageClosed();
-		Account.currentInstance = null;
-	});
-}
+};

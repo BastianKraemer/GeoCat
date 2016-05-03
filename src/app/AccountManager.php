@@ -162,6 +162,65 @@
 			}
 		}
 
+		public static function deleteAccount($dbh, $accountId){
+			require_once(__DIR__ . "/CoordinateManager.php");
+			require_once(__DIR__ . "/challenge/TeamManager.php");
+			require_once(__DIR__ . "/challenge/ChallengeManager.php");
+
+			$place_coordId = $currnav_coordId = $accinfo_coordId = $challcoord_coordId = array();
+			$place_coordId = DBTools::fetchAll($dbh, "SELECT coord_id FROM Place WHERE account_id = :accid", array(":accid" => $accountId), PDO::FETCH_ASSOC);
+			DBTools::query($dbh, "DELETE FROM Place WHERE account_id = :accid", array(":accid" => $accountId));
+			DBTools::query($dbh, "DELETE FROM LoginToken WHERE account_id = :accid", array(":accid" => $accountId));
+			DBTools::query($dbh, "DELETE FROM Friends WHERE account_id = :accid OR friend_id = :accid", array(":accid" => $accountId));
+			$currnav_coordId = DBTools::fetchAll($dbh, "SELECT coord_id FROM CurrentNavigation WHERE account_id = :accid", array(":accid" => $accountId), PDO::FETCH_ASSOC);
+			DBTools::query($dbh, "DELETE FROM CurrentNavigation WHERE account_id = :accid", array(":accid" => $accountId));
+
+			foreach(ChallengeManager::getChallengesOfUser($dbh, $accountId) as $userChallengeId){
+				$userTeamId = TeamManager::getTeamOfUser($dbh, $userChallengeId, $accountId);
+				TeamManager::leaveTeam($dbh, $userTeamId, $accountId);
+			}
+
+			$accinfo_coordId = DBTools::fetchAll($dbh, "SELECT my_position FROM AccountInformation WHERE account_id = :accid", array(":accid" => $accountId), PDO::FETCH_ASSOC);
+
+			DBTools::query($dbh, "DELETE FROM AccountInformation WHERE account_id = :accid", array(":accid" => $accountId));
+			$challengeId = DBTools::fetchAll($dbh, "SELECT challenge_id FROM Challenge WHERE owner = :accid", array(":accid" => $accountId), PDO::FETCH_ASSOC);
+			if(!empty($challengeId)){
+				foreach ($challengeId as $index => $array) {
+					foreach ($array as $key => $challenge_id) {
+						DBTools::query($dbh, "DELETE FROM ChallengeStats WHERE challenge_id = $challenge_id");
+						$challengeCoordId = DBTools::fetchAll($dbh, "SELECT challenge_coord_id FROM ChallengeCoord WHERE challenge_id = $challenge_id", null, PDO::FETCH_ASSOC);
+						if(!empty($challengeCoordId)){
+							foreach ($challengeCoordId as $index => $array) {
+								foreach ($array as $key => $challenge_coord_id) {
+									DBTools::query($dbh, "DELETE FROM ChallengeCheckpoint WHERE challenge_coord_id = $challenge_coord_id");
+								}
+							}
+						}
+						$challcoord_coordId = DBTools::fetchAll($dbh, "SELECT coord_id FROM ChallengeCoord WHERE challenge_id = $challenge_id", null, PDO::FETCH_ASSOC);
+						DBTools::query($dbh, "DELETE FROM ChallengeCoord WHERE challenge_id = $challenge_id");
+						DBTools::query($dbh, "DELETE FROM ChallengeTeam WHERE challenge_id = $challenge_id");
+						DBTools::query($dbh, "DELETE FROM Challenge WHERE challenge_id = $challenge_id");
+					}
+				}
+			}
+			$coordId = array_merge(
+				array_values((array) $place_coordId),
+				array_values((array) $currnav_coordId),
+				array_values((array) $accinfo_coordId),
+				array_values((array) $challcoord_coordId)
+			);
+			if(!empty($coordId)){
+				foreach ($coordId as $index => $array) {
+					foreach ($array as $key => $coord) {
+						if($coord != null){
+							CoordinateManager::tryToRemoveCooridate($dbh, $coord);
+						}
+					}
+				}
+			}
+			DBTools::query($dbh, "DELETE FROM Account WHERE account_id = :accid", array(":accid" => $accountId));
+		}
+
 		/**
 		 * Returns the account id which is assigned to the username
 		 * @param PDO $dbh Database handler

@@ -119,6 +119,19 @@
 			}
 		}
 
+		protected function deleteAccount(){
+			$session = self::requireLogin();
+			$this->requireParameters(array(
+				"password" => null
+			));
+			if(AccountManager::checkPassword($this->dbh, $session->getAccountId(), $this->args['password']) == 1){
+				AccountManager::deleteAccount($this->dbh, $session->getAccountId());
+				$session->logout();
+				return self::buildResponse(true, array("msg" => $this->locale->get("deleteaccount.success")));
+			}
+			return self::buildResponse(false, array("msg" => $this->locale->get("deleteaccount.wrong_password")));
+		}
+
 		/**
 		 * Task: 'check'
 		 *

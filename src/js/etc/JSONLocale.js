@@ -4,6 +4,10 @@ var JSONLocale = function(language){
 	downloadTranslations(language);
 
 	function downloadTranslations(language){
+		if(language == "en"){
+			return; // No need to download translations, they are provided as fallback in the application itself
+		}
+
 		var downloadUrl = "locale/" + language + "_client.json";
 		$.ajax({type: "GET", url: downloadUrl,
 			encoding: "UTF-8",

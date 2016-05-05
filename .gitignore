@@ -19,3 +19,7 @@ doc/
 
 # Build files
 dest/
+
+#Custom files for docker
+docker_include/*
+

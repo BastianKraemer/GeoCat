@@ -4,7 +4,6 @@
 div[role="navigation"] ul li a {
 	height: 24px;
 	line-height: 24px;
-
 }
 
 .ui-panel.ui-panel-open {
@@ -24,17 +23,15 @@ div[role="navigation"] ul li a {
 	margin-right: 0 !important;
 }
 
-/*
-	Overwrite the default background
-*/
-#Home {
-	background-color: white !important;
-	background-image: linear-gradient(#FFF 0%, #A4A4A4 100%) !important;
-}
-
 /* ==============================================================================
 	Start page
 ============================================================================== */
+
+div.mapbg {
+	background-color: white;
+	background-image: linear-gradient(#FFF 0%, #A4A4A4 100%);
+}
+
 
 #Home > div.ui-content {
 	padding: 4px;
@@ -44,16 +41,20 @@ div[role="navigation"] ul li a {
 	width: 100%;
 	max-width: 640px;
 	margin: 12px auto;
+	padding: 0;
+	text-align: center;
 }
 
 .tile {
+	display: inline-block;
 	position: relative;
-	min-width: calc(50% - 10px);
-	max-width: calc(50% - 10px);
+	min-width: calc(50% - 14px);
+	max-width: calc(50% - 14px);
 
 	background-color: #bbbbbb;
 	border: 1px solid white;
 	margin: 4px;
+	text-align: left;
 }
 
 .tile:before {
@@ -122,10 +123,18 @@ div[role="navigation"] ul li a {
 	.tile {
 		min-width: calc(33% - 14px);
 		max-width: calc(33% - 14px);
+		margin: 6px;
 	}
 
 	.tile > .content > h1 {
 		font-size: 24px;
+	}
+
+	div.mapbg {
+		background-image: url('../img/etc/map.jpg');
+		background-repeat: no-repeat;
+		background-size: 100%;
+		background-position: 0 42px;
 	}
 }
 
@@ -135,8 +144,8 @@ div[role="navigation"] ul li a {
 	}
 
 	.tile {
-		min-width: calc(25% - 14px);
-		max-width: calc(25% - 14px);
+		min-width: calc(25% - 18px);
+		max-width: calc(25% - 18px);
 	}
 }
 

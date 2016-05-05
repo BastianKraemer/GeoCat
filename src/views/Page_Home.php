@@ -23,7 +23,7 @@
 		 */
 		private function addTile($title, $text, $aside, $target, $tileId, $locale){
 ?>
-				<div id="<?php echo $tileId; ?>" class="substance-flexitem1 tile">
+				<div id="<?php echo $tileId; ?>" class="tile">
 					<a href="<?php echo $target; ?>" class="content">
 						<h1><?php $locale->write($title); ?></h1>
 						<p><?php $locale->write($text); ?></p>
@@ -67,12 +67,12 @@
 		 */
 		public function printContent($locale, $session){
 ?>
-	<div data-role="page" id="Home" data-theme="b">
+	<div id="Home" class="mapbg" data-role="page" data-theme="b">
 <?php
 	self::printHeader(\GeoCat::getConfigKey("app.name") . " - ". $locale->get("mainpage.title"), null, $locale, $session);
 ?>
-		<div role="main" class="ui-content my-page">
-			<div class="substance-horizontal-flexcontainer mainpage-grid">
+		<div role="main" class="ui-content">
+			<div class="mainpage-grid">
 <?php
 				$this->addDefaultTile("info", "#About", "infoTile", $locale);
 				$this->addDefaultTile("places", "#Places", "placesTile", $locale);

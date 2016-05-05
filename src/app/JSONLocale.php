@@ -40,7 +40,10 @@
 		 * @throws InvalidArgumentException If the selected language is not available
 		 */
 		function __construct($locale) {
-			if(strtolower($locale) == "de"){
+			if(strtolower($locale) == "en"){
+				$this->loadLocale("en");
+			}
+			else if(strtolower($locale) == "de"){
 				$this->loadLocale("de");
 			}
 			else{
@@ -102,7 +105,7 @@
 			$lang = array_key_exists("HTTP_ACCEPT_LANGUAGE", $_SERVER) ? substr($_SERVER["HTTP_ACCEPT_LANGUAGE"], 0, 2) : "";
 
 			if($lang == "de"){return "de";}
-			return "de"; // later this should be "en"
+			return "en";
 		}
 
 		/**

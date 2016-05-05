@@ -15,7 +15,8 @@
 	 * The locale for GeoCat
 	 * @var JSONLocale
 	 */
-	$locale = JSONLocale::withBrowserLanguage();
+	$lang = JSONLocale::getBrowserLanguage();
+	$locale = new JSONLocale($lang);
 
 	/**
 	 * The current GeoCat session
@@ -113,7 +114,7 @@
 	<!-- /build -->
 
 	<script type="text/javascript">
-		GeoCat.init("de", "<?php echo GeoCat::getConfigKey("policy.imprint"); ?>", "<?php echo GeoCat::getConfigKey("policy.data_privacy_statement"); ?>");
+		GeoCat.init("<?php echo $lang; ?>", "<?php echo GeoCat::getConfigKey("policy.imprint"); ?>", "<?php echo GeoCat::getConfigKey("policy.data_privacy_statement"); ?>");
 		GeoCat.loginStatus = <?php $session->printLoginStatusAsJSON(); ?>;
 		if(!GeoCat.loginStatus.isSignedIn && GeoCat.hasCookie("GEOCAT_LOGIN")){
 			GeoCat.getCookie("GEOCAT_LOGIN");

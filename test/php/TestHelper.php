@@ -12,6 +12,7 @@ load("app/AccountManager.php");
 
 class TestHelper {
 	private static $dbh = null;
+	private static $globalStore = array();
 	public static function getDBH(){
 		if(self::$dbh == null){
 			self::$dbh = DBTools::connectToDatabase();
@@ -38,6 +39,23 @@ class TestHelper {
 		}
 		else{
 			return AccountManager::getAccountIdByUserName(self::getDBH(), $usr);
+		}
+	}
+
+	public static function storeVal($key, $value){
+		self::$globalStore[$key] = $value;
+	}
+
+	public static function hasVal($key){
+		return array_key_exists($key, self::$globalStore);
+	}
+
+	public static function getVal($key){
+		if(array_key_exists($key, self::$globalStore)){
+			return self::$globalStore[$key];
+		}
+		else{
+			return null;
 		}
 	}
 }

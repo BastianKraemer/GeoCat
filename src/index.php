@@ -104,6 +104,7 @@
 	<script src="./js/controller/MapController.js"></script>
 	<script src="./js/controller/BuddyController.js"></script>
 	<script src="./js/controller/AboutController.js"></script>
+	<script src="./js/etc/SafariFix.js"></script>
 	<!-- /build -->
 
 	<!-- build:js ./js/gpscat.min.js -->

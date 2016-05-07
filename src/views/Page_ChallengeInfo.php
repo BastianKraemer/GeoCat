@@ -45,15 +45,15 @@
 			<p id="challengeinfo-title" class="title">...</p>
 			<p id="challengeinfo-description" class="description">...</p>
 
-			<div class="substance-horizontal-flexcontainer">
+			<div id="challengeinfo-about" class="substance-horizontal-flexcontainer">
 				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.owner"); ?>:<br><span id="challengeinfo-owner">-</span></p>
 				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.type"); ?>:<br><span id="challengeinfo-type">-</span>
 				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.starttime"); ?>:<br><span id="challengeinfo-start-time">-</span></p>
 				<p class="substance-flexitem1 small center"><?php $locale->write("challenge.info.endtime"); ?>:<br><span id="challengeinfo-end-time">-</span></p>
 			</div>
 
-			<div class="substance-horizontal-flexcontainer">
-				<div class="substance-container substance-flexitem2" style="min-width: 300px; min-height: 200px; max-height: 400px; overflow-y: auto;">
+			<div id="challengeinfo-content" class="substance-horizontal-flexcontainer">
+				<div class="substance-container substance-flexitem2" style="min-width: 300px; min-height: 200px; max-height: 410px; overflow-y: auto;">
 					<table class="styled-table">
 						<caption id="challengeinfo-cache-list-caption"><?php $locale->write("challenge.info.cachelist"); ?></caption>
 						<thead>
@@ -70,7 +70,7 @@
 					</table>
 				</div>
 
-				<div class="substance-container substance-flexitem1" style="min-width: 300px; min-height: 200px; max-height: 400px; overflow-y: auto;">
+				<div class="substance-container substance-flexitem1" style="min-width: 300px; min-height: 200px; max-height: 410px; overflow-y: auto;">
 					<table class="styled-table">
 						<caption><?php $locale->write("challenge.info.teamlist"); ?></caption>
 						<thead>
@@ -86,7 +86,7 @@
 					</table>
 				</div>
 
-				<div id="challengeinfo-stats-container" class="substance-container substance-flexitem3" style="margin-top: 40px; min-width: 100%; min-height: 200px; max-height: 400px; overflow-y: auto;">
+				<div id="challengeinfo-stats-container" class="substance-container substance-flexitem3" style="min-width: 90%; min-height: 200px; max-height: 410px; overflow-y: auto;">
 					<table class="styled-table">
 						<caption><?php $locale->write("challenge.info.stats"); ?></caption>
 						<thead>

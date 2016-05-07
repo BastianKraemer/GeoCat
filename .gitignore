@@ -20,6 +20,12 @@ doc/
 # Build files
 dest/
 
+# Test files
+test/testconfig.php
+
+# PHPUnit
+test/phpunit.phar
+
 #Custom files for docker
 docker_include/*
 

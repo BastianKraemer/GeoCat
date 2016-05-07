@@ -39,10 +39,10 @@
 		 * @return integer the challenge id
 		 */
 		public static function getChallengeIdBySessionKey($dbh, $sessionKey){
-			$res = DBTools::fetchAll($dbh, "SELECT challenge_id FROM Challenge WHERE sessionkey = :key", array("key" => strtoupper($sessionKey)));
+			$res = DBTools::fetchNum($dbh, "SELECT challenge_id FROM Challenge WHERE sessionkey = :key", array("key" => strtoupper($sessionKey)));
 
-			if(count($res) == 1){
-				return $res[0][0];
+			if(!empty($res)){
+				return $res[0];
 			}
 			else{
 				return -1;
@@ -72,12 +72,12 @@
 		/**
 		 * Returns a list of all challenges that has beeen created by a specific user
 		 * @param PDO $dbh Database handler
-		 * @param SessionManager $session
+		 * @param integer $ofAccount
 		 * @param integer $limit
 		 * @param integer $offset
 		 * @return array
 		 */
-		public static function getMyChallenges($dbh, $session, $limit = 1000, $offset = -1){
+		public static function getMyChallenges($dbh, $ofAccount, $limit = 1000, $offset = -1){
 			$res = DBTools::fetchAll($dbh,	"SELECT Account.username AS owner_name, Challenge.challenge_id, Challenge.name, Challenge.description, " .
 												"Challenge.challenge_type_id AS type_id, ChallengeType.full_name AS type_name, " .
 												"Challenge.max_teams, Challenge.max_team_members, Challenge.predefined_teams, " .
@@ -88,19 +88,19 @@
 											"WHERE Challenge.owner = :accId " .
 											"ORDER BY Challenge.start_time DESC" .
 											($limit > 0 ? " LIMIT " . $limit : "") . ($offset > 0 ? " OFFSET " . $offset : ""),
-											array("accId" => $session->getAccountId()), PDO::FETCH_ASSOC);
+											array("accId" => $ofAccount), PDO::FETCH_ASSOC);
 			return $res;
 		}
 
 		/**
 		 * Returns a list of all challenges a specific user takes part of
 		 * @param PDO $dbh Database handler
-		 * @param SessionManager $session
+		 * @param integer $ofAccount
 		 * @param integer $limit
 		 * @param integer $offset
 		 * @return array
 		 */
-		public static function getParticipatedChallenges($dbh, $session, $limit = 1000, $offset = -1){
+		public static function getParticipatedChallenges($dbh, $ofAccount, $limit = 1000, $offset = -1){
 			$res = DBTools::fetchAll($dbh,	"SELECT Account.username AS owner_name, Challenge.challenge_id, Challenge.name, Challenge.description, " .
 												"Challenge.challenge_type_id AS type_id, ChallengeType.full_name AS type_name, " .
 												"Challenge.max_teams, Challenge.max_team_members, Challenge.predefined_teams, " .
@@ -113,7 +113,7 @@
 											"WHERE ChallengeMember.account_id = :accId " .
 											"ORDER BY Challenge.start_time DESC" .
 											($limit > 0 ? " LIMIT " . $limit : "") . ($offset > 0 ? " OFFSET " . $offset : ""),
-											array("accId" => $session->getAccountId()), PDO::FETCH_ASSOC);
+											array("accId" => $ofAccount), PDO::FETCH_ASSOC);
 			return $res;
 		}
 
@@ -124,9 +124,9 @@
 		 * @return boolean
 		 */
 		public static function challengeExists($dbh, $challengeId){
-			$res = DBTools::fetchAll($dbh, "SELECT COUNT(challenge_id) FROM Challenge WHERE challenge_id = :id", array("id" => $challengeId));
+			$res = DBTools::fetchNum($dbh, "SELECT COUNT(challenge_id) FROM Challenge WHERE challenge_id = :id", array("id" => $challengeId));
 
-			return $res[0][0] == 1;
+			return $res[0] == 1;
 		}
 
 		/**
@@ -221,22 +221,6 @@
 		public static function getOwner($dbh, $challengeId){
 			$res = DBTools::fetchNum($dbh, "SELECT owner FROM Challenge WHERE challenge_id = :id", array("id" => $challengeId));
 			return $res ? $res[0] : -1;
-		}
-
-		/**
-		 * Returns the name of the challenge owner
-		 * @param PDO $dbh Database handler
-		 * @param integer $ownerId The account id of the owner
-		 * @return string The name of the owner, or <code>null</code > if there is no account with this id
-		 */
-		public static function getOwnerName($dbh, $ownerId){
-			$res = DBTools::fetchNum($dbh, "SELECT account.username FROM Account where account.account_id = :id", array("id" => $ownerId));
-			if($res){
-				return $res[0];
-			}
-			else{
-				return null;
-			}
 		}
 
 		/**
@@ -394,16 +378,16 @@
 		/**
 		 * Updates the name of a challenge
 		 * @param PDO $dbh Database handler
-		 * @param integer $challengenId The challenge id
+		 * @param integer $challengeId The challenge id
 		 * @param string $name The new name for the challenge
 		 * @throws InvalidArgumentException if the name is too long
 		 * @throws Exception if the database returns an error
 		 */
-		public static function updateName($dbh, $challengenId, $name){
+		public static function updateName($dbh, $challengeId, $name){
 
 			if(strlen($name) > 64){throw new InvalidArgumentException("The challenge name is too long.");}
 			$res = DBTools::query($dbh, "UPDATE Challenge SET name = :name WHERE challenge_id = :challenge_id",
-									array("name" => $name, "challenge_id" => $challengenId));
+									array("name" => $name, "challenge_id" => $challengeId));
 
 			if(!$res){
 				error_log("Unable to update table Challenge. Database returned: " . $res);
@@ -414,16 +398,16 @@
 		/**
 		 * Updates the description of a challenge
 		 * @param PDO $dbh Database handler
-		 * @param integer $challengenId The challenge id
+		 * @param integer $challengeId The challenge id
 		 * @param string $description The new description
 		 * @throws InvalidArgumentException if the description is too long
 		 * @throws Exception if the database returns an error
 		 */
-		public static function updateDescription($dbh, $challengenId, $description){
+		public static function updateDescription($dbh, $challengeId, $description){
 
 			if(strlen($description) > 512){throw new InvalidArgumentException("The challenge description is too long.");}
 			$res = DBTools::query($dbh, "UPDATE Challenge SET description = :desc WHERE challenge_id = :challenge_id",
-									array("desc" => $description, "challenge_id" => $challengenId));
+									array("desc" => $description, "challenge_id" => $challengeId));
 
 			if(!$res){
 				error_log("Unable to update table Challenge. Database returned: " . $res);
@@ -434,47 +418,51 @@
 		/**
 		 * Sets a challenge private or public (visible for everyone)
 		 * @param PDO $dbh Database handler
-		 * @param integer $challengenId The challenge id
+		 * @param integer $challengeId The challenge id
 		 * @param integer $value 1 = public; 0 = private
+		 * @throws Exception if the database returns an error
 		 */
-		public static function setPublic($dbh, $challengenId, $value){
-			self::updateSingleValue($dbh, $challengenId, "is_public", $value? 1 : 0);
+		public static function setPublic($dbh, $challengeId, $value){
+			self::updateSingleValue($dbh, $challengeId, "is_public", $value? 1 : 0);
 		}
 
 		/**
 		 * Sets a the status of a challenge to 'enabled' or 'disabled'
 		 * @param PDO $dbh Database handler
-		 * @param integer $challengenId The challenge id
+		 * @param integer $challengeId The challenge id
 		 * @param integer $value 1 = enabled; 0 = disabled
+		 * @throws Exception if the database returns an error
 		 */
-		public static function setEnabled($dbh, $challengenId, $value){
-			self::updateSingleValue($dbh, $challengenId, "is_enabled", $value ? 1 : 0);
+		public static function setEnabled($dbh, $challengeId, $value){
+			self::updateSingleValue($dbh, $challengeId, "is_enabled", $value ? 1 : 0);
 		}
 
 		/**
 		 * Sets the start time of a challenge
 		 * @param PDO $dbh Database handler
-		 * @param integer $challengenId The challenge id
+		 * @param integer $challengeId The challenge id
 		 * @param string $newStartTime The new start time as timestamp
+		 * @throws Exception if the database returns an error
 		 */
-		public static function setStartTime($dbh, $challengenId, $newStartTime){
-			self::updateSingleValue($dbh, $challengenId, "start_time", $newStartTime);
+		public static function setStartTime($dbh, $challengeId, $newStartTime){
+			self::updateSingleValue($dbh, $challengeId, "start_time", $newStartTime);
 		}
 
 		/**
 		 * Sets the end time of a challenge
 		 * @param PDO $dbh Database handler
-		 * @param integer $challengenId The challenge id
+		 * @param integer $challengeId The challenge id
 		 * @param string $newEndTime The new end time as timestamp
+		 * @throws Exception if the database returns an error
 		 */
-		public static function setEndTime($dbh, $challengenId, $newEndTime){
-			self::updateSingleValue($dbh, $challengenId, "end_time", $newEndTime);
+		public static function setEndTime($dbh, $challengeId, $newEndTime){
+			self::updateSingleValue($dbh, $challengeId, "end_time", $newEndTime);
 		}
 
 		/**
 		 * Resets a challenge. The will remove all teams and their stats.
 		 * @param PDO $dbh Database handler
-		 * @param integer $challengenId The challenge id
+		 * @param integer $challengeId The challenge id
 		 * @throws InvalidArgumentException if the challenge does not exist
 		 */
 		public static function resetChallenge($dbh, $challengeId){
@@ -486,9 +474,11 @@
 			require_once(__DIR__ . "/ChallengeCoord.php");
 			require_once(__DIR__ . "/TeamManager.php");
 			require_once(__DIR__ . "/Checkpoint.php");
+			require_once(__DIR__ . "/ChallengeStats.php");
 
 			$teams = self::getTeams($dbh, $challengeId);
 
+			ChallengeStats::clearStats($dbh, $challengeId);
 			ChallengeCoord::resetCaptureFlag($dbh, $challengeId);
 
 			// Remove checkpoints and teams
@@ -501,7 +491,7 @@
 		/**
 		 * Deletes a challenge
 		 * @param PDO $dbh Database handler
-		 * @param integer $challengenId The challenge id
+		 * @param integer $challengeId The challenge id
 		 * @throws Exception if the database returns an error
 		 */
 		public static function deleteChallenge($dbh, $challengeId){
@@ -524,12 +514,12 @@
 		/**
 		 * Returns a single value from the challenge table
 		 * @param PDO $dbh Database handler
-		 * @param integer $challengenId The challenge id
+		 * @param integer $challengeId The challenge id
 		 * @param string $key The column name
 		 * @return string The value for this key
 		 */
-		public static function getSingleValue($dbh, $challengenId, $key){
-			$res = DBTools::fetchNum($dbh, "SELECT  " . $key . " FROM Challenge WHERE challenge_id = :challenge_id", array("challenge_id" => $challengenId));
+		public static function getSingleValue($dbh, $challengeId, $key){
+			$res = DBTools::fetchNum($dbh, "SELECT  " . $key . " FROM Challenge WHERE challenge_id = :challenge_id", array("challenge_id" => $challengeId));
 
 			if($res){
 				return $res[0];
@@ -542,14 +532,14 @@
 		/**
 		 * Updates a single value in the challenge table
 		 * @param PDO $dbh Database handler
-		 * @param integer $challengenId The challenge id
+		 * @param integer $challengeId The challenge id
 		 * @param string $key The column name
 		 * @param string $value The value for this key
 		 * @throws Exception if the database returns an error
 		 */
-		public static function updateSingleValue($dbh, $challengenId, $key, $value){
+		public static function updateSingleValue($dbh, $challengeId, $key, $value){
 			$res = DBTools::query($dbh, "UPDATE Challenge SET " . $key . " = :value WHERE challenge_id = :challenge_id",
-					array("value" => $value, "challenge_id" => $challengenId));
+					array("value" => $value, "challenge_id" => $challengeId));
 
 			if(!$res){
 				error_log("Unable to update table Challenge. Database returned: " . $res);

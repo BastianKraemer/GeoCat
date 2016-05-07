@@ -54,15 +54,26 @@ class GeoCat{
 	 * @package app
 	 */
 	private static $config = null;
+	private static $configPath = __DIR__ . "/../config/config.php";
 
 	/**
 	 * Loads the GeoCat configuration from the config file ('/config/config.php')
 	 */
 	private static function loadConfig(){
 		if(self::$config == null){
-			self::$config = require __DIR__ . "/../config/config.php";
+			self::$config = require self::$configPath;
 		}
 	}
+
+	/**
+	 * Sets the path to the GeoCat configuration file and reloads the configuration
+	 * @param string $path Path to GeoCat configuration file
+	 */
+	public static function setConfigPath($path){
+		self::$configPath = $path;
+		self::$config = require self::$configPath;
+	}
+
 
 	/**
 	 * Returns the current GeoCat configuration

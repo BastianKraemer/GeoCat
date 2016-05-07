@@ -415,9 +415,9 @@
 				case "public":
 					return ChallengeManager::getPublicChallengs($this->dbh, $this->args["limit"], $this->args["offset"]);
 				case "own":
-					return ChallengeManager::getMyChallenges($this->dbh, $this->requireLogin(), $this->args["limit"], $this->args["offset"]);
+					return ChallengeManager::getMyChallenges($this->dbh, $this->requireLogin()->getAccountId(), $this->args["limit"], $this->args["offset"]);
 				case "joined":
-					return ChallengeManager::getParticipatedChallenges($this->dbh, $this->requireLogin(), $this->args["limit"], $this->args["offset"]);
+					return ChallengeManager::getParticipatedChallenges($this->dbh, $this->requireLogin()->getAccountId(), $this->args["limit"], $this->args["offset"]);
 			}
 		}
 

@@ -234,16 +234,28 @@
 		}
 
 		/**
+		 * Returns the account id which is assigned to the email address
+		 * @param PDO $dbh Database handler
+		 * @param string $email
+		 * @return integer The account id or '-1' if the email address is not known
+		 */
+		public static function getAccountIdByEmailAddress($dbh, $email){
+			$result = DBTools::fetchNum($dbh, "SELECT account_id FROM " . self::TABLE_ACCOUNT . " WHERE email = :email", array(":email" => $email));
+			if(empty($result)){return -1;}
+			return $result[0];
+		}
+
+		/**
 		 * Returns the username that is assigned to the account id
 		 * @param PDO $dbh Database handler
 		 * @param string $accountId
-		 * @return integer The username
+		 * @return string The username
 		 * @throws InvalidArgumentException If the account id is undefined
 		 */
 		public static function getUserNameByAccountId($dbh, $accountId){
-			$result = DBTools::fetchAll($dbh, "SELECT username FROM Account WHERE account_id = :accid", array(":accid" => $accountId));
-			if(empty($result) || count($result) != 1){throw InvalidArgumentException("Undefined account id.");}
-			return $result[0]["username"];
+			$result = DBTools::fetchNum($dbh, "SELECT username FROM Account WHERE account_id = :accid", array(":accid" => $accountId));
+			if(empty($result)){throw InvalidArgumentException("Undefined account id.");}
+			return $result[0];
 		}
 
 		/**

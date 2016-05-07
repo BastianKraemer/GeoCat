@@ -91,19 +91,19 @@
 	<script src="./js/Dialogs.js"></script>
 	<script src="./js/ScrollLoader.js"></script>
 	<script src="./lib/jquery.minicolors.min.js"></script>
-	<script src="./js/Account.js"></script>
 	<!-- /build -->
 
 	<!-- build:js ./js/controller.min.js -->
-	<script src="./js/gpsnavigator/GPSNavigationController.js"></script>
-	<script src="./js/challenges/BrowseChallengesController.js"></script>
-	<script src="./js/challenges/ChallengeNavigatorController.js"></script>
-	<script src="./js/challenges/ChallengeInfoController.js"></script>
+	<script src="./js/controller/GPSNavigationController.js"></script>
+	<script src="./js/controller/BrowseChallengesController.js"></script>
+	<script src="./js/controller/ChallengeNavigatorController.js"></script>
+	<script src="./js/controller/ChallengeInfoController.js"></script>
 	<script src="./js/controller/CoordinateEditDialogController.js"></script>
 	<script src="./js/controller/PlacesController.js"></script>
 	<script src="./js/controller/MapController.js"></script>
 	<script src="./js/controller/BuddyController.js"></script>
 	<script src="./js/controller/AboutController.js"></script>
+	<script src="./js/controller/AccountController.js"></script>
 	<script src="./js/etc/SafariFix.js"></script>
 	<!-- /build -->
 

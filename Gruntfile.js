@@ -39,10 +39,7 @@ module.exports = function(grunt) {
 
 					'dest/js/controller.min.js':
 						[
-							'src/js/gpsnavigator/GPSNavigationController.js',
 							'src/js/controller/*.js',
-							'src/js/Account.js',
-							'src/js/challenges/*.js',
 							'src/js/etc/SafariFix.js'
 						]
 				}
@@ -53,7 +50,7 @@ module.exports = function(grunt) {
 			main: {
 				cwd: 'src/',
 				src: [	'app/**',  'query/**', 'views/**', 'config/config.php', 'locale/*.json', 'locale/sites/*',
-						'img/tile/*', 'img/etc/*', 'lib/jquery_package.min.js', 'lib/ol.js'],
+						'img/tile/*.png', 'img/etc/*', 'lib/jquery_package.min.js', 'lib/ol.js'],
 				dest: 'dest/',
 				expand: true
 			},

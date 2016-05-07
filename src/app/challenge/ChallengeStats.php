@@ -126,7 +126,7 @@ class ChallengeStats {
 				$max = 0;
 				$maxKey = null;
 				foreach($tmp as $key => $value){
-					if($value > $max){
+					if($value > $max || $max == 0){
 						$max = $value;
 						$maxKey = $key;
 					}
@@ -148,15 +148,23 @@ class ChallengeStats {
 		}
 	}
 
+	public static function clearStats($dbh, $challengeId){
+		DBTools::query($dbh, "DELETE FROM ChallengeStats WHERE challenge_id = :cid", array("cid" => $challengeId));
+	}
+
+	public static function clearStatsForTeam($dbh, $teamId){
+		DBTools::query($dbh, "DELETE FROM ChallengeStats WHERE team_id = :tid", array("tid" => $teamId));
+	}
+
 	/**
 	 * Checks if the challenge is a 'Capture the Flag' challenge
 	 * @param PDO $dbh Database handler
 	 * @param integer $challengeId
 	 */
-	private static function isCTFChallenge($dbh, $challengeId){
-		$res = DBTools::fetchAssoc($dbh,"SELECT Challenge.challenge_type_id AS type_id, ChallengeType.acronym AS type " .
-										"FROM Challenge, Account, ChallengeType " .
-										"WHERE Challenge.challenge_id = :challengeId AND Challenge.owner = Account.account_id AND ChallengeType.challenge_type_id = Challenge.challenge_type_id",
+	public static function isCTFChallenge($dbh, $challengeId){
+		$res = DBTools::fetchAssoc($dbh,"SELECT ChallengeType.acronym AS type " .
+										"FROM Challenge, ChallengeType " .
+										"WHERE Challenge.challenge_id = :challengeId AND ChallengeType.challenge_type_id = Challenge.challenge_type_id",
 										array("challengeId" => $challengeId));
 
 		return (strcasecmp($res["type"], "ctf") == 0);

@@ -49,7 +49,7 @@
 			$maxNumberOfTeams = ChallengeManager::getMaxNumberOfTeams($dbh, $challengeId);
 			if($maxNumberOfTeams > 0){
 				if(ChallengeManager::countExisitingTeams($dbh, $challengeId) > $maxNumberOfTeams){
-					throw new InvalidArgumentException("Unable create new team: The maximal number of teams for this challenge is already reached.");
+					throw new InvalidArgumentException("Unable create new team: The maximul number of teams for this challenge is already reached.");
 				}
 			}
 
@@ -74,8 +74,8 @@
 		 * @return boolean
 		 */
 		public static function teamExists($dbh, $teamId){
-			$res = DBTools::fetchAll($dbh, "SELECT COUNT(challenge_id) FROM ChallengeTeam WHERE team_id = :id", array("id" => $teamId));
-			return $res[0][0] == 1;
+			$res = DBTools::fetchNum($dbh, "SELECT COUNT(challenge_id) FROM ChallengeTeam WHERE team_id = :id", array("id" => $teamId));
+			return $res[0] == 1;
 		}
 
 		/**
@@ -183,10 +183,10 @@
 		 */
 		public static function checkTeamAccessCode($dbh, $teamId, $accessCode){
 			if(!self::teamExists($dbh, $teamId)){throw new InvalidArgumentException("The requested team does not exists.");}
-			$res = DBTools::fetchAll($dbh, "SELECT access_code FROM ChallengeTeam WHERE team_id = :team", array("team" => $teamId));
+			$res = DBTools::fetchNum($dbh, "SELECT access_code FROM ChallengeTeam WHERE team_id = :team", array("team" => $teamId));
 
-			if($res[0][0] == null){return true;}
-			return ($res[0][0] == $accessCode);
+			if($res[0] == null){return true;}
+			return ($res[0] == $accessCode);
 		}
 
 		/**
@@ -302,7 +302,9 @@
 			if($force || !self::isPredefinedTeam($dbh, $teamId)){
 
 				require_once(__DIR__ . "/Checkpoint.php");
+				require_once(__DIR__ . "/ChallengeStats.php");
 
+				ChallengeStats::clearStatsForTeam($dbh, $teamId);
 				Checkpoint::clearCheckpointsOfTeam($dbh, $teamId);
 				DBTools::query($dbh, "DELETE FROM ChallengeTeam WHERE team_id = :team", array("team" => $teamId));
 			}

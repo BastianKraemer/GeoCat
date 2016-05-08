@@ -65,7 +65,6 @@
 							</tr>
 						</thead>
 						<tbody id="challengeinfo-cache-list">
-							<tr><td colspan=4><?php $locale->write("challenge.info.loading"); ?></td></tr>
 						</tbody>
 					</table>
 				</div>
@@ -81,7 +80,6 @@
 							</tr>
 						</thead>
 						<tbody id="challengeinfo-team-list">
-							<tr><td colspan=3><?php $locale->write("challenge.info.loading"); ?></td></tr>
 						</tbody>
 					</table>
 				</div>
@@ -97,7 +95,6 @@
 							</tr>
 						</thead>
 						<tbody id="challengeinfo-stats-table">
-							<tr><td colspan=3><?php $locale->write("challenge.info.loading"); ?></td></tr>
 						</tbody>
 					</table>
 				</div>
@@ -152,7 +149,7 @@
 		</div>
 
 		<!-- popup create team -->
-		<div id="create-team" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all" style="width: 75vw;">
+		<div id="create-team" data-role="popup" data-theme="a" data-position-to="window" class="ui-corner-all" style="width: 75vw; min-width: 320px;">
 			<div data-role="header" data-theme="b">
 				<h1><?php $locale->write("challenge.info.create_team"); ?></h1>
 			</div>
@@ -196,7 +193,6 @@
 							</tr>
 						</thead>
 						<tbody id="join-team-members">
-							<tr><td><?php $locale->write("challenge.info.loading"); ?></td></tr>
 						</tbody>
 					</table>
 				</div>

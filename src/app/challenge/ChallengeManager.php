@@ -254,10 +254,16 @@
 		 * @return array
 		 */
 		public static function getTeamsAndMemberCount($dbh, $challengeId){
-			return DBTools::fetchAll($dbh,	"SELECT ChallengeTeam.team_id, ChallengeTeam.name, ChallengeTeam.color, " .
+			require_once(__DIR__ . "/TeamManager.php");
+			$res = DBTools::fetchAll($dbh,	"SELECT ChallengeTeam.team_id, ChallengeTeam.name, ChallengeTeam.color, " .
 												"(CASE WHEN access_code IS NULL THEN 0 ELSE 1 END) AS has_code, " .
 												"(SELECT COUNT(*) FROM ChallengeMember WHERE ChallengeMember.team_id = ChallengeTeam.team_id) as member_cnt " .
 											"FROM ChallengeTeam WHERE challenge_id = :id", array("id" => $challengeId), PDO::FETCH_ASSOC);
+
+			for($i = 0; $i < count($res); $i++){
+				$res[$i]["finished"] = TeamManager::teamHasFinishedChallenge($dbh, $res[$i]["team_id"]);
+			}
+			return $res;
 		}
 
 		/**

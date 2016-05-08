@@ -56,7 +56,6 @@ function ChallengeInfoController(sessionKey) {
 		editDescriptionPopup: "#challengeinfo-editdesc-popup",
 		editEtcPopup: "#challengeinfo-editetc-popup",
 		cachePopup: "#challengeinfo-cache-popup",
-
 		createNewTeam: "#create-team",
 		joinTeam: "#join-team"
 	};
@@ -370,11 +369,13 @@ function ChallengeInfoController(sessionKey) {
 				teamName = teamData.name + (teamData.has_code == 1 ? "*" : "")
 			}
 
+			var additionalStyle = teamData.finished ? " style=\"color: #989898;\"" : "";
+
 			$(infoElements.teamList).append(
 				"<tr data-team-id=\"" + teamData.team_id + "\">" +
 					"<td style=\"background-color: " + teamData.color + "; width: 0px;\"></td>" +
-					"<td>" + teamName + "</td>" +
-					"<td>" + teamData.member_cnt + "/" + challengeData["max_team_members"] + "</td>" +
+					"<td" + additionalStyle + ">" + teamName + "</td>" +
+					"<td" + additionalStyle + ">" + teamData.member_cnt + "/" + challengeData["max_team_members"] + "</td>" +
 					(addDeleteTeamOption ? "<td class=\"delete-team-col\"><span>&#x2716;</span></td>" : "") +
 				"</tr>");
 		});
@@ -515,7 +516,7 @@ function ChallengeInfoController(sessionKey) {
 				if(team.member_cnt > 0){
 					sendGetTeamMemberlist(teamid);
 				} else {
-					$(infoElements.memberList).html(GeoCat.locale.get("challenge.info.teamempty"));
+					$(infoElements.memberList).html(GeoCat.locale.get("challenge.info.teamempty", "Nobody has joined this team until now"));
 				}
 				$(confirmButtons.joinYes).attr("data-teamid", teamid);
 			}
@@ -535,8 +536,10 @@ function ChallengeInfoController(sessionKey) {
 			$(inputElements.teamname).val("");
 			$(inputElements.teampassword).val("");
 
+			var checkPredefined = (challengeData['predefined_teams'] == 1);
+
 			$(inputElements.teamaccess).prop('checked', false).checkboxradio('refresh');
-			$(inputElements.teampredefined).prop('checked', false).flipswitch('refresh');
+			$(inputElements.teampredefined).prop('checked', checkPredefined).flipswitch('refresh');
 
 			if(userIsChallengeOwner()){
 				$(inputElements.isPredefinedTeamContainer).show();
@@ -547,8 +550,8 @@ function ChallengeInfoController(sessionKey) {
 
 		} else {
 			SubstanceTheme.showNotification(
-				"<h3>" + GeoCat.locale.get("challenge.info.create_team_no_permission_title") + "</h3>" +
-				"<p>" + GeoCat.locale.get("challenge.info.create_team_no_permission_text") + "</p>",
+				"<h3>" + GeoCat.locale.get("challenge.info.create_team_no_permission_title", "Permission denied") + "</h3>" +
+				"<p>" + GeoCat.locale.get("challenge.info.create_team_no_permission_text", "The teams are created by the challenge organizer") + "</p>",
 				7,
 				$.mobile.activePage[0],
 				"substance-red no-shadow white");

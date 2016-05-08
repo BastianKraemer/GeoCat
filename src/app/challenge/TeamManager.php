@@ -225,12 +225,21 @@
 				throw new InvalidArgumentException("Access denied: Invalid team access code.");
 			}
 
+			if(self::teamHasFinishedChallenge($dbh, $teamId)){
+				throw new InvalidArgumentException("This team has already finished the challenge.");
+			}
+
 			$res = DBTools::query($dbh, "INSERT INTO ChallengeMember (team_id, account_id) VALUES (:team, :accId)", array("team" => $teamId, "accId" =>  $me));
 
 			if(!$res){
 				error_log("Unable to insert into table ChallengeMember. Database returned: " . $res);
 				throw new Exception("Unable to add user to team.");
 			}
+		}
+
+		public static function teamHasFinishedChallenge($dbh, $teamId){
+			$res = DBTools::fetchAll($dbh, "SELECT challenge_id FROM ChallengeStats WHERE team_id = :team", array("team" => $teamId));
+			return !empty($res);
 		}
 
 		/**

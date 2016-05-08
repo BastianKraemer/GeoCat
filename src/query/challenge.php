@@ -533,8 +533,13 @@
 				throw new InvalidArgumentException($this->locale->get("query.challenge.teamname_in_use"));
 			}
 
+			$isOwner = false;
 			if($this->hasParameter("predefined_team")){
 				$this->requireChallengeOwner($challengeId, $session);
+				$isOwner = true;
+			}
+			else{
+				$isOwner = (ChallengeManager::getOwner($this->dbh, $challengeId) == $session->getAccountId());
 			}
 
 			// Check optional parameters
@@ -554,6 +559,10 @@
 			}
 
 			$id = TeamManager::createTeam($this->dbh, $challengeId, $this->args["name"], $this->args["color"], $predefTeamVal, $this->args["code"]);
+
+			if(!$isOwner){
+				TeamManager::joinTeam($this->dbh, $id, $session->getAccountId(),  $this->args["code"]);
+			}
 
 			return self::buildResponse(true, array("team_id" => $id));
 		}

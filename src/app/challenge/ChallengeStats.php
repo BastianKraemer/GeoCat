@@ -116,7 +116,7 @@ class ChallengeStats {
 			}
 
 			foreach($data as $row){
-				if($row["priority"] > 0){
+				if($row["priority"] > 0 && $row["captured_by"] != null){
 					$tmp[$row["captured_by"]]++;
 				}
 			}

@@ -27,7 +27,6 @@
  * This class contains GeoCat version information and provides access to the GeoCat configuration
  */
 class GeoCat{
-
 	/**
 	 * Current version of GeoCat
 	 * @var VERSION
@@ -47,21 +46,29 @@ class GeoCat{
 	const DB_REVISION = 1;
 
 	/**
-	 * Class for central configuration handling
-	 *
-	 * This class also provides some properties for the latest versin of GeoCat and its database structure
-	 *
-	 * @package app
+	 * GeoCat configuration
+	 * @var array
 	 */
 	private static $config = null;
-	private static $configPath = __DIR__ . "/../config/config.php";
+
+	/**
+	 * Path to GeoCat configruation file
+	 * @var string $configPath
+	 */
+	private static $configPath = "/../config/config.php";
+
+	/**
+	 * Path to GeoCat app directory
+	 * @var string $appDir
+	 */
+	private static $appDir = __DIR__;
 
 	/**
 	 * Loads the GeoCat configuration from the config file ('/config/config.php')
 	 */
 	private static function loadConfig(){
 		if(self::$config == null){
-			self::$config = require self::$configPath;
+			self::$config = require self::$appDir . self::$configPath;
 		}
 	}
 
@@ -71,7 +78,7 @@ class GeoCat{
 	 */
 	public static function setConfigPath($path){
 		self::$configPath = $path;
-		self::$config = require self::$configPath;
+		self::$config = require self::$appDir . self::$configPath;
 	}
 
 

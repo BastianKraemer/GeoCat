@@ -148,10 +148,20 @@ class ChallengeStats {
 		}
 	}
 
+	/**
+	 * Removes all stats of a challenge
+	 * @param PDO $dbh Database handler
+	 * @param integer $challengeId
+	 */
 	public static function clearStats($dbh, $challengeId){
 		DBTools::query($dbh, "DELETE FROM ChallengeStats WHERE challenge_id = :cid", array("cid" => $challengeId));
 	}
 
+	/**
+	 * Removes all stats of a team
+	 * @param PDO $dbh Database handler
+	 * @param integer $teamId
+	 */
 	public static function clearStatsForTeam($dbh, $teamId){
 		DBTools::query($dbh, "DELETE FROM ChallengeStats WHERE team_id = :tid", array("tid" => $teamId));
 	}

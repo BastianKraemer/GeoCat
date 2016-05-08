@@ -119,6 +119,17 @@
 			}
 		}
 
+		/**
+		 * Task: 'deleteAccount'
+		 *
+		 * Deletes a GeoCat account.
+		 *
+		 * You have to be signed in to perform this action.
+		 *
+		 * Required HTTP parameters for 'deleteAccount':
+		 * - <b>password</b>
+		 * - <b>email</b>
+		 */
 		protected function deleteAccount(){
 			$session = self::requireLogin();
 			$this->requireParameters(array(
@@ -137,7 +148,7 @@
 		 *
 		 * Checks if an account already exists
 		 *
-		 *  Required HTTP parameters for 'check':
+		 * Required HTTP parameters for 'check':
 		 * - <b>username</b>
 		 * - <b>email</b>
 		 */
@@ -150,7 +161,7 @@
 		 *
 		 * Creates a new GeoCat account using the request data
 		 *
-		 *  Required HTTP parameters for 'check':
+		 * Required HTTP parameters for 'check':
 		 * - <b>username</b>
 		 * - <b>email</b>
 		 */
@@ -190,7 +201,7 @@
 		 *
 		 * You have to be signed in to use this service
 		 *
-		 *  Required HTTP parameters for 'updateUserData':
+		 * Required HTTP parameters for 'updateUserData':
 		 * - <b>id</b>: This can be "acc-email", "acc-username", "acc-firstname" or "acc-lastname"
 		 * - <b>text</b> : The value for the selected account detail
 		 */
@@ -293,7 +304,7 @@
 		 *
 		 * You have to be signed in to use this service
 		 *
-		 *  Required HTTP parameters for 'updateUserData':
+		 * Required HTTP parameters for 'updateUserData':
 		 * - <b>oldpw</b>: Old password
 		 * - <b>newpw</b>: New password
 		 */

@@ -162,6 +162,11 @@
 			}
 		}
 
+		/**
+		 * Delte a GeoCat account
+		 * @param PDO $dbh Database handler
+		 * @param integer $accountId
+		 */
 		public static function deleteAccount($dbh, $accountId){
 			require_once(__DIR__ . "/CoordinateManager.php");
 			require_once(__DIR__ . "/challenge/TeamManager.php");

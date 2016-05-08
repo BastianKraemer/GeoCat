@@ -7,7 +7,7 @@ function load($file){
 	require_once(__DIR__ . "/../../src/" . $file);
 }
 
-GeoCat::setConfigPath(__DIR__ . "/../testconfig.php");
+GeoCat::setConfigPath("/../../test/testconfig.php");
 load("app/AccountManager.php");
 
 class TestHelper {

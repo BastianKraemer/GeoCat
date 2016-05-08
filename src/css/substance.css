@@ -161,12 +161,14 @@
 
 	position: absolute;
 	left: 3px;
+	top: 0.2em;
 	width: 1.4em;
 	height: 1.4em;
 	text-align: center;
 	
 	border: 1px solid #646464;
 	border-radius: 1px;
+	margin-top: 1px;
 }
 
 .substance-checkbox:checked + label:after {

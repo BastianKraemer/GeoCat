@@ -179,7 +179,7 @@ var Dialogs = (function(){
 			var pw2Label = createLabel(GeoCat.locale.get("createacc.pw_repeat", "Please enter the password again") + ":", "create-account-password2");
 
 			var privacyPolicy = GeoCat.locale.get("createacc.privacy_policy", "privacy policy");
-			var text = sprintf(GeoCat.locale.get("createacc.accept_policy", "I accept the {0}"),
+			var text = sprintf(GeoCat.locale.get("createacc.accept_policy", "I accept the {0} and confirm to act corresponding to the Fair Play rules"),
 								["<a href=\"" + GeoCat.privacyPolicHref + "\" style=\"font-weight: 500\" target=\"_blank\">" + privacyPolicy + "</a>"]);
 
 			var checkbox = createCheckboxAndLabel("create-account-accept_policy", text, false);

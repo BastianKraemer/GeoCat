@@ -145,19 +145,22 @@ function ChallengeNavigatorController(challenge_id){
 			data: {task: "status", challenge: challengeKey},
 			cache: false,
 			success: function(response){
+				var responseData;
+
 				try{
-					var responseData = JSON.parse(response);
-					if(responseData.status == "ok"){
-						onCoordinateDataReceived(responseData);
-					}
-					else{
-						SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("challenge.nav.error.download_caches", "Unable to download cache positions") + "</h3>" +
-														"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
-					}
+					responseData = JSON.parse(response);
 				}
 				catch(e){
 					SubstanceTheme.showNotification("<h3>Unable to download cache positions</h3><p>Server returned:<br>" + response + "</p>", 7,
 													$.mobile.activePage[0], "substance-red no-shadow white");
+				}
+
+				if(responseData.status == "ok"){
+					onCoordinateDataReceived(responseData);
+				}
+				else{
+					SubstanceTheme.showNotification("<h3>" + GeoCat.locale.get("challenge.nav.error.download_caches", "Unable to download cache positions") + "</h3>" +
+													"<p>" + responseData.msg + "</p>", 7, $.mobile.activePage[0], "substance-red no-shadow white");
 				}
 			},
 			error: ajaxError
@@ -216,7 +219,7 @@ function ChallengeNavigatorController(challenge_id){
 	var setCacheStyle = function(id, coord){
 		if(isCTF){
 			if(currentPriority == 0){
-				if(c.priority > 0){
+				if(coord.priority > 0){
 					return false;
 				}
 			}

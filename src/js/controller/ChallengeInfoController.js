@@ -183,7 +183,7 @@ function ChallengeInfoController(sessionKey) {
 			success: function(response){
 				var responseData;
 				try{
-					responseData= JSON.parse(response);
+					responseData = JSON.parse(response);
 				}
 				catch(e){
 					SubstanceTheme.showNotification("<h3>Unable to download cache positions</h3><p>Server returned:<br>" + response + "</p>", 7,

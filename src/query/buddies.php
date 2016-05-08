@@ -220,10 +220,8 @@ class BuddyHTTPRequestHandler extends RequestInterface {
    *
    * Search for buddies
    *
-   * method to search for username, firstname or lastname by a specific search text
-   * searching options:
-   * - asterisk at beginning or end means 'zero or more unknown characters'
-   * - asterisk within a string means 'one unknown character'
+   * Method to search for username, firstname or lastname by a specific search text searching options:
+   * - asterisk means 'zero or more unknown characters'
    *
    * Response:
    * The response which contains the username and a flag 'isFriend' (bool) which tells if
@@ -234,49 +232,28 @@ class BuddyHTTPRequestHandler extends RequestInterface {
     $this->requireParameters(array(
       "searchtext" => self::defaultTextRegEx(1, 64)
     ));
-    $sourcetext = $this->args['searchtext'];
-    $sourcelength = strlen($sourcetext);
-    $pos = 0;
 
-    if($sourcetext[0] === "*"){
-      $sourcetext = substr_replace($sourcetext, "%", 0, 1);
-    }
+    if($this->args['searchtext'] != ""){
+	    $result = AccountManager::find_buddy($this->dbh, "%" . str_replace("*", "%", str_replace("_", "\_", $this->args['searchtext'])) . "%");
 
-    if ($sourcetext[$sourcelength - 1] === "*"){
-      $sourcetext = substr_replace($sourcetext, "%", $sourcelength - 1, 1);
-    }
+	    foreach ($result as $user => $arraydata) {
+	      if($result[$user]['username'] == $session->getUsername()){
+	        unset($result[$user]);
+	        continue;
+	      }
 
-    while(($pos = strpos($sourcetext, "_", $pos)) !== false){
-      $sourcetext = substr_replace($sourcetext, "\_", $pos, 1);
-      $pos += 2;
-    }
+	      $isFriend = AccountManager::isFriendOf($this->dbh, AccountManager::getAccountIdByUserName($this->dbh, $result[$user]['username']), $session->getAccountId());
 
-    $pos = 0;
-    while(($pos = strpos($sourcetext, "*", $pos)) !== false){
-      $sourcetext = substr_replace($sourcetext, "%", $pos, 1);
-      $pos++;
-    }
+	      $result[$user]['isFriend'] = $isFriend;
+	    }
+	    $result = array_values($result);
 
-    $result = AccountManager::find_buddy($this->dbh, $sourcetext);
-
-    foreach ($result as $user => $arraydata) {
-      if($result[$user]['username'] == $session->getUsername()){
-        unset($result[$user]);
-        continue;
-      }
-
-      $isFriend = AccountManager::isFriendOf($this->dbh, AccountManager::getAccountIdByUserName($this->dbh, $result[$user]['username']), $session->getAccountId());
-
-      $result[$user]['isFriend'] = $isFriend;
-    }
-    $result = array_values($result);
-
-    if(!empty($result)){
-      return self::buildResponse(true, array("matches" => $result));
+	    if(!empty($result)){
+	      return self::buildResponse(true, array("matches" => $result));
+	    }
     }
     return self::buildResponse(false, array("msg" => $this->locale->get("buddies.no_data_available")));
   }
-
 }
 
 $requestHandler = new BuddyHTTPRequestHandler($_REQUEST, DBTools::connectToDatabase());

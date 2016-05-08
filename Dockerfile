@@ -4,4 +4,4 @@ RUN apt-get update && apt-get install -y libmcrypt-dev libpq-dev \
     && docker-php-ext-install -j$(nproc) mcrypt pdo pdo_mysql pdo_pgsql
 
 COPY docker_include/ /var/www/html/
-COPY src/ /var/www/html/
+COPY dest/ /var/www/html/

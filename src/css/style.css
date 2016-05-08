@@ -589,11 +589,12 @@ table.styled-table tbody tr td {
 	height: 100%;
 	line-height: 16px;
 	text-decoration: none;
-	cursor: pointer;
+	cursor: default;
 }
 
-.geocat-footer a:hover, .geocat-footer span:hover {
+.geocat-footer a:hover{
 	text-decoration: underline;
+	cursor: pointer;
 }
 
 .geocat-footer span:last-child {

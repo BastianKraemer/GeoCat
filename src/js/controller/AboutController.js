@@ -18,7 +18,8 @@
  */
 
 /**
- * This page is used to display custom content loaded via AJAX
+ * This page is used to display a brief introduction into GeoCat.
+ * The content is loaded from the "locale/sites/<language>_about.html" files.
  * @class AboutController
  */
 function AboutController(){

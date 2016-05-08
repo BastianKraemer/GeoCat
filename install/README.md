@@ -22,4 +22,7 @@ docker build -t geocat .
 docker run -d --expose 80 -p 80:80 --name geocat-run geocat
 ```
 
+By default the docker container will use the files in the 'dest/' folder of GeoCat.
+So you have to run `grunt build` before creating the docker container.
+
 > If you want to include custom files like an imprint or a data privacy statement you can place them in the "docker_include" directory.

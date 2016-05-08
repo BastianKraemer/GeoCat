@@ -2,14 +2,14 @@
 
 GeoCat is a HTML5 Geocaching and -tracking platform. The backend is written in PHP.
 
-Note: Currently GeoCat has been tested with PHP 5.6 only.
+Note: You will need at least PHP 5.6 or higher. Older version are not supported.
 
 ## Getting started
 
 ### Environment
 
 - Webserver like Apache or nginx
-- PHP Environment with enabled 'mcrypt' module
+- PHP 5.6 oder PHP 7 environment with enabled 'mcrypt' and 'pdo' module
 - MariaDB/MySQL or PostgreSQL database
 
 ### Grunt
@@ -48,6 +48,10 @@ php geocat.php --install
 ```
 
 For more information use 'php geocat.php --help'
+
+### Docker
+
+It is also possible to run GeoCat in a docker container. For more information take a look at the install README.
 
 ## License
 GeoCat is release under GNU GPL v3 License

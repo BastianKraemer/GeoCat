@@ -103,6 +103,11 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 			ctx.translate(canvasAxisLength, canvasAxisLength);
 		}
 
+		if(canvasRadius < 16){
+			// The canvas is to small (this may occur when the device is rotated AND the user has zoomed into the page)
+			return;
+		}
+
 		drawGrid(ctx, heading);
 		drawStickman(ctx, 0, 0);
 
@@ -177,6 +182,9 @@ function GPSRadar(jQueryMobileContentDivElement, targetCanvas){
 		var h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 		var w = jQueryMobileContentDiv.offsetWidth - 32; //Substract size for padding and margin
 		h -= 144; // Substract size for header and footer
+
+		if(h < 0){h = 128;}
+		if(w < 0){w = 128;}
 
 		if(w > h){
 			canvasFrame.style.width = h + "px";

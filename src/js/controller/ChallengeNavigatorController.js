@@ -224,11 +224,20 @@ function ChallengeNavigatorController(challenge_id){
 				}
 			}
 			else{
-				if(coord.captured_by != null){
-					colorList[id] = teamMap[coord.captured_by].color;
+				if(coord.priority == 0){
+					colorList[id] = challengeData.team_color;
 				}
 				else{
-					iconList[id] = GPSRadar.CoordinateIcon.CIRCLE;
+					if(coord.captured_by != null){
+						colorList[id] = teamMap[coord.captured_by].color;
+					}
+					else{
+						iconList[id] = GPSRadar.CoordinateIcon.CIRCLE;
+					}
+				}
+
+				if(displayCurrentPriorityItemsOnly){
+					return true;
 				}
 			}
 		}

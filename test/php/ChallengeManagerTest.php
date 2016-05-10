@@ -133,7 +133,7 @@ class ChallengeManagerTest extends PHPUnit_Framework_TestCase {
 
 	public function testCoordinateNotExists(){
 		$this->assertFalse(
-			CoordinateManager::coordinateExists($this->dbh, PHP_INT_MAX)
+			CoordinateManager::coordinateExists($this->dbh, POSTGRES_SERIAL_MAX)
 		);
 	}
 }

@@ -10,9 +10,12 @@ function load($file){
 GeoCat::setConfigPathRelativeToAppDirectory("../../test/testconfig.php");
 load("app/AccountManager.php");
 
+const POSTGRES_SERIAL_MAX = 2147483647;
+
 class TestHelper {
 	private static $dbh = null;
 	private static $globalStore = array();
+
 	public static function getDBH(){
 		if(self::$dbh == null){
 			self::$dbh = DBTools::connectToDatabase();

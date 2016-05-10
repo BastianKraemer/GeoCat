@@ -78,7 +78,7 @@ class AccountManagerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(0, AccountManager::checkPassword(TestHelper::getDBH(), $id, "wrong_pw"));
 
 		// Test 'checkPassword()' -> Invalid user Id
-		$this->assertEquals(-1, AccountManager::checkPassword(TestHelper::getDBH(), PHP_INT_MAX, $pw));
+		$this->assertEquals(-1, AccountManager::checkPassword(TestHelper::getDBH(), POSTGRES_SERIAL_MAX, $pw));
 
 		AccountManager::deleteAccount(TestHelper::getDBH(), $id);
 

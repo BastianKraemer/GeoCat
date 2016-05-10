@@ -73,12 +73,20 @@ class GeoCat{
 	}
 
 	/**
+	 * Sets the path to the GeoCat configuration file relative to the 'app' directory and reloads the configuration
+	 * @param string $path Relative path to GeoCat configuration file
+	 */
+	public static function setConfigPathRelativeToAppDirectory($path){
+		self::setConfigPath(self::$appDir . "/" . self::$configPath);
+	}
+
+	/**
 	 * Sets the path to the GeoCat configuration file and reloads the configuration
 	 * @param string $path Path to GeoCat configuration file
 	 */
 	public static function setConfigPath($path){
 		self::$configPath = $path;
-		self::$config = require self::$appDir . self::$configPath;
+		self::$config = require self::$configPath;
 	}
 
 

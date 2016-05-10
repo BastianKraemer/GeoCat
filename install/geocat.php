@@ -150,7 +150,7 @@ class GeoCatCLI {
 			printf("  %s%" . (16 - $l) . "s%s\n", $key, "", $value->getDescription());
 		}
 
-		print("\n  Use 'geoccat.php help [command]' to display more information about a command.\n");
+		print("\n  Use 'geocat.php help [command]' to display more information about a command.\n");
 
 		print("\nGlobal options:\n");
 		printf("  --verbose, -v \t%s\n", "Be more verbose");

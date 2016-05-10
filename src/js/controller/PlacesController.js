@@ -344,7 +344,7 @@ function PlacesController(){
 
 		if(coord.desc != null){
 			var h = document.createElement("h2");
-			h.textContent = coord.desc;
+			h.textContent = decodeHTML(coord.desc, false);
 			a.appendChild(h);
 		}
 
@@ -389,8 +389,12 @@ function PlacesController(){
 		var coordId = $(el).parent().attr("coordinate-id");
 
 		var editData = localCoordStore.get(coordId);
-		if(coordId !=  null){
 
+		if(editData.hasOwnProperty("desc")){
+			editData["desc"] = decodeHTML(editData["desc"]);
+		}
+
+		if(coordId !=  null){
 			me.ignoreNextEvent();
 			CoordinateEditDialogController.showDialog(
 				$.mobile.activePage.attr("id"),
@@ -487,9 +491,9 @@ function PlacesController(){
 
 							list.listview('refresh');
 						},
-						function(){
+						function(response){
 							editDialog.hideWaitScreen();
-							uplinkErrorHander();
+							uplinkErrorHander(response);
 						});
 			}
 		}

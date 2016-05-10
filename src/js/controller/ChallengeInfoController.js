@@ -276,7 +276,7 @@ function ChallengeInfoController(sessionKey) {
 				$(infoElements.cacheList).append(
 					"<tr data-cc-id=\"" + coord.challenge_coord_id + "\">" +
 						"<td>" + coord.name + "</td>" +
-						"<td>" + (coord.hint == null ? "-" : coord.hint) + "</td>" +
+						"<td>" + (coord.hint == null ? "-" : decodeHTML(coord.hint, false)) + "</td>" +
 						"<td>" + (coord.code_required == 1 ? GeoCat.locale.get("yes", "Yes") : GeoCat.locale.get("no", "No")) + "</td>" +
 						"<td>" + coord.latitude + ", " + coord.longitude + "</td>" +
 					"</tr>");
@@ -585,7 +585,7 @@ function ChallengeInfoController(sessionKey) {
 
 	var handleClickOnEditDescription = function(){
 		$(inputElements.editName).val(challengeData["name"]);
-		$(inputElements.editDesc).val(challengeData["description"]);
+		$(inputElements.editDesc).val(decodeHTML(challengeData["description"], true));
 		$(inputElements.editIsPublic).prop('checked', (challengeData["is_public"] == 1)).checkboxradio('refresh');
 
 		$(popups.editDescriptionPopup).popup("open", {positionTo: "window", transition: "pop"});
@@ -646,7 +646,7 @@ function ChallengeInfoController(sessionKey) {
 
 		showCacheEditDialog(ccId, CoordinateEditDialogController.genCacheDataObject(
 				coord.name, coord.description, coord.latitude, coord.longitude,
-				coord.hint, coord.priority, coord.code));
+				decodeHTML(coord.hint, true), coord.priority, coord.code));
 	}
 
 	var deleteCacheOnClick = function(){

@@ -20,3 +20,15 @@ function sprintf(txt, args){
 			return typeof args[number] != 'undefined' ? args[number] : match;
 		});
  };
+
+ function decodeHTML(input, decodeAll){
+	 if(input == null){return null;}
+	 var ret = input.replace(/&amp;/g,"&").replace(/&quot;/g,"\"");
+
+	 if(decodeAll){
+		 return ret.replace(/&gt;/g,">").replace(/&lt;/g,"<");
+	 }
+	 else{
+		 return ret;
+	 }
+ }

@@ -65,6 +65,11 @@ function AccountController () {
 	}
 	else{
 		$.mobile.changePage("#Home");
+		setTimeout(function(){
+			SubstanceTheme.showNotification(
+				"<p>" + GeoCat.locale.get("nologin", "Please sign in to use this feature.") + "</p>", 7,
+				$.mobile.activePage[0], "substance-skyblue no-shadow white");
+		}, 200);
 	}
   }
 

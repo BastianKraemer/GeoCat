@@ -81,7 +81,7 @@ function GPSNavigationController(){
 			for(var key in currentNav){
 				coordList[i++] = currentNav[key];
 			}
-			MapController.showMap(MapController.MapTask.SHOW_COORDS, coordList);
+			MapController.showMap(MapController.MapTask.SHOW_COORDS, {coords: coordList, returnTo: GPSNavigationController.pageId});
 		});
 
 		gpsRadar = new GPSRadar($(htmlElements.contentDiv)[0], $(htmlElements.canvas)[0]);
@@ -334,6 +334,7 @@ function GPSNavigationController(){
 }
 
 GPSNavigationController.init = function(myPageId){
+	GPSNavigationController.pageId = myPageId;
 	GPSNavigationController.prototype = new PagePrototype(myPageId, function(){
 		return new GPSNavigationController();
 	});

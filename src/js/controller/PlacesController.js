@@ -33,6 +33,8 @@ function PlacesController(){
 	var uplink = GeoCat.getUplink();
 	var scrollLoader;
 
+	var searchVisiblityState = false;
+
 	// Collection (Map) of all important HTML elements
 	var buttons = {
 		addPlace: "#places-add",
@@ -112,6 +114,13 @@ function PlacesController(){
 		});
 
 		$(buttons.showSearch).click(function(){
+			if(searchVisiblityState){
+				$(buttons.showSearch).removeClass("substance-orange").addClass("substance-blue");
+			}
+			else{
+				$(buttons.showSearch).removeClass("substance-blue").addClass("substance-orange");
+			}
+			searchVisiblityState = !searchVisiblityState;
 			$(htmlElements.searchContainer).fadeToggle('fast');
 			$(htmlElements.searchInput).val("");
 		});
@@ -256,7 +265,7 @@ function PlacesController(){
 
 		if(currentlyDisplayedCoordinates.length > 0){
 			for(var i = offset; i < currentlyDisplayedCoordinates.length; i++){
-				addListItem(list, i);
+				addListItem(list, i, false);
 			}
 
 			list.listview('refresh');
@@ -267,13 +276,20 @@ function PlacesController(){
 		}
 	}
 
-	var addListItem = function(listView, index){
+	var addListItem = function(listView, index, prependItem){
 
 		var coord = localCoordStore.get(currentlyDisplayedCoordinates[index]);
 		var coordInfo = localCoordStore.getInfo(currentlyDisplayedCoordinates[index]);
 
-		listView.append(generateTitleLi(coord.name, coordInfo.owner));
-		listView.append(generateContentLi(coord, coordInfo));
+		if(prependItem){
+			listView.prepend(generateContentLi(coord, coordInfo));
+			listView.prepend(generateTitleLi(coord.name, coordInfo.owner));
+		}
+		else{
+			listView.append(generateTitleLi(coord.name, coordInfo.owner));
+			listView.append(generateContentLi(coord, coordInfo));
+		}
+
 	}
 
 	var generateTitleLi = function(coordName, owner){
@@ -438,7 +454,7 @@ function PlacesController(){
 					}
 
 					currentlyDisplayedCoordinates.push(result.coord_id);
-					addListItem($(htmlElements.list), currentlyDisplayedCoordinates.length - 1);
+					addListItem($(htmlElements.list), currentlyDisplayedCoordinates.length - 1, true);
 					$(htmlElements.list).listview('refresh');
 				},
 				function(response){

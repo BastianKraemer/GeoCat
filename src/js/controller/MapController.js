@@ -89,7 +89,14 @@ function MapController(mapTask, taskParam){
 			if(MapController.regularHomeButtonText == null){
 				MapController.regularHomeButtonText = $(homeButton).text();
 			}
-			$(homeButton).text(GeoCat.locale.get("cancel", "Cancel"));
+
+			if(mapTask == MapController.MapTask.GET_POSITION){
+				$(homeButton).text(GeoCat.locale.get("cancel", "Cancel"));
+			}
+			else{
+				$(homeButton).text(GeoCat.locale.get("back", "Back"));
+			}
+
 			$(homeButton).removeClass("ui-icon-home").addClass("ui-icon-arrow-l");
 			$(homeButton).click(function(){$.mobile.changePage(taskParam.returnTo);});
 			loginButton.hide();

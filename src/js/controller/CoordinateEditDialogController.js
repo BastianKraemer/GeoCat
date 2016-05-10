@@ -252,6 +252,9 @@ function CoordinateEditDialogController(data, options, returnToPageId, returnCal
 			}
 		}
 
+		if(obj.hasOwnProperty("lat")){obj["lat"] = obj["lat"].replace(",", ".");}
+		if(obj.hasOwnProperty("lon")){obj["lon"] = obj["lon"].replace(",", ".");}
+
 		return obj;
 	};
 

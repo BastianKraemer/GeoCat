@@ -77,7 +77,7 @@ class GeoCat{
 	 * @param string $path Relative path to GeoCat configuration file
 	 */
 	public static function setConfigPathRelativeToAppDirectory($path){
-		self::setConfigPath(self::$appDir . "/" . self::$configPath);
+		self::setConfigPath(self::$appDir . "/" . $path);
 	}
 
 	/**

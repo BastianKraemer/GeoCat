@@ -16,17 +16,17 @@ class AccountManagerTest extends PHPUnit_Framework_TestCase{
 			else{
 				$res = AccountManager::accountExists(TestHelper::getDBH(), $username, $email);
 				if($res == AccountStatus::EMailAddressAlreadyInUse){
-					$ids[$i] = AccountManager::getAccountIdByUserName(TestHelper::getDBH(), $username);
+					$ids[$i] = AccountManager::getAccountIdByEmailAddress(TestHelper::getDBH(), $username);
 				}
 				else if($res == AccountStatus::UsernameAlreadyInUse){
-					$ids[$i] = AccountManager::getAccountIdByEmailAddress(TestHelper::getDBH(), $email);
+					$ids[$i] = AccountManager::getAccountIdByUserName(TestHelper::getDBH(), $email);
 				}
 				else{
 					$this->fail("Valid username or email address is not accepted.");
 				}
 			}
 
-			// Now there hase to be an account id in all array fields
+			// Now there has to be an account id in all array fields
 			$this->assertGreaterThan(0, $ids[$i]);
 
 			// ..and accountExist will always be true. Note: it is "asertFalse" and "NotExist"

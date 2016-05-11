@@ -237,6 +237,11 @@
 			}
 		}
 
+		/**
+		 * Checks if a team has finished the challenge
+		 * @param PDO $dbh Database handler
+		 * @param integer $teamId The team id
+		 */
 		public static function teamHasFinishedChallenge($dbh, $teamId){
 			$res = DBTools::fetchAll($dbh, "SELECT challenge_id FROM ChallengeStats WHERE team_id = :team", array("team" => $teamId));
 			return !empty($res);

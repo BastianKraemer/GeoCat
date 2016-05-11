@@ -469,6 +469,7 @@
 			$challengeId = ChallengeManager::getChallengeIdBySessionKey($this->dbh, $this->args["challenge"]);
 
 			$this->requireEnabledChallenge($challengeId);
+			$this->requireActiveChallenge($challengeId);
 
 			TeamManager::joinTeam($this->dbh, $this->args["team_id"], $session->getAccountId(), $this->args["code"]);
 
@@ -540,6 +541,10 @@
 			}
 			else{
 				$isOwner = (ChallengeManager::getOwner($this->dbh, $challengeId) == $session->getAccountId());
+			}
+
+			if(!$isOwner){
+				$this->requireActiveChallenge($challengeId);
 			}
 
 			// Check optional parameters
@@ -958,6 +963,27 @@
 
 
 			if($endTimeStr != null && $checkEndTimeToo){
+				if($current_time > strtotime($endTimeStr)){
+					throw new InvalidArgumentException(sprintf($this->locale->get("query.challenge.has_ended")));
+				}
+			}
+		}
+
+		/**
+		 * Require thaht the challenge has not ended until now
+		 * @param integer $challengeId
+		 * @param array $challengeData (Optional) The challenge data stored in the database
+		 * @throws InvalidArgumentException if the challenge has already ended
+		 */
+		private function requireActiveChallenge($challengeId, $challengeData = null){
+			if($challengeData == null){
+				$challengeData = ChallengeManager::getChallengeInformation($this->dbh, $challengeId);
+			}
+
+			$endTimeStr = $challengeData["end_time"];
+			$current_time = time();
+
+			if($endTimeStr != null){
 				if($current_time > strtotime($endTimeStr)){
 					throw new InvalidArgumentException(sprintf($this->locale->get("query.challenge.has_ended")));
 				}

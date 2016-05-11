@@ -12,6 +12,8 @@ Note: You will need at least PHP 5.6 or higher. Older version are not supported.
 - PHP 5.6 oder PHP 7 environment with enabled 'mcrypt' and 'pdo' module
 - MariaDB/MySQL or PostgreSQL database
 
+> Note: The PostgreSQL support is currently "experimental"
+
 ### Grunt
 
 This step is optional and minifies some JavaScript and CSS files, it's also possible to use the _src/_ files directly.

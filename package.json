@@ -1,6 +1,6 @@
 {
   "name": "geocat",
-  "version": "0.0.1",
+  "version": "0.1",
   "description": "Geocaching and -tracking application",
   "private": true,
   "dependencies": {},

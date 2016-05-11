@@ -14,8 +14,8 @@
 			"database.name" => "geocat",
 
 			/* Path to the imprint and the data privacy statement of your website.
-			 * GeoCat will set a href to this file. The path will be used relative to 'app.contextroot' */
-			"policy.imprint" => null,
+			 * GeoCat will set a href to this file. The path will be used relative to 'index.php' file */
+			"policy.imprint" => "./imprint.html",
 			"policy.data_privacy_statement" => null
 	];
 ?>

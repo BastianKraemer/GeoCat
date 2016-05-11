@@ -160,6 +160,11 @@ function PlacesController(){
 		$(htmlElements.searchInput).unbind();
 		$(htmlElements.searchContainer).hide();
 		$(htmlElements.searchInput).val("");
+		if(searchVisiblityState){
+			searchVisiblityState = false;
+			$(buttons.showSearch).removeClass("substance-orange").addClass("substance-blue");
+		}
+
 		scrollLoader.destroy();
 	};
 

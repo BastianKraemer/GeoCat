@@ -111,7 +111,6 @@ class CheckPage {
 
 		$checkList = array(
 				"app.name" => null,
-				"app.contextroot" => null,
 				"database.host" => null,
 				"database.port" => "/^[0-9]+$/",
 				"database.type" => "/^(mysql|pgsql)$/",
@@ -218,13 +217,13 @@ class CheckResult {
 	 * The test result: Can be CheckResult::OK, CheckResult::WARNING or CheckResult::FAILED
 	 * @var mixed
 	 */
-	public final $result;
+	public $result;
 
 	/**
 	 * An optional message (this value my be null)
 	 * @var string
 	 */
-	public final $msg;
+	public $msg;
 
 	/**
 	 * Create a new CheckResult

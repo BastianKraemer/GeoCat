@@ -9,7 +9,7 @@ You have to perform three steps
 1. Run GeoCat build using 'Grunt': `grunt build`
 
 > Maybe you have to setup the build environment before. Therefore you have to install 'Node.js' and 'npm'
-> After this you can run 'npm install' to download all build depedencies
+> After this you can run 'npm install' to download all build dependencies
 
 ## Using Docker
 
@@ -54,7 +54,7 @@ docker run -d --expose 3306 -p 3306:3306 --name geocat-mariadb-run geocat-mariad
 
 ### Update GeoCat
 
-Now your database is up an running. Now you can update the `config.php` file according to the new database host and run the GeoCat setup script to prepare the database.
+Now your database is up and running. Now you can update the `config.php` file according to the new database host and run the GeoCat setup script to prepare the database.
 
 > There are a lot of other possibilities to setup a MariaDB docker container.
 > For example you can use the GeoCat sql files to setup the database in your container automatically on startup.

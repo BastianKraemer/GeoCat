@@ -2,7 +2,7 @@
 
 GeoCat is a HTML5 Geocaching and -tracking platform. The backend is written in PHP.
 
-Note: You will need at least PHP 5.6 or higher. Older version are not supported.
+Note: You will need at least PHP 5.6 or higher. Older version are maybe not supported.
 
 ## Getting started
 
@@ -55,5 +55,26 @@ For more information use 'php geocat.php --help'
 
 It is also possible to run GeoCat in a docker container. For more information take a look at the install README.
 
+## Documentation
+
+You can use `grunt doc` to generate the latest GeoCat documentation
+
+## Contributing
+
+Feel free to open any issues or fork this project. You may want to take a look at the Wiki for more information about further development.
+
 ## License
-GeoCat is release under GNU GPL v3 License
+
+GeoCat is released under GNU GPL v3 License.
+
+#### Libraries
+
+GeoCat uses the following libraries:
+
+##### MIT license
+- [jQuery](https://jquery.com/)
+- [jQuery Mobile](http://jquerymobile.com/)
+- [jQuery Minicolors](https://github.com/claviska/jquery-minicolors)
+
+##### 2-Clause BSD license
+- [OpenLayers](http://openlayers.org/)
